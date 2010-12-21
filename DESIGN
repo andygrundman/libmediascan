@@ -1,0 +1,115 @@
+Overview
+--------
+Use libavcodec/libavformat as much as possible (for video)
+  Audio format scanners are not as good as Audio::Scan, especially ID3v2
+  Port Audio::Scan to all C
+Multi-threaded, can run scan in separate thread(s)
+Win32 support (pthreadVC.dll)
+Test suite
+Well documented
+Bindings for Perl included
+LGPL
+
+Data Structures
+---------------
+// All data about a scanned file
+ScanData
+  const char *path
+  struct stat stat_data
+  int flags // the flags used during scanning
+  int error // if the scan was successful (0) or not (>0)
+  int type // enum of file type (from libavformat)
+  bool drm
+  bool seekable // whether or not find_frame is supported for this file
+  uint duration_ms
+  uint bitrate // total bitrate (audio+video)
+  const char *checksum // if requested
+  libavformat...
+
+// Internal state of an async scan, cannot be used directly except within thread
+AsyncScan
+  const char *dir
+  int flags
+  int fd // fd where reads are signaled
+  int state // current scan state: DISCOVERY, SCAN, DONE
+  uint found // count of files to be scanned, if in DISCOVERY state this is the number found so far
+  uint scanned // count of files scanned so far
+  fixed_t rate // scan rate per second, 0 unless in SCAN state
+  uint eta // eta in seconds, 0 unless in SCAN state
+
+// Public state about a scan, a copy of internal AsyncScan state
+AsyncScanState
+
+Scan flags
+----------
+USE_EXTENSION
+TYPE_AUDIO
+TYPE_VIDEO
+TYPE_IMAGE
+SKIP_DRM
+SKIP_EMBEDDED_IMAGES
+COMPUTE_CHECKSUM
+
+API
+---
+(mediascan_ prefix on all functions)
+
+// Initialize
+void init(void)
+
+// Check if a file is supported
+bool is_supported(const char *path)
+
+// List of supported media types
+TypeList* list_types(void)
+
+// List of extensions for a given type
+ExtensionList* extensions_for(int type)
+
+// Type for a given extension
+int type_for(const char *extension)
+
+// scan a single file
+ScanData* scan_file(const char *path, int flags)
+
+// scan a file descriptor
+ScanData* scan_fd(int fd, int type, int flags)
+
+// Find first frame containing this timestamp
+int find_frame(const char *path, int timestamp_ms)
+int find_frame_fd(int fd, int type, int timestamp_ms)
+
+// Free resources associated with ScanData
+void free_scan_data(ScanData *)
+
+// recursively scan a directory tree for supported media files (blocks until done)
+// Callback is passed a ScanData* for each file found, if callback returns 0 scan is aborted
+bool scan_tree(const char *dir, int flags, int (*callback)(ScanData *)) 
+
+// begin a recursive scan of a directory tree in another thread(s)
+// returns a fd that caller should watch with select(), etc
+AsyncScan* async_scan_tree(const char *dir, int flags)
+
+// Read the next available scan data from an async scan
+ScanData* next_async(AsyncScan *)
+
+// Cancel a background scan
+void cancel_async(AsyncScan *)
+
+// Pause a background scan
+void pause_async(AsyncScan *)
+
+// Resume a paused background scan
+void resume_async(AsyncScan *)
+
+// Return state of an async scan (progress, scan rate, stats, etc)
+// Caller must free data
+AsyncScanState* async_state(AsyncScan *)
+
+// Free resources associated with background scan
+void free_async_scan(AsyncScan *)
+
+// Future, use best OS-specific change notify method to watch a directory tree
+// Calls callback on any changes, with scan data from changed file
+// Watch is run in another thread?
+watch_tree(const char *dir, int (*callback)(ScanData *))
