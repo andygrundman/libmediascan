@@ -149,16 +149,19 @@ _is_media(const char *path)
   return 0;
 }
 
-/*
 ScanData
 mediascan_scan_file(const char *path, int flags)
 {
   _init();
   
-  ScanData s = mediascan_new_ScanData(path, flags);
-  return s;
+  int type = _is_media(path);
+  if (type) {
+    ScanData s = mediascan_new_ScanData(path, flags, type);
+    return s;
+  }
+  
+  return NULL;
 }
-*/
 
 void 
 mediascan_scan_tree(const char *path, int flags, ScanDataCallback callback)
@@ -181,6 +184,18 @@ mediascan_scan_tree(const char *path, int flags, ScanDataCallback callback)
   }
   else {
     dir = strdup(path);
+  }
+  
+  // Strip trailing slash if any
+  char *p = &dir[0];
+  while (*p != 0) {
+#ifdef _WIN32
+    if (p[1] == 0 && (*p == '/' || *p == '\\'))
+#else
+    if (p[1] == 0 && *p == '/')
+#endif
+      *p = 0;
+    p++;
   }
     
   LOG_DEBUG("scan_tree(%s)\n", dir);

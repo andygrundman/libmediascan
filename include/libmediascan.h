@@ -49,10 +49,10 @@ struct _ScanData {
   int bitrate;
   int duration_ms;
   
-  AVMetadata *metadata;
-  
   int nstreams;
   struct _StreamData *streams;
+  
+  AVMetadata *metadata;
   
   // private members
   AVFormatContext *_avf;

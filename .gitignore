@@ -1,0 +1,29 @@
+# Autoconf-related stuff
+.deps
+.libs
+*~
+*.swp
+missing
+ltmain.sh
+libtool
+Makefile
+Makefile.in
+aclocal.m4
+autom4te.cache
+compile
+config.h
+config.guess
+config.log
+config.status
+config.sub
+configure
+depcomp
+install-sh
+stamp-*
+m4/*
+
+# Binaries
+*.o
+*.la
+*.lo
+test/scan_test

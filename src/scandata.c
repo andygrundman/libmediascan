@@ -77,8 +77,6 @@ mediascan_new_ScanData(const char *path, int flags, int type)
           
           if (st->avg_frame_rate.num && st->avg_frame_rate.den)
             s->streams[i].fps = st->avg_frame_rate.num / (double)st->avg_frame_rate.den;
-          else if (st->r_frame_rate.num && st->r_frame_rate.den)
-            s->streams[i].fps = st->r_frame_rate.num / (double)st->r_frame_rate.den;
           break;
         case AVMEDIA_TYPE_AUDIO:
         {
