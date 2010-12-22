@@ -3,7 +3,7 @@
 #include "tap.h"
 #include "common.h"
 
-#define TEST_COUNT 14
+#define TEST_COUNT 19
   
 int
 main(int argc, char *argv[])
@@ -17,7 +17,7 @@ main(int argc, char *argv[])
   
   // Test scanning a single file
   {
-    char *file = _abspath(bin, "../data/bars.flv");
+    char *file = _abspath(bin, "../data/bars-vp6f-mp3.flv");
     ScanData s = mediascan_scan_file(file, 0);
     
     ok(s->error == 0, "scan_file s->error ok");
@@ -35,6 +35,12 @@ main(int argc, char *argv[])
     ok(s->streams[0].width == 360, "scan_file s->streams[0].width ok");
     ok(s->streams[0].height == 288, "scan_file s->streams[0].height ok");
     ok(s->streams[0].fps == 0, "scan_file s->streams[0].fps ok");
+    ok(s->streams[1].type == TYPE_AUDIO, "scan_file s->streams[1].type ok");
+    is(s->streams[1].codec_name, "mp3", "scan_file s->streams[1].codec_name ok");
+    ok(s->streams[1].bitrate == 98, "scan_file s->streams[1].bitrate ok");
+    ok(s->streams[1].samplerate == 44100, "scan_file s->streams[1].samplerate ok");
+    ok(s->streams[1].channels == 2, "scan_file s->streams[1].channels ok");
+    //ok(s->streams[1].bit_depth == 16, "scan_file s->streams[1].bit_depth ok");
     
     // XXX AVMetadata
     

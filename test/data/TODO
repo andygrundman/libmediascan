@@ -1,0 +1,20 @@
+video tracks:
+wmv3
+h264
+
+extensions:
+.asf
+.divx
+.m2t
+.m4v
+.mpeg
+.mts
+.m2ts
+.ts
+.wmv
+.xvid
+
+audio tracks:
+dca/dts
+wmapro
+wmavoice
