@@ -40,6 +40,10 @@ AsyncScan
 // Public state about a scan, a copy of internal AsyncScan state
 AsyncScanState
 
+// Tag-based metadata
+Metadata
+  TODO
+
 Scan flags
 ----------
 USE_EXTENSION

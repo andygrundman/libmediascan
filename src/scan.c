@@ -131,9 +131,10 @@ _is_media(const char *path)
   char *ext = strrchr(path, '.');
   if (ext != NULL) {
     // Copy the extension and lowercase it
-    char extc[8];
+    char extc[10];
     extc[0] = ',';
     strncpy(extc + 1, ext + 1, 7);
+    extc[9] = 0;
     
     char *p = &extc[1];
     while (*p != 0) {

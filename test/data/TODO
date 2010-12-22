@@ -18,3 +18,8 @@ audio tracks:
 dca/dts
 wmapro
 wmavoice
+
+metadata types:
+mp4
+asf/wmv
+mkv
