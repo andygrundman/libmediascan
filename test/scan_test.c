@@ -17,7 +17,7 @@ main(int argc, char *argv[])
   
   // Test scanning a single file
   {
-    char *file = _abspath(bin, "../data/bars-vp6f-mp3.flv");
+    char *file = _abspath(bin, "../data/video/bars-vp6f-mp3.flv");
     ScanData s = mediascan_scan_file(file, 0);
     
     ok(s->error == 0, "scan_file s->error ok");
