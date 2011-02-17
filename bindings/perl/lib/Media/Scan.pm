@@ -16,6 +16,7 @@ sub new {
         $paths = [ $paths ];
     }
     
+    $opts->{loglevel} ||= 0;
     $opts->{async}  ||= 0;
     $opts->{paths}  = $paths;
     $opts->{ignore} ||= [];
@@ -28,7 +29,7 @@ sub new {
     
     $self->xs_new();
     
-    $self->scan();
+    $self->xs_scan();
     
     return $self;
 }

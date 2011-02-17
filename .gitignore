@@ -31,6 +31,8 @@ test/scan_test
 
 # Perl
 Scan.xsc
+Scan.c
+Scan.bs
 META.yml
 blib
 pm_to_blib
