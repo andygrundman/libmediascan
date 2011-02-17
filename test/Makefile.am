@@ -1,9 +1,9 @@
 LMS_INCLUDE = -I$(top_srcdir)/include
 LMS_LTLIB = ../src/libmediascan.la
 
-check_PROGRAMS = scan_test
-scan_test_SOURCES = tap.c scan_test.c
-scan_test_CFLAGS = $(LMS_INCLUDE)
-scan_test_LDADD = $(LMS_LTLIB)
+check_PROGRAMS = api_test
+api_test_SOURCES = tap.c api_test.c
+api_test_CFLAGS = $(LMS_INCLUDE)
+api_test_LDADD = $(LMS_LTLIB)
 
-TESTS = scan_test
+TESTS = api_test

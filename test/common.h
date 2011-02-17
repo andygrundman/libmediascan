@@ -1,5 +1,7 @@
 // Utility functions for tests
 
+#include <string.h>
+
 static char *
 _findbin(const char *cmd)
 {

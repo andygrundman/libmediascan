@@ -3,15 +3,18 @@ wmv3
 h264
 
 extensions:
-.asf
-.divx
-.m2t
-.m4v
-.mpeg
-.mts
-.m2ts
-.ts
+.m2p (MPEG-2 program stream)
+.m2t (HDV)
+.mts (AVCHD)
+.m2ts (Blu-ray BDAV)
+.ts (MPEG-2/DVD)
 .wmv
+.3gp
+.3g2
+.3gp2
+.3gpp
+.divx
+.mov
 .xvid
 
 audio tracks:

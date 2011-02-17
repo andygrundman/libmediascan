@@ -1,0 +1,8 @@
+Changes
+Makefile.PL
+MANIFEST
+ppport.h
+README
+Scan.xs
+t/Media-Scan.t
+lib/Media/Scan.pm

@@ -8,7 +8,7 @@ LT_PREREQ([2.4])
 LT_INIT
 
 AC_CONFIG_MACRO_DIR([m4])
-AC_CONFIG_SRCDIR([src/scan.c])
+AC_CONFIG_SRCDIR([src/mediascan.c])
 AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.

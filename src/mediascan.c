@@ -1,12 +1,11 @@
 #include <ctype.h>
 #include <dirent.h>
-#include <stdio.h>
-#include <unistd.h>
 
 #include <libmediascan.h>
 #include "common.h"
-#include "scandata.h"
 #include "queue.h"
+
+#include <libavformat/avformat.h>
 
 static int Initialized = 0;
 static long PathMax = 0;
@@ -31,7 +30,9 @@ static long PathMax = 0;
 */
 
 // File extensions to look for (leading/trailing comma are required)
-static const char VideoExts[] = ",asf,avi,divx,flv,m2t,m4v,mkv,mpg,mpeg,mp4,mts,m2ts,ts,vob,webm,wmv,xvid,";
+static const char *AudioExts = ",aif,aiff,wav,";
+static const char *VideoExts = ",asf,avi,divx,flv,m2t,m4v,mkv,mov,mpg,mpeg,mp4,m2p,m2t,mts,m2ts,ts,vob,webm,wmv,xvid,3gp,3g2,3gp2,3gpp";
+static const char *ImageExts = "";
 
 #define REGISTER_DECODER(X,x) { \
           extern AVCodec x##_decoder; \
@@ -144,24 +145,164 @@ _is_media(const char *path)
     *p++ = ',';
     *p = 0;
     
-    char *found = strstr(VideoExts, extc);
-    return found == NULL ? 0 : TYPE_VIDEO;
+    char *found;
+    
+    found = strstr(AudioExts, extc);
+    if (found)
+      return TYPE_AUDIO;
+    
+    found = strstr(VideoExts, extc);
+    if (found)
+      return TYPE_VIDEO;
+    
+    found = strstr(ImageExts, extc);
+    if (found)
+      return TYPE_IMAGE;
+    
+    return 0;
   }
   return 0;
 }
 
+void
+ms_set_log_level(int level)
+{
+  Debug = level;
+}
+
+MediaScan *
+ms_create(void)
+{
+  _init();
+  
+  MediaScan *s = (MediaScan *)calloc(sizeof(struct _Scan), 1);
+  if (s == NULL) {
+    LOG_ERROR("Out of memory for new MediaScan object\n");
+    return NULL;
+  }
+  
+  s->npaths = 0;
+  s->paths[0] = NULL;
+  s->nignore_exts = 0;
+  s->ignore_exts[0] = NULL;
+  s->async = 0;
+  
+  s->on_result = NULL;
+  s->on_error = NULL;
+  s->on_progress = NULL;
+  
+  return s;
+}
+
+void
+ms_destroy(MediaScan *s)
+{
+  int i;
+  
+  for (i = 0; i < s->npaths; i++) {
+    LOG_LEVEL(9, "ms_destroy: freeing s->paths[%d] (%s)\n", i, s->paths[i]);
+    free( s->paths[i] );
+  }
+  
+  for (i = 0; i < s->nignore_exts; i++) {
+    LOG_LEVEL(9, "ms_destroy: freeing s->ignore_exts[%d] (%s)\n", i, s->ignore_exts[i]);
+    free( s->ignore_exts[i] );
+  }
+  
+  LOG_LEVEL(9, "ms_destroy: freeing MediaScan object\n");
+  free(s);
+}
+
+void
+ms_add_path(MediaScan *s, const char *path)
+{
+  if (s->npaths == MAX_PATHS) {
+    LOG_ERROR("Path limit reached (%d)\n", MAX_PATHS);
+    return;
+  }
+  
+  int len = strlen(path) + 1;
+  char *tmp = malloc(len);
+  if (tmp == NULL) {
+    LOG_ERROR("Out of memory for adding path\n");
+    return;
+  }
+  
+  strncpy(tmp, path, len);
+  
+  s->paths[ s->npaths++ ] = tmp;
+}
+
+void
+ms_add_ignore_extension(MediaScan *s, const char *extension)
+{
+  if (s->nignore_exts == MAX_IGNORE_EXTS) {
+    LOG_ERROR("Ignore extension limit reached (%d)\n", MAX_IGNORE_EXTS);
+    return;
+  }
+  
+  int len = strlen(extension) + 1;
+  char *tmp = malloc(len);
+  if (tmp == NULL) {
+    LOG_ERROR("Out of memory for ignore extension\n");
+    return;
+  }
+  
+  strncpy(tmp, extension, len);
+  
+  s->ignore_exts[ s->nignore_exts++ ] = tmp;
+}
+
+void
+ms_set_async(MediaScan *s, int enabled)
+{
+  s->async = enabled ? 1 : 0;
+}
+
+void
+ms_set_result_callback(MediaScan *s, ResultCallback callback)
+{
+  s->on_result = callback;
+}
+
+void
+ms_set_error_callback(MediaScan *s, ErrorCallback callback)
+{
+  s->on_error = callback;
+}
+
+void
+ms_set_progress_callback(MediaScan *s, ProgressCallback callback)
+{
+  s->on_progress = callback;
+}
+
+void
+ms_scan(MediaScan *s)
+{
+    
+}
+
+/*
 ScanData
 mediascan_scan_file(const char *path, int flags)
 {
   _init();
   
+  ScanData s = NULL;
   int type = _is_media(path);
-  if (type) {
-    ScanData s = mediascan_new_ScanData(path, flags, type);
-    return s;
+            
+  if (type == TYPE_VIDEO && !(flags & SKIP_VIDEO)) {
+    s = mediascan_new_ScanData(path, flags, type);
+  }
+  else if (type == TYPE_AUDIO && !(flags & SKIP_AUDIO)) {
+    s = mediascan_new_ScanData(path, flags, type);
+  }
+  else if (type == TYPE_IMAGE && !(flags & SKIP_IMAGE)) {
+    s = mediascan_new_ScanData(path, flags, type);
   }
   
-  return NULL;
+  return s;
 }
 
 void 
@@ -240,10 +381,22 @@ mediascan_scan_tree(const char *path, int flags, ScanDataCallback callback)
           LOG_DEBUG("%s\n", tmp);
         
           // Scan the file
-          ScanData s = mediascan_new_ScanData(tmp, flags, type);
-          if (s)
+          ScanData s;
+          
+          if (type == TYPE_VIDEO && !(flags & SKIP_VIDEO)) {
+            s = mediascan_new_ScanData(tmp, flags, type);
+          }
+          else if (type == TYPE_AUDIO && !(flags & SKIP_AUDIO)) {
+            s = mediascan_new_ScanData(tmp, flags, type);
+          }
+          else if (type == TYPE_IMAGE && !(flags & SKIP_IMAGE)) {
+            s = mediascan_new_ScanData(tmp, flags, type);
+          }
+          
+          if (s) {
             callback(s);
-          mediascan_free_ScanData(s);
+            mediascan_free_ScanData(s);
+          }
         }
       }
     }
@@ -272,3 +425,5 @@ mediascan_scan_tree(const char *path, int flags, ScanDataCallback callback)
 out:
   free(dir);  
 }
+
+*/
