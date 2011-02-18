@@ -16,7 +16,7 @@ main(int argc, char *argv[])
 { 
   plan(TEST_COUNT);
   
-  //ms_set_log_level(9);
+  ms_set_log_level(9);
   
   // Get path to this binary
   char *bin = _findbin(argv[0]);

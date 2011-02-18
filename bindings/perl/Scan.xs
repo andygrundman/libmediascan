@@ -49,8 +49,6 @@ CODE:
 {
   MediaScan *s = ms_create();
   xs_object_magic_attach_struct(aTHX_ SvRV(self), s);
-  
-  DEBUG_TRACE("new %p\n", s);
 }
 
 void
@@ -103,7 +101,5 @@ void
 DESTROY(MediaScan *s)
 CODE:
 {
-  DEBUG_TRACE("DESTROY %p\n", s);
-  
   ms_destroy(s);
 }

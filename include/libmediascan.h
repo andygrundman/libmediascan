@@ -37,6 +37,7 @@ struct _Audio {
   struct _Image **images;
   struct _Tag **tags;
 };
+typedef struct _Audio MediaScanAudio;
 
 struct _Image {
   int width;
@@ -47,6 +48,7 @@ struct _Image {
   struct _Image **thumbnails;
   struct _Tag **tags;
 };
+typedef struct _Image MediaScanImage;
 
 struct _Video {
   const char *codec;
@@ -57,6 +59,14 @@ struct _Video {
   struct _Image **thumbnails;
   struct _Tag **tags;
 };
+typedef struct _Video MediaScanVideo;
+
+struct _Error {
+  int error_code;
+  const char *path;
+  const char *error_string;
+};
+typedef struct _Error MediaScanError;
 
 struct _Result {
   enum media_type type;
@@ -68,10 +78,12 @@ struct _Result {
   int bitrate; // total bitrate
   int duration_ms;
   
+  MediaScanError *error;
+  
   union {
-    struct _Audio *audio;
-    struct _Image *image;
-    struct _Video *video;
+    MediaScanAudio *audio;
+    MediaScanImage *image;
+    MediaScanVideo *video;
   } type_data;
   
   // private members
@@ -80,15 +92,11 @@ struct _Result {
 };
 typedef struct _Result MediaScanResult;
 
-struct _Error {
-  const char *path;
-  const char *error_string;
-};
-typedef struct _Error MediaScanError;
-
 struct _Progress {
-  int total;  // total number of items
-  int done;   // number of items completed
+  int dir_total;
+  int dir_done;
+  int file_total;
+  int file_done;
   int eta;    // eta in seconds
   float rate; // rate in items/second
 };
@@ -100,9 +108,15 @@ struct _Scan {
   int nignore_exts;
   char *ignore_exts[MAX_IGNORE_EXTS];
   int async;
-  void (*on_result)(struct _Scan *, struct _Result *);
-  void (*on_error)(struct _Scan *, struct _Error *);
-  void (*on_progress)(struct _Scan *, struct _Progress *);
+  
+  MediaScanProgress *progress;
+  
+  void (*on_result)(struct _Scan *, MediaScanResult *);
+  void (*on_error)(struct _Scan *, MediaScanError *);
+  void (*on_progress)(struct _Scan *, MediaScanProgress *);
+  
+  // private
+  void *_dirq; // simple queue of all directories found
 };
 typedef struct _Scan MediaScan;
 

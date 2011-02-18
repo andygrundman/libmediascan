@@ -8,7 +8,7 @@ use FindBin ();
 use Media::Scan;
 
 {
-    my $s = Media::Scan->new( _f(''), {
+    my $s = Media::Scan->new( '/Users/andy/Music/Slim/DLNATestContent', {
         loglevel => 9,
         ignore => [ qw(wav png) ],
         on_file => sub {

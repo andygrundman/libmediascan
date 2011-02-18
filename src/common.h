@@ -13,7 +13,7 @@
 # define unlikely(x) (x)
 #endif
 
-static int Debug = 0;
+extern int Debug;
 
 #define LOG_LEVEL(level, ...) if (unlikely(Debug >= level)) fprintf(stderr, __VA_ARGS__)
 
@@ -26,4 +26,4 @@ static int Debug = 0;
 # define LOG_DEBUG(...)
 #endif
 
-#endif
+#endif // _COMMON_H
