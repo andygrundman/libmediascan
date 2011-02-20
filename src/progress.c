@@ -15,12 +15,17 @@ progress_create(void)
   
   LOG_LEVEL(9, "new MediaScanProgress @ %p\n", p);
   
+  p->phase = NULL;
+  p->cur_item = NULL;
+  
   p->dir_total = 0;
   p->dir_done = 0;
   p->file_total = 0;
   p->file_done = 0;
   p->eta = 0;
   p->rate = 0.0;
+  
+  p->_last_callback = 0;
   
   return p;
 }

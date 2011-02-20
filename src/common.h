@@ -5,7 +5,7 @@
 
 #include "config.h"
 
-#ifdef __GNUC__
+#if __GNUC__ >= 4
 # define likely(x)   __builtin_expect(!!(x), 1)
 # define unlikely(x) __builtin_expect(!!(x), 0)
 #else

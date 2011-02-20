@@ -38,7 +38,7 @@ _on_error(MediaScan *s, MediaScanError *error)
 static void
 _on_progress(MediaScan *s, MediaScanProgress *progress)
 {
-
+  warn("Perl on_progress callback, phase %s, cur_item %s, dir_total %d, file_total %d\n", progress->phase, progress->cur_item, progress->dir_total, progress->file_total);
 }
 
 MODULE = Media::Scan		PACKAGE = Media::Scan		
@@ -56,6 +56,13 @@ set_log_level(MediaScan *, int level)
 CODE:
 {
   ms_set_log_level(level);
+}
+
+void
+set_progress_interval(MediaScan *s, int seconds)
+CODE:
+{
+  ms_set_progress_interval(s, seconds);
 }
 
 void

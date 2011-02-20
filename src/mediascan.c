@@ -1,5 +1,6 @@
 #include <ctype.h>
 #include <dirent.h>
+#include <sys/time.h>
 
 // Global debug flag, used by LOG_LEVEL macro
 int Debug = 0;
@@ -24,7 +25,6 @@ SIMPLEQ_HEAD(fileq, fileq_entry);
 struct dirq_entry {
   char *dir;
   struct fileq *files;
-  int processed;
   SIMPLEQ_ENTRY(dirq_entry) entries;
 };
 SIMPLEQ_HEAD(dirq, dirq_entry);
@@ -200,8 +200,6 @@ ms_create(void)
     return NULL;
   }
   
-  LOG_LEVEL(9, "new MediaScan @ %p\n", s);
-  
   s->npaths = 0;
   s->paths[0] = NULL;
   s->nignore_exts = 0;
@@ -209,6 +207,7 @@ ms_create(void)
   s->async = 0;
   
   s->progress = progress_create();
+  s->progress_interval = 1;
   
   s->on_result = NULL;
   s->on_error = NULL;
@@ -227,28 +226,33 @@ ms_destroy(MediaScan *s)
   int i;
   
   for (i = 0; i < s->npaths; i++) {
-    LOG_LEVEL(9, "free s->paths[%d] (%s)\n", i, s->paths[i]);
     free( s->paths[i] );
   }
   
   for (i = 0; i < s->nignore_exts; i++) {
-    LOG_LEVEL(9, "free s->ignore_exts[%d] (%s)\n", i, s->ignore_exts[i]);
     free( s->ignore_exts[i] );
   }
   
   // Free everything in our list of dirs/files
+  struct dirq *head = (struct dirq *)s->_dirq;
   struct dirq_entry *entry;
+  struct fileq *file_head;
   struct fileq_entry *file_entry;
-  SIMPLEQ_FOREACH(entry, (struct dirq *)s->_dirq, entries) {
+  while (!SIMPLEQ_EMPTY(head)) {
+    entry = SIMPLEQ_FIRST(head);
+    
     if (entry->files != NULL) {
-      SIMPLEQ_FOREACH(file_entry, entry->files, entries) {
-        LOG_LEVEL(9, "  free fileq entry %s\n", file_entry->file);
+      file_head = entry->files;
+      while (!SIMPLEQ_EMPTY(file_head)) {
+        file_entry = SIMPLEQ_FIRST(file_head);
         free(file_entry->file);
+        SIMPLEQ_REMOVE_HEAD(file_head, entries);
         free(file_entry);
       }
       free(entry->files);
     }
-    LOG_LEVEL(9, "free dirq entry %s\n", entry->dir);
+    
+    SIMPLEQ_REMOVE_HEAD(head, entries);
     free(entry->dir);
     free(entry);
   }
@@ -257,7 +261,6 @@ ms_destroy(MediaScan *s)
   
   progress_destroy(s->progress);
   
-  LOG_LEVEL(9, "free MediaScan @ %p\n", s);
   free(s);
 }
 
@@ -325,6 +328,12 @@ ms_set_progress_callback(MediaScan *s, ProgressCallback callback)
   s->on_progress = callback;
 }
 
+void
+ms_set_progress_interval(MediaScan *s, int seconds)
+{
+  s->progress_interval = seconds;
+}
+
 static int
 _should_scan(MediaScan *s, const char *path)
 {
@@ -365,13 +374,15 @@ recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir)
   }
   
   LOG_LEVEL(2, "dir: %s\n", dir);
-  curdir->processed = 1;
 
   DIR *dirp;
   if ((dirp = opendir(dir)) == NULL) {
     LOG_ERROR("Unable to open directory %s: %s\n", dir, strerror(errno));
     goto out;
   }
+  
+  struct dirq *subdirq = malloc(sizeof(struct dirq));
+  SIMPLEQ_INIT(subdirq);
 
   char *tmp = malloc((size_t)PathMax);
 
@@ -390,10 +401,20 @@ recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir)
         strcat(tmp, name);
         
         // Entry for complete list of dirs
+        // XXX somewhat inefficient, we create this for every directory
+        // even those that don't end up having any scannable files
         struct dirq_entry *entry = malloc(sizeof(struct dirq_entry));
         entry->dir = strdup(tmp);
-        entry->files = NULL;
-        entry->processed = 0;
+        entry->files = malloc(sizeof(struct fileq));
+        SIMPLEQ_INIT(entry->files);
+        
+        // Temporary list of subdirs of the current directory
+        struct dirq_entry *subdir_entry = malloc(sizeof(struct dirq_entry));
+        
+        // Copy entry to subdir_entry, dir will be freed by ms_destroy()
+        memcpy(subdir_entry, entry, sizeof(struct dirq_entry));
+        SIMPLEQ_INSERT_TAIL(subdirq, subdir_entry, entries);
+        
         SIMPLEQ_INSERT_TAIL((struct dirq *)s->_dirq, entry, entries);
         
         s->progress->dir_total++;
@@ -402,16 +423,10 @@ recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir)
       }
       else {
         if ( _should_scan(s, name) ) {
-          // We don't need to store the full path to every file          
+          // To save memory by not storing the full path to every file,
+          // each dir has a list of files in that dir
           struct fileq_entry *entry = malloc(sizeof(struct fileq_entry));
           entry->file = strdup(name);
-          
-          if (curdir->files == NULL) {
-            LOG_LEVEL(9, "malloc curdir->files for %s\n", curdir->dir);
-            curdir->files = malloc(sizeof(struct fileq));
-            SIMPLEQ_INIT((struct fileq *)curdir->files);
-          }
-          
           SIMPLEQ_INSERT_TAIL(curdir->files, entry, entries);
           
           s->progress->file_total++;
@@ -422,48 +437,33 @@ recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir)
     }
   }
     
-/*    
-          *tmp = 0;
-          strcat(tmp, dir);
-          strcat(tmp, "/");
-          strcat(tmp, dp->d_name);
-
-          LOG_LEVEL(1, "  [file] %s\n", tmp);
-
-          // Scan the file
-          MediaScanResult *r = scan_file(s, tmp);
-          if (r->error->error_code > 0) {
-            if (s->on_error) {
-              s->on_error(s, r->error);
-            }
-          }
-          else {
-            s->on_result(s, r);
-          }
-          
-          if (s->on_progress) {
-            s->on_progress(s, s->progress);
-          }
-          
-          result_destroy(r);
-        }
-      }
+  closedir(dirp);
+  
+  // Send progress update
+  if (s->on_progress) {
+    struct timeval now;
+    gettimeofday(&now, NULL);
+    
+    if (now.tv_sec - s->progress->_last_callback >= s->progress_interval) {
+      s->progress->cur_item = dir;
+      s->progress->_last_callback = now.tv_sec;
+      s->on_progress(s, s->progress);
     }
   }
-*/
 
-  closedir(dirp);
-
-  // process any new subdirs (processed == 0)
-  if ( !SIMPLEQ_EMPTY((struct dirq *)s->_dirq) ) {
-    struct dirq_entry *entry;
+  // process subdirs
+  if ( !SIMPLEQ_EMPTY(subdirq) ) {
+    struct dirq_entry *subdir_entry;
     
-    SIMPLEQ_FOREACH(entry, (struct dirq *)s->_dirq, entries) {
-      if (entry->processed == 0)
-        recurse_dir(s, entry->dir, entry);
+    while (!SIMPLEQ_EMPTY(subdirq)) {
+      subdir_entry = SIMPLEQ_FIRST(subdirq);
+      SIMPLEQ_REMOVE_HEAD(subdirq, entries);
+      recurse_dir(s, subdir_entry->dir, subdir_entry);
+      free(subdir_entry);
     }
   }
   
+  free(subdirq);
   free(tmp);
 
 out:
@@ -487,11 +487,24 @@ ms_scan(MediaScan *s)
   for (i = 0; i < s->npaths; i++) {
     struct dirq_entry *entry = malloc(sizeof(struct dirq_entry));
     entry->dir = strdup("/"); // so free doesn't choke on this item later
-    entry->files = NULL;
+    entry->files = malloc(sizeof(struct fileq));
+    SIMPLEQ_INIT(entry->files);
     SIMPLEQ_INSERT_TAIL((struct dirq *)s->_dirq, entry, entries);
+    
+    char *phase = (char *)malloc((size_t)PathMax);
+    sprintf(phase, "Discovering files in %s", s->paths[i]);
+    s->progress->phase = phase;
     
     LOG_LEVEL(1, "Scanning %s\n", s->paths[i]);
     recurse_dir(s, s->paths[i], entry);
+    
+    // Send final progress callback
+    if (s->on_progress) {
+      s->progress->cur_item = NULL;
+      s->on_progress(s, s->progress);
+    }
+    
+    free(phase);
   }
 }
 

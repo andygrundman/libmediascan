@@ -93,12 +93,17 @@ struct _Result {
 typedef struct _Result MediaScanResult;
 
 struct _Progress {
+  const char *phase;    // Discovering, Scanning, etc
+  const char *cur_item; // most recently scanned item
   int dir_total;
   int dir_done;
   int file_total;
   int file_done;
   int eta;    // eta in seconds
   float rate; // rate in items/second
+  
+  // private
+  long _last_callback;
 };
 typedef struct _Progress MediaScanProgress;
 
@@ -110,6 +115,7 @@ struct _Scan {
   int async;
   
   MediaScanProgress *progress;
+  int progress_interval;
   
   void (*on_result)(struct _Scan *, MediaScanResult *);
   void (*on_error)(struct _Scan *, MediaScanError *);
@@ -179,6 +185,12 @@ void ms_set_error_callback(MediaScan *s, ErrorCallback callback);
  * This callback is optional.
  */
 void ms_set_progress_callback(MediaScan *s, ProgressCallback callback);
+
+/**
+ * Set progress callback interval in seconds. Progress callback will not be
+ * called more often than this value. This interval defaults to 1 second.
+ */
+void ms_set_progress_interval(MediaScan *s, int seconds);
 
 /**
  * Begin a recursive scan of all paths previously provided to ms_add_path().
