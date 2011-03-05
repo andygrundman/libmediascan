@@ -113,6 +113,7 @@ struct _Scan {
   int nignore_exts;
   char *ignore_exts[MAX_IGNORE_EXTS];
   int async;
+  int async_fd;
   
   MediaScanProgress *progress;
   int progress_interval;
@@ -194,7 +195,23 @@ void ms_set_progress_interval(MediaScan *s, int seconds);
 
 /**
  * Begin a recursive scan of all paths previously provided to ms_add_path().
+ * If async mode is enabled, this call will return immediately. You must
+ * obtain the file descriptor using ms_async_fd and this must be checked using
+ * an event loop or select(). When the fd becomes readable you must call
+ * ms_async_process to trigger any necessary callbacks. 
  */
 void ms_scan(MediaScan *s);
+
+/**
+ * Return the file descriptor associated with an async scan. If an async scan
+ * is not currently in progress, 0 will be returned.
+ */
+int ms_async_fd(MediaScan *s);
+
+/**
+ * This function should be called whenever the async file descriptor becomes
+ * readable. It will trigger one or more callbacks.
+ */
+void ms_async_process(MediaScan *s);
 
 #endif // _LIBMEDIASCAN_H

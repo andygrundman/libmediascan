@@ -205,6 +205,7 @@ ms_create(void)
   s->nignore_exts = 0;
   s->ignore_exts[0] = NULL;
   s->async = 0;
+  s->async_fd = 0;
   
   s->progress = progress_create();
   s->progress_interval = 1;
@@ -452,15 +453,11 @@ recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir)
   }
 
   // process subdirs
-  if ( !SIMPLEQ_EMPTY(subdirq) ) {
-    struct dirq_entry *subdir_entry;
-    
-    while (!SIMPLEQ_EMPTY(subdirq)) {
-      subdir_entry = SIMPLEQ_FIRST(subdirq);
-      SIMPLEQ_REMOVE_HEAD(subdirq, entries);
-      recurse_dir(s, subdir_entry->dir, subdir_entry);
-      free(subdir_entry);
-    }
+  while (!SIMPLEQ_EMPTY(subdirq)) {
+    struct dirq_entry *subdir_entry = SIMPLEQ_FIRST(subdirq);
+    SIMPLEQ_REMOVE_HEAD(subdirq, entries);
+    recurse_dir(s, subdir_entry->dir, subdir_entry);
+    free(subdir_entry);
   }
   
   free(subdirq);

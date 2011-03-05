@@ -2,26 +2,34 @@
 
 #include "tap.h"
 #include "common.h"
+#include <unistd.h>
 
-#define TEST_COUNT 18
+#define TEST_COUNT 21
 
 static void my_result_callback(MediaScan *s, MediaScanResult *result) { }
 
 static void my_error_callback(MediaScan *s, MediaScanError *error) { }
 
-static void my_progress_callback(MediaScan *s, MediaScanProgress *progress) { }
+static void my_progress_callback(MediaScan *s, MediaScanProgress *progress) {
+  // Check final progress callback only
+  if (!progress->cur_item) {
+    is(progress->dir_total, 3, "final progress callback dir_total ok");    // These numbers will need changing
+    is(progress->file_total, 26, "final progress callback file_total ok");
+  }
+}
   
 int
 main(int argc, char *argv[])
-{ 
+{
   plan(TEST_COUNT);
   
-  ms_set_log_level(9);
+  //ms_set_log_level(1);
   
   // Get path to this binary
   char *bin = _findbin(argv[0]);
-  
-  // Test all API functions except ms_scan
+  char *dir = _abspath(bin, "../data"); // because binary is in .libs dir
+
+  // Test all API functions
   {
     MediaScan *s = ms_create();
     ok(s->npaths == 0, "ms_create s->npaths == 0");
@@ -33,11 +41,9 @@ main(int argc, char *argv[])
     ok(s->on_error == NULL, "ms_create s->on_error == NULL");
     ok(s->on_progress == NULL, "ms_create s->on_progress == NULL");
     
-    ms_add_path(s, "/foo/bar");
-    ms_add_path(s, "/foo/baz");
-    ok(s->npaths == 2, "ms_add_path s->npaths == 2");
-    is(s->paths[0], "/foo/bar", "ms_add_path s->paths[0] is /foo/bar");
-    is(s->paths[1], "/foo/baz", "ms_add_path s->paths[1] is /foo/baz");
+    ms_add_path(s, dir);
+    ok(s->npaths == 1, "ms_add_path s->npaths == 1");
+    is(s->paths[0], dir, "ms_add_path s->paths[0] is %s", dir);
     
     ms_add_ignore_extension(s, "wav");
     ms_add_ignore_extension(s, "mp4");
@@ -48,6 +54,9 @@ main(int argc, char *argv[])
     ms_set_async(s, 1);
     ok(s->async == 1, "ms_set_async s->async == 1");
     
+    ms_set_async(s, 0);
+    ok(s->async == 0, "ms_set_async s->async == 0");
+    
     ms_set_result_callback(s, my_result_callback);
     ok(s->on_result == my_result_callback, "ms_set_result_callback s->on_result ok");
     
@@ -55,11 +64,16 @@ main(int argc, char *argv[])
     ok(s->on_error == my_error_callback, "ms_set_error_callback s->on_error ok");
     
     ms_set_progress_callback(s, my_progress_callback);
+    ms_set_progress_interval(s, 60);
+    ok(s->progress_interval == 60, "ms_set_progress_interval s->progress_interval ok");
     ok(s->on_progress == my_progress_callback, "ms_set_progress_callback s->on_progress ok");
+    
+    ms_scan(s);
     
     ms_destroy(s);
   }
   
+  free(dir);
   free(bin);
   
   return exit_status();
