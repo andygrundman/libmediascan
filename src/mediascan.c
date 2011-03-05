@@ -1,5 +1,6 @@
 #include <ctype.h>
 #include <dirent.h>
+#include <stdlib.h>
 #include <sys/time.h>
 
 // Global debug flag, used by LOG_LEVEL macro
@@ -9,6 +10,7 @@ int Debug = 0;
 #include "common.h"
 #include "queue.h"
 #include "progress.h"
+#include "result.h"
 
 #include <libavformat/avformat.h>
 
@@ -50,8 +52,8 @@ SIMPLEQ_HEAD(dirq, dirq_entry);
 
 // File extensions to look for (leading/trailing comma are required)
 static const char *AudioExts = ",aif,aiff,wav,";
-static const char *VideoExts = ",asf,avi,divx,flv,m2t,m4v,mkv,mov,mpg,mpeg,mp4,m2p,m2t,mts,m2ts,ts,vob,webm,wmv,xvid,3gp,3g2,3gp2,3gpp";
-static const char *ImageExts = "";
+static const char *VideoExts = ",asf,avi,divx,flv,m2t,m4v,mkv,mov,mpg,mpeg,mp4,m2p,m2t,mts,m2ts,ts,vob,webm,wmv,xvid,3gp,3g2,3gp2,3gpp,";
+static const char *ImageExts = ",jpg,png,gif,bmp,jpeg,";
 
 #define REGISTER_DECODER(X,x) { \
           extern AVCodec x##_decoder; \
@@ -143,44 +145,6 @@ _init(void)
   PathMax = pathconf(".", _PC_PATH_MAX); // 1024
   
   Initialized = 1;
-}
-
-static inline int
-_is_media(const char *path)
-{
-  char *ext = strrchr(path, '.');
-  if (ext != NULL) {
-    // Copy the extension and lowercase it
-    char extc[10];
-    extc[0] = ',';
-    strncpy(extc + 1, ext + 1, 7);
-    extc[9] = 0;
-    
-    char *p = &extc[1];
-    while (*p != 0) {
-      *p = tolower(*p);
-      p++;
-    }
-    *p++ = ',';
-    *p = 0;
-    
-    char *found;
-    
-    found = strstr(AudioExts, extc);
-    if (found)
-      return TYPE_AUDIO;
-    
-    found = strstr(VideoExts, extc);
-    if (found)
-      return TYPE_VIDEO;
-    
-    found = strstr(ImageExts, extc);
-    if (found)
-      return TYPE_IMAGE;
-    
-    return 0;
-  }
-  return 0;
 }
 
 void
@@ -338,7 +302,49 @@ ms_set_progress_interval(MediaScan *s, int seconds)
 static int
 _should_scan(MediaScan *s, const char *path)
 {
-  return 1;
+  char *ext = strrchr(path, '.');
+  if (ext != NULL) {
+    // Copy the extension and lowercase it
+    char extc[10];
+    extc[0] = ',';
+    strncpy(extc + 1, ext + 1, 7);
+    extc[9] = 0;
+    
+    char *p = &extc[1];
+    while (*p != 0) {
+      *p = tolower(*p);
+      p++;
+    }
+    *p++ = ',';
+    *p = 0;
+    
+    if (s->nignore_exts) {
+      // Check for ignored extension
+      int i;
+      for (i = 0; i < s->nignore_exts; i++) {
+        if (strstr(extc, s->ignore_exts[i]))
+          return 0;
+      }
+    }
+    
+    char *found;
+    
+    found = strstr(AudioExts, extc);
+    if (found)
+      return TYPE_AUDIO;
+    
+    found = strstr(VideoExts, extc);
+    if (found)
+      return TYPE_VIDEO;
+    
+    found = strstr(ImageExts, extc);
+    if (found)
+      return TYPE_IMAGE;
+    
+    return 0;
+  }
+      
+  return 0;
 }
 
 static void
@@ -374,7 +380,7 @@ recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir)
     p++;
   }
   
-  LOG_LEVEL(2, "dir: %s\n", dir);
+  LOG_LEVEL(2, "Recursed into %s\n", dir);
 
   DIR *dirp;
   if ((dirp = opendir(dir)) == NULL) {
@@ -385,7 +391,7 @@ recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir)
   struct dirq *subdirq = malloc(sizeof(struct dirq));
   SIMPLEQ_INIT(subdirq);
 
-  char *tmp = malloc((size_t)PathMax);
+  char *tmp_full_path = malloc((size_t)PathMax);
 
   struct dirent *dp;
   while ((dp = readdir(dirp)) != NULL) {
@@ -393,19 +399,19 @@ recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir)
 
     // skip all dot files
     if (name[0] != '.') {
-      // XXX some platforms may be missing d_type/DT_DIR
-      if (dp->d_type == DT_DIR) {
         // Construct full path
-        *tmp = 0;
-        strcat(tmp, dir);
-        strcat(tmp, "/");
-        strcat(tmp, name);
+        *tmp_full_path = 0;
+        strcat(tmp_full_path, dir);
+        strcat(tmp_full_path, "/");
+        strcat(tmp_full_path, name);
         
+      // XXX some platforms may be missing d_type/DT_DIR
+      if (dp->d_type == DT_DIR) {        
         // Entry for complete list of dirs
         // XXX somewhat inefficient, we create this for every directory
         // even those that don't end up having any scannable files
         struct dirq_entry *entry = malloc(sizeof(struct dirq_entry));
-        entry->dir = strdup(tmp);
+        entry->dir = strdup(tmp_full_path);
         entry->files = malloc(sizeof(struct fileq));
         SIMPLEQ_INIT(entry->files);
         
@@ -433,6 +439,9 @@ recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir)
           s->progress->file_total++;
           
           LOG_LEVEL(2, "  [%5d] file: %s\n", s->progress->file_total, entry->file);
+          
+          // Scan the file
+          ms_scan_file(s, tmp_full_path);
         }
       }
     }
@@ -461,7 +470,7 @@ recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir)
   }
   
   free(subdirq);
-  free(tmp);
+  free(tmp_full_path);
 
 out:
   free(dir);
@@ -503,6 +512,20 @@ ms_scan(MediaScan *s)
     
     free(phase);
   }
+}
+
+void
+ms_scan_file(MediaScan *s, const char *full_path)
+{
+  LOG_LEVEL(1, "Scanning file %s\n", full_path);
+  
+  MediaScanResult *r = result_create();
+  if (r == NULL)
+    return;
+    
+  s->on_result(s, r);
+  
+  result_destroy(r);
 }
 
 /*

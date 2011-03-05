@@ -74,7 +74,7 @@ struct _Result {
   const char *mime_type;
   const char *dlna_profile;
   off_t size;
-  int mtine;
+  int mtime;
   int bitrate; // total bitrate
   int duration_ms;
   
@@ -201,6 +201,12 @@ void ms_set_progress_interval(MediaScan *s, int seconds);
  * ms_async_process to trigger any necessary callbacks. 
  */
 void ms_scan(MediaScan *s);
+
+/**
+ * Scan a single file. Everything that applies to ms_scan also applies to
+ * this function.
+ */
+void ms_scan_file(MediaScan *s, const char *full_path);
 
 /**
  * Return the file descriptor associated with an async scan. If an async scan

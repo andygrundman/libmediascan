@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include <libmediascan.h>
 #include "common.h"
 
