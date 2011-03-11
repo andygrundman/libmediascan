@@ -7,10 +7,8 @@
 #define MAX_PATHS 128
 #define MAX_IGNORE_EXTS 128
 
-enum scan_errors {
-  SCAN_FILE_OK = 0,
-  SCAN_FILE_OPEN,
-  SCAN_FILE_READ_INFO
+enum media_error {
+  MS_ERROR_TYPE_UNKNOWN = -1,
 };
 
 enum media_type {
@@ -62,7 +60,7 @@ struct _Video {
 typedef struct _Video MediaScanVideo;
 
 struct _Error {
-  int error_code;
+  enum media_error error_code;
   const char *path;
   const char *error_string;
 };
@@ -204,9 +202,11 @@ void ms_scan(MediaScan *s);
 
 /**
  * Scan a single file. Everything that applies to ms_scan also applies to
- * this function.
+ * this function. If you know the type of the file, set the type paramter
+ * to one of TYPE_AUDIO, TYPE_VIDEO, or TYPE_IMAGE. Set it to TYPE_UNKNOWN
+ * to have it determined automatically.
  */
-void ms_scan_file(MediaScan *s, const char *full_path);
+void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type);
 
 /**
  * Return the file descriptor associated with an async scan. If an async scan

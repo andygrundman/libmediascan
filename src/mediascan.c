@@ -11,6 +11,7 @@ int Debug = 0;
 #include "queue.h"
 #include "progress.h"
 #include "result.h"
+#include "error.h"
 
 #include <libavformat/avformat.h>
 
@@ -323,7 +324,7 @@ _should_scan(MediaScan *s, const char *path)
       int i;
       for (i = 0; i < s->nignore_exts; i++) {
         if (strstr(extc, s->ignore_exts[i]))
-          return 0;
+          return TYPE_UNKNOWN;
       }
     }
     
@@ -341,10 +342,10 @@ _should_scan(MediaScan *s, const char *path)
     if (found)
       return TYPE_IMAGE;
     
-    return 0;
+    return TYPE_UNKNOWN;
   }
       
-  return 0;
+  return TYPE_UNKNOWN;
 }
 
 static void
@@ -429,7 +430,8 @@ recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir)
         LOG_LEVEL(2, "  [%5d] subdir: %s\n", s->progress->dir_total, entry->dir);
       }
       else {
-        if ( _should_scan(s, name) ) {
+        enum media_type type = _should_scan(s, name);
+        if (type) {
           // To save memory by not storing the full path to every file,
           // each dir has a list of files in that dir
           struct fileq_entry *entry = malloc(sizeof(struct fileq_entry));
@@ -441,7 +443,7 @@ recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir)
           LOG_LEVEL(2, "  [%5d] file: %s\n", s->progress->file_total, entry->file);
           
           // Scan the file
-          ms_scan_file(s, tmp_full_path);
+          ms_scan_file(s, tmp_full_path, type);
         }
       }
     }
@@ -515,14 +517,35 @@ ms_scan(MediaScan *s)
 }
 
 void
-ms_scan_file(MediaScan *s, const char *full_path)
+ms_scan_file(MediaScan *s, const char *full_path, enum media_type type)
 {
+  if (s->on_result == NULL) {
+    LOG_ERROR("Result callback not set, aborting scan\n");
+    return;
+  }
+  
   LOG_LEVEL(1, "Scanning file %s\n", full_path);
+  
+  if (type == TYPE_UNKNOWN) {
+    // auto-detect type
+    type = _should_scan(s, full_path);
+    if (!type) {
+      if (s->on_error) {
+        MediaScanError *e = error_create(full_path, MS_ERROR_TYPE_UNKNOWN, "Unrecognized file extension");
+        s->on_error(s, e);
+        error_destroy(e);
+        return;
+      }
+    }
+  }
   
   MediaScanResult *r = result_create();
   if (r == NULL)
     return;
-    
+  
+  r->type = type;
+  r->path = full_path;
+  
   s->on_result(s, r);
   
   result_destroy(r);
