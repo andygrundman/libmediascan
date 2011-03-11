@@ -1,0 +1,84 @@
+Perl
+----
+
+my $s;
+$s = Media::Scan->new(
+  [ '/Users/andy/Music', '/Users/andy/Movies', '/Users/andy/Pictures' ], # or single scalar
+  {
+    ### Options
+    async => 1, # if 0, new() will return after all files are scanned
+    thumbnails => [ '100x100', '75w', '250h' ], # $result will contain generated thumbnail(s) of any/all images. For video, uses random(?) frame
+    ignore => [ qw(wav png VIDEO) ], # list of file extensions to ignore, special all-caps keywords ignore all files of that type (AUDIO, IMAGE, VIDEO)
+    
+    
+      
+    ### Callbacks
+    on_file => sub {
+      my $result = shift; # result object (see below)
+    
+    },
+    on_error => sub {
+      my $error = shift; # string
+      undef $s; # abort scan
+    },
+    progress => sub { # optional
+      my $p = shift; # Progress object
+    },
+  }
+);
+
+For async mode:
+my $h = AnyEvent->io( fh => $s->async_fd, poll => 'r', cb => sub {
+  $s->async_poll; # will invoke callbacks
+} );
+
+Media::Scan::Progress
+  
+
+Media::Scan::Image
+  width() # width in pixels
+  height() # height in pixels
+  mime_type() # image/jpg, etc
+  filename() # could be video/audio filename if embedded/thumbnail
+  mtime()
+  dlna_profile()
+  offset() # byte offset to start of image (0 for standalone images, undef for videos, >0 for embedded audio image)
+  size() # size in bytes of image
+  data() # for generated thumbnails, or embedded artwork that can't be referenced with offset/size such as Vorbis
+  thumbnails() # array of Image objects, if requested
+  tags() # array of Tag objects, since file could have multiple tags, for example ID3v2 & APEv2
+
+Media::Scan::Tag
+  type() # EXIF, ID3v2.3, etc
+  all() # return a big hashref of all tag data
+        # Note: image tags like APIC are not included in the Tag object, but in Image objects
+
+Media::Scan::Audio
+  mime_type()
+  codec() # MPEG 1 Layer 3, HE-AACv2, etc
+  filename()
+  mtime()
+  size()
+  bitrate()
+  vbr() # bool
+  samplerate()
+  duration()
+  channels()
+  dlna_profile() # undef if not matching a profile
+  images() # array of Image objects
+  tags() # array of Tag objects
+
+Media::Scan::Video
+  mime_type() # type of container
+  codec() # h.264, WMV9, etc
+  filename()
+  mtime()
+  size()
+  bitrate()
+  duration()
+  width()
+  height()
+  dlna_profile()
+  audio_streams() # array of Audio objects
+  thumbnails() # array of Image objects, if requested
+  tags() # array of Tag objects, most video does not have tags but ASF has minimal info, for example
