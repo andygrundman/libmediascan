@@ -1,7 +1,15 @@
+#ifdef WIN32
+#include "win32/include/config.h"
+#endif
+
 #include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifndef WIN32
 #include <strings.h>
+#endif
+
 #include <sys/stat.h>
 
 #include <libmediascan.h>
@@ -9,7 +17,7 @@
 #include "result.h"
 
 // Audio formats
-#include "wav.h"
+//#include "wav.h"
 
 type_ext audio_types[] = {
 /*

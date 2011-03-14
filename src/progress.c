@@ -1,3 +1,7 @@
+#ifdef WIN32
+#include "win32/include/config.h"
+#endif
+
 #include <stdlib.h>
 
 #include <libmediascan.h>

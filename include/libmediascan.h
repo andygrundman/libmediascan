@@ -4,6 +4,10 @@
 #include <unistd.h>
 #include <stdio.h>
 
+#ifdef WIN32
+#include <wchar.h>
+#endif
+
 #define MAX_PATHS 128
 #define MAX_IGNORE_EXTS 128
 
@@ -124,7 +128,8 @@ struct _Scan {
   
   // private
   void *_dirq; // simple queue of all directories found
-};
+} ;
+
 typedef struct _Scan MediaScan;
 
 typedef void (*ResultCallback)(MediaScan *, MediaScanResult *);

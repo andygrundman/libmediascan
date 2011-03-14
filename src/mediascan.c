@@ -1,18 +1,29 @@
+
 #include <ctype.h>
 #include <dirent.h>
 #include <stdlib.h>
+
+#ifndef WIN32
 #include <sys/time.h>
+#else
+#include <direct.h>
+#endif
 
 // Global debug flag, used by LOG_LEVEL macro
 int Debug = 0;
 
 #include <libmediascan.h>
 #include "common.h"
+
 #include "queue.h"
+
 #include "progress.h"
 #include "result.h"
 
 #include <libavformat/avformat.h>
+#include <libavcodec/avcodec.h>
+
+#include "mediascan.h"
 
 static int Initialized = 0;
 static long PathMax = 0;
@@ -55,12 +66,25 @@ static const char *AudioExts = ",aif,aiff,wav,";
 static const char *VideoExts = ",asf,avi,divx,flv,m2t,m4v,mkv,mov,mpg,mpeg,mp4,m2p,m2t,mts,m2ts,ts,vob,webm,wmv,xvid,3gp,3g2,3gp2,3gpp,";
 static const char *ImageExts = ",jpg,png,gif,bmp,jpeg,";
 
+#ifdef WIN32
+#define REGISTER_DECODER(X,x) { \
+          extern AVCodec ff_##x##_decoder; \
+          avcodec_register(&ff_##x##_decoder); }
+#else
 #define REGISTER_DECODER(X,x) { \
           extern AVCodec x##_decoder; \
           avcodec_register(&x##_decoder); }
+#endif
+
+#ifdef WIN32
+#define REGISTER_PARSER(X,x) { \
+          extern AVCodecParser ff_##x##_parser; \
+          av_register_codec_parser(&ff_##x##_parser); }
+#else
 #define REGISTER_PARSER(X,x) { \
           extern AVCodecParser x##_parser; \
           av_register_codec_parser(&x##_parser); }
+#endif
 
 static void
 register_codecs(void)
@@ -107,13 +131,24 @@ register_codecs(void)
   REGISTER_PARSER (MPEGAUDIO, mpegaudio);
   REGISTER_PARSER (MPEGVIDEO, mpegvideo);
 }
+#ifdef WIN32
 
+#define REGISTER_DEMUXER(X,x) { \
+    extern AVInputFormat ff_##x##_demuxer; \
+    av_register_input_format(&ff_##x##_demuxer); }
+#define REGISTER_PROTOCOL(X,x) { \
+    extern URLProtocol ff_##x##_protocol; \
+    av_register_protocol2(&ff_##x##_protocol, sizeof(ff_##x##_protocol)); }
+
+
+#else
 #define REGISTER_DEMUXER(X,x) { \
     extern AVInputFormat x##_demuxer; \
     av_register_input_format(&x##_demuxer); }
 #define REGISTER_PROTOCOL(X,x) { \
     extern URLProtocol x##_protocol; \
     av_register_protocol2(&x##_protocol, sizeof(x##_protocol)); }
+#endif
 
 static void
 register_formats(void)
@@ -141,9 +176,11 @@ _init(void)
   register_codecs();
   register_formats();
   //av_register_all();
-  
+
+#ifndef WIN32
   PathMax = pathconf(".", _PC_PATH_MAX); // 1024
-  
+#endif
+
   Initialized = 1;
 }
 
@@ -156,9 +193,11 @@ ms_set_log_level(int level)
 MediaScan *
 ms_create(void)
 {
+  MediaScan *s;
+
   _init();
   
-  MediaScan *s = (MediaScan *)calloc(sizeof(MediaScan), 1);
+  s = (MediaScan *)calloc(sizeof(MediaScan), 1);
   if (s == NULL) {
     LOG_ERROR("Out of memory for new MediaScan object\n");
     return NULL;
@@ -188,8 +227,12 @@ ms_create(void)
 void
 ms_destroy(MediaScan *s)
 {
-  int i;
-  
+  int i = 0;
+  struct dirq *head = (struct dirq *)s->_dirq;
+  struct dirq_entry *entry = NULL;
+  struct fileq *file_head = NULL;
+  struct fileq_entry *file_entry = NULL;
+
   for (i = 0; i < s->npaths; i++) {
     free( s->paths[i] );
   }
@@ -199,10 +242,6 @@ ms_destroy(MediaScan *s)
   }
   
   // Free everything in our list of dirs/files
-  struct dirq *head = (struct dirq *)s->_dirq;
-  struct dirq_entry *entry;
-  struct fileq *file_head;
-  struct fileq_entry *file_entry;
   while (!SIMPLEQ_EMPTY(head)) {
     entry = SIMPLEQ_FIRST(head);
     
@@ -232,13 +271,16 @@ ms_destroy(MediaScan *s)
 void
 ms_add_path(MediaScan *s, const char *path)
 {
+  int len = 0;
+  char *tmp = NULL;
+
   if (s->npaths == MAX_PATHS) {
     LOG_ERROR("Path limit reached (%d)\n", MAX_PATHS);
     return;
   }
   
-  int len = strlen(path) + 1;
-  char *tmp = malloc(len);
+  len = strlen(path) + 1;
+  tmp = malloc(len);
   if (tmp == NULL) {
     LOG_ERROR("Out of memory for adding path\n");
     return;
@@ -252,13 +294,16 @@ ms_add_path(MediaScan *s, const char *path)
 void
 ms_add_ignore_extension(MediaScan *s, const char *extension)
 {
+  int len = 0;
+  char *tmp = NULL;
+
   if (s->nignore_exts == MAX_IGNORE_EXTS) {
     LOG_ERROR("Ignore extension limit reached (%d)\n", MAX_IGNORE_EXTS);
     return;
   }
   
-  int len = strlen(extension) + 1;
-  char *tmp = malloc(len);
+  len = strlen(extension) + 1;
+  tmp = malloc(len);
   if (tmp == NULL) {
     LOG_ERROR("Out of memory for ignore extension\n");
     return;
@@ -302,7 +347,10 @@ ms_set_progress_interval(MediaScan *s, int seconds)
 static int
 _should_scan(MediaScan *s, const char *path)
 {
+  char *p = NULL;
+  char *found = NULL;
   char *ext = strrchr(path, '.');
+
   if (ext != NULL) {
     // Copy the extension and lowercase it
     char extc[10];
@@ -310,7 +358,7 @@ _should_scan(MediaScan *s, const char *path)
     strncpy(extc + 1, ext + 1, 7);
     extc[9] = 0;
     
-    char *p = &extc[1];
+    p = &extc[1];
     while (*p != 0) {
       *p = tolower(*p);
       p++;
@@ -327,7 +375,6 @@ _should_scan(MediaScan *s, const char *path)
       }
     }
     
-    char *found;
     
     found = strstr(AudioExts, extc);
     if (found)
@@ -347,10 +394,17 @@ _should_scan(MediaScan *s, const char *path)
   return 0;
 }
 
+#ifndef WIN32
+
 static void
 recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir)
 {
-  char *dir;
+  char *dir = NULL;
+  char *p = NULL;
+  DIR *dirp;
+  struct dirq *subdirq;
+  char *tmp_full_path;
+  struct dirent *dp;
 
   if (path[0] != '/') { // XXX Win32
     // Get full path
@@ -360,7 +414,12 @@ recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir)
       return;
     }
 
+#ifdef WIN32
+    dir = _getcwd(buf, (size_t)PathMax);
+#else
     dir = getcwd(buf, (size_t)PathMax);
+#endif
+
     strcat(dir, "/");
     strcat(dir, path);
   }
@@ -369,7 +428,7 @@ recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir)
   }
 
   // Strip trailing slash if any
-  char *p = &dir[0];
+  p = &dir[0];
   while (*p != 0) {
 #ifdef _WIN32
     if (p[1] == 0 && (*p == '/' || *p == '\\'))
@@ -382,18 +441,17 @@ recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir)
   
   LOG_LEVEL(2, "Recursed into %s\n", dir);
 
-  DIR *dirp;
   if ((dirp = opendir(dir)) == NULL) {
     LOG_ERROR("Unable to open directory %s: %s\n", dir, strerror(errno));
     goto out;
   }
   
-  struct dirq *subdirq = malloc(sizeof(struct dirq));
+  subdirq = malloc(sizeof(struct dirq));
   SIMPLEQ_INIT(subdirq);
 
-  char *tmp_full_path = malloc((size_t)PathMax);
+  tmp_full_path = malloc((size_t)PathMax);
 
-  struct dirent *dp;
+  
   while ((dp = readdir(dirp)) != NULL) {
     char *name = dp->d_name;
 
@@ -410,13 +468,14 @@ recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir)
         // Entry for complete list of dirs
         // XXX somewhat inefficient, we create this for every directory
         // even those that don't end up having any scannable files
+		struct dirq_entry *subdir_entry;
         struct dirq_entry *entry = malloc(sizeof(struct dirq_entry));
         entry->dir = strdup(tmp_full_path);
         entry->files = malloc(sizeof(struct fileq));
         SIMPLEQ_INIT(entry->files);
         
         // Temporary list of subdirs of the current directory
-        struct dirq_entry *subdir_entry = malloc(sizeof(struct dirq_entry));
+        subdir_entry = malloc(sizeof(struct dirq_entry));
         
         // Copy entry to subdir_entry, dir will be freed by ms_destroy()
         memcpy(subdir_entry, entry, sizeof(struct dirq_entry));
@@ -479,6 +538,8 @@ out:
 void
 ms_scan(MediaScan *s)
 {
+  int i = 0;  
+
   if (s->on_result == NULL) {
     LOG_ERROR("Result callback not set, aborting scan\n");
     return;
@@ -489,7 +550,6 @@ ms_scan(MediaScan *s)
     // XXX TODO
   }
   
-  int i;  
   for (i = 0; i < s->npaths; i++) {
     struct dirq_entry *entry = malloc(sizeof(struct dirq_entry));
     entry->dir = strdup("/"); // so free doesn't choke on this item later
@@ -517,15 +577,29 @@ ms_scan(MediaScan *s)
 void
 ms_scan_file(MediaScan *s, const char *full_path)
 {
+  MediaScanResult *r = NULL;
+
   LOG_LEVEL(1, "Scanning file %s\n", full_path);
   
-  MediaScanResult *r = result_create();
+  r = result_create();
   if (r == NULL)
     return;
     
   s->on_result(s, r);
   
   result_destroy(r);
+}
+#endif
+
+void
+ms_scan(MediaScan *s) 
+{
+
+}
+
+void
+ms_scan_file(MediaScan *s, const char *full_path)
+{
 }
 
 /*

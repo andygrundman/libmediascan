@@ -23,13 +23,16 @@ static void my_progress_callback(MediaScan *s, MediaScanProgress *progress) {
 int
 main(int argc, char *argv[])
 {
+  char *bin;
+  char *dir;
+
   plan(TEST_COUNT);
   
   //ms_set_log_level(9);
   
   // Get path to this binary
-  char *bin = _findbin(argv[0]);
-  char *dir = _abspath(bin, "../data"); // because binary is in .libs dir
+  bin = _findbin(argv[0]);
+  dir = _abspath(bin, "../data"); // because binary is in .libs dir
 
   // Test all API functions
   {

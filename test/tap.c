@@ -4,6 +4,10 @@
 #include <string.h>
 #include "tap.h"
 
+#ifdef WIN32
+#include "win32.h"
+#endif
+
 static int expected_tests = NO_PLAN;
 static int failed_tests;
 static int current_test;

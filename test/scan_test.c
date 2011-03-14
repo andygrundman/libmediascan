@@ -1,5 +1,5 @@
 #include <libmediascan.h>
-
+#include <libavutil\log.h>
 #include "tap.h"
 #include "common.h"
 
@@ -8,12 +8,14 @@
 int
 main(int argc, char *argv[])
 { 
+  char *bin;
+
   plan(TEST_COUNT);
   
   av_log_set_level(AV_LOG_ERROR);
   
   // Get path to this binary
-  char *bin = _findbin(argv[0]);
+  bin = _findbin(argv[0]);
   
   // Test scanning a single file
   {
