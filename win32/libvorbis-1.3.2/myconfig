@@ -1,2 +1,0 @@
-#!/bin/sh
-./configure --includedir=/usr/local/include --libdir=/usr/local/lib
