@@ -1,0 +1,1 @@
+#define va_copy(d,s) ((d) = (s))

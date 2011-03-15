@@ -22,12 +22,26 @@ install-sh
 stamp-*
 m4/*
 
+# Mac files
+.DS_Store
+
+# Misc stuff
+*.bak
+
 # Binaries
 *.o
 *.la
 *.lo
 test/api_test
 test/scan_test
+
+# Win32 build stuff
+*.obj
+*.tlog
+*.log
+*.pdb
+*.lastbuildstate
+*.ipch
 
 # Perl
 Scan.xsc
