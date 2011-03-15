@@ -14,6 +14,11 @@
  * called by a name other than "ssh" or "Secure Shell".
  */
 
+#ifdef WIN32
+#include "win32/include/config.h"
+#endif
+
+#include <ctype.h>
 #include <errno.h>
 #include <math.h>
 #include <stdlib.h>
