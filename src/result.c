@@ -1,3 +1,9 @@
+///-------------------------------------------------------------------------------------------------
+// file:	libmediascan\src\result.c
+//
+// summary:	MediaScanResult class
+///-------------------------------------------------------------------------------------------------
+
 #ifdef WIN32
 #include "win32/include/config.h"
 #endif
@@ -51,8 +57,15 @@ type_handler audio_handlers[] = {
   { NULL, 0 }
 };
 
-MediaScanResult *
-result_create(void)
+///-------------------------------------------------------------------------------------------------
+/// <summary>	Create a new MediaScanResult instance. </summary>
+///
+/// <remarks>	 </remarks>
+///
+/// <returns>	null if it fails, else. </returns>
+///-------------------------------------------------------------------------------------------------
+
+MediaScanResult *result_create(void)
 {
   MediaScanResult *r = (MediaScanResult *)calloc(sizeof(MediaScanResult), 1);
   if (r == NULL) {
@@ -79,8 +92,15 @@ result_create(void)
   return r;
 }
 
-void
-result_destroy(MediaScanResult *r)
+///-------------------------------------------------------------------------------------------------
+/// <summary>	Destroy a MediaScanResult instance </summary>
+///
+/// <remarks>	</remarks>
+///
+/// <param name="r">	[in,out] If non-null, the. </param>
+///-------------------------------------------------------------------------------------------------
+
+void result_destroy(MediaScanResult *r)
 {
   LOG_LEVEL(9, "destroy MediaScanResult @ %p\n", r);
   

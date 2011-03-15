@@ -1,3 +1,8 @@
+///-------------------------------------------------------------------------------------------------
+// file:	libmediascan\src\mediascan.c
+//
+// summary:	mediascan class
+///-------------------------------------------------------------------------------------------------
 
 #include <ctype.h>
 #include <dirent.h>
@@ -6,6 +11,8 @@
 #ifndef WIN32
 #include <sys/time.h>
 #else
+#include <time.h>
+#include <Winsock2.h>
 #include <direct.h>
 #endif
 
@@ -87,6 +94,13 @@ static const char *ImageExts = ",jpg,png,gif,bmp,jpeg,";
 #endif
 
 static void
+
+///-------------------------------------------------------------------------------------------------
+/// <summary>	Register codecs to be used with ffmpeg </summary>
+///
+/// <remarks>	 </remarks>
+///-------------------------------------------------------------------------------------------------
+
 register_codecs(void)
 {
   // Video codecs
@@ -150,8 +164,13 @@ register_codecs(void)
     av_register_protocol2(&x##_protocol, sizeof(x##_protocol)); }
 #endif
 
-static void
-register_formats(void)
+///-------------------------------------------------------------------------------------------------
+/// <summary>	Registers the formats for FFmpeg </summary>
+///
+/// <remarks>	 </remarks>
+///-------------------------------------------------------------------------------------------------
+
+static void register_formats(void)
 {
   // demuxers
   REGISTER_DEMUXER (ASF, asf);
@@ -167,8 +186,13 @@ register_formats(void)
   REGISTER_PROTOCOL (FILE, file);
 }
 
-static void
-_init(void)
+///-------------------------------------------------------------------------------------------------
+/// <summary>	Initialises ffmpeg </summary>
+///
+/// <remarks>	 </remarks>
+///-------------------------------------------------------------------------------------------------
+
+static void _init(void)
 {
   if (Initialized)
     return;
@@ -184,14 +208,28 @@ _init(void)
   Initialized = 1;
 }
 
-void
-ms_set_log_level(int level)
+///-------------------------------------------------------------------------------------------------
+/// <summary>	 Set the logging level. </summary>
+///
+/// <remarks>	 </remarks>
+///
+/// <param name="level">	The level. </param>
+///-------------------------------------------------------------------------------------------------
+
+void ms_set_log_level(int level)
 {
   Debug = level;
 }
 
-MediaScan *
-ms_create(void)
+///-------------------------------------------------------------------------------------------------
+/// <summary>	Allocate a new MediaScan object. </summary>
+///
+/// <remarks>	 </remarks>
+///
+/// <returns>	null if it fails, else. </returns>
+///-------------------------------------------------------------------------------------------------
+
+MediaScan *ms_create(void)
 {
   MediaScan *s;
 
@@ -224,8 +262,17 @@ ms_create(void)
   return s;
 }
 
-void
-ms_destroy(MediaScan *s)
+///-------------------------------------------------------------------------------------------------
+/// <summary>
+/// 	Destroy the given MediaScan object. If a scan is currently in progress it will be aborted.
+/// </summary>
+///
+/// <remarks>	 </remarks>
+///
+/// <param name="s">	[in,out] If non-null, the. </param>
+///-------------------------------------------------------------------------------------------------
+
+void ms_destroy(MediaScan *s)
 {
   int i = 0;
   struct dirq *head = (struct dirq *)s->_dirq;
@@ -268,8 +315,18 @@ ms_destroy(MediaScan *s)
   free(s);
 }
 
-void
-ms_add_path(MediaScan *s, const char *path)
+///-------------------------------------------------------------------------------------------------
+/// <summary>
+/// 	Add a path to be scanned. Up to 128 paths may be added before beginning the scan.
+/// </summary>
+///
+/// <remarks>	 </remarks>
+///
+/// <param name="s">   	[in,out] If non-null, the. </param>
+/// <param name="path">	Full pathname of the file. </param>
+///-------------------------------------------------------------------------------------------------
+
+void ms_add_path(MediaScan *s, const char *path)
 {
   int len = 0;
   char *tmp = NULL;
@@ -291,8 +348,19 @@ ms_add_path(MediaScan *s, const char *path)
   s->paths[ s->npaths++ ] = tmp;
 }
 
-void
-ms_add_ignore_extension(MediaScan *s, const char *extension)
+///-------------------------------------------------------------------------------------------------
+/// <summary>	Add a file extension to ignore all files with this extension. </summary>
+///
+/// <remarks>	 </remarks>
+///
+/// <param name="s">			[in,out] If non-null, the. </param>
+/// <param name="extension">	3 special all-caps extensions may be provided:
+///								AUDIO - ignore all audio-related extensions.
+///								IMAGE - ignore all image-related extensions.
+///								VIDEO - ignore all video-related extensions. </param>
+///-------------------------------------------------------------------------------------------------
+
+void ms_add_ignore_extension(MediaScan *s, const char *extension)
 {
   int len = 0;
   char *tmp = NULL;
@@ -314,38 +382,103 @@ ms_add_ignore_extension(MediaScan *s, const char *extension)
   s->ignore_exts[ s->nignore_exts++ ] = tmp;
 }
 
-void
-ms_set_async(MediaScan *s, int enabled)
+///-------------------------------------------------------------------------------------------------
+/// <summary>
+/// 	By default, scans are synchronous. This means the call to ms_scan will not return until
+/// 	the scan is finished. To enable background asynchronous scanning, pass a true value to
+/// 	this function.
+/// </summary>
+///
+/// <remarks>	 </remarks>
+///
+/// <param name="s">	  	[in,out] If non-null, the. </param>
+/// <param name="enabled">	The enabled. </param>
+///-------------------------------------------------------------------------------------------------
+
+void ms_set_async(MediaScan *s, int enabled)
 {
   s->async = enabled ? 1 : 0;
 }
 
-void
-ms_set_result_callback(MediaScan *s, ResultCallback callback)
+///-------------------------------------------------------------------------------------------------
+/// <summary>
+/// 	Set a callback that will be called for every scanned file. This callback is required or a
+/// 	scan cannot be started.
+/// </summary>
+///
+/// <remarks>	 </remarks>
+///
+/// <param name="s">	   	[in,out] If non-null, the. </param>
+/// <param name="callback">	The callback. </param>
+///-------------------------------------------------------------------------------------------------
+
+void ms_set_result_callback(MediaScan *s, ResultCallback callback)
 {
   s->on_result = callback;
 }
 
-void
-ms_set_error_callback(MediaScan *s, ErrorCallback callback)
+///-------------------------------------------------------------------------------------------------
+/// <summary>
+/// 	Set a callback that will be called for all errors. This callback is optional.
+/// </summary>
+///
+/// <remarks>	 </remarks>
+///
+/// <param name="s">	   	[in,out] If non-null, the. </param>
+/// <param name="callback">	The callback. </param>
+///-------------------------------------------------------------------------------------------------
+
+void ms_set_error_callback(MediaScan *s, ErrorCallback callback)
 {
   s->on_error = callback;
 }
 
-void
-ms_set_progress_callback(MediaScan *s, ProgressCallback callback)
+///-------------------------------------------------------------------------------------------------
+/// <summary>
+/// 	Set a callback that will be called during the scan with progress details. This callback
+/// 	is optional.
+/// </summary>
+///
+/// <remarks>	 </remarks>
+///
+/// <param name="s">	   	[in,out] If non-null, the. </param>
+/// <param name="callback">	The callback. </param>
+///-------------------------------------------------------------------------------------------------
+
+void ms_set_progress_callback(MediaScan *s, ProgressCallback callback)
 {
   s->on_progress = callback;
 }
 
-void
-ms_set_progress_interval(MediaScan *s, int seconds)
+///-------------------------------------------------------------------------------------------------
+/// <summary>
+/// 	Set progress callback interval in seconds. Progress callback will not be called more
+/// 	often than this value. This interval defaults to 1 second.
+/// </summary>
+///
+/// <remarks>	 </remarks>
+///
+/// <param name="s">	  	[in,out] If non-null, the. </param>
+/// <param name="seconds">	The seconds. </param>
+///-------------------------------------------------------------------------------------------------
+
+void ms_set_progress_interval(MediaScan *s, int seconds)
 {
   s->progress_interval = seconds;
 }
 
-static int
-_should_scan(MediaScan *s, const char *path)
+///-------------------------------------------------------------------------------------------------
+/// <summary>	Determine if we should scan a path </summary>
+///
+/// <remarks>	 </remarks>
+///
+/// <param name="s">   	[in,out] If non-null, the. </param>
+/// <param name="path">	Full pathname of the file. </param>
+///
+/// <returns>	. </returns>
+///-------------------------------------------------------------------------------------------------
+
+static int _should_scan(MediaScan *s, const char *path)
 {
   char *p = NULL;
   char *found = NULL;
@@ -394,10 +527,17 @@ _should_scan(MediaScan *s, const char *path)
   return 0;
 }
 
-#ifndef WIN32
+///-------------------------------------------------------------------------------------------------
+/// <summary>	Recursively walk a directory struction </summary>
+///
+/// <remarks>	 </remarks>
+///
+/// <param name="s">	 	[in,out] If non-null, the. </param>
+/// <param name="path">  	Full pathname of the file. </param>
+/// <param name="curdir">	[in,out] If non-null, the curdir. </param>
+///-------------------------------------------------------------------------------------------------
 
-static void
-recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir)
+static void recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir)
 {
   char *dir = NULL;
   char *p = NULL;
@@ -535,8 +675,20 @@ out:
   free(dir);
 }
 
-void
-ms_scan(MediaScan *s)
+///-------------------------------------------------------------------------------------------------
+/// <summary>
+/// 	Begin a recursive scan of all paths previously provided to ms_add_path(). If async mode
+/// 	is enabled, this call will return immediately. You must obtain the file descriptor using
+/// 	ms_async_fd and this must be checked using an event loop or select(). When the fd becomes
+/// 	readable you must call ms_async_process to trigger any necessary callbacks.
+/// </summary>
+///
+/// <remarks>	 </remarks>
+///
+/// <param name="s">	[in,out] If non-null, the. </param>
+///-------------------------------------------------------------------------------------------------
+
+void ms_scan(MediaScan *s)
 {
   int i = 0;  
 
@@ -551,13 +703,14 @@ ms_scan(MediaScan *s)
   }
   
   for (i = 0; i < s->npaths; i++) {
+	char *phase = NULL;
     struct dirq_entry *entry = malloc(sizeof(struct dirq_entry));
     entry->dir = strdup("/"); // so free doesn't choke on this item later
     entry->files = malloc(sizeof(struct fileq));
     SIMPLEQ_INIT(entry->files);
     SIMPLEQ_INSERT_TAIL((struct dirq *)s->_dirq, entry, entries);
     
-    char *phase = (char *)malloc((size_t)PathMax);
+    phase = (char *)malloc((size_t)PathMax);
     sprintf(phase, "Discovering files in %s", s->paths[i]);
     s->progress->phase = phase;
     
@@ -574,8 +727,20 @@ ms_scan(MediaScan *s)
   }
 }
 
-void
-ms_scan_file(MediaScan *s, const char *full_path)
+///-------------------------------------------------------------------------------------------------
+/// <summary>
+/// 	Scan a single file. Everything that applies to ms_scan also applies to this function. If
+/// 	you know the type of the file, set the type paramter to one of TYPE_AUDIO, TYPE_VIDEO, or
+/// 	TYPE_IMAGE. Set it to TYPE_UNKNOWN to have it determined automatically.
+/// </summary>
+///
+/// <remarks>	 </remarks>
+///
+/// <param name="s">			[in,out] If non-null, the. </param>
+/// <param name="full_path">	Full pathname of the full file. </param>
+///-------------------------------------------------------------------------------------------------
+
+void ms_scan_file(MediaScan *s, const char *full_path)
 {
   MediaScanResult *r = NULL;
 
@@ -588,18 +753,6 @@ ms_scan_file(MediaScan *s, const char *full_path)
   s->on_result(s, r);
   
   result_destroy(r);
-}
-#endif
-
-void
-ms_scan(MediaScan *s) 
-{
-
-}
-
-void
-ms_scan_file(MediaScan *s, const char *full_path)
-{
 }
 
 /*

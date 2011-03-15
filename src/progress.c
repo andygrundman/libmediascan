@@ -1,3 +1,9 @@
+///-------------------------------------------------------------------------------------------------
+// file:	libmediascan\src\progress.c
+//
+// summary:	MediaScanProgress class
+///-------------------------------------------------------------------------------------------------
+
 #ifdef WIN32
 #include "win32/include/config.h"
 #endif
@@ -7,11 +13,15 @@
 #include <libmediascan.h>
 #include "common.h"
 
-/**
- * Create a new MediaScanProgress instance
- */
-MediaScanProgress *
-progress_create(void)
+///-------------------------------------------------------------------------------------------------
+/// <summary>	Create a new MediaScanProgress instance </summary>
+///
+/// <remarks>	 </remarks>
+///
+/// <returns>	null if it fails, else. </returns>
+///-------------------------------------------------------------------------------------------------
+
+MediaScanProgress *progress_create(void)
 {
   MediaScanProgress *p = (MediaScanProgress *)calloc(sizeof(MediaScanProgress), 1);
   if (p == NULL) {
@@ -36,8 +46,15 @@ progress_create(void)
   return p;
 }
 
-void
-progress_destroy(MediaScanProgress *p)
+///-------------------------------------------------------------------------------------------------
+/// <summary>	Destroy a MediaScanProgress instance </summary>
+///
+/// <remarks>	</remarks>
+///
+/// <param name="p">	[in,out] If non-null, the. </param>
+///-------------------------------------------------------------------------------------------------
+
+void progress_destroy(MediaScanProgress *p)
 {
   LOG_LEVEL(9, "destroy MediaScanProgress @ %p\n", p);
   

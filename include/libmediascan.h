@@ -1,3 +1,9 @@
+///-------------------------------------------------------------------------------------------------
+// file:	libmediascan\include\libmediascan.h
+//
+// summary:	External header for the LibMediaScan library.
+///-------------------------------------------------------------------------------------------------
+
 #ifndef _LIBMEDIASCAN_H
 #define _LIBMEDIASCAN_H
 
@@ -211,8 +217,8 @@ void ms_scan(MediaScan *s);
  * to one of TYPE_AUDIO, TYPE_VIDEO, or TYPE_IMAGE. Set it to TYPE_UNKNOWN
  * to have it determined automatically.
  */
-void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type);
-
+//void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type);
+void ms_scan_file(MediaScan *s, const char *full_path);
 /**
  * Return the file descriptor associated with an async scan. If an async scan
  * is not currently in progress, 0 will be returned.
