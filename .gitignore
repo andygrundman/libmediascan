@@ -33,6 +33,7 @@ test/scan_test
 Scan.xsc
 Scan.c
 Scan.bs
+Makefile.old
 META.yml
 blib
 pm_to_blib

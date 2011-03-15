@@ -19,6 +19,7 @@ extern int Debug;
 
 #define LOG_ERROR(...) fprintf(stderr, __VA_ARGS__)
 #define LOG_WARN(...)  fprintf(stderr, __VA_ARGS__)
+#define FATAL(...)     fprintf(stderr, __VA_ARGS__); exit(-1);
 
 #ifdef DEBUG
 # define LOG_DEBUG(...) printf(__VA_ARGS__)
