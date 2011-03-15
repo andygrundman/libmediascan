@@ -14,6 +14,7 @@
  * called by a name other than "ssh" or "Secure Shell".
  */
 
+#include <ctype.h>
 #include <errno.h>
 #include <math.h>
 #include <stdlib.h>
@@ -127,8 +128,10 @@ buffer_append_space(Buffer *buffer, uint32_t len)
   uint32_t newlen;
   void *p;
 
-  if (len > BUFFER_MAX_CHUNK)
-    croak("buffer_append_space: len %u too large (max %u)", len, BUFFER_MAX_CHUNK);
+  if (len > BUFFER_MAX_CHUNK) {
+    LOG_ERROR("buffer_append_space: len %u too large (max %u)", len, BUFFER_MAX_CHUNK);
+    len = BUFFER_MAX_CHUNK;
+  }
 
   /* If the buffer is empty, start using it from the beginning. */
   if (buffer->offset == buffer->end) {
@@ -155,7 +158,7 @@ restart:
     newlen = buffer->alloc + len + 4096;
   
   if (newlen > BUFFER_MAX_LEN)
-    croak("buffer_append_space: alloc %u too large (max %u)",
+    FATAL("buffer_append_space: alloc %u too large (max %u)",
         newlen, BUFFER_MAX_LEN);
   LOG_DEBUG("Buffer extended to %d\n", newlen);
   buffer->buf = (unsigned char *)realloc(buffer->buf, newlen);
@@ -199,7 +202,7 @@ int
 buffer_get_ret(Buffer *buffer, void *buf, uint32_t len)
 {
   if (len > buffer->end - buffer->offset) {
-    warn("buffer_get_ret: trying to get more bytes %d than in buffer %d", len, buffer->end - buffer->offset);
+    LOG_WARN("buffer_get_ret: trying to get more bytes %d than in buffer %d", len, buffer->end - buffer->offset);
     return (-1);
   }
 
@@ -212,7 +215,7 @@ void
 buffer_get(Buffer *buffer, void *buf, uint32_t len)
 {
   if (buffer_get_ret(buffer, buf, len) == -1)
-    croak("buffer_get: buffer error");
+    FATAL("buffer_get: buffer error");
 }
 
 /* Consumes the given number of bytes from the beginning of the buffer. */
@@ -221,7 +224,7 @@ int
 buffer_consume_ret(Buffer *buffer, uint32_t bytes)
 {
   if (bytes > buffer->end - buffer->offset) {
-    warn("buffer_consume_ret: trying to get more bytes %d than in buffer %d", bytes, buffer->end - buffer->offset);
+    LOG_WARN("buffer_consume_ret: trying to get more bytes %d than in buffer %d", bytes, buffer->end - buffer->offset);
     return (-1);
   }
 
@@ -233,7 +236,7 @@ void
 buffer_consume(Buffer *buffer, uint32_t bytes)
 {
   if (buffer_consume_ret(buffer, bytes) == -1)
-    croak("buffer_consume: buffer error");
+    FATAL("buffer_consume: buffer error");
 }
 
 /* Consumes the given number of bytes from the end of the buffer. */
@@ -252,7 +255,7 @@ void
 buffer_consume_end(Buffer *buffer, uint32_t bytes)
 {
   if (buffer_consume_end_ret(buffer, bytes) == -1)
-    croak("buffer_consume_end: trying to get more bytes %d than in buffer %d", bytes, buffer->end - buffer->offset);
+    FATAL("buffer_consume_end: trying to get more bytes %d than in buffer %d", bytes, buffer->end - buffer->offset);
 }
 
 /* Returns a pointer to the first used byte in the buffer. */
@@ -322,7 +325,7 @@ int
 buffer_get_char_ret(char *ret, Buffer *buffer)
 {
   if (buffer_get_ret(buffer, ret, 1) == -1) {
-    warn("buffer_get_char_ret: buffer_get_ret failed");
+    LOG_WARN("buffer_get_char_ret: buffer_get_ret failed");
     return (-1);
   }
 
@@ -335,7 +338,7 @@ buffer_get_char(Buffer *buffer)
   char ch;
 
   if (buffer_get_char_ret(&ch, buffer) == -1)
-    croak("buffer_get_char: buffer error");
+    FATAL("buffer_get_char: buffer error");
   return (unsigned char) ch;
 }
 
@@ -370,7 +373,7 @@ buffer_get_int_le(Buffer *buffer)
   uint32_t ret;
 
   if (buffer_get_int_le_ret(&ret, buffer) == -1)
-    croak("buffer_get_int_le: buffer error");
+    FATAL("buffer_get_int_le: buffer error");
 
   return (ret);
 }
@@ -406,7 +409,7 @@ buffer_get_int(Buffer *buffer)
   uint32_t ret;
 
   if (buffer_get_int_ret(&ret, buffer) == -1)
-    croak("buffer_get_int: buffer error");
+    FATAL("buffer_get_int: buffer error");
 
   return (ret);
 }
@@ -441,7 +444,7 @@ buffer_get_int24(Buffer *buffer)
   uint32_t ret;
 
   if (buffer_get_int24_ret(&ret, buffer) == -1)
-    croak("buffer_get_int24: buffer error");
+    FATAL("buffer_get_int24: buffer error");
 
   return (ret);
 }
@@ -476,7 +479,7 @@ buffer_get_int24_le(Buffer *buffer)
   uint32_t ret;
 
   if (buffer_get_int24_le_ret(&ret, buffer) == -1)
-    croak("buffer_get_int24_le: buffer error");
+    FATAL("buffer_get_int24_le: buffer error");
 
   return (ret);
 }
@@ -516,7 +519,7 @@ buffer_get_int64_le(Buffer *buffer)
   uint64_t ret;
 
   if (buffer_get_int64_le_ret(&ret, buffer) == -1)
-    croak("buffer_get_int64_le: buffer error");
+    FATAL("buffer_get_int64_le: buffer error");
 
   return (ret);
 }
@@ -556,7 +559,7 @@ buffer_get_int64(Buffer *buffer)
   uint64_t ret;
 
   if (buffer_get_int64_ret(&ret, buffer) == -1)
-    croak("buffer_get_int64_le: buffer error");
+    FATAL("buffer_get_int64_le: buffer error");
 
   return (ret);
 }
@@ -590,7 +593,7 @@ buffer_get_short_le(Buffer *buffer)
   uint16_t ret;
 
   if (buffer_get_short_le_ret(&ret, buffer) == -1)
-    croak("buffer_get_short_le: buffer error");
+    FATAL("buffer_get_short_le: buffer error");
 
   return (ret);
 }
@@ -624,7 +627,7 @@ buffer_get_short(Buffer *buffer)
   uint16_t ret;
 
   if (buffer_get_short_ret(&ret, buffer) == -1)
-    croak("buffer_get_short: buffer error");
+    FATAL("buffer_get_short: buffer error");
 
   return (ret);
 }
@@ -687,7 +690,9 @@ buffer_get_latin1_as_utf8(Buffer *buffer, Buffer *utf8, uint32_t len_hint)
   
   // We may get a valid UTF-8 string in here from ID3v1 or
   // elsewhere, if so we don't want to translate from ISO-8859-1
-  is_utf8 = is_utf8_string(bptr, len_hint); // XXX is_utf8_string is a perlapi function
+  // XXX is_utf8_string is a perlapi function
+  //is_utf8 = is_utf8_string(bptr, len_hint);
+  is_utf8 = 0;
   
   for (i = 0; i < len_hint; i++) {
     uint8_t c = bptr[i];
@@ -807,7 +812,7 @@ buffer_get_float32_le(Buffer *buffer)
   float ret;
 
   if (buffer_get_float32_le_ret(&ret, buffer) == -1)
-    croak("buffer_get_float32_le_ret: buffer error");
+    FATAL("buffer_get_float32_le_ret: buffer error");
 
   return (ret);
 }
@@ -864,7 +869,7 @@ buffer_get_float32(Buffer *buffer)
   float ret;
 
   if (buffer_get_float32_ret(&ret, buffer) == -1)
-    croak("buffer_get_float32_ret: buffer error");
+    FATAL("buffer_get_float32_ret: buffer error");
 
   return (ret);
 }
@@ -1058,7 +1063,7 @@ buffer_check_load(Buffer *buf, FILE *fp, int min_wanted, int max_wanted)
     );
 
     if ( (read = fread(tmp, 1, actual_wanted, fp)) <= 0 ) {
-      if (read < 0) {
+      if (ferror(fp)) {
         LOG_ERROR("Error reading: %s (wanted %d)\n", strerror(errno), actual_wanted);
       }
       else {

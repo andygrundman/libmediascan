@@ -37,5 +37,6 @@ META.yml
 blib
 pm_to_blib
 README
+Makefile.old
 Media-Scan*
 
