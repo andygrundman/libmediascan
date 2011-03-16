@@ -9,6 +9,7 @@
 
 #include <unistd.h>
 #include <stdio.h>
+#include <tchar.h>	// Include Unicode support functions
 
 #ifdef WIN32
 #include <wchar.h>

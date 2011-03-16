@@ -12,11 +12,49 @@
 
 #define TEST_COUNT 21
 
+///-------------------------------------------------------------------------------------------------
+///  Called with a result.
+///
+/// @author Henry Bennett
+/// @date 03/15/2011
+///
+/// @param [in,out] s   If non-null, the.
+/// @param [out] result if non-null, the result.
+///
+/// ### remarks .
+///-------------------------------------------------------------------------------------------------
+
 static void my_result_callback(MediaScan *s, MediaScanResult *result) {
 
 }
 
-static void my_error_callback(MediaScan *s, MediaScanError *error) { }
+///-------------------------------------------------------------------------------------------------
+///  Called with an error.
+///
+/// @author Henry Bennett
+/// @date 03/15/2011
+///
+/// @param [in,out] s	  If non-null, the.
+/// @param [in,out] error If non-null, the error.
+///
+/// ### remarks .
+///-------------------------------------------------------------------------------------------------
+
+static void my_error_callback(MediaScan *s, MediaScanError *error) { 
+
+} /* my_error_callback() */
+
+///-------------------------------------------------------------------------------------------------
+///  Called with progress update.
+///
+/// @author Henry Bennett
+/// @date 03/15/2011
+///
+/// @param [in,out] s		 If non-null, the.
+/// @param [in,out] progress If non-null, the progress.
+///
+/// ### remarks .
+///-------------------------------------------------------------------------------------------------
 
 static void my_progress_callback(MediaScan *s, MediaScanProgress *progress) {
   // Check final progress callback only
@@ -24,18 +62,34 @@ static void my_progress_callback(MediaScan *s, MediaScanProgress *progress) {
     ok(progress->dir_total == 3, "final progress callback dir_total is %d", progress->dir_total);
     ok(progress->file_total == 22, "final progress callback file_total is %d", progress->file_total);
   }
-}
-  
-int
-main(int argc, char *argv[])
+} /* my_progress_callback() */
+
+///-------------------------------------------------------------------------------------------------
+///  Main entry-point for this application.
+///
+/// @author Henry Bennett
+/// @date 03/15/2011
+///
+/// @param argc Number of command-line arguments.
+/// @param argv Array of command-line argument strings.
+///
+/// @return Exit-code for the process - 0 for success, else an error code.
+///
+/// ### remarks .
+///-------------------------------------------------------------------------------------------------
+
+int main(int argc, char *argv[])
 {
   char *bin;
   char *dir;
 
   plan(TEST_COUNT);
-  
+
+    run_unit_tests();
+
+
   //ms_set_log_level(9);
-  
+/*  
   // Get path to this binary
   bin = _findbin(argv[0]);
   dir = _abspath(bin, "../data"); // because binary is in .libs dir
@@ -86,6 +140,6 @@ main(int argc, char *argv[])
   
   free(dir);
   free(bin);
-  
+  */
   return exit_status();
-}
+} /* main() */

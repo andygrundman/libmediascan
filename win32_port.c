@@ -11,11 +11,14 @@
 #include "config.h"
 
 ///-------------------------------------------------------------------------------------------------
-/// <summary>	Ends the program while outputting a final string to the console. </summary>
+///  Ends the program while outputting a final string to the console.
 ///
-/// <remarks>	 </remarks>
+/// @author Henry Bennett
+/// @date 03/15/2011
 ///
-/// <param name="fmt">	[in] parameter list like printf. </param>
+/// @param [in]	 fmt parameter list like printf.
+///
+/// ### remarks .
 ///-------------------------------------------------------------------------------------------------
 
 void croak(char *fmt, ...) {

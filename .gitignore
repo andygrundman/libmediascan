@@ -42,6 +42,12 @@ test/scan_test
 *.pdb
 *.lastbuildstate
 *.ipch
+*.sdf
+*.opensdf
+*.suo
+*.idb
+win32/Debug/*
+
 
 # Perl
 Scan.xsc

@@ -14,11 +14,14 @@
 #include "common.h"
 
 ///-------------------------------------------------------------------------------------------------
-/// <summary>	Create a new MediaScanProgress instance </summary>
+///  Create a new MediaScanProgress instance.
 ///
-/// <remarks>	 </remarks>
+/// @author Henry Bennett
+/// @date 03/15/2011
 ///
-/// <returns>	null if it fails, else. </returns>
+/// @return null if it fails, else.
+///
+/// ### remarks .
 ///-------------------------------------------------------------------------------------------------
 
 MediaScanProgress *progress_create(void)
@@ -47,11 +50,14 @@ MediaScanProgress *progress_create(void)
 }
 
 ///-------------------------------------------------------------------------------------------------
-/// <summary>	Destroy a MediaScanProgress instance </summary>
+///  Destroy a MediaScanProgress instance.
 ///
-/// <remarks>	</remarks>
+/// @author Henry Bennett
+/// @date 03/15/2011
 ///
-/// <param name="p">	[in,out] If non-null, the. </param>
+/// @param [in,out] p If non-null, the.
+///
+/// ### remarks .
 ///-------------------------------------------------------------------------------------------------
 
 void progress_destroy(MediaScanProgress *p)

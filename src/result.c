@@ -58,11 +58,14 @@ type_handler audio_handlers[] = {
 };
 
 ///-------------------------------------------------------------------------------------------------
-/// <summary>	Create a new MediaScanResult instance. </summary>
+///  Create a new MediaScanResult instance.
 ///
-/// <remarks>	 </remarks>
+/// @author Henry Bennett
+/// @date 03/15/2011
 ///
-/// <returns>	null if it fails, else. </returns>
+/// @return null if it fails, else.
+///
+/// ### remarks .
 ///-------------------------------------------------------------------------------------------------
 
 MediaScanResult *result_create(void)
@@ -93,11 +96,14 @@ MediaScanResult *result_create(void)
 }
 
 ///-------------------------------------------------------------------------------------------------
-/// <summary>	Destroy a MediaScanResult instance </summary>
+///  Destroy a MediaScanResult instance.
 ///
-/// <remarks>	</remarks>
+/// @author Henry Bennett
+/// @date 03/15/2011
 ///
-/// <param name="r">	[in,out] If non-null, the. </param>
+/// @param [in,out] r If non-null, the.
+///
+/// ### remarks .
 ///-------------------------------------------------------------------------------------------------
 
 void result_destroy(MediaScanResult *r)

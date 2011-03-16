@@ -33,6 +33,9 @@
     <ClCompile Include="..\win32_port.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\mediascan_win32.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\libmediascan.h">
