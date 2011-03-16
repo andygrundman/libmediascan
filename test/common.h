@@ -1,6 +1,9 @@
 // Utility functions for tests
 
+#include <stdio.h>
 #include <string.h>
+
+#define LOG_WARN(...)  fprintf(stderr, __VA_ARGS__)
 
 static char *
 _findbin(const char *cmd)

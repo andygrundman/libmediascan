@@ -2,6 +2,7 @@
 #define _COMMON_H
 
 #include <stdio.h>
+#include <libmediascan.h>
 
 #include "config.h"
 
@@ -13,18 +14,15 @@
 # define unlikely(x) (x)
 #endif
 
-extern int Debug;
+extern enum log_level Debug;
 
 #define LOG_LEVEL(level, ...) if (unlikely(Debug >= level)) fprintf(stderr, __VA_ARGS__)
 
-#define LOG_ERROR(...) fprintf(stderr, __VA_ARGS__)
-#define LOG_WARN(...)  fprintf(stderr, __VA_ARGS__)
-#define FATAL(...)     fprintf(stderr, __VA_ARGS__); exit(-1);
-
-#ifdef DEBUG
-# define LOG_DEBUG(...) printf(__VA_ARGS__)
-#else
-# define LOG_DEBUG(...)
-#endif
+#define LOG_ERROR(...) LOG_LEVEL(ERROR, __VA_ARGS__)
+#define LOG_WARN(...)  LOG_LEVEL(WARN, __VA_ARGS__)
+#define LOG_INFO(...)  LOG_LEVEL(INFO, __VA_ARGS__)
+#define LOG_DEBUG(...) LOG_LEVEL(DEBUG, __VA_ARGS__)
+#define LOG_MEM(...)   LOG_LEVEL(MEMORY, __VA_ARGS__)
+#define FATAL(...)     LOG_LEVEL(ERROR, __VA_ARGS__); exit(-1)
 
 #endif // _COMMON_H

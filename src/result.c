@@ -4,9 +4,13 @@
 #include <strings.h>
 #include <sys/stat.h>
 
+#include <libavformat/avformat.h>
+
 #include <libmediascan.h>
 #include "common.h"
 #include "result.h"
+#include "error.h"
+#include "video.h"
 
 // Audio formats
 #include "wav.h"
@@ -43,138 +47,64 @@ type_handler audio_handlers[] = {
   { NULL, 0 }
 };
 
-MediaScanResult *
-result_create(void)
-{
-  MediaScanResult *r = (MediaScanResult *)calloc(sizeof(MediaScanResult), 1);
-  if (r == NULL) {
-    LOG_ERROR("Out of memory for new MediaScanResult object\n");
-    return NULL;
-  }
-  
-  LOG_LEVEL(9, "new MediaScanResult @ %p\n", r);
-  
-  r->type = TYPE_UNKNOWN;
-  r->path = NULL;
-  r->mime_type = NULL;
-  r->dlna_profile = NULL;
-  r->size = 0;
-  r->mtime = 0;
-  r->bitrate = 0;
-  r->duration_ms = 0;
-  
-  r->error = NULL;
-  
-  r->_avf = NULL;
-  r->_fp = NULL;
-  
-  return r;
-}
-
-void
-result_destroy(MediaScanResult *r)
-{
-  LOG_LEVEL(9, "destroy MediaScanResult @ %p\n", r);
-  
-  free(r);
-}
-
-/*
-static type_handler *
-get_type_handler(char *ext, type_ext *types, type_handler *handlers)
-{
-  int typeindex = -1;
-  int i, j;
-  type_handler *hdl = NULL;
-  
-  for (i = 0; typeindex == -1 && types[i].type; i++) {
-    for (j = 0; typeindex == -1 && types[i].ext[j]; j++) {
-#ifdef _MSC_VER
-      if (!stricmp(types[i].ext[j], ext)) {
-#else
-      if (!strcasecmp(types[i].ext[j], ext)) {
-#endif
-        typeindex = i;
-        break;
-      }
-    }
-  }
-  
-  LOG_DEBUG("typeindex: %d\n", typeindex);
-    
-  if (typeindex > -1) {
-    for (hdl = handlers; hdl->type; ++hdl)
-      if (!strcmp(hdl->type, types[typeindex].type))
-        break;
-  }
-  
-  if (hdl)
-    LOG_DEBUG("type handler: %s\n", hdl->type);
-  
-  return hdl;
-}
-
-static void
-set_size(ScanData s)
-{
-#ifdef _WIN32
-  // Win32 doesn't work right with fstat
-  fseek(s->fp, 0, SEEK_END);
-  s->size = ftell(s->fp);
-  fseek(s->fp, 0, SEEK_SET);
-#else
-  struct stat buf;
-
-  if ( !fstat( fileno(s->fp), &buf ) ) {
-    s->size = buf.st_size;
-  }
-#endif
-}
-
 // Scan a video file with libavformat
-static void
-scan_video(ScanData s)
+static int
+scan_video(MediaScanResult *r)
 {
   AVFormatContext *avf = NULL;
   AVInputFormat *iformat = NULL;
+  int AVError = 0;
+  int ret = 1;
 
-  if (s->flags & USE_EXTENSION) {
+  if (r->flags & USE_EXTENSION) {
     // Set AVInputFormat based on file extension to avoid guessing
     while ((iformat = av_iformat_next(iformat))) {
-      if ( av_match_ext(s->path, iformat->name) )
+      if ( av_match_ext(r->path, iformat->name) )
         break;
 
       if (iformat->extensions) {
-        if ( av_match_ext(s->path, iformat->extensions) )
+        if ( av_match_ext(r->path, iformat->extensions) )
           break;
       }
     }
 
-#ifdef DEBUG
     if (iformat)
-      LOG_DEBUG("Forcing format: %s\n", iformat->name);
-#endif
+      LOG_INFO("Forcing format: %s\n", iformat->name);
   }
 
-  if ( av_open_input_file(&avf, s->path, iformat, 0, NULL) != 0 ) {
-    s->error = SCAN_FILE_OPEN;
+  if ( (AVError = av_open_input_file(&avf, r->path, iformat, 0, NULL)) != 0 ) {
+    r->error = error_create(r->path, MS_ERROR_FILE, "[libavformat] Unable to open file for reading");
+    r->error->averror = AVError;
+    ret = 0;
     goto out;
   }
 
-  if ( av_find_stream_info(avf) < 0 ) {
-    s->error = SCAN_FILE_READ_INFO;
+  if ( (AVError = av_find_stream_info(avf)) < 0 ) {
+    r->error = error_create(r->path, MS_ERROR_READ, "[libavformat] Unable to find stream info");
+    r->error->averror = AVError;
+    ret = 0;
     goto out;
   }
 
 #ifdef DEBUG
-  //dump_format(avf, 0, s->path, 0);
+  dump_format(avf, 0, r->path, 0);
 #endif
 
-  s->_avf = avf;
+  r->_avf = (void *)avf;
+  
+  // General metadata
+  // XXX r->mime_type = get_mime_type(r);
+  // XXX r->dlna_profile = get_dlna_profile(r);
+  // XXX r->size
+  // XXX r->mtime
+  r->bitrate     = avf->bit_rate / 1000;
+  r->duration_ms = avf->duration / 1000;
 
+  // Video-specific metadata
+  r->type_data.video = video_create();
+
+/*
   s->type_name   = avf->iformat->long_name;
-  s->bitrate     = avf->bit_rate / 1000;
-  s->duration_ms = avf->duration / 1000;
   s->metadata    = avf->metadata;
   s->nstreams    = avf->nb_streams;
 
@@ -228,9 +158,135 @@ scan_video(ScanData s)
       }
     }
   }
+*/
 
 out:
-  return;
+  return ret;
+}
+
+MediaScanResult *
+result_create(void)
+{
+  MediaScanResult *r = (MediaScanResult *)calloc(sizeof(MediaScanResult), 1);
+  if (r == NULL) {
+    LOG_ERROR("Out of memory for new MediaScanResult object\n");
+    return NULL;
+  }
+  
+  LOG_MEM("new MediaScanResult @ %p\n", r);
+  
+  r->type = TYPE_UNKNOWN;
+  r->flags = USE_EXTENSION;
+  r->path = NULL;
+  r->error = NULL;
+  
+  r->mime_type = NULL;
+  r->dlna_profile = NULL;
+  r->size = 0;
+  r->mtime = 0;
+  r->bitrate = 0;
+  r->duration_ms = 0;
+  
+  r->type_data.audio = NULL;
+  
+  r->_avf = NULL;
+  r->_fp = NULL;
+  
+  return r;
+}
+
+int
+result_scan(MediaScanResult *r)
+{
+  if (!r->type || !r->path) {
+    r->error = error_create("", MS_ERROR_TYPE_INVALID_PARAMS, "Invalid parameters passed to result_scan()");
+    return 0;
+  }
+  
+  switch (r->type) {
+    case TYPE_VIDEO:
+      return scan_video(r);
+      break;
+    
+    default:
+      break;
+  }
+  
+  return 0;
+}
+
+void
+result_destroy(MediaScanResult *r)
+{
+  if (r->error)
+    error_destroy(r->error);
+  
+  switch (r->type) {
+    case TYPE_VIDEO:
+      if (r->type_data.video)
+        video_destroy((MediaScanVideo *)r->type_data.video);
+      break;
+    
+    // XXX other type_data types
+    
+    default:
+      break;
+  }
+    
+  LOG_MEM("destroy MediaScanResult @ %p\n", r);
+  free(r);
+}
+
+/*
+static type_handler *
+get_type_handler(char *ext, type_ext *types, type_handler *handlers)
+{
+  int typeindex = -1;
+  int i, j;
+  type_handler *hdl = NULL;
+  
+  for (i = 0; typeindex == -1 && types[i].type; i++) {
+    for (j = 0; typeindex == -1 && types[i].ext[j]; j++) {
+#ifdef _MSC_VER
+      if (!stricmp(types[i].ext[j], ext)) {
+#else
+      if (!strcasecmp(types[i].ext[j], ext)) {
+#endif
+        typeindex = i;
+        break;
+      }
+    }
+  }
+  
+  LOG_DEBUG("typeindex: %d\n", typeindex);
+    
+  if (typeindex > -1) {
+    for (hdl = handlers; hdl->type; ++hdl)
+      if (!strcmp(hdl->type, types[typeindex].type))
+        break;
+  }
+  
+  if (hdl)
+    LOG_DEBUG("type handler: %s\n", hdl->type);
+  
+  return hdl;
+}
+
+static void
+set_size(ScanData s)
+{
+#ifdef _WIN32
+  // Win32 doesn't work right with fstat
+  fseek(s->fp, 0, SEEK_END);
+  s->size = ftell(s->fp);
+  fseek(s->fp, 0, SEEK_SET);
+#else
+  struct stat buf;
+
+  if ( !fstat( fileno(s->fp), &buf ) ) {
+    s->size = buf.st_size;
+  }
+#endif
 }
 
 static void

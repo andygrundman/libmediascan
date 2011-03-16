@@ -14,6 +14,15 @@ typedef struct {
 } type_handler;
 
 MediaScanResult * result_create(void);
+
+/**
+ * Fill out the MediaScanResult struct by performing any necessary scan
+ * operations. Requires r->type and r->path to be set before calling.
+ * Returns 1 on success.
+ * Returns 0 on error, and fills r->error with a MediaScanError.
+ */
+int result_scan(MediaScanResult *r);
+
 void result_destroy(MediaScanResult *r);
 
 #endif

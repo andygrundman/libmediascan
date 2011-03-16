@@ -10,7 +10,9 @@ static void my_result_callback(MediaScan *s, MediaScanResult *result) {
 
 }
 
-static void my_error_callback(MediaScan *s, MediaScanError *error) { }
+static void my_error_callback(MediaScan *s, MediaScanError *error) {
+  LOG_WARN("[Error] %s (%s)\n", error->error_string, error->path);
+}
 
 static void my_progress_callback(MediaScan *s, MediaScanProgress *progress) {
   // Check final progress callback only
@@ -25,7 +27,7 @@ main(int argc, char *argv[])
 {
   plan(TEST_COUNT);
   
-  //ms_set_log_level(9);
+  ms_set_log_level(INFO);
   
   // Get path to this binary
   char *bin = _findbin(argv[0]);
