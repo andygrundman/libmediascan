@@ -19,7 +19,10 @@
 #define MAX_IGNORE_EXTS 128
 
 enum media_error {
-  MS_ERROR_TYPE_UNKNOWN = -1,
+  MS_ERROR_TYPE_UNKNOWN        = -1,
+  MS_ERROR_TYPE_INVALID_PARAMS = -2,
+  MS_ERROR_FILE                = -3,
+  MS_ERROR_READ                = -4
 };
 
 enum media_type {
@@ -27,6 +30,18 @@ enum media_type {
   TYPE_VIDEO,
   TYPE_AUDIO,
   TYPE_IMAGE
+};
+
+enum scan_flags {
+  USE_EXTENSION = 1 //< Use a file's extension to determine file format (default)
+};
+
+enum log_level {
+  ERR    = 1,
+  WARN   = 2,
+  INFO   = 3,
+  DEBUG  = 4,
+  MEMORY = 9
 };
 
 struct _Tag {
@@ -72,6 +87,7 @@ typedef struct _Video MediaScanVideo;
 
 struct _Error {
   enum media_error error_code;
+  int averror;                  ///< Optional error code from ffmpeg
   const char *path;
   const char *error_string;
 };
@@ -80,14 +96,15 @@ typedef struct _Error MediaScanError;
 struct _Result {
   enum media_type type;
   const char *path;
+  enum scan_flags flags;
+  MediaScanError *error;
+  
   const char *mime_type;
   const char *dlna_profile;
   off_t size;
   int mtime;
-  int bitrate; // total bitrate
+  int bitrate; ///< total bitrate
   int duration_ms;
-  
-  MediaScanError *error;
   
   union {
     MediaScanAudio *audio;
@@ -96,20 +113,20 @@ struct _Result {
   } type_data;
   
   // private members
-  void *_avf; // AVFormatContext instance
+  void *_avf; ///< AVFormatContext instance
   FILE *_fp;
 };
 typedef struct _Result MediaScanResult;
 
 struct _Progress {
-  const char *phase;    // Discovering, Scanning, etc
-  const char *cur_item; // most recently scanned item
+  const char *phase;    ///< Discovering, Scanning, etc
+  const char *cur_item; ///< most recently scanned item
   int dir_total;
   int dir_done;
   int file_total;
   int file_done;
-  int eta;    // eta in seconds
-  float rate; // rate in items/second
+  int eta;    ///< eta in seconds
+  float rate; ///< rate in items/second
   
   // private
   long _last_callback;
@@ -153,8 +170,14 @@ enum {
 
 /**
  * Set the logging level.
+ * 1 - Error
+ * 2 - Warn
+ * 3 - Info
+ * 4 - Debug
+ * ...
+ * 9 - Memory alloc/free debugging
  */
-void ms_set_log_level(int level);
+void ms_set_log_level(enum log_level level);
 
 /**
  * Allocate a new MediaScan object.

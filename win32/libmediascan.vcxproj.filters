@@ -30,10 +30,16 @@
     <ClCompile Include="..\src\result.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\win32_port.c">
+    <ClCompile Include="..\src\mediascan_win32.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\mediascan_win32.c">
+    <ClCompile Include="..\src\win32_port.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\video.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\error.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,7 +1,11 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifndef WIN32
 #include <strings.h>
+#endif
+
 #include <sys/stat.h>
 
 #include <libmediascan.h>
@@ -16,9 +20,10 @@ error_create(const char *path, enum media_error error_code, const char *error_st
     return NULL;
   }
   
-  LOG_LEVEL(9, "new MediaScanError @ %p\n", e);
+  LOG_MEM("new MediaScanError @ %p\n", e);
   
   e->error_code = error_code;
+  e->averror = 0;
   e->path = path;
   e->error_string = error_string;
   
@@ -28,7 +33,7 @@ error_create(const char *path, enum media_error error_code, const char *error_st
 void
 error_destroy(MediaScanError *e)
 {
-  LOG_LEVEL(9, "destroy MediaScanError @ %p\n", e);
+  LOG_MEM("destroy MediaScanError @ %p\n", e);
   
   free(e);
 }

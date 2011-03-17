@@ -28,21 +28,6 @@ static void my_result_callback(MediaScan *s, MediaScanResult *result) {
 
 }
 
-///-------------------------------------------------------------------------------------------------
-///  Called with an error.
-///
-/// @author Henry Bennett
-/// @date 03/15/2011
-///
-/// @param [in,out] s	  If non-null, the.
-/// @param [in,out] error If non-null, the error.
-///
-/// ### remarks .
-///-------------------------------------------------------------------------------------------------
-
-static void my_error_callback(MediaScan *s, MediaScanError *error) { 
-
-} /* my_error_callback() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  Called with progress update.
@@ -55,7 +40,9 @@ static void my_error_callback(MediaScan *s, MediaScanError *error) {
 ///
 /// ### remarks .
 ///-------------------------------------------------------------------------------------------------
-
+static void my_error_callback(MediaScan *s, MediaScanError *error) {
+  LOG_WARN("[Error] %s (%s)\n", error->error_string, error->path);
+}
 static void my_progress_callback(MediaScan *s, MediaScanProgress *progress) {
   // Check final progress callback only
   if (!progress->cur_item) {
@@ -85,11 +72,8 @@ int main(int argc, char *argv[])
 
   plan(TEST_COUNT);
 
-    run_unit_tests();
+  ms_set_log_level(INFO);
 
-
-  //ms_set_log_level(9);
-/*  
   // Get path to this binary
   bin = _findbin(argv[0]);
   dir = _abspath(bin, "../data"); // because binary is in .libs dir
@@ -140,6 +124,8 @@ int main(int argc, char *argv[])
   
   free(dir);
   free(bin);
-  */
+  
+  run_unit_tests();
+
   return exit_status();
 } /* main() */

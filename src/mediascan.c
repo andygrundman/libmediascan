@@ -16,9 +16,7 @@
 #include <direct.h>
 #endif
 
-// Global debug flag, used by LOG_LEVEL macro
-int Debug = 0;
-static int Initialized = 0;
+#include <libavformat/avformat.h>
 
 #include <libmediascan.h>
 #include "common.h"
@@ -28,14 +26,17 @@ static int Initialized = 0;
 #include "progress.h"
 #include "result.h"
 
-#include <libavformat/avformat.h>
-#include <libavcodec/avcodec.h>
-
-#include "mediascan.h"
-
 #ifdef WIN32
 #include "mediascan_win32.h"
 #endif
+
+// Global log level flag
+enum log_level Debug = ERROR;
+
+#include "mediascan.h"
+static int Initialized = 0;
+static long PathMax = 0;
+int ms_errno = 0;
 
 /*
  Video support
@@ -60,8 +61,6 @@ static int Initialized = 0;
 static const char *AudioExts = ",aif,aiff,wav,";
 static const char *VideoExts = ",asf,avi,divx,flv,m2t,m4v,mkv,mov,mpg,mpeg,mp4,m2p,m2t,mts,m2ts,ts,vob,webm,wmv,xvid,3gp,3g2,3gp2,3gpp,";
 static const char *ImageExts = ",jpg,png,gif,bmp,jpeg,";
-
-int ms_errno = 0;
 
 #ifdef WIN32
 #define REGISTER_DECODER(X,x) { \
@@ -521,7 +520,7 @@ int _should_scan(MediaScan *s, const char *path)
       int i;
       for (i = 0; i < s->nignore_exts; i++) {
         if (strstr(extc, s->ignore_exts[i]))
-          return 0;
+          return TYPE_UNKNOWN;
       }
     }
     
@@ -538,68 +537,11 @@ int _should_scan(MediaScan *s, const char *path)
     if (found)
       return TYPE_IMAGE;
     
-    return 0;
+    return TYPE_UNKNOWN;
   }
       
-  return 0;
+  return TYPE_UNKNOWN;
 }
-
-///-------------------------------------------------------------------------------------------------
-///  Scan a single file. Everything that applies to ms_scan also applies to this function. If
-/// 	you know the type of the file, set the type paramter to one of TYPE_AUDIO, TYPE_VIDEO, or
-/// 	TYPE_IMAGE. Set it to TYPE_UNKNOWN to have it determined automatically.
-///
-/// @author Henry Bennett
-/// @date 03/15/2011
-///
-/// @param [in,out] s If non-null, the.
-/// @param full_path  Full pathname of the full file.
-///
-/// ### remarks .
-///-------------------------------------------------------------------------------------------------
-
-void ms_scan_file(MediaScan *s, const char *full_path)
-{
-  MediaScanResult *r = NULL;
-
-  LOG_LEVEL(1, "Scanning file %s\n", full_path);
-  
-  r = result_create();
-  if (r == NULL)
-    return;
-    
-  s->on_result(s, r);
-  
-  result_destroy(r);
-}
-
-///-------------------------------------------------------------------------------------------------
-/// <summary>	Query if 'path' is absolute path. </summary>
-///
-/// <remarks>	Henry Bennett, 03/16/2011. </remarks>
-///
-/// <param name="path"> Pathname to check </param>
-///
-/// <returns>	true if absolute path, false if not. </returns>
-///-------------------------------------------------------------------------------------------------
-
-bool is_absolute_path(const char *path) {
-
-	if(path == NULL)
-		return FALSE;
-
-	// \workspace, /workspace, etc
-	if( strlen(path) > 1 && ( path[0] == '/' || path[0] == '\\') ) 
-		return TRUE;
-
-#ifdef WIN32
-	// C:\, D:\, etc
-	if( strlen(path) > 2 && path[1] == ':' )
-		return TRUE;
-#endif
-
-	return FALSE;
-} /* is_absolute_path() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  Begin a recursive scan of all paths previously provided to ms_add_path(). If async mode
@@ -657,26 +599,89 @@ void ms_scan(MediaScan *s)
   }
 } /* ms_scan() */
 
-/*
-ScanData
-mediascan_scan_file(const char *path, int flags)
+///-------------------------------------------------------------------------------------------------
+///  Scan a single file. Everything that applies to ms_scan also applies to this function. If
+/// 	you know the type of the file, set the type paramter to one of TYPE_AUDIO, TYPE_VIDEO, or
+/// 	TYPE_IMAGE. Set it to TYPE_UNKNOWN to have it determined automatically.
+///
+/// @author Henry Bennett
+/// @date 03/15/2011
+///
+/// @param [in,out] s If non-null, the.
+/// @param full_path  Full pathname of the full file.
+///
+/// ### remarks .
+///-------------------------------------------------------------------------------------------------
+void
+ms_scan_file(MediaScan *s, const char *full_path, enum media_type type)
 {
-  _init();
-  
-  ScanData s = NULL;
-  int type = _is_media(path);
-            
-  if (type == TYPE_VIDEO && !(flags & SKIP_VIDEO)) {
-    s = mediascan_new_ScanData(path, flags, type);
-  }
-  else if (type == TYPE_AUDIO && !(flags & SKIP_AUDIO)) {
-    s = mediascan_new_ScanData(path, flags, type);
-  }
-  else if (type == TYPE_IMAGE && !(flags & SKIP_IMAGE)) {
-    s = mediascan_new_ScanData(path, flags, type);
+  MediaScanResult *r;
+
+  if (s->on_result == NULL) {
+    LOG_ERROR("Result callback not set, aborting scan\n");
+    return;
   }
   
-  return s;
+  LOG_INFO("Scanning file %s\n", full_path);
+  
+  if (type == TYPE_UNKNOWN) {
+    // auto-detect type
+    type = _should_scan(s, full_path);
+    if (!type) {
+      if (s->on_error) {
+        MediaScanError *e = error_create(full_path, MS_ERROR_TYPE_UNKNOWN, "Unrecognized file extension");
+        s->on_error(s, e);
+        error_destroy(e);
+        return;
+      }
+    }
+  }
+  
+  r = result_create();
+  if (r == NULL)
+    return;
+  
+  r->type = type;
+  r->path = full_path;
+  
+  if ( result_scan(r) ) {
+    s->on_result(s, r);
+  }
+  else if (s->on_error && r->error) {
+    s->on_error(s, r->error);
+  }
+  
+  result_destroy(r);
 }
 
-*/
+
+///-------------------------------------------------------------------------------------------------
+/// <summary>	Query if 'path' is absolute path. </summary>
+///
+/// <remarks>	Henry Bennett, 03/16/2011. </remarks>
+///
+/// <param name="path"> Pathname to check </param>
+///
+/// <returns>	true if absolute path, false if not. </returns>
+///-------------------------------------------------------------------------------------------------
+
+bool is_absolute_path(const char *path) {
+
+	if(path == NULL)
+		return FALSE;
+
+	// \workspace, /workspace, etc
+	if( strlen(path) > 1 && ( path[0] == '/' || path[0] == '\\') ) 
+		return TRUE;
+
+#ifdef WIN32
+	// C:\, D:\, etc
+	if( strlen(path) > 2 && path[1] == ':' )
+		return TRUE;
+#endif
+
+	return FALSE;
+} /* is_absolute_path() */
+
+
+

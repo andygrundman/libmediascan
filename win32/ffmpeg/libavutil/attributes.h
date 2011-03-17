@@ -37,7 +37,11 @@
 #    define av_always_inline __attribute__((always_inline)) inline
 #else
 #    define av_always_inline __inline
-#	define inline __inline
+
+#ifndef inline
+#define inline __inline
+#endif
+
 #endif
 #endif
 

@@ -85,13 +85,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\src\buffer.c" />
+    <ClCompile Include="..\src\error.c" />
     <ClCompile Include="..\src\mediascan.c">
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">/D "_CRT_SECURE_NO_WARNINGS" %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <ClCompile Include="..\src\mediascan_win32.c" />
     <ClCompile Include="..\src\progress.c" />
     <ClCompile Include="..\src\result.c" />
-    <ClCompile Include="..\win32_port.c" />
+    <ClCompile Include="..\src\video.c" />
+    <ClCompile Include="..\src\win32_port.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\libmediascan.h" />
