@@ -15,7 +15,7 @@ progress_create(void)
     return NULL;
   }
   
-  LOG_LEVEL(9, "new MediaScanProgress @ %p\n", p);
+  LOG_MEM("new MediaScanProgress @ %p\n", p);
   
   p->phase = NULL;
   p->cur_item = NULL;
@@ -35,7 +35,7 @@ progress_create(void)
 void
 progress_destroy(MediaScanProgress *p)
 {
-  LOG_LEVEL(9, "destroy MediaScanProgress @ %p\n", p);
+  LOG_MEM("destroy MediaScanProgress @ %p\n", p);
   
   free(p);
 }

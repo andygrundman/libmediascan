@@ -14,6 +14,10 @@
  * called by a name other than "ssh" or "Secure Shell".
  */
 
+#ifdef WIN32
+#include "win32/include/config.h"
+#endif
+
 #include <ctype.h>
 #include <errno.h>
 #include <math.h>
@@ -128,10 +132,8 @@ buffer_append_space(Buffer *buffer, uint32_t len)
   uint32_t newlen;
   void *p;
 
-  if (len > BUFFER_MAX_CHUNK) {
-    LOG_ERROR("buffer_append_space: len %u too large (max %u)", len, BUFFER_MAX_CHUNK);
-    len = BUFFER_MAX_CHUNK;
-  }
+  if (len > BUFFER_MAX_CHUNK)
+    FATAL("buffer_append_space: len %u too large (max %u)", len, BUFFER_MAX_CHUNK);
 
   /* If the buffer is empty, start using it from the beginning. */
   if (buffer->offset == buffer->end) {
@@ -690,7 +692,8 @@ buffer_get_latin1_as_utf8(Buffer *buffer, Buffer *utf8, uint32_t len_hint)
   
   // We may get a valid UTF-8 string in here from ID3v1 or
   // elsewhere, if so we don't want to translate from ISO-8859-1
-  // XXX is_utf8_string is a perlapi function
+  
+  // XXX is_utf8_string is a perlapi function, need a C version
   //is_utf8 = is_utf8_string(bptr, len_hint);
   is_utf8 = 0;
   

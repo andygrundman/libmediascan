@@ -3,8 +3,7 @@
 #include <stdlib.h>
 #include <sys/time.h>
 
-// Global debug flag, used by LOG_LEVEL macro
-int Debug = 0;
+#include <libavformat/avformat.h>
 
 #include <libmediascan.h>
 #include "common.h"
@@ -13,7 +12,8 @@ int Debug = 0;
 #include "result.h"
 #include "error.h"
 
-#include <libavformat/avformat.h>
+// Global log level flag
+enum log_level Debug = ERROR;
 
 static int Initialized = 0;
 static long PathMax = 0;
@@ -149,7 +149,7 @@ _init(void)
 }
 
 void
-ms_set_log_level(int level)
+ms_set_log_level(enum log_level level)
 {
   Debug = level;
 }
@@ -381,7 +381,7 @@ recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir)
     p++;
   }
   
-  LOG_LEVEL(2, "Recursed into %s\n", dir);
+  LOG_INFO("Recursed into %s\n", dir);
 
   DIR *dirp;
   if ((dirp = opendir(dir)) == NULL) {
@@ -427,7 +427,7 @@ recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir)
         
         s->progress->dir_total++;
         
-        LOG_LEVEL(2, "  [%5d] subdir: %s\n", s->progress->dir_total, entry->dir);
+        LOG_INFO("  [%5d] subdir: %s\n", s->progress->dir_total, entry->dir);
       }
       else {
         enum media_type type = _should_scan(s, name);
@@ -440,7 +440,7 @@ recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir)
           
           s->progress->file_total++;
           
-          LOG_LEVEL(2, "  [%5d] file: %s\n", s->progress->file_total, entry->file);
+          LOG_INFO("  [%5d] file: %s\n", s->progress->file_total, entry->file);
           
           // Scan the file
           ms_scan_file(s, tmp_full_path, type);
@@ -503,7 +503,7 @@ ms_scan(MediaScan *s)
     sprintf(phase, "Discovering files in %s", s->paths[i]);
     s->progress->phase = phase;
     
-    LOG_LEVEL(1, "Scanning %s\n", s->paths[i]);
+    LOG_INFO("Scanning %s\n", s->paths[i]);
     recurse_dir(s, s->paths[i], entry);
     
     // Send final progress callback
@@ -524,7 +524,7 @@ ms_scan_file(MediaScan *s, const char *full_path, enum media_type type)
     return;
   }
   
-  LOG_LEVEL(1, "Scanning file %s\n", full_path);
+  LOG_INFO("Scanning file %s\n", full_path);
   
   if (type == TYPE_UNKNOWN) {
     // auto-detect type
@@ -546,7 +546,12 @@ ms_scan_file(MediaScan *s, const char *full_path, enum media_type type)
   r->type = type;
   r->path = full_path;
   
-  s->on_result(s, r);
+  if ( result_scan(r) ) {
+    s->on_result(s, r);
+  }
+  else if (s->on_error && r->error) {
+    s->on_error(s, r->error);
+  }
   
   result_destroy(r);
 }
