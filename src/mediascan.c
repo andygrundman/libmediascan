@@ -61,6 +61,8 @@ static const char *AudioExts = ",aif,aiff,wav,";
 static const char *VideoExts = ",asf,avi,divx,flv,m2t,m4v,mkv,mov,mpg,mpeg,mp4,m2p,m2t,mts,m2ts,ts,vob,webm,wmv,xvid,3gp,3g2,3gp2,3gpp,";
 static const char *ImageExts = ",jpg,png,gif,bmp,jpeg,";
 
+int ms_errno = 0;
+
 #ifdef WIN32
 #define REGISTER_DECODER(X,x) { \
           extern AVCodec ff_##x##_decoder; \
@@ -81,8 +83,6 @@ static const char *ImageExts = ",jpg,png,gif,bmp,jpeg,";
           av_register_codec_parser(&x##_parser); }
 #endif
 
-static void
-
 ///-------------------------------------------------------------------------------------------------
 ///  Register codecs to be used with ffmpeg.
 ///
@@ -92,7 +92,7 @@ static void
 /// ### remarks .
 ///-------------------------------------------------------------------------------------------------
 
-register_codecs(void)
+static void register_codecs(void)
 {
   // Video codecs
   REGISTER_DECODER (H264, h264);
@@ -198,13 +198,12 @@ static void _init(void)
   register_formats();
   //av_register_all();
 
-#ifdef WIN32
-  win32_init();
-#else
+#ifndef WIN32
   macos_init();
 #endif
 
   Initialized = 1;
+  ms_errno = 0;
 }
 
 ///-------------------------------------------------------------------------------------------------
@@ -573,6 +572,90 @@ void ms_scan_file(MediaScan *s, const char *full_path)
   
   result_destroy(r);
 }
+
+///-------------------------------------------------------------------------------------------------
+/// <summary>	Query if 'path' is absolute path. </summary>
+///
+/// <remarks>	Henry Bennett, 03/16/2011. </remarks>
+///
+/// <param name="path"> Pathname to check </param>
+///
+/// <returns>	true if absolute path, false if not. </returns>
+///-------------------------------------------------------------------------------------------------
+
+bool is_absolute_path(const char *path) {
+
+	if(path == NULL)
+		return FALSE;
+
+	// \workspace, /workspace, etc
+	if( strlen(path) > 1 && ( path[0] == '/' || path[0] == '\\') ) 
+		return TRUE;
+
+#ifdef WIN32
+	// C:\, D:\, etc
+	if( strlen(path) > 2 && path[1] == ':' )
+		return TRUE;
+#endif
+
+	return FALSE;
+} /* is_absolute_path() */
+
+///-------------------------------------------------------------------------------------------------
+///  Begin a recursive scan of all paths previously provided to ms_add_path(). If async mode
+/// 	is enabled, this call will return immediately. You must obtain the file descriptor using
+/// 	ms_async_fd and this must be checked using an event loop or select(). When the fd becomes
+/// 	readable you must call ms_async_process to trigger any necessary callbacks.
+///
+/// @author Henry Bennett
+/// @date 03/15/2011
+///
+/// @param [in,out] s If non-null, the.
+///
+/// ### remarks .
+///-------------------------------------------------------------------------------------------------
+
+void ms_scan(MediaScan *s)
+{
+  int i = 0;  
+
+  PVOID OldValue = NULL;
+  char *phase = NULL;
+
+  if (s->on_result == NULL) {
+    LOG_ERROR("Result callback not set, aborting scan\n");
+    return;
+  }
+  
+  if (s->async) {
+    LOG_ERROR("async mode not yet supported\n");
+    // XXX TODO
+  }
+
+  for (i = 0; i < s->npaths; i++) {
+	char *phase = NULL;
+    struct dirq_entry *entry = malloc(sizeof(struct dirq_entry));
+    entry->dir = _strdup("/"); // so free doesn't choke on this item later
+    entry->files = malloc(sizeof(struct fileq));
+    SIMPLEQ_INIT(entry->files);
+    SIMPLEQ_INSERT_TAIL((struct dirq *)s->_dirq, entry, entries);
+    
+    phase = (char *)malloc(MAX_PATH);
+    sprintf_s(phase, MAX_PATH, "Discovering files in %s", s->paths[i]);
+    s->progress->phase = phase;
+    
+    LOG_LEVEL(1, "Scanning %s\n", s->paths[i]);
+    recurse_dir(s, s->paths[i], entry);
+    
+    // Send final progress callback
+    if (s->on_progress) {
+      s->progress->cur_item = NULL;
+      s->on_progress(s, s->progress);
+    }
+    
+    free(phase);
+  }
+} /* ms_scan() */
 
 /*
 ScanData

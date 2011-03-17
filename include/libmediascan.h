@@ -141,6 +141,16 @@ typedef void (*ResultCallback)(MediaScan *, MediaScanResult *);
 typedef void (*ErrorCallback)(MediaScan *, MediaScanError *);
 typedef void (*ProgressCallback)(MediaScan *, MediaScanProgress *);
 
+
+
+///< libmediascan's errno
+extern int ms_errno;
+
+// This failure will be set if...
+enum {
+	MSENO_DIRECTORYFAIL = 1000 // ms_scan doesn't have a valid directory in its scan list
+};
+
 /**
  * Set the logging level.
  */

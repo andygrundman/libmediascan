@@ -18,7 +18,17 @@ struct dirq_entry {
 };
 SIMPLEQ_HEAD(dirq, dirq_entry);
 
+#ifndef bool
+#define bool int
+#endif
 
+#ifndef TRUE
+#define TRUE (int)1
+#endif
+
+#ifndef FALSE
+#define FALSE (int)0
+#endif
 
 ///-------------------------------------------------------------------------------------------------
 ///  Determine if we should scan a path.
@@ -36,5 +46,54 @@ SIMPLEQ_HEAD(dirq, dirq_entry);
 
 int _should_scan(MediaScan *s, const char *path);
 
+
+///-------------------------------------------------------------------------------------------------
+/// <summary>	Query if 'path' is absolute path. </summary>
+///
+/// <remarks>	Henry Bennett, 03/16/2011. </remarks>
+///
+/// <param name="path"> Pathname to check </param>
+///
+/// <returns>	true if absolute path, false if not. </returns>
+///-------------------------------------------------------------------------------------------------
+
+bool is_absolute_path(const char *path);
+
+///-------------------------------------------------------------------------------------------------
+///  Recursively walk a directory struction using Win32 style directory commands
+///
+/// @author Henry Bennett
+/// @date 03/15/2011
+///
+/// @param [in,out] s	   If non-null, the.
+/// @param path			   Full pathname of the file.
+/// @param [in,out] curdir If non-null, the curdir.
+///
+/// ### remarks .
+///-------------------------------------------------------------------------------------------------
+
+void recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir);
+
+#ifdef WIN32
+
+///-------------------------------------------------------------------------------------------------
+/// <summary>
+/// 	The gettimeofday() function obtains the current time, expressed as seconds and
+/// 	microseconds since the Epoch, and store it in the timeval structure pointed to by tv. As
+/// 	posix says gettimeoday should return zero and should not reserve any value for error,
+/// 	this function returns zero.
+/// </summary>
+///
+/// <remarks>	Henry Bennett, 03/16/2011. </remarks>
+///
+/// <param name="tv">	[in,out] If non-null, the tv. </param>
+/// <param name="tz">	[in,out] If non-null, the tz. </param>
+///
+/// <returns>	. </returns>
+///-------------------------------------------------------------------------------------------------
+
+int gettimeofday(struct timeval *tv, struct timezone *tz);
+
+#endif
 
 #endif

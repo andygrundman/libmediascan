@@ -54,6 +54,7 @@
       <AdditionalIncludeDirectories>$(ProjectDir)..\win32\include;$(ProjectDir)..\include;$(ProjectDir)..\;$(ProjectDir)CUnit\Headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CallingConvention>Cdecl</CallingConvention>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
