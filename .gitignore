@@ -42,10 +42,10 @@ test/scan_test
 *.pdb
 *.lastbuildstate
 *.ipch
-*.sdf
 *.opensdf
 *.suo
 *.idb
+*.cov
 win32/Debug/*
 
 
