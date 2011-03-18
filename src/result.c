@@ -86,9 +86,8 @@ scan_video(MediaScanResult *r)
     goto out;
   }
 
-#ifdef DEBUG
-  dump_format(avf, 0, r->path, 0);
-#endif
+  if (unlikely(Debug >= DEBUG))
+    dump_format(avf, 0, r->path, 0);
 
   r->_avf = (void *)avf;
   
