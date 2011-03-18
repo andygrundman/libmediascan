@@ -57,11 +57,11 @@ static const char *VideoExts = ",asf,avi,divx,flv,m2t,m4v,mkv,mov,mpg,mpeg,mp4,m
 static const char *ImageExts = ",jpg,png,gif,bmp,jpeg,";
 
 #define REGISTER_DECODER(X,x) { \
-          extern AVCodec x##_decoder; \
-          avcodec_register(&x##_decoder); }
+          extern AVCodec ff_##x##_decoder; \
+          avcodec_register(&ff_##x##_decoder); }
 #define REGISTER_PARSER(X,x) { \
-          extern AVCodecParser x##_parser; \
-          av_register_codec_parser(&x##_parser); }
+          extern AVCodecParser ff_##x##_parser; \
+          av_register_codec_parser(&ff_##x##_parser); }
 
 static void
 register_codecs(void)
@@ -110,11 +110,11 @@ register_codecs(void)
 }
 
 #define REGISTER_DEMUXER(X,x) { \
-    extern AVInputFormat x##_demuxer; \
-    av_register_input_format(&x##_demuxer); }
+    extern AVInputFormat ff_##x##_demuxer; \
+    av_register_input_format(&ff_##x##_demuxer); }
 #define REGISTER_PROTOCOL(X,x) { \
-    extern URLProtocol x##_protocol; \
-    av_register_protocol2(&x##_protocol, sizeof(x##_protocol)); }
+    extern URLProtocol ff_##x##_protocol; \
+    av_register_protocol2(&ff_##x##_protocol, sizeof(ff_##x##_protocol)); }
 
 static void
 register_formats(void)
