@@ -25,6 +25,8 @@
 
 #include "progress.h"
 #include "result.h"
+#include "error.h"
+#include "mediascan.h"
 
 #ifdef WIN32
 #include "mediascan_win32.h"
@@ -32,8 +34,6 @@
 
 // Global log level flag
 enum log_level Debug = ERROR;
-
-#include "mediascan.h"
 static int Initialized = 0;
 static long PathMax = 0;
 int ms_errno = 0;
@@ -62,30 +62,18 @@ static const char *AudioExts = ",aif,aiff,wav,";
 static const char *VideoExts = ",asf,avi,divx,flv,m2t,m4v,mkv,mov,mpg,mpeg,mp4,m2p,m2t,mts,m2ts,ts,vob,webm,wmv,xvid,3gp,3g2,3gp2,3gpp,";
 static const char *ImageExts = ",jpg,png,gif,bmp,jpeg,";
 
-#ifdef WIN32
 #define REGISTER_DECODER(X,x) { \
           extern AVCodec ff_##x##_decoder; \
           avcodec_register(&ff_##x##_decoder); }
-#else
-#define REGISTER_DECODER(X,x) { \
-          extern AVCodec x##_decoder; \
-          avcodec_register(&x##_decoder); }
-#endif
 
-#ifdef WIN32
 #define REGISTER_PARSER(X,x) { \
           extern AVCodecParser ff_##x##_parser; \
           av_register_codec_parser(&ff_##x##_parser); }
-#else
-#define REGISTER_PARSER(X,x) { \
-          extern AVCodecParser x##_parser; \
-          av_register_codec_parser(&x##_parser); }
-#endif
 
 ///-------------------------------------------------------------------------------------------------
 ///  Register codecs to be used with ffmpeg.
 ///
-/// @author Henry Bennett
+/// @author Andy Grundman
 /// @date 03/15/2011
 ///
 /// ### remarks .
@@ -135,7 +123,6 @@ static void register_codecs(void)
   REGISTER_PARSER (MPEGAUDIO, mpegaudio);
   REGISTER_PARSER (MPEGVIDEO, mpegvideo);
 }
-#ifdef WIN32
 
 #define REGISTER_DEMUXER(X,x) { \
     extern AVInputFormat ff_##x##_demuxer; \
@@ -144,20 +131,10 @@ static void register_codecs(void)
     extern URLProtocol ff_##x##_protocol; \
     av_register_protocol2(&ff_##x##_protocol, sizeof(ff_##x##_protocol)); }
 
-
-#else
-#define REGISTER_DEMUXER(X,x) { \
-    extern AVInputFormat x##_demuxer; \
-    av_register_input_format(&x##_demuxer); }
-#define REGISTER_PROTOCOL(X,x) { \
-    extern URLProtocol x##_protocol; \
-    av_register_protocol2(&x##_protocol, sizeof(x##_protocol)); }
-#endif
-
 ///-------------------------------------------------------------------------------------------------
 ///  Registers the formats for FFmpeg.
 ///
-/// @author Henry Bennett
+/// @author Andy Grundman
 /// @date 03/15/2011
 ///
 /// ### remarks .
@@ -182,7 +159,7 @@ static void register_formats(void)
 ///-------------------------------------------------------------------------------------------------
 ///  Initialises ffmpeg.
 ///
-/// @author Henry Bennett
+/// @author Andy Grundman
 /// @date 03/15/2011
 ///
 /// ### remarks .
@@ -208,7 +185,7 @@ static void _init(void)
 ///-------------------------------------------------------------------------------------------------
 ///  Set the logging level.
 ///
-/// @author Henry Bennett
+/// @author Andy Grundman
 /// @date 03/15/2011
 ///
 /// @param level The level.
@@ -224,7 +201,7 @@ void ms_set_log_level(int level)
 ///-------------------------------------------------------------------------------------------------
 ///  Allocate a new MediaScan object.
 ///
-/// @author Henry Bennett
+/// @author Andy Grundman
 /// @date 03/15/2011
 ///
 /// @return null if it fails, else.
@@ -268,7 +245,7 @@ MediaScan *ms_create(void)
 ///-------------------------------------------------------------------------------------------------
 ///  Destroy the given MediaScan object. If a scan is currently in progress it will be aborted.
 ///
-/// @author Henry Bennett
+/// @author Andy Grundman
 /// @date 03/15/2011
 ///
 /// @param [in,out] s If non-null, the.
@@ -283,6 +260,11 @@ void ms_destroy(MediaScan *s)
   struct dirq_entry *entry = NULL;
   struct fileq *file_head = NULL;
   struct fileq_entry *file_entry = NULL;
+
+   if(s == NULL) {
+	// Nothing to free
+    return;
+   }
 
   for (i = 0; i < s->npaths; i++) {
     free( s->paths[i] );
@@ -322,7 +304,7 @@ void ms_destroy(MediaScan *s)
 ///-------------------------------------------------------------------------------------------------
 ///  Add a path to be scanned. Up to 128 paths may be added before beginning the scan.
 ///
-/// @author Henry Bennett
+/// @author Andy Grundman
 /// @date 03/15/2011
 ///
 /// @param [in,out] s If non-null, the.
@@ -335,6 +317,12 @@ void ms_add_path(MediaScan *s, const char *path)
 {
   int len = 0;
   char *tmp = NULL;
+
+  if(s == NULL) {
+	ms_errno = MSENO_NULLSCANOBJ;
+    LOG_ERROR("MediaScan = NULL, aborting scan\n");
+    return;
+  }
 
   if (s->npaths == MAX_PATHS) {
     LOG_ERROR("Path limit reached (%d)\n", MAX_PATHS);
@@ -356,7 +344,7 @@ void ms_add_path(MediaScan *s, const char *path)
 ///-------------------------------------------------------------------------------------------------
 ///  Add a file extension to ignore all files with this extension.
 ///
-/// @author Henry Bennett
+/// @author Andy Grundman
 /// @date 03/15/2011
 ///
 /// @param [in,out] s If non-null, the.
@@ -372,6 +360,12 @@ void ms_add_ignore_extension(MediaScan *s, const char *extension)
 {
   int len = 0;
   char *tmp = NULL;
+
+  if(s == NULL) {
+	ms_errno = MSENO_NULLSCANOBJ;
+    LOG_ERROR("MediaScan = NULL, aborting scan\n");
+    return;
+  }
 
   if (s->nignore_exts == MAX_IGNORE_EXTS) {
     LOG_ERROR("Ignore extension limit reached (%d)\n", MAX_IGNORE_EXTS);
@@ -395,7 +389,7 @@ void ms_add_ignore_extension(MediaScan *s, const char *extension)
 /// 	the scan is finished. To enable background asynchronous scanning, pass a true value to
 /// 	this function.
 ///
-/// @author Henry Bennett
+/// @author Andy Grundman
 /// @date 03/15/2011
 ///
 /// @param [in,out] s If non-null, the.
@@ -413,7 +407,7 @@ void ms_set_async(MediaScan *s, int enabled)
 ///  Set a callback that will be called for every scanned file. This callback is required or a
 /// 	scan cannot be started.
 ///
-/// @author Henry Bennett
+/// @author Andy Grundman
 /// @date 03/15/2011
 ///
 /// @param [in,out] s If non-null, the.
@@ -430,7 +424,7 @@ void ms_set_result_callback(MediaScan *s, ResultCallback callback)
 ///-------------------------------------------------------------------------------------------------
 ///  Set a callback that will be called for all errors. This callback is optional.
 ///
-/// @author Henry Bennett
+/// @author Andy Grundman
 /// @date 03/15/2011
 ///
 /// @param [in,out] s If non-null, the.
@@ -448,7 +442,7 @@ void ms_set_error_callback(MediaScan *s, ErrorCallback callback)
 ///  Set a callback that will be called during the scan with progress details. This callback
 /// 	is optional.
 ///
-/// @author Henry Bennett
+/// @author Andy Grundman
 /// @date 03/15/2011
 ///
 /// @param [in,out] s If non-null, the.
@@ -466,7 +460,7 @@ void ms_set_progress_callback(MediaScan *s, ProgressCallback callback)
 ///  Set progress callback interval in seconds. Progress callback will not be called more
 /// 	often than this value. This interval defaults to 1 second.
 ///
-/// @author Henry Bennett
+/// @author Andy Grundman
 /// @date 03/15/2011
 ///
 /// @param [in,out] s If non-null, the.
@@ -483,7 +477,7 @@ void ms_set_progress_interval(MediaScan *s, int seconds)
 ///-------------------------------------------------------------------------------------------------
 ///  Determine if we should scan a path.
 ///
-/// @author Henry Bennett
+/// @author Andy Grundman
 /// @date 03/15/2011
 ///
 /// @param [in,out] s If non-null, the.
@@ -496,10 +490,9 @@ void ms_set_progress_interval(MediaScan *s, int seconds)
 
 int _should_scan(MediaScan *s, const char *path)
 {
-  char *p = NULL;
-  char *found = NULL;
+  char *p;
+  char *found;
   char *ext = strrchr(path, '.');
-
   if (ext != NULL) {
     // Copy the extension and lowercase it
     char extc[10];
@@ -523,7 +516,6 @@ int _should_scan(MediaScan *s, const char *path)
           return TYPE_UNKNOWN;
       }
     }
-    
     
     found = strstr(AudioExts, extc);
     if (found)
@@ -549,7 +541,7 @@ int _should_scan(MediaScan *s, const char *path)
 /// 	ms_async_fd and this must be checked using an event loop or select(). When the fd becomes
 /// 	readable you must call ms_async_process to trigger any necessary callbacks.
 ///
-/// @author Henry Bennett
+/// @author Andy Grundman
 /// @date 03/15/2011
 ///
 /// @param [in,out] s If non-null, the.
@@ -563,6 +555,12 @@ void ms_scan(MediaScan *s)
 
   PVOID OldValue = NULL;
   char *phase = NULL;
+
+  if(s == NULL) {
+	ms_errno = MSENO_NULLSCANOBJ;
+    LOG_ERROR("MediaScan = NULL, aborting scan\n");
+    return;
+  }
 
   if (s->on_result == NULL) {
     LOG_ERROR("Result callback not set, aborting scan\n");
@@ -604,7 +602,7 @@ void ms_scan(MediaScan *s)
 /// 	you know the type of the file, set the type paramter to one of TYPE_AUDIO, TYPE_VIDEO, or
 /// 	TYPE_IMAGE. Set it to TYPE_UNKNOWN to have it determined automatically.
 ///
-/// @author Henry Bennett
+/// @author Andy Grundman
 /// @date 03/15/2011
 ///
 /// @param [in,out] s If non-null, the.
@@ -616,8 +614,16 @@ void
 ms_scan_file(MediaScan *s, const char *full_path, enum media_type type)
 {
   MediaScanResult *r;
+  MediaScanError *e;
+
+  if(s == NULL) {
+	ms_errno = MSENO_NULLSCANOBJ;
+    LOG_ERROR("MediaScan = NULL, aborting scan\n");
+    return;
+  }
 
   if (s->on_result == NULL) {
+	ms_errno = MSENO_NORESULTCALLBACK;
     LOG_ERROR("Result callback not set, aborting scan\n");
     return;
   }
@@ -629,7 +635,8 @@ ms_scan_file(MediaScan *s, const char *full_path, enum media_type type)
     type = _should_scan(s, full_path);
     if (!type) {
       if (s->on_error) {
-        MediaScanError *e = error_create(full_path, MS_ERROR_TYPE_UNKNOWN, "Unrecognized file extension");
+		ms_errno = MSENO_SCANERROR;
+        e = error_create(full_path, MS_ERROR_TYPE_UNKNOWN, "Unrecognized file extension");
         s->on_error(s, e);
         error_destroy(e);
         return;
@@ -639,7 +646,7 @@ ms_scan_file(MediaScan *s, const char *full_path, enum media_type type)
   
   r = result_create();
   if (r == NULL)
-    return;
+    return; // ms_errno was set by result_create()
   
   r->type = type;
   r->path = full_path;
@@ -650,19 +657,25 @@ ms_scan_file(MediaScan *s, const char *full_path, enum media_type type)
   else if (s->on_error && r->error) {
     s->on_error(s, r->error);
   }
+  else {
+  	ms_errno = MSENO_NOERRORCALLBACK;
+    LOG_ERROR("Error scanning file with no error callback\n");
+  }
   
   result_destroy(r);
 }
 
-
 ///-------------------------------------------------------------------------------------------------
-/// <summary>	Query if 'path' is absolute path. </summary>
+///  Query if 'path' is absolute path.
 ///
-/// <remarks>	Henry Bennett, 03/16/2011. </remarks>
+/// @author Henry Bennett
+/// @date 03/18/2011
 ///
-/// <param name="path"> Pathname to check </param>
+/// @param path Pathname to check.
 ///
-/// <returns>	true if absolute path, false if not. </returns>
+/// @return true if absolute path, false if not.
+///
+/// ### remarks Henry Bennett, 03/16/2011.
 ///-------------------------------------------------------------------------------------------------
 
 bool is_absolute_path(const char *path) {

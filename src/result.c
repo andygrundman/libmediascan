@@ -166,7 +166,6 @@ scan_video(MediaScanResult *r)
     }
   }
 */
-
 out:
   return ret;
 }
@@ -176,6 +175,7 @@ result_create(void)
 {
   MediaScanResult *r = (MediaScanResult *)calloc(sizeof(MediaScanResult), 1);
   if (r == NULL) {
+	ms_errno = MSENO_MEMERROR;
     LOG_ERROR("Out of memory for new MediaScanResult object\n");
     return NULL;
   }
@@ -239,7 +239,12 @@ result_destroy(MediaScanResult *r)
     default:
       break;
   }
-    
+  if (r->_avf)
+    av_close_input_file(r->_avf);
+  
+  if (r->_fp)
+    fclose(r->_fp);
+
   LOG_MEM("destroy MediaScanResult @ %p\n", r);
   free(r);
 }

@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
 {
   char *bin;
   char *dir;
-
+/*
   plan(TEST_COUNT);
 
   ms_set_log_level(INFO);
@@ -124,7 +124,8 @@ int main(int argc, char *argv[])
   
   free(dir);
   free(bin);
-  
+*/
+
   run_unit_tests();
 
   return exit_status();

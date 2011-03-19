@@ -42,6 +42,12 @@ void recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir)
   DWORD dwError=0;
   TCHAR  findDir[MAX_PATH];
 
+  if(s == NULL) {
+	ms_errno = MSENO_NULLSCANOBJ;
+    LOG_ERROR("MediaScan = NULL, aborting scan\n");
+    return;
+  }
+
   if ( !is_absolute_path(path) ) { 
     // Get full path
     char *buf = (char *)malloc(MAX_PATH);
@@ -129,7 +135,9 @@ void recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir)
         LOG_LEVEL(2, "  [%5d] subdir: %s\n", s->progress->dir_total, entry->dir);
       }
       else {
-        if ( _should_scan(s, name) ) {
+		enum media_type type = _should_scan(s, name);
+
+        if ( type ) {
           // To save memory by not storing the full path to every file,
           // each dir has a list of files in that dir
           struct fileq_entry *entry = malloc(sizeof(struct fileq_entry));
@@ -141,7 +149,7 @@ void recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir)
           LOG_LEVEL(2, "  [%5d] file: %s\n", s->progress->file_total, entry->file);
           
           // Scan the file
-          ms_scan_file(s, tmp_full_path);
+          ms_scan_file(s, tmp_full_path, type);
         }
       }
     }
@@ -159,12 +167,17 @@ void recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir)
   
   // Send progress update
   if (s->on_progress) {
-    struct timeval now;
-    gettimeofday(&now, NULL);
-    
-    if (now.tv_sec - s->progress->_last_callback >= s->progress_interval) {
+	DWORD tick_ms = GetTickCount();
+
+	// Check to see if _last_callback needs to be set to a reasonable time
+	if( s->progress->_last_callback == 0 )
+	{
+		s->progress->_last_callback = tick_ms;
+	}
+
+    if (tick_ms - s->progress->_last_callback >= s->progress_interval) {
       s->progress->cur_item = dir;
-      s->progress->_last_callback = now.tv_sec;
+      s->progress->_last_callback = tick_ms;
       s->on_progress(s, s->progress);
     }
   }

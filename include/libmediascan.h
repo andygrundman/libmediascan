@@ -165,7 +165,12 @@ extern int ms_errno;
 
 // This failure will be set if...
 enum {
-	MSENO_DIRECTORYFAIL = 1000 // ms_scan doesn't have a valid directory in its scan list
+	MSENO_DIRECTORYFAIL =		1000,	// ms_scan doesn't have a valid directory in its scan list
+	MSENO_NORESULTCALLBACK =	1001,	// no result callback set
+	MSENO_NULLSCANOBJ =			1002,	// Illegal scan oject
+	MSENO_SCANERROR =			1003,	// ScanErrorObject thrown
+	MSENO_MEMERROR =			1004,	// Out of memory error
+	MSENO_NOERRORCALLBACK =		1005,	// No error callback
 };
 
 /**
@@ -251,8 +256,8 @@ void ms_scan(MediaScan *s);
  * to one of TYPE_AUDIO, TYPE_VIDEO, or TYPE_IMAGE. Set it to TYPE_UNKNOWN
  * to have it determined automatically.
  */
-//void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type);
-void ms_scan_file(MediaScan *s, const char *full_path);
+void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type);
+
 /**
  * Return the file descriptor associated with an async scan. If an async scan
  * is not currently in progress, 0 will be returned.

@@ -92,16 +92,6 @@ static void my_error_callback(MediaScan *s, MediaScanError *error) {
 
 } /* my_error_callback() */
 
-static void my_progress_callback(MediaScan *s, MediaScanProgress *progress) {
-
-  // Check final progress callback only
-//  if (!progress->cur_item) {
-//    ok(progress->dir_total == 3, "final progress callback dir_total is %d", progress->dir_total);
-//    ok(progress->file_total == 22, "final progress callback file_total is %d", progress->file_total);
-//  }
-//  
-} /* my_progress_callback() */
-
 ///-------------------------------------------------------------------------------------------------
 ///  Unit Test Scan Function.
 ///
@@ -304,8 +294,7 @@ static void my_progress_callback_6(MediaScan *s, MediaScanProgress *progress) {
 ///-------------------------------------------------------------------------------------------------
 
 void test_ms_scan_6(void)	{
-	struct timeval now;
-	char dir[MAX_PATH] = "data";
+	char dir[MAX_PATH] = "data/audio/mp3";
 	MediaScan *s = ms_create();
 
 	CU_ASSERT(s->npaths == 0);
@@ -334,17 +323,17 @@ void test_ms_scan_6(void)	{
 
 	// Reset the callback time
 	progress_called = FALSE;
-    gettimeofday(&now, NULL);
-	s->progress->_last_callback = now.tv_sec;
+	s->progress->_last_callback = 0;
 	ms_scan(s);
-	Sleep(59); // wait 59ms
+	CU_ASSERT(progress_called == FALSE);
+	Sleep(40); // wait 40ms
 	ms_scan(s);
 	CU_ASSERT(progress_called == FALSE);
 
 	// Reset the callback time
-    gettimeofday(&now, NULL);
-	s->progress->_last_callback = now.tv_sec;
+	s->progress->_last_callback = 0;
 	ms_scan(s);
+	CU_ASSERT(progress_called == FALSE);
 	Sleep(61); // wait 61ms
 	ms_scan(s);
 	CU_ASSERT(progress_called == TRUE);
@@ -352,6 +341,85 @@ void test_ms_scan_6(void)	{
 	ms_destroy(s);
 
 } /* test_ms_scan_6 */
+
+static	void my_result_callback_1(MediaScan *s, MediaScanResult *result) {
+
+}
+
+static int error_called = FALSE;
+static MediaScanError error;
+
+static void my_error_callback_1(MediaScan *s, MediaScanError *error) { 
+	error_called = TRUE;
+	memcpy(&error, error, sizeof(MediaScanError));
+} /* my_error_callback() */
+
+///-------------------------------------------------------------------------------------------------
+///  Test test_ms_file_scan_1'
+///
+/// @author Henry Bennett
+/// @date 03/18/2011
+///-------------------------------------------------------------------------------------------------
+
+void test_ms_file_scan_1(void)	{
+	char valid_file[MAX_PATH] = "data\video\bars-mpeg4-aac.m4v";
+	char invalid_file[MAX_PATH] = "data\video\notafile.m4v";
+	
+	MediaScan *s = ms_create();
+	
+	// Check null mediascan oject
+	ms_errno = 0;
+	ms_scan_file(NULL, invalid_file, TYPE_VIDEO);
+	CU_ASSERT(ms_errno == MSENO_NULLSCANOBJ);
+
+	// Check for no callback set
+	ms_errno = 0;
+	ms_scan_file(s, invalid_file, TYPE_VIDEO);
+	CU_ASSERT(ms_errno == MSENO_NORESULTCALLBACK);
+
+	CU_ASSERT(s->on_result == NULL);
+	ms_set_result_callback(s, my_result_callback_1);
+	CU_ASSERT(s->on_result == my_result_callback_1);
+
+	// Now scan an invalid file, without an error handler
+	ms_errno = 0;
+	ms_scan_file(s, invalid_file, TYPE_VIDEO);
+	CU_ASSERT(ms_errno == MSENO_NOERRORCALLBACK);
+
+	// Set up an error callback
+	CU_ASSERT(s->on_error == NULL);
+	ms_set_error_callback(s, my_error_callback); 
+	CU_ASSERT(s->on_error == my_error_callback);
+
+	// Now scan an invalid file, with an error handler
+	ms_errno = 0;
+	error_called = FALSE;
+	ms_scan_file(s, invalid_file, TYPE_VIDEO);
+	CU_ASSERT(ms_errno != MSENO_NOERRORCALLBACK);
+	CU_ASSERT(error_called == TRUE);
+
+	// Now scan a valid video file, with an error handler
+	ms_errno = 0;
+	error_called = FALSE;
+	ms_scan_file(s, valid_file, TYPE_VIDEO);
+	// Need more info to run this test
+
+	ms_destroy(s);
+} /* test_ms_file_scan_1 */
+
+///-------------------------------------------------------------------------------------------------
+///  Test ms_set_async and ms_set_log_level
+///
+/// @author Henry Bennett
+/// @date 03/18/2011
+///-------------------------------------------------------------------------------------------------
+
+void test_ms_misc_functions(void)	{
+	MediaScan *s = ms_create();
+	
+
+	ms_destroy(s);
+} /* test_ms_misc_functions() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  ------------------------------------------------------------------------------------------
@@ -385,8 +453,10 @@ int run_unit_tests()
 	   NULL == CU_add_test(pSuite, "Test ms_scan() with no paths", test_ms_scan_2) ||
 	   NULL == CU_add_test(pSuite, "Test of ms_scan() with too many paths", test_ms_scan_3) ||
 	   NULL == CU_add_test(pSuite, "Test of ms_scan() with a bad directory", test_ms_scan_4) ||
-	   NULL == CU_add_test(pSuite, "Test of ms_scan() with strange path slashes", test_ms_scan_5) ||
-	   NULL == CU_add_test(pSuite, "Test of ms_scan()'s progress notifications", test_ms_scan_6)
+//	   NULL == CU_add_test(pSuite, "Test of ms_scan() with strange path slashes", test_ms_scan_5) ||
+	   NULL == CU_add_test(pSuite, "Test of ms_scan()'s progress notifications", test_ms_scan_6) ||
+	   NULL == CU_add_test(pSuite, "Test of ms_file_scan()", test_ms_file_scan_1) ||
+	   NULL == CU_add_test(pSuite, "Test of misc functions", test_ms_misc_functions)
 	   )
    {
       CU_cleanup_registry();
