@@ -193,7 +193,7 @@ dlna_set_extension_check (dlna_t *dlna, int level)
   dlna->check_extensions = level;
 }
 
-static av_codecs_t *
+av_codecs_t *
 av_profile_get_codecs (AVFormatContext *ctx)
 {
   av_codecs_t *codecs = NULL;

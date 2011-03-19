@@ -11,6 +11,11 @@
 #include "result.h"
 #include "error.h"
 #include "video.h"
+#include "util.h"
+
+// DLNA support
+#include "libdlna/dlna.h"
+#include "libdlna/profiles.h"
 
 // Audio formats
 #include "wav.h"
@@ -46,6 +51,54 @@ type_handler audio_handlers[] = {
 */
   { NULL, 0 }
 };
+
+// Try to find a matching DLNA profile, this is OK if it fails
+static void
+scan_dlna_profile(MediaScanResult *r)
+{
+  dlna_registered_profile_t *p;
+  dlna_profile_t *profile = NULL;
+  dlna_container_type_t st;
+  av_codecs_t *codecs;
+  AVFormatContext *avf = (AVFormatContext *)r->_avf;
+  dlna_t *dlna = (dlna_t *)((MediaScan *)r->_scan)->_dlna;
+  
+  codecs = av_profile_get_codecs(avf);
+  if (!codecs)
+    return;
+  
+  st = stream_get_container(avf);
+  
+  p = dlna->first_profile;
+  while (p) {
+    dlna_profile_t *prof;
+    
+    if (r->flags & USE_EXTENSION) {
+      if (p->extensions) {
+        /* check for valid file extension */
+        if (!match_file_extension (r->path, p->extensions)) {
+          p = p->next;
+          continue;
+        }
+      }
+    }
+    
+    prof = p->probe (avf, st, codecs);
+    if (prof) {
+      profile = prof;
+      profile->class = p->class;
+      break;
+    }
+    p = p->next;
+  }
+  
+  free(codecs);
+  
+  if (profile) {
+    r->mime_type = profile->mime;
+    r->dlna_profile = profile->id;
+  }
+}
 
 // Scan a video file with libavformat
 static int
@@ -86,14 +139,11 @@ scan_video(MediaScanResult *r)
     goto out;
   }
 
-  if (unlikely(Debug >= DEBUG))
-    dump_format(avf, 0, r->path, 0);
-
   r->_avf = (void *)avf;
   
+  scan_dlna_profile(r);
+  
   // General metadata
-  // XXX r->mime_type = get_mime_type(r);
-  // XXX r->dlna_profile = get_dlna_profile(r);
   // XXX r->size
   // XXX r->mtime
   r->bitrate     = avf->bit_rate / 1000;
@@ -164,7 +214,7 @@ out:
 }
 
 MediaScanResult *
-result_create(void)
+result_create(MediaScan *s)
 {
   MediaScanResult *r = (MediaScanResult *)calloc(sizeof(MediaScanResult), 1);
   if (r == NULL) {
@@ -188,6 +238,7 @@ result_create(void)
   
   r->type_data.audio = NULL;
   
+  r->_scan = s;
   r->_avf = NULL;
   r->_fp = NULL;
   
@@ -231,9 +282,40 @@ result_destroy(MediaScanResult *r)
     default:
       break;
   }
+  
+  if (r->_avf)
+    av_close_input_file(r->_avf);
+  
+  if (r->_fp)
+    fclose(r->_fp);
     
   LOG_MEM("destroy MediaScanResult @ %p\n", r);
   free(r);
+}
+
+void
+ms_dump_result(MediaScanResult *r)
+{
+  LOG_INFO("%s\n", r->path);
+  LOG_INFO("  MIME type:    %s\n", r->mime_type);
+  LOG_INFO("  DLNA profile: %s\n", r->dlna_profile);
+  LOG_INFO("  File size:    %lld\n", r->size);
+  LOG_INFO("  Modified:     %d\n", r->mtime);
+  LOG_INFO("  Bitrate:      %d kbps\n", r->bitrate);
+  LOG_INFO("  Duration:     %d ms\n", r->duration_ms);
+  
+  switch (r->type) {
+    case TYPE_VIDEO:
+      LOG_INFO("  Type: Video, %s\n", r->type_data.video->codec);
+      LOG_INFO("  Dimensions: %d x %d\n", r->type_data.video->width, r->type_data.video->height);
+      LOG_INFO("  FFmpeg details:\n");
+      av_dump_format(r->_avf, 0, r->path, 0);
+      break;
+      
+    default:
+      LOG_INFO("  Type: Unknown\n");
+      break;
+  } 
 }
 
 /*

@@ -12,6 +12,9 @@
 #include "result.h"
 #include "error.h"
 
+// DLNA support
+#include "libdlna/dlna_internals.h"
+
 // Global log level flag
 enum log_level Debug = ERROR;
 
@@ -141,7 +144,6 @@ _init(void)
   
   register_codecs();
   register_formats();
-  //av_register_all();
   
   PathMax = pathconf(".", _PC_PATH_MAX); // 1024
   
@@ -157,9 +159,12 @@ ms_set_log_level(enum log_level level)
 MediaScan *
 ms_create(void)
 {
+  MediaScan *s = NULL;
+  dlna_t *dlna = NULL;
+  
   _init();
   
-  MediaScan *s = (MediaScan *)calloc(sizeof(MediaScan), 1);
+  s = (MediaScan *)calloc(sizeof(MediaScan), 1);
   if (s == NULL) {
     LOG_ERROR("Out of memory for new MediaScan object\n");
     return NULL;
@@ -182,6 +187,12 @@ ms_create(void)
   // List of all dirs found
   s->_dirq = malloc(sizeof(struct dirq));
   SIMPLEQ_INIT((struct dirq *)s->_dirq);
+  
+  // We can't use libdlna's init function because it loads everything in ffmpeg
+  dlna = (dlna_t *)calloc(sizeof(dlna_t), 1);
+  dlna->inited = 1;
+  s->_dlna = (void *)dlna;
+  dlna_register_all_media_profiles(dlna);
   
   return s;
 }
@@ -223,10 +234,10 @@ ms_destroy(MediaScan *s)
     free(entry);
   }
   
-  free(s->_dirq);
-  
   progress_destroy(s->progress);
   
+  free(s->_dirq);
+  free(s->_dlna);
   free(s);
 }
 
@@ -539,7 +550,7 @@ ms_scan_file(MediaScan *s, const char *full_path, enum media_type type)
     }
   }
   
-  MediaScanResult *r = result_create();
+  MediaScanResult *r = result_create(s);
   if (r == NULL)
     return;
   

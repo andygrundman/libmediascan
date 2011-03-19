@@ -7,7 +7,7 @@
 #define TEST_COUNT 21
 
 static void my_result_callback(MediaScan *s, MediaScanResult *result) {
-
+  ms_dump_result(result);
 }
 
 static void my_error_callback(MediaScan *s, MediaScanError *error) {
@@ -17,8 +17,8 @@ static void my_error_callback(MediaScan *s, MediaScanError *error) {
 static void my_progress_callback(MediaScan *s, MediaScanProgress *progress) {
   // Check final progress callback only
   if (!progress->cur_item) {
-    ok(progress->dir_total == 3, "final progress callback dir_total is %d", progress->dir_total);
-    ok(progress->file_total == 22, "final progress callback file_total is %d", progress->file_total);
+    ok(progress->dir_total == 13, "final progress callback dir_total is %d", progress->dir_total);
+    ok(progress->file_total == 30, "final progress callback file_total is %d", progress->file_total);
   }
 }
   
@@ -32,6 +32,7 @@ main(int argc, char *argv[])
   // Get path to this binary
   char *bin = _findbin(argv[0]);
   char *dir = _abspath(bin, "../data"); // because binary is in .libs dir
+  //char dir[] = "/Users/andy/Music/Slim/DLNATestContent";
 
   // Test all API functions
   {
