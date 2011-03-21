@@ -42,6 +42,9 @@
     <ClCompile Include="..\src\error.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\util.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\libmediascan.h">

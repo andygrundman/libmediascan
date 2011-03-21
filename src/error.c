@@ -16,7 +16,7 @@ error_create(const char *path, enum media_error error_code, const char *error_st
 {
   MediaScanError *e = (MediaScanError *)calloc(sizeof(MediaScanError), 1);
   if (e == NULL) {
-    LOG_ERROR("Out of memory for new MediaScanError object\n");
+    FATAL("Out of memory for new MediaScanError object\n");
     return NULL;
   }
   

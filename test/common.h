@@ -4,6 +4,7 @@
 #include <string.h>
 
 #define LOG_WARN(...)  fprintf(stderr, __VA_ARGS__)
+#define LOG_ERROR LOG_WARN
 
 static char *
 _findbin(const char *cmd)

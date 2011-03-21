@@ -18,6 +18,11 @@
 #include "result.h"
 #include "error.h"
 #include "video.h"
+#include "util.h"
+
+// DLNA support
+#include "libdlna/dlna.h"
+#include "libdlna/profiles.h"
 
 // Audio formats
 #include "wav.h"
@@ -54,12 +59,97 @@ type_handler audio_handlers[] = {
   { NULL, 0 }
 };
 
+// Try to find a matching DLNA profile, this is OK if it fails
+static void
+scan_dlna_profile(MediaScanResult *r, av_codecs_t *codecs)
+{
+  dlna_registered_profile_t *p;
+  dlna_profile_t *profile = NULL;
+  dlna_container_type_t st;
+  AVFormatContext *avf = (AVFormatContext *)r->_avf;
+  dlna_t *dlna = (dlna_t *)((MediaScan *)r->_scan)->_dlna;
+  
+  st = stream_get_container(avf);
+  
+  p = dlna->first_profile;
+  while (p) {
+    dlna_profile_t *prof;
+    
+    if (r->flags & USE_EXTENSION) {
+      if (p->extensions) {
+        /* check for valid file extension */
+        if (!match_file_extension (r->path, p->extensions)) {
+          p = p->next;
+          continue;
+        }
+      }
+    }
+    
+    prof = p->probe (avf, st, codecs);
+    if (prof) {
+      profile = prof;
+      profile->class = p->class;
+      break;
+    }
+    p = p->next;
+  }
+  
+  free(codecs);
+  
+  if (profile) {
+    r->mime_type = profile->mime;
+    r->dlna_profile = profile->id;
+  }
+}
+
+static int
+ensure_opened(MediaScanResult *r)
+{
+  // Open the file unless we already have an open fd
+  if ( !r->_fp ) {
+    if ((r->_fp = fopen(r->path, "rb")) == NULL) {
+      LOG_WARN("Cannot open %s: %s\n", r->path, strerror(errno));
+      return 0;
+    }
+  }
+  return 1;
+}
+
+static void
+set_file_metadata(MediaScanResult *r)
+{
+  int fd;
+  struct stat buf;
+  
+  if (r->_avf) {
+    // Use ffmpeg API because it already has the file open
+    AVFormatContext *avf = r->_avf;
+    URLContext *h = url_fileno(avf->pb);
+    fd = (intptr_t)h->priv_data;
+  }
+  else {
+    // Open the file if necessary
+    if ( !ensure_opened(r) )
+      return;
+    
+    fd = fileno(r->_fp);
+  }
+
+  if ( !fstat(fd, &buf) ) {
+    r->size = buf.st_size;
+    r->mtime = buf.st_mtime;
+  }    
+}
+
 // Scan a video file with libavformat
 static int
 scan_video(MediaScanResult *r)
 {
   AVFormatContext *avf = NULL;
   AVInputFormat *iformat = NULL;
+  AVCodec *c = NULL;
+  MediaScanVideo *v = NULL;
+  av_codecs_t *codecs;
   int AVError = 0;
   int ret = 1;
 
@@ -93,79 +183,51 @@ scan_video(MediaScanResult *r)
     goto out;
   }
 
-#ifdef DEBUG
-  dump_format(avf, 0, r->path, 0);
-#endif
-
   r->_avf = (void *)avf;
   
+  // Use libdlna's handy codecs struct
+  codecs = av_profile_get_codecs(avf);
+  if (!codecs) {
+    ret = 0;
+    goto out;
+  }
+
+  if ( stream_ctx_is_audio(codecs) ) {
+    // XXX some extensions (e.g. mp4) can be either video or audio,
+    // if after checking we don't find a video stream, we need to
+    // send the result through the audio path
+    LOG_WARN("XXX Scanning audio file with video path\n");
+    ret = 0;
+    goto out;
+  }
+  
+  scan_dlna_profile(r, codecs);
+  
   // General metadata
-  // XXX r->mime_type = get_mime_type(r);
-  // XXX r->dlna_profile = get_dlna_profile(r);
-  // XXX r->size
-  // XXX r->mtime
-  r->bitrate     = avf->bit_rate / 1000;
+  set_file_metadata(r);
+
+  r->bitrate     = avf->bit_rate;
   r->duration_ms = avf->duration / 1000;
 
   // Video-specific metadata
-  r->type_data.video = video_create();
-
-/*
-  s->type_name   = avf->iformat->long_name;
-  s->metadata    = avf->metadata;
-  s->nstreams    = avf->nb_streams;
-
-  if (avf->nb_streams) {
-    mediascan_add_StreamData(s, avf->nb_streams);
-
-    int i;
-    for (i = 0; i < s->nstreams; i++) {    
-      AVStream *st = avf->streams[i];
-
-      switch (st->codec->codec_type) {
-        case AVMEDIA_TYPE_VIDEO:
-          s->streams[i].type = TYPE_VIDEO;
-          s->streams[i].bitrate = st->codec->bit_rate;
-          s->streams[i].width = st->codec->width;
-          s->streams[i].height = st->codec->height;
-
-          if (st->avg_frame_rate.num && st->avg_frame_rate.den)
-            s->streams[i].fps = st->avg_frame_rate.num / (double)st->avg_frame_rate.den;
-          break;
-        case AVMEDIA_TYPE_AUDIO:
-        {
-          int bps = av_get_bits_per_sample(st->codec->codec_id); // bps for PCM types
-
-          s->streams[i].type = TYPE_AUDIO;
-          s->streams[i].samplerate = st->codec->sample_rate;
-          s->streams[i].channels = st->codec->channels;
-          s->streams[i].bit_depth = 0; // XXX not supported by libavformat
-          s->streams[i].bitrate = bps
-            ? st->codec->sample_rate * st->codec->channels * bps
-            : st->codec->bit_rate;
-          break;
-        }
-        default:
-          s->streams[i].type = TYPE_UNKNOWN;
-          break;
-      }
-
-      if (s->streams[i].bitrate)
-        s->streams[i].bitrate /= 1000;
-
-      AVCodec *c = avcodec_find_decoder(st->codec->codec_id);  
-      if (c) {
-        s->streams[i].codec_name = c->name;
-      }
-      else if (st->codec->codec_name[0] != '\0') {
-        s->streams[i].codec_name = st->codec->codec_name;
-      }
-      else {
-        s->streams[i].codec_name = "Unknown";
-      }
-    }
+  v = r->type_data.video = video_create();
+  
+  c = avcodec_find_decoder(codecs->vc->codec_id);  
+  if (c) {
+    v->codec = c->name;
   }
-*/
+  else if (codecs->vc->codec_name[0] != '\0') {
+    v->codec = codecs->vc->codec_name;
+  }
+  else {
+    v->codec = "Unknown";
+  }
+  
+  v->width = codecs->vc->width;
+  v->height = codecs->vc->height;
+  
+  // XXX streams, thumbnails, tags
+
 out:
   return ret;
 }
@@ -176,7 +238,7 @@ result_create(void)
   MediaScanResult *r = (MediaScanResult *)calloc(sizeof(MediaScanResult), 1);
   if (r == NULL) {
 	ms_errno = MSENO_MEMERROR;
-    LOG_ERROR("Out of memory for new MediaScanResult object\n");
+    FATAL("Out of memory for new MediaScanResult object\n");
     return NULL;
   }
   
@@ -196,6 +258,7 @@ result_create(void)
   
   r->type_data.audio = NULL;
   
+  r->_scan = s;
   r->_avf = NULL;
   r->_fp = NULL;
   
@@ -239,6 +302,7 @@ result_destroy(MediaScanResult *r)
     default:
       break;
   }
+  
   if (r->_avf)
     av_close_input_file(r->_avf);
   
@@ -247,6 +311,31 @@ result_destroy(MediaScanResult *r)
 
   LOG_MEM("destroy MediaScanResult @ %p\n", r);
   free(r);
+}
+
+void
+ms_dump_result(MediaScanResult *r)
+{
+  LOG_INFO("%s\n", r->path);
+  LOG_INFO("  MIME type:    %s\n", r->mime_type);
+  LOG_INFO("  DLNA profile: %s\n", r->dlna_profile);
+  LOG_INFO("  File size:    %lld\n", r->size);
+  LOG_INFO("  Modified:     %d\n", r->mtime);
+  LOG_INFO("  Bitrate:      %d bps\n", r->bitrate);
+  LOG_INFO("  Duration:     %d ms\n", r->duration_ms);
+  
+  switch (r->type) {
+    case TYPE_VIDEO:
+      LOG_INFO("  Type: Video, %s\n", r->type_data.video->codec);
+      LOG_INFO("  Dimensions: %d x %d\n", r->type_data.video->width, r->type_data.video->height);
+      LOG_INFO("  FFmpeg details:\n");
+      av_dump_format(r->_avf, 0, r->path, 0);
+      break;
+      
+    default:
+      LOG_INFO("  Type: Unknown\n");
+      break;
+  } 
 }
 
 /*
@@ -345,7 +434,7 @@ mediascan_new_ScanData(const char *path, int flags, int type)
 {
   ScanData s = (ScanData)calloc(sizeof(struct _ScanData), 1);
   if (s == NULL) {
-    LOG_ERROR("Out of memory for new ScanData object\n");
+    FATAL("Out of memory for new ScanData object\n");
     return NULL;
   }
   

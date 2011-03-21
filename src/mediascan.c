@@ -195,7 +195,21 @@ static void _init(void)
 
 void ms_set_log_level(int level)
 {
+  int av_level = AV_LOG_PANIC;
+  
   Debug = level;
+  
+  // Set the corresponding ffmpeg log level
+  switch (level) {
+    case ERROR: av_level = AV_LOG_ERROR; break;
+    case WARN: av_level = AV_LOG_WARNING; break;
+    case INFO: av_level = AV_LOG_INFO; break;
+    case DEBUG:
+    case MEMORY: av_level = AV_LOG_VERBOSE; break;
+    default: break;
+  }
+  
+  av_log_set_level(av_level);
 }
 
 ///-------------------------------------------------------------------------------------------------
@@ -217,7 +231,8 @@ MediaScan *ms_create(void)
   
   s = (MediaScan *)calloc(sizeof(MediaScan), 1);
   if (s == NULL) {
-    LOG_ERROR("Out of memory for new MediaScan object\n");
+	ms_errno = MSENO_MEMERROR;
+    FATAL("Out of memory for new MediaScan object\n");
     return NULL;
   }
   
@@ -320,19 +335,19 @@ void ms_add_path(MediaScan *s, const char *path)
 
   if(s == NULL) {
 	ms_errno = MSENO_NULLSCANOBJ;
-    LOG_ERROR("MediaScan = NULL, aborting scan\n");
+    FATAL("MediaScan = NULL, aborting scan\n");
     return;
   }
 
   if (s->npaths == MAX_PATHS) {
-    LOG_ERROR("Path limit reached (%d)\n", MAX_PATHS);
+    FATAL("Path limit reached (%d)\n", MAX_PATHS);
     return;
   }
   
   len = strlen(path) + 1;
   tmp = malloc(len);
   if (tmp == NULL) {
-    LOG_ERROR("Out of memory for adding path\n");
+    FATAL("Out of memory for adding path\n");
     return;
   }
   
@@ -363,19 +378,19 @@ void ms_add_ignore_extension(MediaScan *s, const char *extension)
 
   if(s == NULL) {
 	ms_errno = MSENO_NULLSCANOBJ;
-    LOG_ERROR("MediaScan = NULL, aborting scan\n");
+    FATAL("MediaScan = NULL, aborting scan\n");
     return;
   }
 
   if (s->nignore_exts == MAX_IGNORE_EXTS) {
-    LOG_ERROR("Ignore extension limit reached (%d)\n", MAX_IGNORE_EXTS);
+    FATAL("Ignore extension limit reached (%d)\n", MAX_IGNORE_EXTS);
     return;
   }
   
   len = strlen(extension) + 1;
   tmp = malloc(len);
   if (tmp == NULL) {
-    LOG_ERROR("Out of memory for ignore extension\n");
+    FATAL("Out of memory for ignore extension\n");
     return;
   }
   
@@ -517,14 +532,14 @@ int _should_scan(MediaScan *s, const char *path)
       }
     }
     
-    found = strstr(AudioExts, extc);
-    if (found)
-      return TYPE_AUDIO;
-    
     found = strstr(VideoExts, extc);
     if (found)
       return TYPE_VIDEO;
     
+    found = strstr(AudioExts, extc);
+    if (found)
+      return TYPE_AUDIO;
+
     found = strstr(ImageExts, extc);
     if (found)
       return TYPE_IMAGE;

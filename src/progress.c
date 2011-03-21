@@ -28,7 +28,8 @@ MediaScanProgress *progress_create(void)
 {
   MediaScanProgress *p = (MediaScanProgress *)calloc(sizeof(MediaScanProgress), 1);
   if (p == NULL) {
-    LOG_ERROR("Out of memory for new MediaScanProgress object\n");
+	ms_errno = MSENO_MEMERROR;
+    FATAL("Out of memory for new MediaScanProgress object\n");
     return NULL;
   }
   
