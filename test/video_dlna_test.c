@@ -23,8 +23,8 @@ static void my_result_callback(MediaScan *s, MediaScanResult *r) {
     ok(r->size == 51200, "MPEG1.mpg file size is 51200 ok");
     ok(r->bitrate == 1363969, "MPEG1.mpg bitrate is 1363969bps ok");
     ok(r->duration_ms == 300, "MPEG1.mpg duration is 0.3s ok");
-    ok(r->type_data.video->width == 352, "MPEG1.mpg video width 352 ok");
-    ok(r->type_data.video->height == 240, "MPEG1.mpg video height 240 ok");
+    ok(r->video->width == 352, "MPEG1.mpg video width 352 ok");
+    ok(r->video->height == 240, "MPEG1.mpg video height 240 ok");
   }
 }
 

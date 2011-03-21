@@ -203,7 +203,7 @@ scan_video(MediaScanResult *r)
   r->duration_ms = avf->duration / 1000;
 
   // Video-specific metadata
-  v = r->type_data.video = video_create();
+  v = r->video = video_create();
   
   c = avcodec_find_decoder(codecs->vc->codec_id);  
   if (c) {
@@ -248,7 +248,9 @@ result_create(MediaScan *s)
   r->bitrate = 0;
   r->duration_ms = 0;
   
-  r->type_data.audio = NULL;
+  r->audio = NULL;
+  r->image = NULL;
+  r->video = NULL;
   
   r->_scan = s;
   r->_avf = NULL;
@@ -285,11 +287,11 @@ result_destroy(MediaScanResult *r)
   
   switch (r->type) {
     case TYPE_VIDEO:
-      if (r->type_data.video)
-        video_destroy((MediaScanVideo *)r->type_data.video);
+      if (r->video)
+        video_destroy(r->video);
       break;
     
-    // XXX other type_data types
+    // XXX other types
     
     default:
       break;
@@ -318,8 +320,8 @@ ms_dump_result(MediaScanResult *r)
   
   switch (r->type) {
     case TYPE_VIDEO:
-      LOG_INFO("  Type: Video, %s\n", r->type_data.video->codec);
-      LOG_INFO("  Dimensions: %d x %d\n", r->type_data.video->width, r->type_data.video->height);
+      LOG_INFO("  Type: Video, %s\n", r->video->codec);
+      LOG_INFO("  Dimensions: %d x %d\n", r->video->width, r->video->height);
       LOG_INFO("  FFmpeg details:\n");
       av_dump_format(r->_avf, 0, r->path, 0);
       break;
