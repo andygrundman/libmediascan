@@ -18,5 +18,8 @@
     <ClCompile Include="video_dlna_test.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="tap.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

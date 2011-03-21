@@ -32,6 +32,9 @@
 #include "mediascan_win32.h"
 #endif
 
+// DLNA support
+#include "libdlna/dlna_internals.h"
+
 // Global log level flag
 enum log_level Debug = ERROR;
 static int Initialized = 0;
@@ -172,7 +175,6 @@ static void _init(void)
   
   register_codecs();
   register_formats();
-  //av_register_all();
 
 #ifndef WIN32
   macos_init();
@@ -201,11 +203,11 @@ void ms_set_log_level(int level)
   
   // Set the corresponding ffmpeg log level
   switch (level) {
-    case ERROR: av_level = AV_LOG_ERROR; break;
-    case WARN: av_level = AV_LOG_WARNING; break;
-    case INFO: av_level = AV_LOG_INFO; break;
-    case DEBUG:
+    case ERROR:  av_level = AV_LOG_ERROR; break;
+    case INFO:   av_level = AV_LOG_INFO; break;
     case MEMORY: av_level = AV_LOG_VERBOSE; break;
+    case WARN:   av_level = AV_LOG_WARNING; break;
+    case DEBUG: 
     default: break;
   }
   
@@ -225,8 +227,9 @@ void ms_set_log_level(int level)
 
 MediaScan *ms_create(void)
 {
-  MediaScan *s;
-
+  MediaScan *s = NULL;
+  dlna_t *dlna = NULL;
+  
   _init();
   
   s = (MediaScan *)calloc(sizeof(MediaScan), 1);
@@ -253,6 +256,12 @@ MediaScan *ms_create(void)
   // List of all dirs found
   s->_dirq = malloc(sizeof(struct dirq));
   SIMPLEQ_INIT((struct dirq *)s->_dirq);
+  
+  // We can't use libdlna's init function because it loads everything in ffmpeg
+  dlna = (dlna_t *)calloc(sizeof(dlna_t), 1);
+  dlna->inited = 1;
+  s->_dlna = (void *)dlna;
+  dlna_register_all_media_profiles(dlna);
   
   return s;
 }
@@ -309,10 +318,10 @@ void ms_destroy(MediaScan *s)
     free(entry);
   }
   
-  free(s->_dirq);
-  
   progress_destroy(s->progress);
   
+  free(s->_dirq);
+  free(s->_dlna);
   free(s);
 }
 
@@ -540,7 +549,7 @@ int _should_scan(MediaScan *s, const char *path)
     if (found)
       return TYPE_AUDIO;
 
-    found = strstr(ImageExts, extc);
+	found = strstr(ImageExts, extc);
     if (found)
       return TYPE_IMAGE;
     
@@ -567,11 +576,10 @@ int _should_scan(MediaScan *s, const char *path)
 void ms_scan(MediaScan *s)
 {
   int i = 0;  
-
-  PVOID OldValue = NULL;
+  char *dir;
   char *phase = NULL;
 
-  if(s == NULL) {
+   if(s == NULL) {
 	ms_errno = MSENO_NULLSCANOBJ;
     LOG_ERROR("MediaScan = NULL, aborting scan\n");
     return;
@@ -587,8 +595,24 @@ void ms_scan(MediaScan *s)
     // XXX TODO
   }
 
+  /*
+  if (!is_absolute_path(path)) { // XXX Win32
+    // Get full path
+    char *buf = (char *)malloc((size_t)PathMax);
+    if (buf == NULL) {
+      FATAL("Out of memory for directory scan\n");
+      return;
+    }
+
+    dir = getcwd(buf, (size_t)PathMax);
+    strcat(dir, "/");
+    strcat(dir, path);
+  }
+  else {
+    dir = strdup(path);
+  }*/
+
   for (i = 0; i < s->npaths; i++) {
-	char *phase = NULL;
     struct dirq_entry *entry = malloc(sizeof(struct dirq_entry));
     entry->dir = _strdup("/"); // so free doesn't choke on this item later
     entry->files = malloc(sizeof(struct fileq));
@@ -659,7 +683,7 @@ ms_scan_file(MediaScan *s, const char *full_path, enum media_type type)
     }
   }
   
-  r = result_create();
+  r = result_create(s);
   if (r == NULL)
     return; // ms_errno was set by result_create()
   
@@ -710,6 +734,5 @@ bool is_absolute_path(const char *path) {
 
 	return FALSE;
 } /* is_absolute_path() */
-
 
 

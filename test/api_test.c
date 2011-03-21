@@ -10,7 +10,9 @@
 #include "common.h"
 #include <unistd.h>
 
-#define TEST_COUNT 21
+#define TEST_COUNT 22
+
+static int rcount = 0;
 
 ///-------------------------------------------------------------------------------------------------
 ///  Called with a result.
@@ -25,7 +27,8 @@
 ///-------------------------------------------------------------------------------------------------
 
 static void my_result_callback(MediaScan *s, MediaScanResult *result) {
-
+  //ms_dump_result(result);
+  rcount++;
 }
 
 
@@ -44,10 +47,11 @@ static void my_error_callback(MediaScan *s, MediaScanError *error) {
   LOG_WARN("[Error] %s (%s)\n", error->error_string, error->path);
 }
 static void my_progress_callback(MediaScan *s, MediaScanProgress *progress) {
-  // Check final progress callback only
+  // Do tests on final progress callback only
   if (!progress->cur_item) {
-    ok(progress->dir_total == 3, "final progress callback dir_total is %d", progress->dir_total);
-    ok(progress->file_total == 22, "final progress callback file_total is %d", progress->file_total);
+    ok(progress->dir_total == 13, "final progress callback dir_total is %d", progress->dir_total);
+    ok(progress->file_total == 30, "final progress callback file_total is %d", progress->file_total);
+    ok(rcount == 18, "final result callback count is %d", rcount);
   }
 } /* my_progress_callback() */
 
@@ -71,9 +75,15 @@ int main(int argc, char *argv[])
   char *dir;
 /*
   plan(TEST_COUNT);
+<<<<<<< HEAD
 
   ms_set_log_level(INFO);
 
+=======
+  
+  ms_set_log_level(ERROR);
+  
+>>>>>>> origin/andy
   // Get path to this binary
   bin = _findbin(argv[0]);
   dir = _abspath(bin, "../data"); // because binary is in .libs dir

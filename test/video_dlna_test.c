@@ -35,15 +35,23 @@ static void my_error_callback(MediaScan *s, MediaScanError *error) {
 int
 main(int argc, char *argv[])
 {
+  char *bin;
+  char *dir;
+  MediaScan *s;
   plan(TEST_COUNT);
   
-  ms_set_log_level(ERROR);
+  ms_set_log_level(ERR);
   
   // Get path to this binary
-  char *bin = _findbin(argv[0]);
-  char *dir = _abspath(bin, "../data/video/dlna"); // because binary is in .libs dir
+  bin = _findbin(argv[0]);
 
-  MediaScan *s = ms_create();
+#ifdef WIN32
+  dir = _abspath(bin, "data/video/dlna"); // because binary is in .libs dir
+#else
+  dir = _abspath(bin, "../data/video/dlna"); // because binary is in .libs dir
+#endif
+
+  s = ms_create();
   ms_add_path(s, dir);
   ms_set_result_callback(s, my_result_callback);
   ms_set_error_callback(s, my_error_callback);

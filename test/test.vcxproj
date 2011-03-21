@@ -40,6 +40,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <LibraryPath>C:\mingw\msys\1.0\local\lib;$(SolutionDir)ffmpeg\libavcodec;$(SolutionDir)ffmpeg\libswscale;$(SolutionDir)ffmpeg\libavdevice;$(SolutionDir)ffmpeg\libavfilter;$(SolutionDir)ffmpeg\libavformat;$(SolutionDir)ffmpeg\libavutil;$(SolutionDir)ffmpeg\libpostproc;C:\mingw\lib\gcc\mingw32\4.5.2;C:\mingw\lib;$(LibraryPath)</LibraryPath>
+    <TargetName>API_test</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -59,7 +60,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(ProjectDir)..\win32\debug\libmediascan.lib;libavcodec.a;libavformat.a;libavutil.a;wsock32.lib;vfw32.lib;libcunit.a;libgcc.a;libmingwex.lib;libz.a;libbz2.a;libdts.a;libgsm.a;libx264.a;xvidcore.a;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectDir)..\win32\debug\libmediascan.lib;libavcodec.a;libavformat.a;libavutil.a;wsock32.lib;vfw32.lib;libcunit.a;libgcc.a;libmingwex.lib;libz.a;libbz2.a;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
       <Command>

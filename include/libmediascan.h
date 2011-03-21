@@ -113,8 +113,9 @@ struct _Result {
   } type_data;
   
   // private members
-  void *_avf; ///< AVFormatContext instance
-  FILE *_fp;
+  void *_scan;      // reference to scan that created this result
+  void *_avf;       // AVFormatContext instance
+  FILE *_fp;        // opened file if necessary
 };
 typedef struct _Result MediaScanResult;
 
@@ -150,7 +151,8 @@ struct _Scan {
   
   // private
   void *_dirq; // simple queue of all directories found
-} ;
+  void *_dlna; // libdlna instance
+};
 
 typedef struct _Scan MediaScan;
 
@@ -269,5 +271,11 @@ int ms_async_fd(MediaScan *s);
  * readable. It will trigger one or more callbacks.
  */
 void ms_async_process(MediaScan *s);
+
+/**
+ * For debugging or logging purposes, dump the contents of the given MediaScanResult
+ * to stdout.
+ */
+void ms_dump_result(MediaScanResult *r);
 
 #endif // _LIBMEDIASCAN_H

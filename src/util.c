@@ -1,3 +1,12 @@
+#ifdef WIN32
+#include "win32/include/win32config.h"
+#endif
+
+#include <stdlib.h>
+
+#include <libmediascan.h>
+
+
 
 int
 match_file_extension (const char *filename, const char *extensions)

@@ -233,7 +233,7 @@ out:
 }
 
 MediaScanResult *
-result_create(void)
+result_create(MediaScan *s)
 {
   MediaScanResult *r = (MediaScanResult *)calloc(sizeof(MediaScanResult), 1);
   if (r == NULL) {
@@ -374,23 +374,6 @@ get_type_handler(char *ext, type_ext *types, type_handler *handlers)
 }
 
 static void
-set_size(ScanData s)
-{
-#ifdef _WIN32
-  // Win32 doesn't work right with fstat
-  fseek(s->fp, 0, SEEK_END);
-  s->size = ftell(s->fp);
-  fseek(s->fp, 0, SEEK_SET);
-#else
-  struct stat buf;
-
-  if ( !fstat( fileno(s->fp), &buf ) ) {
-    s->size = buf.st_size;
-  }
-#endif
-}
-
-static void
 scan_audio(ScanData s)
 {
   char *ext = strrchr(s->path, '.');
@@ -409,8 +392,6 @@ scan_audio(ScanData s)
       return;
     }
   }
-
-  set_size(s);
 
   hdl->scan(s);
 
