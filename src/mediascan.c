@@ -355,13 +355,13 @@ _should_scan(MediaScan *s, const char *path)
     
     char *found;
     
-    found = strstr(AudioExts, extc);
-    if (found)
-      return TYPE_AUDIO;
-    
     found = strstr(VideoExts, extc);
     if (found)
       return TYPE_VIDEO;
+    
+    found = strstr(AudioExts, extc);
+    if (found)
+      return TYPE_AUDIO;
     
     found = strstr(ImageExts, extc);
     if (found)
@@ -580,27 +580,3 @@ ms_scan_file(MediaScan *s, const char *full_path, enum media_type type)
   
   result_destroy(r);
 }
-
-/*
-ScanData
-mediascan_scan_file(const char *path, int flags)
-{
-  _init();
-  
-  ScanData s = NULL;
-  int type = _is_media(path);
-            
-  if (type == TYPE_VIDEO && !(flags & SKIP_VIDEO)) {
-    s = mediascan_new_ScanData(path, flags, type);
-  }
-  else if (type == TYPE_AUDIO && !(flags & SKIP_AUDIO)) {
-    s = mediascan_new_ScanData(path, flags, type);
-  }
-  else if (type == TYPE_IMAGE && !(flags & SKIP_IMAGE)) {
-    s = mediascan_new_ScanData(path, flags, type);
-  }
-  
-  return s;
-}
-
-*/

@@ -199,7 +199,7 @@ scan_video(MediaScanResult *r)
   // General metadata
   set_file_metadata(r);
 
-  r->bitrate     = avf->bit_rate / 1000;
+  r->bitrate     = avf->bit_rate;
   r->duration_ms = avf->duration / 1000;
 
   // Video-specific metadata
@@ -313,7 +313,7 @@ ms_dump_result(MediaScanResult *r)
   LOG_INFO("  DLNA profile: %s\n", r->dlna_profile);
   LOG_INFO("  File size:    %lld\n", r->size);
   LOG_INFO("  Modified:     %d\n", r->mtime);
-  LOG_INFO("  Bitrate:      %d kbps\n", r->bitrate);
+  LOG_INFO("  Bitrate:      %d bps\n", r->bitrate);
   LOG_INFO("  Duration:     %d ms\n", r->duration_ms);
   
   switch (r->type) {
