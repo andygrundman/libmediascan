@@ -153,7 +153,21 @@ _init(void)
 void
 ms_set_log_level(enum log_level level)
 {
+  int av_level = AV_LOG_PANIC;
+  
   Debug = level;
+  
+  // Set the corresponding ffmpeg log level
+  switch (level) {
+    case ERROR:  av_level = AV_LOG_ERROR; break;
+    case WARN:   av_level = AV_LOG_WARNING; break;
+    case INFO:   av_level = AV_LOG_INFO; break;
+    case DEBUG: 
+    case MEMORY: av_level = AV_LOG_VERBOSE; break;
+    default: break;
+  }
+  
+  av_log_set_level(av_level);
 }
 
 MediaScan *
@@ -166,7 +180,7 @@ ms_create(void)
   
   s = (MediaScan *)calloc(sizeof(MediaScan), 1);
   if (s == NULL) {
-    LOG_ERROR("Out of memory for new MediaScan object\n");
+    FATAL("Out of memory for new MediaScan object\n");
     return NULL;
   }
   
@@ -252,7 +266,7 @@ ms_add_path(MediaScan *s, const char *path)
   int len = strlen(path) + 1;
   char *tmp = malloc(len);
   if (tmp == NULL) {
-    LOG_ERROR("Out of memory for adding path\n");
+    FATAL("Out of memory for adding path\n");
     return;
   }
   
@@ -272,7 +286,7 @@ ms_add_ignore_extension(MediaScan *s, const char *extension)
   int len = strlen(extension) + 1;
   char *tmp = malloc(len);
   if (tmp == NULL) {
-    LOG_ERROR("Out of memory for ignore extension\n");
+    FATAL("Out of memory for ignore extension\n");
     return;
   }
   
@@ -368,7 +382,7 @@ recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir)
     // Get full path
     char *buf = (char *)malloc((size_t)PathMax);
     if (buf == NULL) {
-      LOG_ERROR("Out of memory for directory scan\n");
+      FATAL("Out of memory for directory scan\n");
       return;
     }
 

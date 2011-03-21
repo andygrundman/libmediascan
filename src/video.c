@@ -10,7 +10,7 @@ video_create(void)
 {
   MediaScanVideo *v = (MediaScanVideo *)calloc(sizeof(MediaScanVideo), 1);
   if (v == NULL) {
-    LOG_ERROR("Out of memory for new MediaScanVideo object\n");
+    FATAL("Out of memory for new MediaScanVideo object\n");
     return NULL;
   }
   
