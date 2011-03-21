@@ -73,17 +73,10 @@ int main(int argc, char *argv[])
 {
   char *bin;
   char *dir;
-/*
-  plan(TEST_COUNT);
-<<<<<<< HEAD
 
-  ms_set_log_level(INFO);
+  plan(TEST_COUNT);  
+  ms_set_log_level(ERR);
 
-=======
-  
-  ms_set_log_level(ERROR);
-  
->>>>>>> origin/andy
   // Get path to this binary
   bin = _findbin(argv[0]);
   dir = _abspath(bin, "../data"); // because binary is in .libs dir
@@ -134,7 +127,7 @@ int main(int argc, char *argv[])
   
   free(dir);
   free(bin);
-*/
+
 
   run_unit_tests();
 

@@ -1,9 +1,9 @@
 LMS_INCLUDE = -I$(top_srcdir)/include
-LMS_LTLIB = ../src/libmediascan.la
+LMS_LTLIB = ../src/libmediascan.la /usr/local/lib/libcunit.a /usr/lib/libc.dylib
 
 check_PROGRAMS = api_test video_dlna_test
 
-api_test_SOURCES = tap.c api_test.c
+api_test_SOURCES = tap.c api_test.c test.c
 api_test_CFLAGS = $(LMS_INCLUDE)
 api_test_LDADD = $(LMS_LTLIB)
 

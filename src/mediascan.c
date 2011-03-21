@@ -32,11 +32,15 @@
 #include "mediascan_win32.h"
 #endif
 
+#ifndef MAX_PATH
+#define MAX_PATH _PC_PATH_MAX
+#endif
+
 // DLNA support
 #include "libdlna/dlna_internals.h"
 
 // Global log level flag
-enum log_level Debug = ERROR;
+enum log_level Debug = ERR;
 static int Initialized = 0;
 static long PathMax = 0;
 int ms_errno = 0;
@@ -195,7 +199,7 @@ static void _init(void)
 /// ### remarks .
 ///-------------------------------------------------------------------------------------------------
 
-void ms_set_log_level(int level)
+void ms_set_log_level(enum log_level level)
 {
   int av_level = AV_LOG_PANIC;
   
@@ -203,7 +207,7 @@ void ms_set_log_level(int level)
   
   // Set the corresponding ffmpeg log level
   switch (level) {
-    case ERROR:  av_level = AV_LOG_ERROR; break;
+    case ERR:  av_level = AV_LOG_ERROR; break;
     case INFO:   av_level = AV_LOG_INFO; break;
     case MEMORY: av_level = AV_LOG_VERBOSE; break;
     case WARN:   av_level = AV_LOG_WARNING; break;
@@ -614,13 +618,13 @@ void ms_scan(MediaScan *s)
 
   for (i = 0; i < s->npaths; i++) {
     struct dirq_entry *entry = malloc(sizeof(struct dirq_entry));
-    entry->dir = _strdup("/"); // so free doesn't choke on this item later
+    entry->dir = strdup("/"); // so free doesn't choke on this item later
     entry->files = malloc(sizeof(struct fileq));
     SIMPLEQ_INIT(entry->files);
     SIMPLEQ_INSERT_TAIL((struct dirq *)s->_dirq, entry, entries);
     
     phase = (char *)malloc(MAX_PATH);
-    sprintf_s(phase, MAX_PATH, "Discovering files in %s", s->paths[i]);
+    sprintf(phase, "Discovering files in %s", s->paths[i]);
     s->progress->phase = phase;
     
     LOG_LEVEL(1, "Scanning %s\n", s->paths[i]);

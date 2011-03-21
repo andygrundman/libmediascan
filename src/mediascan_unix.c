@@ -4,7 +4,11 @@
 ///  mediascan mac OS class.
 ///-------------------------------------------------------------------------------------------------
 
+#include <stdlib.h>
+#include <string.h>
 #include <dirent.h>
+#include <errno.h>
+
 
 #include <libmediascan.h>
 #include "common.h"
@@ -12,7 +16,7 @@
 
 static long PathMax = 0;
 
-static void macos_init(void)
+void macos_init(void)
 {
   PathMax = pathconf(".", _PC_PATH_MAX); // 1024
 }
@@ -20,7 +24,7 @@ static void macos_init(void)
 ///-------------------------------------------------------------------------------------------------
 ///  Recursively walk a directory struction.
 ///
-/// @author Henry Bennett
+/// @author Andy Grundman
 /// @date 03/15/2011
 ///
 /// @param [in,out] s	   If non-null, the.
@@ -30,29 +34,20 @@ static void macos_init(void)
 /// ### remarks .
 ///-------------------------------------------------------------------------------------------------
 
-static void recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir)
+void
+recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir)
 {
-  char *dir = NULL;
-  char *p = NULL;
-  DIR *dirp;
-  struct dirq *subdirq;
-  char *tmp_full_path;
-  struct dirent *dp;
+  char *dir;
 
   if (path[0] != '/') { // XXX Win32
     // Get full path
     char *buf = (char *)malloc((size_t)PathMax);
     if (buf == NULL) {
-      LOG_ERROR("Out of memory for directory scan\n");
+      FATAL("Out of memory for directory scan\n");
       return;
     }
 
-#ifdef WIN32
-    dir = _getcwd(buf, (size_t)PathMax);
-#else
     dir = getcwd(buf, (size_t)PathMax);
-#endif
-
     strcat(dir, "/");
     strcat(dir, path);
   }
@@ -61,7 +56,7 @@ static void recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdi
   }
 
   // Strip trailing slash if any
-  p = &dir[0];
+  char *p = &dir[0];
   while (*p != 0) {
 #ifdef _WIN32
     if (p[1] == 0 && (*p == '/' || *p == '\\'))
@@ -72,19 +67,20 @@ static void recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdi
     p++;
   }
   
-  LOG_LEVEL(2, "Recursed into %s\n", dir);
+  LOG_INFO("Recursed into %s\n", dir);
 
+  DIR *dirp;
   if ((dirp = opendir(dir)) == NULL) {
     LOG_ERROR("Unable to open directory %s: %s\n", dir, strerror(errno));
     goto out;
   }
   
-  subdirq = malloc(sizeof(struct dirq));
+  struct dirq *subdirq = malloc(sizeof(struct dirq));
   SIMPLEQ_INIT(subdirq);
 
-  tmp_full_path = malloc((size_t)PathMax);
+  char *tmp_full_path = malloc((size_t)PathMax);
 
-  
+  struct dirent *dp;
   while ((dp = readdir(dirp)) != NULL) {
     char *name = dp->d_name;
 
@@ -97,18 +93,17 @@ static void recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdi
         strcat(tmp_full_path, name);
         
       // XXX some platforms may be missing d_type/DT_DIR
-      if (dp->d_type == DT_DIR) {        
+      if (dp->d_type == DT_DIR) {
         // Entry for complete list of dirs
         // XXX somewhat inefficient, we create this for every directory
         // even those that don't end up having any scannable files
-		struct dirq_entry *subdir_entry;
         struct dirq_entry *entry = malloc(sizeof(struct dirq_entry));
         entry->dir = strdup(tmp_full_path);
         entry->files = malloc(sizeof(struct fileq));
         SIMPLEQ_INIT(entry->files);
         
         // Temporary list of subdirs of the current directory
-        subdir_entry = malloc(sizeof(struct dirq_entry));
+        struct dirq_entry *subdir_entry = malloc(sizeof(struct dirq_entry));
         
         // Copy entry to subdir_entry, dir will be freed by ms_destroy()
         memcpy(subdir_entry, entry, sizeof(struct dirq_entry));
@@ -118,10 +113,11 @@ static void recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdi
         
         s->progress->dir_total++;
         
-        LOG_LEVEL(2, "  [%5d] subdir: %s\n", s->progress->dir_total, entry->dir);
+        LOG_INFO(" [%5d] subdir: %s\n", s->progress->dir_total, entry->dir);
       }
       else {
-        if ( _should_scan(s, name) ) {
+        enum media_type type = _should_scan(s, name);
+        if (type) {
           // To save memory by not storing the full path to every file,
           // each dir has a list of files in that dir
           struct fileq_entry *entry = malloc(sizeof(struct fileq_entry));
@@ -130,10 +126,10 @@ static void recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdi
           
           s->progress->file_total++;
           
-          LOG_LEVEL(2, "  [%5d] file: %s\n", s->progress->file_total, entry->file);
+          LOG_INFO(" [%5d] file: %s\n", s->progress->file_total, entry->file);
           
           // Scan the file
-          ms_scan_file(s, tmp_full_path);
+          ms_scan_file(s, tmp_full_path, type);
         }
       }
     }
@@ -166,58 +162,4 @@ static void recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdi
 
 out:
   free(dir);
-}
-
-
-///-------------------------------------------------------------------------------------------------
-///  Begin a recursive scan of all paths previously provided to ms_add_path(). If async mode
-/// 	is enabled, this call will return immediately. You must obtain the file descriptor using
-/// 	ms_async_fd and this must be checked using an event loop or select(). When the fd becomes
-/// 	readable you must call ms_async_process to trigger any necessary callbacks.
-///
-/// @author Henry Bennett
-/// @date 03/15/2011
-///
-/// @param [in,out] s If non-null, the.
-///
-/// ### remarks .
-///-------------------------------------------------------------------------------------------------
-
-void ms_scan(MediaScan *s)
-{
-  int i = 0;  
-
-  if (s->on_result == NULL) {
-    LOG_ERROR("Result callback not set, aborting scan\n");
-    return;
-  }
-  
-  if (s->async) {
-    LOG_ERROR("async mode not yet supported\n");
-    // XXX TODO
-  }
-  
-  for (i = 0; i < s->npaths; i++) {
-	char *phase = NULL;
-    struct dirq_entry *entry = malloc(sizeof(struct dirq_entry));
-    entry->dir = strdup("/"); // so free doesn't choke on this item later
-    entry->files = malloc(sizeof(struct fileq));
-    SIMPLEQ_INIT(entry->files);
-    SIMPLEQ_INSERT_TAIL((struct dirq *)s->_dirq, entry, entries);
-    
-    phase = (char *)malloc((size_t)PathMax);
-    sprintf(phase, "Discovering files in %s", s->paths[i]);
-    s->progress->phase = phase;
-    
-    LOG_LEVEL(1, "Scanning %s\n", s->paths[i]);
-    recurse_dir(s, s->paths[i], entry);
-    
-    // Send final progress callback
-    if (s->on_progress) {
-      s->progress->cur_item = NULL;
-      s->on_progress(s, s->progress);
-    }
-    
-    free(phase);
-  }
 }

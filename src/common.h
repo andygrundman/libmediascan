@@ -4,7 +4,9 @@
 #include <stdio.h>
 #include <libmediascan.h>
 
+#ifdef WIN32
 #include "win32config.h"
+#endif
 
 #if __GNUC__ >= 4
 # define likely(x)   __builtin_expect(!!(x), 1)

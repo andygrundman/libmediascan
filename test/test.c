@@ -24,17 +24,25 @@
  *                      tests         2       2       2       0
  *                      asserts       5       5       5       0
  */
-#include <Windows.h>
+
 #include <stdio.h>
 #include <string.h>
+
+
+#ifdef WIN32
+#include <Windows.h>
 #include <direct.h>
+#endif
+
 #include <limits.h>
 #include <libmediascan.h>
 
 #include "../src/mediascan.h"
 #include "Cunit/CUnit/Headers/Basic.h"
 
-
+#ifndef MAX_PATH
+#define MAX_PATH 1024
+#endif
 
 /* Pointer to the file used by the tests. */
 static FILE* temp_file = NULL;
@@ -52,9 +60,9 @@ static FILE* temp_file = NULL;
 
 int init_suite1(void)
 {
-   errno_t err;
+	temp_file = fopen("./temp.txt", "w+");
 
-   if ( (err = fopen_s(&temp_file, "temp.txt", "w+")) != 0) {
+   if ( temp_file == NULL) {
       return -1;
    }
    else {
@@ -75,6 +83,7 @@ int init_suite1(void)
 
 int clean_suite1(void)
 {
+
    if (0 != fclose(temp_file)) {
       return -1;
    }
@@ -82,6 +91,8 @@ int clean_suite1(void)
       temp_file = NULL;
       return 0;
    }
+
+
 }
 
 static	void my_result_callback(MediaScan *s, MediaScanResult *result) {
@@ -177,7 +188,7 @@ void test_ms_scan_3(void)	{
 	// Add 128 Paths to the list, which should work fine
 	for(i = 0; i < 128; i++)
 	{
-		sprintf_s(dir, MAX_PATH, "testdir%04d", i);
+		sprintf(dir, "testdir%04d", i);
 		CU_ASSERT(s->npaths == (i) );
 		ms_add_path(s, dir);
 		CU_ASSERT(s->npaths == (i+1) );
@@ -187,8 +198,8 @@ void test_ms_scan_3(void)	{
 	CU_ASSERT(s->npaths == 128 );
 	CU_ASSERT_STRING_EQUAL(s->paths[127], dir);
 
-	strcpy_s(dir2, MAX_PATH, dir);
-	sprintf_s(dir, MAX_PATH, "toomany");
+	strcpy(dir2, dir);
+	sprintf(dir, "toomany");
 	ms_add_path(s, dir); // This will fail
 
 	// Make sure number of paths hasn't gone up and the last entry is the same
@@ -326,7 +337,11 @@ void test_ms_scan_6(void)	{
 	s->progress->_last_callback = 0;
 	ms_scan(s);
 	CU_ASSERT(progress_called == FALSE);
+	#ifdef WIN32
 	Sleep(40); // wait 40ms
+	#else
+	sleep(40);
+	#endif
 	ms_scan(s);
 	CU_ASSERT(progress_called == FALSE);
 
@@ -334,7 +349,13 @@ void test_ms_scan_6(void)	{
 	s->progress->_last_callback = 0;
 	ms_scan(s);
 	CU_ASSERT(progress_called == FALSE);
+	
+	#ifdef WIN32
 	Sleep(61); // wait 61ms
+	#else
+	sleep(40);
+	#endif;
+	
 	ms_scan(s);
 	CU_ASSERT(progress_called == TRUE);
 
