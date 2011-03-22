@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <strsafe.h>
 #include <direct.h>
+#include <tchar.h>
 #include <libmediascan.h>
 #include "common.h"
 #include "queue.h"
@@ -196,7 +197,4 @@ void recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir)
 out:
   free(dir);
 } /* recurse_dir() */
-
-
-
 

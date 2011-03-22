@@ -1,29 +1,3 @@
-/*
- *  Simple example of a CUnit unit test.
- *
- *  This program (crudely) demonstrates a very simple "black box"
- *  test of the standard library functions fprintf() and fread().
- *  It uses suite initialization and cleanup functions to open
- *  and close a common temporary file used by the test functions.
- *  The test functions then write to and read from the temporary
- *  file in the course of testing the library functions.
- *
- *  The 2 test functions are added to a single CUnit suite, and
- *  then run using the CUnit Basic interface.  The output of the
- *  program (on CUnit version 2.0-2) is:
- *
- *           CUnit : A Unit testing framework for C.
- *           http://cunit.sourceforge.net/
- *
- *       Suite: Suite_1
- *         Test: test of fprintf() ... passed
- *         Test: test of fread() ... passed
- *
- *       --Run Summary: Type      Total     Ran  Passed  Failed
- *                      suites        1       1     n/a       0
- *                      tests         2       2       2       0
- *                      asserts       5       5       5       0
- */
 
 #include <stdio.h>
 #include <string.h>
@@ -46,6 +20,9 @@
 
 /* Pointer to the file used by the tests. */
 static FILE* temp_file = NULL;
+
+
+int setupbackground_tests();
 
 ///-------------------------------------------------------------------------------------------------
 ///  ------------------------------------------------------------------------------------------
@@ -91,8 +68,6 @@ int clean_suite1(void)
       temp_file = NULL;
       return 0;
    }
-
-
 }
 
 static	void my_result_callback(MediaScan *s, MediaScanResult *result) {
@@ -460,15 +435,15 @@ int run_unit_tests()
    /* initialize the CUnit test registry */
    if (CUE_SUCCESS != CU_initialize_registry())
       return CU_get_error();
-
+#ifdef SUPER
    /* add a suite to the registry */
-   pSuite = CU_add_suite("File Scan", init_suite1, clean_suite1);
+   pSuite = CU_add_suite("File Scanning", init_suite1, clean_suite1);
    if (NULL == pSuite) {
       CU_cleanup_registry();
       return CU_get_error();
    }
 
-   /* add the tests to the suite */
+   /* add the tests to the ms_scan suite */
    if (
 	   NULL == CU_add_test(pSuite, "Simple test of ms_scan()", test_ms_scan) ||
 	   NULL == CU_add_test(pSuite, "Test ms_scan() with no paths", test_ms_scan_2) ||
@@ -483,6 +458,9 @@ int run_unit_tests()
       CU_cleanup_registry();
       return CU_get_error();
    }
+#endif
+
+   setupbackground_tests();
 
    /* Run all tests using the CUnit Basic interface */
    CU_basic_set_mode(CU_BRM_VERBOSE);

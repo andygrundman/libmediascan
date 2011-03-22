@@ -71,6 +71,7 @@ static void my_progress_callback(MediaScan *s, MediaScanProgress *progress) {
 
 int main(int argc, char *argv[])
 {
+	/*
   char *bin;
   char *dir;
 
@@ -127,8 +128,9 @@ int main(int argc, char *argv[])
   
   free(dir);
   free(bin);
-
-
+  */
+ 
+  ms_set_log_level(ERR);
   run_unit_tests();
 
   return exit_status();

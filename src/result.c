@@ -94,8 +94,7 @@ scan_dlna_profile(MediaScanResult *r, av_codecs_t *codecs)
     p = p->next;
   }
   
-  free(codecs);
-  
+ 
   if (profile) {
     r->mime_type = profile->mime;
     r->dlna_profile = profile->id;
@@ -180,6 +179,7 @@ scan_video(MediaScanResult *r)
     r->error = error_create(r->path, MS_ERROR_READ, "[libavformat] Unable to find stream info");
     r->error->averror = AVError;
     ret = 0;
+	av_close_input_file(avf);
     goto out;
   }
 
@@ -226,6 +226,8 @@ scan_video(MediaScanResult *r)
   v->width = codecs->vc->width;
   v->height = codecs->vc->height;
   
+  free(codecs);
+
   // XXX streams, thumbnails, tags
 
 out:

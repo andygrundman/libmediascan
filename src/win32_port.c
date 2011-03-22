@@ -29,6 +29,6 @@ void croak(char *fmt, ...) {
 	 
 	printf(fmt, argptr);
     va_end(argptr);
-	exit(-1);
+	//exit(-1);
 };
 

@@ -326,6 +326,9 @@ void ms_destroy(MediaScan *s)
   
   free(s->_dirq);
   free(s->_dlna);
+
+  ms_clear_watch(s);
+
   free(s);
 }
 
@@ -503,6 +506,85 @@ void ms_set_progress_interval(MediaScan *s, int seconds)
 }
 
 ///-------------------------------------------------------------------------------------------------
+///  Watch a directory in the background.
+///
+/// @author Henry Bennett
+/// @date 03/22/2011
+///
+/// @param path Path name of the folder to watch
+/// @param callback Callback with the changes
+///-------------------------------------------------------------------------------------------------
+void ms_watch_directory(MediaScan *s, const char *path, FolderChangeCallback callback)
+{
+	thread_data_type *thread_data;
+
+	s->on_background = callback;
+
+	// This folder monitoring code is only valid for Win32
+#ifdef WIN32
+
+	s->ghSignalEvent = CreateEvent( 
+    NULL,					// default security attributes
+    TRUE,					// manual-reset event
+    FALSE,					// initial state is nonsignaled
+    "StopEvent"				// "StopEvent" name
+    );
+
+	if(s->ghSignalEvent == NULL)
+	{
+		ms_errno = MSENO_THREADERROR;
+		LOG_ERROR("Can't create event\n");
+		return;
+	}
+
+	thread_data = (thread_data_type*) HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(thread_data_type));
+
+
+	thread_data->lpDir = path;
+	thread_data->s = s;
+
+	s->hThread = CreateThread( 
+    NULL,                   // default security attributes
+    0,                      // use default stack size  
+    WatchDirectory,			// WatchDirectory thread
+    (void*)thread_data,	// (void*)thread_data_type
+    0,                      // use default creation flags 
+    &s->dwThreadId);			// returns the thread identifier 
+
+	if(s->hThread == NULL)
+	{
+		ms_errno = MSENO_THREADERROR;
+		LOG_ERROR("Can't create watch thread\n");
+		return;
+	}
+
+#endif
+
+} /* ms_watch_directory() */
+
+///-------------------------------------------------------------------------------------------------
+///  Clear watch list
+///
+/// @author Henry Bennett
+/// @date 03/22/2011
+///
+///-------------------------------------------------------------------------------------------------
+void ms_clear_watch(MediaScan *s)
+{
+// This folder monitoring code is only valid for Win32
+#ifdef WIN32
+	SetEvent(s->ghSignalEvent);
+
+	// Wait until all threads have terminated.
+	WaitForSingleObject(s->hThread, INFINITE);
+
+	CloseHandle(s->hThread);
+	CloseHandle(s->ghSignalEvent);
+#endif
+
+} /* ms_clear_watch() */
+
+///-------------------------------------------------------------------------------------------------
 ///  Determine if we should scan a path.
 ///
 /// @author Andy Grundman
@@ -580,7 +662,7 @@ int _should_scan(MediaScan *s, const char *path)
 void ms_scan(MediaScan *s)
 {
   int i = 0;  
-  char *dir;
+//  char *dir;
   char *phase = NULL;
 
    if(s == NULL) {

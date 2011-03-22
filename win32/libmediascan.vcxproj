@@ -44,7 +44,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)..;$(SolutionDir)..\include;$(SolutionDir)include;$(SolutionDir)ffmpeg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CallingConvention>Cdecl</CallingConvention>
       <CompileAs>CompileAsC</CompileAs>
@@ -86,6 +86,7 @@
   <ItemGroup>
     <ClCompile Include="..\src\buffer.c" />
     <ClCompile Include="..\src\error.c" />
+    <ClCompile Include="..\src\folder_mon_win32.c" />
     <ClCompile Include="..\src\libdlna\audio_aac.c" />
     <ClCompile Include="..\src\libdlna\audio_ac3.c" />
     <ClCompile Include="..\src\libdlna\audio_amr.c" />
@@ -117,6 +118,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\libmediascan.h" />
+    <ClInclude Include="..\src\mediascan.h" />
+    <ClInclude Include="..\src\progress.h" />
+    <ClInclude Include="..\src\queue.h" />
+    <ClInclude Include="..\src\result.h" />
+    <ClInclude Include="..\src\util.h" />
+    <ClInclude Include="..\src\video.h" />
+    <ClInclude Include="..\src\wav.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

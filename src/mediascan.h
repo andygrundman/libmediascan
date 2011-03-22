@@ -18,6 +18,13 @@ struct dirq_entry {
 };
 SIMPLEQ_HEAD(dirq, dirq_entry);
 
+struct thread_data {
+   MediaScan *s;
+   LPTSTR lpDir;
+};
+
+typedef struct thread_data thread_data_type;
+
 #ifndef bool
 #define bool int
 #endif
@@ -77,22 +84,26 @@ void recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir);
 #ifdef WIN32
 
 ///-------------------------------------------------------------------------------------------------
-/// <summary>
-/// 	The gettimeofday() function obtains the current time, expressed as seconds and
-/// 	microseconds since the Epoch, and store it in the timeval structure pointed to by tv. As
-/// 	posix says gettimeoday should return zero and should not reserve any value for error,
-/// 	this function returns zero.
-/// </summary>
+///  Watch directory.
 ///
-/// <remarks>	Henry Bennett, 03/16/2011. </remarks>
+/// @author Henry Bennett
+/// @date 03/22/2011
 ///
-/// <param name="tv">	[in,out] If non-null, the tv. </param>
-/// <param name="tz">	[in,out] If non-null, the tz. </param>
-///
-/// <returns>	. </returns>
+/// @param lpDir String describing the path to be watched
 ///-------------------------------------------------------------------------------------------------
 
-int gettimeofday(struct timeval *tv, struct timezone *tz);
+DWORD WINAPI WatchDirectory(LPVOID inData);
+
+///-------------------------------------------------------------------------------------------------
+///  Code to refresh the directory listing, but not the subtree because it would not be necessary.
+///
+/// @author Henry Bennett
+/// @date 03/22/2011
+///
+/// @param lpDir The pointer to a dir.
+///-------------------------------------------------------------------------------------------------
+
+void RefreshDirectory(MediaScan *s, LPTSTR lpDir);
 
 #endif
 

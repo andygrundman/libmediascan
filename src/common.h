@@ -25,6 +25,6 @@ extern enum log_level Debug;
 #define LOG_INFO(...)  LOG_LEVEL(INFO, __VA_ARGS__)
 #define LOG_DEBUG(...) LOG_LEVEL(DEBUG, __VA_ARGS__)
 #define LOG_MEM(...)   LOG_LEVEL(MEMORY, __VA_ARGS__)
-#define FATAL(...)     LOG_LEVEL(ERR, __VA_ARGS__); exit(-1)
+#define FATAL(...)     LOG_LEVEL(ERR, __VA_ARGS__);
 
 #endif // _COMMON_H

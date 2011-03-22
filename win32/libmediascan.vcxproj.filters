@@ -9,12 +9,8 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-    <Filter Include="Libraries">
-      <UniqueIdentifier>{12a8a289-9124-4301-9906-fc4f13c029bf}</UniqueIdentifier>
+    <Filter Include="libdlna">
+      <UniqueIdentifier>{a6cf413b-352f-49b6-872e-7731e114de20}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -22,9 +18,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\mediascan.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\progress.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\result.c">
@@ -45,66 +38,93 @@
     <ClCompile Include="..\src\util.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\libdlna\containers.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\libdlna\upnp_dms.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\libdlna\audio_aac.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\libdlna\audio_ac3.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\libdlna\audio_amr.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\libdlna\audio_atrac3.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\libdlna\audio_g726.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\libdlna\audio_lpcm.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\libdlna\audio_mp2.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\libdlna\audio_mp3.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\libdlna\audio_wma.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\libdlna\av_mpeg1.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\libdlna\av_mpeg2.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\libdlna\av_mpeg4_part2.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\libdlna\av_mpeg4_part10.c">
-      <Filter>Source Files</Filter>
+      <Filter>libdlna</Filter>
     </ClCompile>
     <ClCompile Include="..\src\libdlna\av_wmv9.c">
-      <Filter>Source Files</Filter>
+      <Filter>libdlna</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\libdlna\audio_ac3.c">
+      <Filter>libdlna</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\libdlna\audio_amr.c">
+      <Filter>libdlna</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\libdlna\audio_atrac3.c">
+      <Filter>libdlna</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\libdlna\audio_g726.c">
+      <Filter>libdlna</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\libdlna\audio_lpcm.c">
+      <Filter>libdlna</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\libdlna\audio_mp2.c">
+      <Filter>libdlna</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\libdlna\audio_mp3.c">
+      <Filter>libdlna</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\libdlna\audio_wma.c">
+      <Filter>libdlna</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\libdlna\av_mpeg1.c">
+      <Filter>libdlna</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\libdlna\av_mpeg2.c">
+      <Filter>libdlna</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\libdlna\av_mpeg4_part10.c">
+      <Filter>libdlna</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\libdlna\av_mpeg4_part2.c">
+      <Filter>libdlna</Filter>
     </ClCompile>
     <ClCompile Include="..\src\libdlna\image_jpeg.c">
-      <Filter>Source Files</Filter>
+      <Filter>libdlna</Filter>
     </ClCompile>
     <ClCompile Include="..\src\libdlna\image_png.c">
+      <Filter>libdlna</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\libdlna\upnp_dms.c">
+      <Filter>libdlna</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\progress.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\libdlna\profiles.c">
+      <Filter>libdlna</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\libdlna\containers.c">
+      <Filter>libdlna</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\folder_mon_win32.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\libmediascan.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\mediascan.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\progress.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\queue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\result.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\util.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\video.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\wav.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
