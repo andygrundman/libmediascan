@@ -96,7 +96,7 @@ struct _Result {
   int bitrate; ///< total bitrate
   int duration_ms;
   
-  MediaScanAudio *audio; ///< Audio-specific data, only present if type is TYPE_AUDIO.
+  MediaScanAudio *audio; ///< Audio-specific data, only present if type is TYPE_AUDIO or TYPE_VIDEO.
   MediaScanImage *image; ///< Image-specific data, only present if type is TYPE_IMAGE.
   MediaScanVideo *video; ///< Video-specific data, only present if type is TYPE_VIDEO.
   

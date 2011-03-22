@@ -95,6 +95,13 @@ register_codecs(void)
   REGISTER_DECODER (WMAV2, wmav2);
   REGISTER_DECODER (WMAVOICE, wmavoice);
   
+  // Not sure which PCM codecs we need
+  REGISTER_DECODER (PCM_DVD, pcm_dvd);
+  REGISTER_DECODER (PCM_S16BE, pcm_s16be);
+  REGISTER_DECODER (PCM_S16LE, pcm_s16le);
+  REGISTER_DECODER (PCM_S24BE, pcm_s24be);
+  REGISTER_DECODER (PCM_S24LE, pcm_s24le);
+  
   // Subtitles
   REGISTER_DECODER (ASS, ass);
   REGISTER_DECODER (DVBSUB, dvbsub);

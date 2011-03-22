@@ -11,6 +11,7 @@
 #include "result.h"
 #include "error.h"
 #include "video.h"
+#include "audio.h"
 #include "util.h"
 
 // DLNA support
@@ -140,6 +141,7 @@ scan_video(MediaScanResult *r)
   AVInputFormat *iformat = NULL;
   AVCodec *c = NULL;
   MediaScanVideo *v = NULL;
+  MediaScanAudio *a = NULL;
   av_codecs_t *codecs = NULL;
   int AVError = 0;
   int ret = 1;
@@ -218,7 +220,27 @@ scan_video(MediaScanResult *r)
   v->height = codecs->vc->height;
   v->fps = av_q2d(codecs->vs->avg_frame_rate);
   
-  // XXX streams, thumbnails, tags
+  // Audio metadata from the primary audio stream
+  if (codecs->ac) {
+    a = r->audio = audio_create();
+    
+    c = avcodec_find_decoder(codecs->ac->codec_id);  
+    if (c) {
+      a->codec = c->name;
+    }
+    else if (codecs->ac->codec_name[0] != '\0') {
+      a->codec = codecs->ac->codec_name;
+    }
+    else {
+      a->codec = "Unknown";
+    }
+    
+    a->bitrate = codecs->ac->bit_rate;
+    a->samplerate = codecs->ac->sample_rate;
+    a->channels = codecs->ac->channels;    
+  }
+  
+  // XXX additional streams(?), thumbnails, tags
 
 out:
   if (codecs)
@@ -322,9 +344,15 @@ ms_dump_result(MediaScanResult *r)
   
   switch (r->type) {
     case TYPE_VIDEO:
-      LOG_OUTPUT("  Type: Video, %s\n", r->video->codec);
-      LOG_OUTPUT("  Dimensions: %d x %d\n", r->video->width, r->video->height);
-      LOG_OUTPUT("  Framerate:  %.2f\n", r->video->fps);
+      LOG_OUTPUT("  Video: %s\n", r->video->codec);
+      LOG_OUTPUT("    Dimensions: %d x %d\n", r->video->width, r->video->height);
+      LOG_OUTPUT("    Framerate:  %.2f\n", r->video->fps);
+      if (r->audio) {
+        LOG_OUTPUT("  Audio: %s\n", r->audio->codec);
+        LOG_OUTPUT("    Bitrate:    %d bps\n", r->audio->bitrate);
+        LOG_OUTPUT("    Samplerate: %d kHz\n", r->audio->samplerate);
+        LOG_OUTPUT("    Channels:   %d\n", r->audio->channels);
+      }
       LOG_OUTPUT("  FFmpeg details:\n");
       av_dump_format(r->_avf, 0, r->path, 0);
       break;

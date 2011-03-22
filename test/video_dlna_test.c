@@ -8,7 +8,7 @@
 #include <unistd.h>
 #include <stdint.h>
 
-#define TEST_COUNT 33
+#define TEST_COUNT 51
 
 // From ffmpeg utils.c:print_fps
 static const char *
@@ -40,26 +40,35 @@ static void my_result_callback(MediaScan *s, MediaScanResult *r) {
       is(r->mime_type, "video/mpeg", "MPEG1.mpg MIME type video/mpeg ok");
       is(r->dlna_profile, "MPEG1", "MPEG1.mpg DLNA profile MPEG1 ok");
       ok(r->size == 51200, "MPEG1.mpg file size is 51200 ok");
-      ok(r->bitrate == 1363969, "MPEG1.mpg bitrate is 1363969bps ok");
+      ok(r->bitrate == 1363969, "MPEG1.mpg bitrate is 1363969 ok");
       ok(r->duration_ms == 300, "MPEG1.mpg duration is 0.3s ok");
+      is(r->video->codec, "mpeg1video", "MPEG1.mpg codec mpeg1video ok");
       ok(r->video->width == 352, "MPEG1.mpg video width 352 ok");
       ok(r->video->height == 240, "MPEG1.mpg video height 240 ok");
       is(fps2str(r->video->fps), "29.97", "MPEG1.mpg framerate 29.97 ok");
+      is(r->audio->codec, "mp2", "MPEG1.mpg audio codec mp2 ok");
+      ok(r->audio->bitrate == 224000, "MPEG1.mpg audio bitrate 224000 ok");
+      ok(r->audio->samplerate == 44100, "MPEG1.mpg audio samplerate 44100 ok");
+      ok(r->audio->channels == 2, "MPEG1.mpg audio channels 2 ok");
     }
   }
   
   /// MPEG2
   
   // MPEG_PS_NTSC with LPCM audio
-  // XXX LPCM audio format type not registered
   {
     if (!strcmp(file, "MPEG_PS_NTSC-lpcm.mpg")) {
       ok(r->type == TYPE_VIDEO, "MPEG_PS_NTSC-lpcm.mpg type is video ok");
       is(r->mime_type, "video/mpeg", "MPEG_PS_NTSC-lpcm.mpg MIME type video/mpeg ok");
       is(r->dlna_profile, "MPEG_PS_NTSC", "MPEG_PS_NTSC-lpcm.mpg DLNA profile ok");
+      is(r->video->codec, "mpeg2video", "MPEG_PS_NTSC-lpcm.mpg codec mpeg2video ok");
       ok(r->video->width == 720, "MPEG_PS_NTSC-lpcm.mpg video width 720 ok");
       ok(r->video->height == 480, "MPEG_PS_NTSC-lpcm.mpg video height 480 ok");
       is(fps2str(r->video->fps), "29.97", "MPEG_PS_NTSC-lpcm.mpg framerate 29.97 ok");
+      is(r->audio->codec, "pcm_s16be", "MPEG_PS_NTSC-lpcm.mpg audio codec pcm_s16be ok");
+      ok(r->audio->bitrate == 1536000, "MPEG_PS_NTSC-lpcm.mpg audio bitrate 1536000 ok");
+      ok(r->audio->samplerate == 48000, "MPEG_PS_NTSC-lpcm.mpg audio samplerate 48000 ok");
+      ok(r->audio->channels == 2, "MPEG_PS_NTSC-lpcm.mpg audio channels 2 ok");
     }
   }
   
@@ -72,6 +81,10 @@ static void my_result_callback(MediaScan *s, MediaScanResult *r) {
       ok(r->video->width == 720, "MPEG_PS_NTSC-ac3.mpg video width 720 ok");
       ok(r->video->height == 480, "MPEG_PS_NTSC-ac3.mpg video height 480 ok");
       is(fps2str(r->video->fps), "29.97", "MPEG_PS_NTSC-ac3.mpg framerate 29.97 ok");
+      is(r->audio->codec, "ac3", "MPEG_PS_NTSC-lpcm.mpg audio codec pcm_s16be ok");
+      ok(r->audio->bitrate == 224000, "MPEG_PS_NTSC-ac3.mpg audio bitrate 224000 ok");
+      ok(r->audio->samplerate == 48000, "MPEG_PS_NTSC-ac3.mpg audio samplerate 48000 ok");
+      ok(r->audio->channels == 2, "MPEG_PS_NTSC-ac3.mpg audio channels 2 ok");
     }
   }
   
@@ -96,6 +109,10 @@ static void my_result_callback(MediaScan *s, MediaScanResult *r) {
       ok(r->video->width == 544, "MPEG_TS_SD_NA_ISO.ts video width 720 ok");
       ok(r->video->height == 480, "MPEG_TS_SD_NA_ISO.ts video height 480 ok");
       is(fps2str(r->video->fps), "29.97", "MPEG_TS_SD_NA_ISO.ts framerate 29.97 ok");
+      is(r->audio->codec, "ac3", "MPEG_TS_SD_NA_ISO.ts audio codec pcm_s16be ok");
+      ok(r->audio->bitrate == 192000, "MPEG_TS_SD_NA_ISO.ts audio bitrate 192000 ok");
+      ok(r->audio->samplerate == 48000, "MPEG_TS_SD_NA_ISO.ts audio samplerate 48000 ok");
+      ok(r->audio->channels == 2, "MPEG_TS_SD_NA_ISO.ts audio channels 2 ok");
     }
   }
   
