@@ -310,24 +310,24 @@ result_destroy(MediaScanResult *r)
 void
 ms_dump_result(MediaScanResult *r)
 {
-  LOG_INFO("%s\n", r->path);
-  LOG_INFO("  MIME type:    %s\n", r->mime_type);
-  LOG_INFO("  DLNA profile: %s\n", r->dlna_profile);
-  LOG_INFO("  File size:    %lld\n", r->size);
-  LOG_INFO("  Modified:     %d\n", r->mtime);
-  LOG_INFO("  Bitrate:      %d bps\n", r->bitrate);
-  LOG_INFO("  Duration:     %d ms\n", r->duration_ms);
+  LOG_OUTPUT("%s\n", r->path);
+  LOG_OUTPUT("  MIME type:    %s\n", r->mime_type);
+  LOG_OUTPUT("  DLNA profile: %s\n", r->dlna_profile);
+  LOG_OUTPUT("  File size:    %lld\n", r->size);
+  LOG_OUTPUT("  Modified:     %d\n", r->mtime);
+  LOG_OUTPUT("  Bitrate:      %d bps\n", r->bitrate);
+  LOG_OUTPUT("  Duration:     %d ms\n", r->duration_ms);
   
   switch (r->type) {
     case TYPE_VIDEO:
-      LOG_INFO("  Type: Video, %s\n", r->video->codec);
-      LOG_INFO("  Dimensions: %d x %d\n", r->video->width, r->video->height);
-      LOG_INFO("  FFmpeg details:\n");
+      LOG_OUTPUT("  Type: Video, %s\n", r->video->codec);
+      LOG_OUTPUT("  Dimensions: %d x %d\n", r->video->width, r->video->height);
+      LOG_OUTPUT("  FFmpeg details:\n");
       av_dump_format(r->_avf, 0, r->path, 0);
       break;
       
     default:
-      LOG_INFO("  Type: Unknown\n");
+      LOG_OUTPUT("  Type: Unknown\n");
       break;
   } 
 }

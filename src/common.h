@@ -16,6 +16,8 @@
 
 extern enum log_level Debug;
 
+#define LOG_OUTPUT(...) fprintf(stdout, __VA_ARGS__)
+
 #define LOG_LEVEL(level, ...) if (unlikely(Debug >= level)) fprintf(stderr, __VA_ARGS__)
 
 #define LOG_ERROR(...) LOG_LEVEL(ERROR, __VA_ARGS__)

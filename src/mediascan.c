@@ -56,7 +56,7 @@ SIMPLEQ_HEAD(dirq, dirq_entry);
 
 // File extensions to look for (leading/trailing comma are required)
 static const char *AudioExts = ",aif,aiff,wav,";
-static const char *VideoExts = ",asf,avi,divx,flv,m2t,m4v,mkv,mov,mpg,mpeg,mp4,m2p,m2t,mts,m2ts,ts,vob,webm,wmv,xvid,3gp,3g2,3gp2,3gpp,";
+static const char *VideoExts = ",asf,avi,divx,flv,hdmov,m1v,m2p,m2t,m2ts,m2v,m4v,mkv,mov,mpg,mpeg,mpe,mp2p,mp2t,mp4,mts,pes,ps,ts,vob,webm,wmv,xvid,3gp,3g2,3gp2,3gpp,";
 static const char *ImageExts = ",jpg,png,gif,bmp,jpeg,";
 
 #define REGISTER_DECODER(X,x) { \
@@ -130,6 +130,7 @@ register_formats(void)
   REGISTER_DEMUXER (MATROSKA, matroska);
   REGISTER_DEMUXER (MOV, mov);
   REGISTER_DEMUXER (MPEGPS, mpegps);             // VOB files
+  REGISTER_DEMUXER (MPEGTS, mpegts);
   REGISTER_DEMUXER (MPEGVIDEO, mpegvideo);
   
   // protocols

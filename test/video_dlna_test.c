@@ -6,7 +6,7 @@
 #include "common.h"
 #include <unistd.h>
 
-#define TEST_COUNT 8
+#define TEST_COUNT 28
 
 
 static void my_result_callback(MediaScan *s, MediaScanResult *r) {
@@ -16,16 +16,135 @@ static void my_result_callback(MediaScan *s, MediaScanResult *r) {
       return;  
   file++;
   
-  if (!strcmp(file, "MPEG1.mpg")) {
-    ok(r->type == TYPE_VIDEO, "MPEG1.mpg type is video ok");
-    is(r->mime_type, "video/mpeg", "MPEG1.mpg MIME type video/mpeg ok");
-    is(r->dlna_profile, "MPEG1", "MPEG1.mpg DLNA profile MPEG1 ok");
-    ok(r->size == 51200, "MPEG1.mpg file size is 51200 ok");
-    ok(r->bitrate == 1363969, "MPEG1.mpg bitrate is 1363969bps ok");
-    ok(r->duration_ms == 300, "MPEG1.mpg duration is 0.3s ok");
-    ok(r->video->width == 352, "MPEG1.mpg video width 352 ok");
-    ok(r->video->height == 240, "MPEG1.mpg video height 240 ok");
+  //ms_dump_result(r);
+  
+  /// MPEG1
+  
+  {
+    if (!strcmp(file, "MPEG1.mpg")) {
+      ok(r->type == TYPE_VIDEO, "MPEG1.mpg type is video ok");
+      is(r->mime_type, "video/mpeg", "MPEG1.mpg MIME type video/mpeg ok");
+      is(r->dlna_profile, "MPEG1", "MPEG1.mpg DLNA profile MPEG1 ok");
+      ok(r->size == 51200, "MPEG1.mpg file size is 51200 ok");
+      ok(r->bitrate == 1363969, "MPEG1.mpg bitrate is 1363969bps ok");
+      ok(r->duration_ms == 300, "MPEG1.mpg duration is 0.3s ok");
+      ok(r->video->width == 352, "MPEG1.mpg video width 352 ok");
+      ok(r->video->height == 240, "MPEG1.mpg video height 240 ok");
+    }
   }
+  
+  /// MPEG2
+  
+  // MPEG_PS_NTSC with LPCM audio
+  // XXX LPCM audio format type not registered
+  {
+    if (!strcmp(file, "MPEG_PS_NTSC-lpcm.mpg")) {
+      ok(r->type == TYPE_VIDEO, "MPEG_PS_NTSC-lpcm.mpg type is video ok");
+      is(r->mime_type, "video/mpeg", "MPEG_PS_NTSC-lpcm.mpg MIME type video/mpeg ok");
+      is(r->dlna_profile, "MPEG_PS_NTSC", "MPEG_PS_NTSC-lpcm.mpg DLNA profile ok");
+      ok(r->video->width == 720, "MPEG_PS_NTSC-lpcm.mpg video width 720 ok");
+      ok(r->video->height == 480, "MPEG_PS_NTSC-lpcm.mpg video height 480 ok");
+    }
+  }
+  
+  // MPEG_PS_NTSC with AC3 audio
+  {
+    if (!strcmp(file, "MPEG_PS_NTSC-ac3.mpg")) {
+      ok(r->type == TYPE_VIDEO, "MPEG_PS_NTSC-ac3.mpg type is video ok");
+      is(r->mime_type, "video/mpeg", "MPEG_PS_NTSC-ac3.mpg MIME type video/mpeg ok");
+      is(r->dlna_profile, "MPEG_PS_NTSC", "MPEG_PS_NTSC-ac3.mpg DLNA profile ok");
+      ok(r->video->width == 720, "MPEG_PS_NTSC-ac3.mpg video width 720 ok");
+      ok(r->video->height == 480, "MPEG_PS_NTSC-ac3.mpg video height 480 ok");
+    }
+  }
+  
+  // MPEG_PS_PAL with AC3 audio
+  {
+    if (!strcmp(file, "MPEG_PS_PAL-ac3.mpg")) {
+      ok(r->type == TYPE_VIDEO, "MPEG_PS_PAL-ac3.mpg type is video ok");
+      is(r->mime_type, "video/mpeg", "MPEG_PS_PAL-ac3.mpg MIME type video/mpeg ok");
+      is(r->dlna_profile, "MPEG_PS_PAL", "MPEG_PS_PAL-ac3.mpg DLNA profile ok");
+      ok(r->video->width == 720, "MPEG_PS_PAL-ac3.mpg video width 720 ok");
+      ok(r->video->height == 576, "MPEG_PS_PAL-ac3.mpg video height 480 ok");
+    }
+  }
+  
+  // MPEG_TS_SD_NA_ISO
+  {
+    if (!strcmp(file, "MPEG_TS_SD_NA_ISO.ts")) {
+      ok(r->type == TYPE_VIDEO, "MPEG_TS_SD_NA_ISO.ts type is video ok");
+      is(r->mime_type, "video/mpeg", "MPEG_TS_SD_NA_ISO.ts MIME type video/mpeg ok");
+      is(r->dlna_profile, "MPEG_TS_SD_NA_ISO", "MPEG_TS_SD_NA_ISO.ts DLNA profile ok");
+      ok(r->video->width == 544, "MPEG_TS_SD_NA_ISO.ts video width 720 ok");
+      ok(r->video->height == 480, "MPEG_TS_SD_NA_ISO.ts video height 480 ok");
+    }
+  }
+  
+  /**
+   * libdlna supports:
+   * 
+   * MPEG_PS_NTSC
+   * MPEG_PS_NTSC_XAC3
+   * MPEG_PS_PAL
+   * MPEG_PS_PAL_XAC3
+   * MPEG_TS_MP_LL_AAC
+   * MPEG_TS_MP_LL_AAC_T
+   * MPEG_TS_MP_LL_AAC_ISO
+   * MPEG_TS_SD_EU
+   * MPEG_TS_SD_EU_T
+   * MPEG_TS_SD_EU_ISO
+   * MPEG_TS_SD_NA
+   * MPEG_TS_SD_NA_T
+   * MPEG_TS_SD_NA_ISO
+   * MPEG_TS_SD_NA_XAC3
+   * MPEG_TS_SD_NA_XAC3_T
+   * MPEG_TS_SD_NA_XAC3_ISO
+   * MPEG_TS_HD_NA
+   * MPEG_TS_HD_NA_T
+   * MPEG_TS_HD_NA_ISO
+   * MPEG_TS_HD_NA_XAC3
+   * MPEG_TS_HD_NA_XAC3_T
+   * MPEG_TS_HD_NA_XAC3_ISO
+   * MPEG_ES_PAL
+   * MPEG_ES_NTSC
+   * MPEG_ES_PAL_XAC3
+   * MPEG_ES_NTSC_XAC3
+   *
+   * Additional profiles not supported:
+   *
+   * DIRECTV_TS_SD
+   * MPEG_PS_SD_DTS
+   * MPEG_PS_HD_DTS
+   * MPEG_PS_HD_DTSHD
+   * MPEG_PS_HD_DTSHD_HRA
+   * MPEG_PS_HD_DTSHD_MA
+   * MPEG_TS_DTS_ISO
+   * MPEG_TS_DTS_T
+   * MPEG_TS_DTSHD_HRA_ISO
+   * MPEG_TS_DTSHD_HRA_T
+   * MPEG_TS_DTSHD_MA_ISO
+   * MPEG_TS_DTSHD_MA_T
+   * MPEG_TS_HD_50_L2_ISO
+   * MPEG_TS_HD_50_L2_T
+   * MPEG_TS_HD_X_50_L2_T
+   * MPEG_TS_HD_X_50_L2_ISO
+   * MPEG_TS_HD_60_L2_ISO
+   * MPEG_TS_HD_60_L2_T
+   * MPEG_TS_HD_X_60_L2_T
+   * MPEG_TS_HD_X_60_L2_ISO
+   * MPEG_TS_HD_NA_MPEG1_L2_ISO
+   * MPEG_TS_HD_NA_MPEG1_L2_T
+   * MPEG_TS_JP_T
+   * MPEG_TS_SD_50_AC3_T
+   * MPEG_TS_SD_50_L2_T
+   * MPEG_TS_SD_60_AC3_T
+   * MPEG_TS_SD_60_L2_T
+   * MPEG_TS_SD_EU_AC3_ISO
+   * MPEG_TS_SD_EU_AC3_T
+   * MPEG_TS_SD_JP_MPEG1_L2_T
+   * MPEG_TS_SD_NA_MPEG1_L2_ISO
+   * MPEG_TS_SD_NA_MPEG1_L2_T
+   */
 }
 
 static void my_error_callback(MediaScan *s, MediaScanError *error) {
