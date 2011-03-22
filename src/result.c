@@ -87,8 +87,6 @@ scan_dlna_profile(MediaScanResult *r, av_codecs_t *codecs)
     p = p->next;
   }
   
-  free(codecs);
-  
   if (profile) {
     r->mime_type = profile->mime;
     r->dlna_profile = profile->id;
@@ -142,7 +140,7 @@ scan_video(MediaScanResult *r)
   AVInputFormat *iformat = NULL;
   AVCodec *c = NULL;
   MediaScanVideo *v = NULL;
-  av_codecs_t *codecs;
+  av_codecs_t *codecs = NULL;
   int AVError = 0;
   int ret = 1;
 
@@ -218,10 +216,14 @@ scan_video(MediaScanResult *r)
   
   v->width = codecs->vc->width;
   v->height = codecs->vc->height;
+  v->fps = av_q2d(codecs->vs->avg_frame_rate);
   
   // XXX streams, thumbnails, tags
 
 out:
+  if (codecs)
+    free(codecs);
+
   return ret;
 }
 
@@ -322,6 +324,7 @@ ms_dump_result(MediaScanResult *r)
     case TYPE_VIDEO:
       LOG_OUTPUT("  Type: Video, %s\n", r->video->codec);
       LOG_OUTPUT("  Dimensions: %d x %d\n", r->video->width, r->video->height);
+      LOG_OUTPUT("  Framerate:  %.2f\n", r->video->fps);
       LOG_OUTPUT("  FFmpeg details:\n");
       av_dump_format(r->_avf, 0, r->path, 0);
       break;

@@ -67,6 +67,7 @@ struct _Video {
   const char *codec;
   int width;
   int height;
+  double fps;
   
   struct _Audio **streams;
   struct _Image **thumbnails;

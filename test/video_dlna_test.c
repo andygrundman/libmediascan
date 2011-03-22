@@ -4,9 +4,23 @@
 
 #include "tap.h"
 #include "common.h"
+#include <math.h>
 #include <unistd.h>
+#include <stdint.h>
 
-#define TEST_COUNT 28
+#define TEST_COUNT 33
+
+// From ffmpeg utils.c:print_fps
+static const char *
+fps2str(double fps)
+{
+  static char str[10];
+  uint64_t v = lrintf(fps*100);
+  if     (v% 100      ) sprintf(str, "%3.2f", fps);
+  else if(v%(100*1000)) sprintf(str, "%1.0f", fps);
+  else                  sprintf(str, "%1.0fk", fps/1000); 
+  return str;
+}
 
 
 static void my_result_callback(MediaScan *s, MediaScanResult *r) {
@@ -30,6 +44,7 @@ static void my_result_callback(MediaScan *s, MediaScanResult *r) {
       ok(r->duration_ms == 300, "MPEG1.mpg duration is 0.3s ok");
       ok(r->video->width == 352, "MPEG1.mpg video width 352 ok");
       ok(r->video->height == 240, "MPEG1.mpg video height 240 ok");
+      is(fps2str(r->video->fps), "29.97", "MPEG1.mpg framerate 29.97 ok");
     }
   }
   
@@ -44,6 +59,7 @@ static void my_result_callback(MediaScan *s, MediaScanResult *r) {
       is(r->dlna_profile, "MPEG_PS_NTSC", "MPEG_PS_NTSC-lpcm.mpg DLNA profile ok");
       ok(r->video->width == 720, "MPEG_PS_NTSC-lpcm.mpg video width 720 ok");
       ok(r->video->height == 480, "MPEG_PS_NTSC-lpcm.mpg video height 480 ok");
+      is(fps2str(r->video->fps), "29.97", "MPEG_PS_NTSC-lpcm.mpg framerate 29.97 ok");
     }
   }
   
@@ -55,6 +71,7 @@ static void my_result_callback(MediaScan *s, MediaScanResult *r) {
       is(r->dlna_profile, "MPEG_PS_NTSC", "MPEG_PS_NTSC-ac3.mpg DLNA profile ok");
       ok(r->video->width == 720, "MPEG_PS_NTSC-ac3.mpg video width 720 ok");
       ok(r->video->height == 480, "MPEG_PS_NTSC-ac3.mpg video height 480 ok");
+      is(fps2str(r->video->fps), "29.97", "MPEG_PS_NTSC-ac3.mpg framerate 29.97 ok");
     }
   }
   
@@ -66,6 +83,7 @@ static void my_result_callback(MediaScan *s, MediaScanResult *r) {
       is(r->dlna_profile, "MPEG_PS_PAL", "MPEG_PS_PAL-ac3.mpg DLNA profile ok");
       ok(r->video->width == 720, "MPEG_PS_PAL-ac3.mpg video width 720 ok");
       ok(r->video->height == 576, "MPEG_PS_PAL-ac3.mpg video height 480 ok");
+      is(fps2str(r->video->fps), "25", "MPEG_PS_PAL-ac3.mpg framerate 25 ok");
     }
   }
   
@@ -77,6 +95,7 @@ static void my_result_callback(MediaScan *s, MediaScanResult *r) {
       is(r->dlna_profile, "MPEG_TS_SD_NA_ISO", "MPEG_TS_SD_NA_ISO.ts DLNA profile ok");
       ok(r->video->width == 544, "MPEG_TS_SD_NA_ISO.ts video width 720 ok");
       ok(r->video->height == 480, "MPEG_TS_SD_NA_ISO.ts video height 480 ok");
+      is(fps2str(r->video->fps), "29.97", "MPEG_TS_SD_NA_ISO.ts framerate 29.97 ok");
     }
   }
   
