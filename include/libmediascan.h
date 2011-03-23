@@ -11,6 +11,7 @@
 #include <stdio.h>
 
 #ifdef WIN32
+#include <Windows.h>
 #include <wchar.h>
 #endif
 
@@ -147,10 +148,18 @@ struct _Scan {
   void (*on_result)(struct _Scan *, MediaScanResult *);
   void (*on_error)(struct _Scan *, MediaScanError *);
   void (*on_progress)(struct _Scan *, MediaScanProgress *);
+  void (*on_background)(struct _Scan *, MediaScanResult *);
   
   // private
   void *_dirq; // simple queue of all directories found
   void *_dlna; // libdlna instance
+
+  // win32 background scanning threads
+	#ifdef WIN32
+		DWORD   dwThreadId;
+		HANDLE	ghSignalEvent; 
+		HANDLE  hThread; 
+	#endif
 };
 
 typedef struct _Scan MediaScan;
@@ -158,8 +167,7 @@ typedef struct _Scan MediaScan;
 typedef void (*ResultCallback)(MediaScan *, MediaScanResult *);
 typedef void (*ErrorCallback)(MediaScan *, MediaScanError *);
 typedef void (*ProgressCallback)(MediaScan *, MediaScanProgress *);
-
-
+typedef void (*FolderChangeCallback)(MediaScan *, MediaScanResult *);
 
 ///< libmediascan's errno
 extern int ms_errno;
@@ -172,6 +180,7 @@ enum {
 	MSENO_SCANERROR =			1003,	// ScanErrorObject thrown
 	MSENO_MEMERROR =			1004,	// Out of memory error
 	MSENO_NOERRORCALLBACK =		1005,	// No error callback
+	MSENO_THREADERROR =			1006
 };
 
 /**
@@ -276,5 +285,26 @@ void ms_async_process(MediaScan *s);
  * to stdout.
  */
 void ms_dump_result(MediaScanResult *r);
+
+///-------------------------------------------------------------------------------------------------
+///  Watch a directory in the background.
+///
+/// @author Henry Bennett
+/// @date 03/22/2011
+///
+/// @param path Path name of the folder to watch
+/// @param callback Callback with the changes
+///-------------------------------------------------------------------------------------------------
+
+void ms_watch_directory(MediaScan *s, const char *path, FolderChangeCallback callback);
+
+///-------------------------------------------------------------------------------------------------
+///  Clear watch list
+///
+/// @author Henry Bennett
+/// @date 03/22/2011
+///
+///-------------------------------------------------------------------------------------------------
+void ms_clear_watch(MediaScan *s);
 
 #endif // _LIBMEDIASCAN_H
