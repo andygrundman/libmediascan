@@ -1,6 +1,7 @@
 use strict;
 
 use ExtUtils::MakeMaker qw(WriteMakefile);
+use File::Spec::Functions;
 
 my (@INC, @LIBPATH, @LIBS);
 my $MYEXTLIB;
@@ -29,6 +30,8 @@ if ( $^O =~ /Win32/ ) {
     $MYEXTLIB .= '../../libmediascan.lib '; # XXX
 }
 
+my $xs_files  = join(' ', glob 'xs/*.xs');
+
 WriteMakefile(
     NAME              => 'Media::Scan',
     VERSION_FROM      => 'lib/Media/Scan.pm',
@@ -42,4 +45,5 @@ WriteMakefile(
     LIBS              => [ join(' ', @LIBPATH, @LIBS) ],
     DEFINE            => $DEFINES,
     MYEXTLIB          => $MYEXTLIB,
+    depend            => { 'Scan.c' => "$xs_files" },
 );

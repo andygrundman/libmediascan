@@ -24,21 +24,105 @@
 #define my_hv_delete(a,b)      hv_delete(a,b,strlen(b),0)
 
 static void
-_on_result(MediaScan *s, MediaScanResult *result)
+_on_result(MediaScan *s, MediaScanResult *result, void *userdata)
 {
-
+  HV *selfh = (HV *)userdata;
+  SV *obj = NULL;
+  SV *callback = NULL;
+  
+  if (!my_hv_exists(selfh, "on_result"))
+    return;
+  
+  callback = *(my_hv_fetch(selfh, "on_result"));
+  obj = newRV_noinc(newSVpvn("", 0));
+  
+  switch (result->type) {
+    case TYPE_VIDEO:
+      sv_bless(obj, gv_stashpv("Media::Scan::Video", 0));
+      break;
+    
+    case TYPE_AUDIO:
+      sv_bless(obj, gv_stashpv("Media::Scan::Audio", 0));
+      break;
+    
+    case TYPE_IMAGE:
+      sv_bless(obj, gv_stashpv("Media::Scan::Image", 0));
+      break;
+    
+    default:
+      break;
+  }
+  
+  xs_object_magic_attach_struct(aTHX_ SvRV(obj), (void *)result);
+  
+  dSP;
+  PUSHMARK(SP);
+  XPUSHs(obj);
+  PUTBACK;
+    
+  call_sv(callback, G_VOID | G_DISCARD | G_EVAL);
+  
+  SPAGAIN;
+  if (SvTRUE(ERRSV)) {
+    warn("Error in on_result callback (ignored): %s", SvPV_nolen(ERRSV));
+    POPs;
+  }
 }
 
 static void
-_on_error(MediaScan *s, MediaScanError *error)
+_on_error(MediaScan *s, MediaScanError *error, void *userdata)
 {
-
+  HV *selfh = (HV *)userdata;
+  SV *obj = NULL;
+  SV *callback = NULL;
+  
+  if (!my_hv_exists(selfh, "on_error"))
+    return;
+  
+  callback = *(my_hv_fetch(selfh, "on_error"));
+  obj = newRV_noinc(newSVpvn("", 0));
+  sv_bless(obj, gv_stashpv("Media::Scan::Error", 0));
+  xs_object_magic_attach_struct(aTHX_ SvRV(obj), (void *)error);
+  
+  dSP;
+  PUSHMARK(SP);
+  XPUSHs(obj);
+  PUTBACK;
+  call_sv(callback, G_VOID | G_DISCARD | G_EVAL);
+  
+  SPAGAIN;
+  if (SvTRUE(ERRSV)) {
+    warn("Error in on_error callback (ignored): %s", SvPV_nolen(ERRSV));
+    POPs;
+  }
 }
 
 static void
-_on_progress(MediaScan *s, MediaScanProgress *progress)
+_on_progress(MediaScan *s, MediaScanProgress *progress, void *userdata)
 {
-  warn("Perl on_progress callback, phase %s, cur_item %s, dir_total %d, file_total %d\n", progress->phase, progress->cur_item, progress->dir_total, progress->file_total);
+  HV *selfh = (HV *)userdata;
+  SV *obj = NULL;
+  SV *callback = NULL;
+  
+  if (!my_hv_exists(selfh, "on_progress"))
+    return;
+  
+  callback = *(my_hv_fetch(selfh, "on_progress"));
+  obj = newRV_noinc(newSVpvn("", 0));
+  sv_bless(obj, gv_stashpv("Media::Scan::Progress", 0));
+  xs_object_magic_attach_struct(aTHX_ SvRV(obj), (void *)progress);
+  
+  dSP;
+  PUSHMARK(SP);
+  XPUSHs(obj);
+  PUTBACK;
+  call_sv(callback, G_VOID | G_DISCARD | G_EVAL);
+  
+  SPAGAIN;
+  if (SvTRUE(ERRSV)) {
+    warn("Error in on_progress callback (ignored): %s", SvPV_nolen(ERRSV));
+    POPs;
+  }
 }
 
 MODULE = Media::Scan		PACKAGE = Media::Scan		
@@ -101,6 +185,8 @@ CODE:
   ms_set_error_callback(s, _on_error);
   ms_set_progress_callback(s, _on_progress);
   
+  ms_set_userdata(s, (void *)selfh);
+  
   ms_scan(s);
 }
 
@@ -110,3 +196,6 @@ CODE:
 {
   ms_destroy(s);
 }
+
+INCLUDE: xs/Result.xs
+INCLUDE: xs/Video.xs

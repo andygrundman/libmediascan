@@ -205,6 +205,7 @@ ms_create(void)
   s->on_result = NULL;
   s->on_error = NULL;
   s->on_progress = NULL;
+  s->userdata = NULL;
   
   // List of all dirs found
   s->_dirq = malloc(sizeof(struct dirq));
@@ -325,6 +326,12 @@ void
 ms_set_progress_callback(MediaScan *s, ProgressCallback callback)
 {
   s->on_progress = callback;
+}
+
+void
+ms_set_userdata(MediaScan *s, void *data)
+{
+  s->userdata = data;
 }
 
 void
@@ -492,7 +499,7 @@ recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir)
     if (now.tv_sec - s->progress->_last_callback >= s->progress_interval) {
       s->progress->cur_item = dir;
       s->progress->_last_callback = now.tv_sec;
-      s->on_progress(s, s->progress);
+      s->on_progress(s, s->progress, s->userdata);
     }
   }
 
@@ -542,7 +549,7 @@ ms_scan(MediaScan *s)
     // Send final progress callback
     if (s->on_progress) {
       s->progress->cur_item = NULL;
-      s->on_progress(s, s->progress);
+      s->on_progress(s, s->progress, s->userdata);
     }
     
     free(phase);
@@ -565,7 +572,7 @@ ms_scan_file(MediaScan *s, const char *full_path, enum media_type type)
     if (!type) {
       if (s->on_error) {
         MediaScanError *e = error_create(full_path, MS_ERROR_TYPE_UNKNOWN, "Unrecognized file extension");
-        s->on_error(s, e);
+        s->on_error(s, e, s->userdata);
         error_destroy(e);
         return;
       }
@@ -580,10 +587,10 @@ ms_scan_file(MediaScan *s, const char *full_path, enum media_type type)
   r->path = full_path;
   
   if ( result_scan(r) ) {
-    s->on_result(s, r);
+    s->on_result(s, r, s->userdata);
   }
   else if (s->on_error && r->error) {
-    s->on_error(s, r->error);
+    s->on_error(s, r->error, s->userdata);
   }
   
   result_destroy(r);

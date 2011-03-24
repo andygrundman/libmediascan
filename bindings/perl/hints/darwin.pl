@@ -20,7 +20,13 @@ if ( $Config{myarchname} =~ /i386/ ) {
     my ($osx_ver) = $sys =~ /Mac OS X.*(10\.[^ ]+)/;
     if ( $osx_ver gt '10.5' ) {
         # Running 10.6+, build as 10.5+
-        $arch .= "-isysroot /Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5";
+        if ( -d '/Developer/SDKs/MacOSX10.5.sdk' ) {
+            $arch .= "-isysroot /Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5";
+        }
+        else {
+            # 10.5 SDK not installed, use 10.6
+            $arch .= "-isysroot /Developer/SDKs/MacOSX10.6.sdk -mmacosx-version-min=10.6";
+        }
     }
     else {
         # 5.8.x, build for 10.3+

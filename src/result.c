@@ -309,17 +309,11 @@ result_destroy(MediaScanResult *r)
   if (r->error)
     error_destroy(r->error);
   
-  switch (r->type) {
-    case TYPE_VIDEO:
-      if (r->video)
-        video_destroy(r->video);
-      break;
-    
-    // XXX other types
-    
-    default:
-      break;
-  }
+  if (r->video)
+    video_destroy(r->video);
+
+  if (r->audio)
+    audio_destroy(r->audio);
   
   if (r->_avf)
     av_close_input_file(r->_avf);

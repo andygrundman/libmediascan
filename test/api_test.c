@@ -8,16 +8,16 @@
 
 static int rcount = 0;
 
-static void my_result_callback(MediaScan *s, MediaScanResult *result) {
+static void my_result_callback(MediaScan *s, MediaScanResult *result, void *userdata) {
   //ms_dump_result(result);
   rcount++;
 }
 
-static void my_error_callback(MediaScan *s, MediaScanError *error) {
+static void my_error_callback(MediaScan *s, MediaScanError *error, void *userdata) {
   LOG_WARN("[Error] %s (%s)\n", error->error_string, error->path);
 }
 
-static void my_progress_callback(MediaScan *s, MediaScanProgress *progress) {
+static void my_progress_callback(MediaScan *s, MediaScanProgress *progress, void *userdata) {
   // Do tests on final progress callback only
   if (!progress->cur_item) {
     ok(progress->dir_total == 13, "final progress callback dir_total is %d", progress->dir_total);
