@@ -445,6 +445,12 @@ void ms_add_ignore_extension(MediaScan *s, const char *extension)
 
 void ms_set_async(MediaScan *s, int enabled)
 {
+   if(s == NULL) {
+	ms_errno = MSENO_NULLSCANOBJ;
+    LOG_ERROR("MediaScan = NULL, aborting\n");
+    return;
+  }
+
   s->async = enabled ? 1 : 0;
 } /* ms_set_async() */
 
@@ -463,6 +469,12 @@ void ms_set_async(MediaScan *s, int enabled)
 
 void ms_set_result_callback(MediaScan *s, ResultCallback callback)
 {
+   if(s == NULL) {
+	ms_errno = MSENO_NULLSCANOBJ;
+    LOG_ERROR("MediaScan = NULL, aborting\n");
+    return;
+  }
+
   s->on_result = callback;
 } /* ms_set_result_callback() */
 
@@ -480,6 +492,12 @@ void ms_set_result_callback(MediaScan *s, ResultCallback callback)
 
 void ms_set_error_callback(MediaScan *s, ErrorCallback callback)
 {
+  if(s == NULL) {
+	ms_errno = MSENO_NULLSCANOBJ;
+    LOG_ERROR("MediaScan = NULL, aborting\n");
+    return;
+  }
+
   s->on_error = callback;
 } /* ms_set_error_callback() */
 
@@ -498,6 +516,12 @@ void ms_set_error_callback(MediaScan *s, ErrorCallback callback)
 
 void ms_set_progress_callback(MediaScan *s, ProgressCallback callback)
 {
+  if(s == NULL) {
+	ms_errno = MSENO_NULLSCANOBJ;
+    LOG_ERROR("MediaScan = NULL, aborting\n");
+    return;
+  }
+
   s->on_progress = callback;
 } /* ms_set_progress_callback() */
 
@@ -516,6 +540,12 @@ void ms_set_progress_callback(MediaScan *s, ProgressCallback callback)
 
 void ms_set_progress_interval(MediaScan *s, int seconds)
 {
+  if(s == NULL) {
+	ms_errno = MSENO_NULLSCANOBJ;
+    LOG_ERROR("MediaScan = NULL, aborting\n");
+    return;
+  }
+
   s->progress_interval = seconds;
 } /* ms_set_progress_interval() */
 
@@ -614,9 +644,10 @@ void ms_clear_watch(MediaScan *s)
 
 int _should_scan(MediaScan *s, const char *path)
 {
-  char *p;
-  char *found;
+  char *p = NULL;
+  char *found = NULL;
   char *ext = strrchr(path, '.');
+
   if (ext != NULL) {
     // Copy the extension and lowercase it
     char extc[10];
@@ -626,7 +657,7 @@ int _should_scan(MediaScan *s, const char *path)
     
     p = &extc[1];
     while (*p != 0) {
-      *p = _tolower(*p);
+      *p = tolower(*p);
       p++;
     }
     *p++ = ',';
@@ -641,6 +672,8 @@ int _should_scan(MediaScan *s, const char *path)
       }
     }
     
+    
+    
     found = strstr(VideoExts, extc);
     if (found)
       return TYPE_VIDEO;
@@ -648,8 +681,8 @@ int _should_scan(MediaScan *s, const char *path)
     found = strstr(AudioExts, extc);
     if (found)
       return TYPE_AUDIO;
-
-	found = strstr(ImageExts, extc);
+    
+    found = strstr(ImageExts, extc);
     if (found)
       return TYPE_IMAGE;
     

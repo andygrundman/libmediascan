@@ -225,9 +225,7 @@ void test_background_api(void)	{
 	Sleep(1000); // Sleep 1 second
 	CU_ASSERT( result_called == TRUE );
 
-//	ms_clear_watch(s);
 	ms_destroy(s);
-
 
 	// Clean up the test
 	CU_ASSERT( DeleteFile(dest) == TRUE);

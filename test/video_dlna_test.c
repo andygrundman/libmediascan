@@ -1,12 +1,12 @@
 // Test all DLNA video profiles
 
+#include <unistd.h>
+#include <stdint.h>
+#include <math.h>
 #include <libmediascan.h>
 
 #include "tap.h"
 #include "common.h"
-#include <math.h>
-#include <unistd.h>
-#include <stdint.h>
 
 #define TEST_COUNT 51
 
@@ -190,19 +190,21 @@ static void my_error_callback(MediaScan *s, MediaScanError *error) {
 int
 main(int argc, char *argv[])
 {
-  char *bin;
-  char *dir;
-  MediaScan *s;
+  char *bin = NULL;
+  char *dir = NULL;
+  MediaScan *s = NULL;
+
   plan(TEST_COUNT);
   
   ms_set_log_level(ERR);
   
-  // Get path to this binary
-  bin = _findbin(argv[0]);
 
 #ifdef WIN32
-  dir = _abspath(bin, "data/video/dlna"); // because binary is in .libs dir
+//  dir = _abspath(bin, "data\\video\\dlna"); // because binary is in .libs dir
+  dir = strdup("data\\video\\dlna");
 #else
+  // Get path to this binary
+  bin = _findbin(argv[0]);
   dir = _abspath(bin, "../data/video/dlna"); // because binary is in .libs dir
 #endif
 
