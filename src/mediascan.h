@@ -20,7 +20,7 @@ SIMPLEQ_HEAD(dirq, dirq_entry);
 
 struct thread_data {
    MediaScan *s;
-   LPTSTR lpDir;
+   char  *lpDir;
 };
 
 typedef struct thread_data thread_data_type;

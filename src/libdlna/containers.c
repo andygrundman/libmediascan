@@ -4,6 +4,11 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+// If we are on MSVC, disable some stupid MSVC warnings
+#ifdef _MSC_VER
+#pragma warning( disable: 4996 )
+#endif
+
 #include <libavformat/avformat.h>
 
 #include "containers.h"

@@ -32,6 +32,11 @@
 #include "mediascan_win32.h"
 #endif
 
+// If we are on MSVC, disable some stupid MSVC warnings
+#ifdef _MSC_VER
+#pragma warning( disable: 4996 )
+#endif
+
 #ifndef MAX_PATH
 #define MAX_PATH _PC_PATH_MAX
 #endif
@@ -129,7 +134,7 @@ static void register_codecs(void)
   REGISTER_PARSER (MPEG4VIDEO, mpeg4video);
   REGISTER_PARSER (MPEGAUDIO, mpegaudio);
   REGISTER_PARSER (MPEGVIDEO, mpegvideo);
-}
+} /* register_codecs() */
 
 #define REGISTER_DEMUXER(X,x) { \
     extern AVInputFormat ff_##x##_demuxer; \
@@ -161,7 +166,7 @@ static void register_formats(void)
   
   // protocols
   REGISTER_PROTOCOL (FILE, file);
-}
+} /* register_formats() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  Initialises ffmpeg.
@@ -186,7 +191,7 @@ static void _init(void)
 
   Initialized = 1;
   ms_errno = 0;
-}
+} /* _init() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  Set the logging level.
@@ -216,7 +221,7 @@ void ms_set_log_level(enum log_level level)
   }
   
   av_log_set_level(av_level);
-}
+} /* ms_set_log_level() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  Allocate a new MediaScan object.
@@ -268,7 +273,7 @@ MediaScan *ms_create(void)
   dlna_register_all_media_profiles(dlna);
   
   return s;
-}
+} /* ms_create() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  Destroy the given MediaScan object. If a scan is currently in progress it will be aborted.
@@ -327,10 +332,11 @@ void ms_destroy(MediaScan *s)
   free(s->_dirq);
   free(s->_dlna);
 
+  // Clear the watch list
   ms_clear_watch(s);
 
   free(s);
-}
+} /* ms_destroy() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  Add a path to be scanned. Up to 128 paths may be added before beginning the scan.
@@ -370,7 +376,7 @@ void ms_add_path(MediaScan *s, const char *path)
   strncpy(tmp, path, len);
   
   s->paths[ s->npaths++ ] = tmp;
-}
+}	/* ms_add_path() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  Add a file extension to ignore all files with this extension.
@@ -413,7 +419,7 @@ void ms_add_ignore_extension(MediaScan *s, const char *extension)
   strncpy(tmp, extension, len);
   
   s->ignore_exts[ s->nignore_exts++ ] = tmp;
-}
+} /* ms_add_ignore_extension() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  By default, scans are synchronous. This means the call to ms_scan will not return until
@@ -432,7 +438,7 @@ void ms_add_ignore_extension(MediaScan *s, const char *extension)
 void ms_set_async(MediaScan *s, int enabled)
 {
   s->async = enabled ? 1 : 0;
-}
+} /* ms_set_async() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  Set a callback that will be called for every scanned file. This callback is required or a
@@ -450,7 +456,7 @@ void ms_set_async(MediaScan *s, int enabled)
 void ms_set_result_callback(MediaScan *s, ResultCallback callback)
 {
   s->on_result = callback;
-}
+} /* ms_set_result_callback() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  Set a callback that will be called for all errors. This callback is optional.
@@ -467,7 +473,7 @@ void ms_set_result_callback(MediaScan *s, ResultCallback callback)
 void ms_set_error_callback(MediaScan *s, ErrorCallback callback)
 {
   s->on_error = callback;
-}
+} /* ms_set_error_callback() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  Set a callback that will be called during the scan with progress details. This callback
@@ -485,7 +491,7 @@ void ms_set_error_callback(MediaScan *s, ErrorCallback callback)
 void ms_set_progress_callback(MediaScan *s, ProgressCallback callback)
 {
   s->on_progress = callback;
-}
+} /* ms_set_progress_callback() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  Set progress callback interval in seconds. Progress callback will not be called more
@@ -503,7 +509,7 @@ void ms_set_progress_callback(MediaScan *s, ProgressCallback callback)
 void ms_set_progress_interval(MediaScan *s, int seconds)
 {
   s->progress_interval = seconds;
-}
+} /* ms_set_progress_interval() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  Watch a directory in the background.
@@ -540,7 +546,7 @@ void ms_watch_directory(MediaScan *s, const char *path, FolderChangeCallback cal
 	thread_data = (thread_data_type*) HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(thread_data_type));
 
 
-	thread_data->lpDir = path;
+	thread_data->lpDir = (char*)path;
 	thread_data->s = s;
 
 	s->hThread = CreateThread( 
@@ -612,7 +618,7 @@ int _should_scan(MediaScan *s, const char *path)
     
     p = &extc[1];
     while (*p != 0) {
-      *p = tolower(*p);
+      *p = _tolower(*p);
       p++;
     }
     *p++ = ',';
@@ -643,7 +649,7 @@ int _should_scan(MediaScan *s, const char *path)
   }
       
   return TYPE_UNKNOWN;
-}
+} /* _should_scan() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  Begin a recursive scan of all paths previously provided to ms_add_path(). If async mode
@@ -735,8 +741,8 @@ void ms_scan(MediaScan *s)
 ///
 /// ### remarks .
 ///-------------------------------------------------------------------------------------------------
-void
-ms_scan_file(MediaScan *s, const char *full_path, enum media_type type)
+
+void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type)
 {
   MediaScanResult *r;
   MediaScanError *e;
@@ -788,7 +794,7 @@ ms_scan_file(MediaScan *s, const char *full_path, enum media_type type)
   }
   
   result_destroy(r);
-}
+} /* ms_scan_file() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  Query if 'path' is absolute path.
@@ -810,7 +816,7 @@ bool is_absolute_path(const char *path) {
 
 	// \workspace, /workspace, etc
 	if( strlen(path) > 1 && ( path[0] == '/' || path[0] == '\\') ) 
-		return TRUE;
+		return TRUE
 
 #ifdef WIN32
 	// C:\, D:\, etc

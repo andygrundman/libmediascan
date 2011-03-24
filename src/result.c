@@ -8,12 +8,15 @@
 #include "win32config.h"
 #endif
 
+// If we are on MSVC, disable some stupid MSVC warnings
+#ifdef _MSC_VER
+#pragma warning( disable: 4996 )
+#endif
 
 #include <sys/stat.h>
-
 #include <libavformat/avformat.h>
-
 #include <libmediascan.h>
+
 #include "common.h"
 #include "result.h"
 #include "error.h"
