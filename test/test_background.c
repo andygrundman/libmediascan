@@ -5,6 +5,13 @@
 #ifdef WIN32
 #include <Windows.h>
 #include <direct.h>
+#else
+#include <fcntl.h>
+#include <sys/wait.h>
+#define _rmdir rmdir
+#define _mkdir mkdir
+#define CopyFile copyfile
+#define DeleteFile deletefile
 #endif
 
 #include <limits.h>
@@ -14,6 +21,104 @@
 #include "Cunit/CUnit/Headers/Basic.h"
 
 static FILE* temp_file = NULL;
+
+#ifndef MAX_PATH
+#define MAX_PATH 1024
+#endif
+
+#ifndef WIN32
+void Sleep(int ms)
+{
+	usleep(ms * 1000); // Convert to usec
+}
+
+
+int copyfile(char *source, char *dest, int not_used)
+{
+    int childExitStatus;
+    pid_t pid;
+
+    if (!source || !dest) {
+        return FALSE;
+    }
+
+    pid = fork();
+
+    if (pid == 0) { /* child */
+        execl("/bin/cp", "/bin/cp", source, dest, (char *)0);
+    }
+    else if (pid < 0) {
+        return FALSE;
+    }
+    else {
+        /* parent - wait for child - this has all error handling, you
+         * could just call wait() as long as you are only expecting to
+         * have one child process at a time.
+         */
+        pid_t ws = waitpid( pid, &childExitStatus, WNOHANG);
+        if (ws == -1)
+        { 
+        return FALSE;
+        }
+
+        if( WIFEXITED(childExitStatus)) /* exit code in childExitStatus */
+        {
+            int status = WEXITSTATUS(childExitStatus); /* zero is normal exit */
+            /* handle non-zero as you wish */
+        }
+//        else if (WIFSIGNALED(status)) /* killed */
+//        {
+//        }
+//        else if (WIFSTOPPED(status)) /* stopped */
+//        {
+//        }
+    }
+    return TRUE;
+}
+
+int deletefile(char *source)
+{
+    int childExitStatus;
+    pid_t pid;
+
+    if (!source) {
+        return FALSE;
+    }
+
+    pid = fork();
+
+    if (pid == 0) { /* child */
+        execl("/bin/rm", "/bin/rm", source, (char *)0);
+    }
+    else if (pid < 0) {
+        return FALSE;
+    }
+    else {
+        /* parent - wait for child - this has all error handling, you
+         * could just call wait() as long as you are only expecting to
+         * have one child process at a time.
+         */
+        pid_t ws = waitpid( pid, &childExitStatus, WNOHANG);
+        if (ws == -1)
+        { 
+        return FALSE;
+        }
+
+        if( WIFEXITED(childExitStatus)) /* exit code in childExitStatus */
+        {
+            int status = WEXITSTATUS(childExitStatus); /* zero is normal exit */
+            /* handle non-zero as you wish */
+        }
+//        else if (WIFSIGNALED(status)) /* killed */
+//        {
+//        }
+//        else if (WIFSTOPPED(status)) /* stopped */
+//        {
+//        }
+    }
+    return TRUE;
+}
+#endif
 
 ///-------------------------------------------------------------------------------------------------
 ///  ------------------------------------------------------------------------------------------
@@ -158,4 +263,5 @@ int setupbackground_tests() {
    }
 
    return 0;
+
 } /* setupbackground_tests() */
