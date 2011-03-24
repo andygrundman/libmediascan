@@ -44,10 +44,15 @@ test/scan_test
 *.ipch
 *.opensdf
 *.suo
+*.sdf
 *.idb
 *.cov
 win32/Debug/*
-
+win32/testDebug/*
+win32/video_dlna_testDebug/*
+test/Debug/*
+test/testDebug/*
+test/video_dlna_testDebug/*
 
 # Perl
 Scan.xsc

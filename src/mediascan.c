@@ -71,7 +71,7 @@ int ms_errno = 0;
 
 // File extensions to look for (leading/trailing comma are required)
 static const char *AudioExts = ",aif,aiff,wav,";
-static const char *VideoExts = ",asf,avi,divx,flv,m2t,m4v,mkv,mov,mpg,mpeg,mp4,m2p,m2t,mts,m2ts,ts,vob,webm,wmv,xvid,3gp,3g2,3gp2,3gpp,";
+static const char *VideoExts = ",asf,avi,divx,flv,hdmov,m1v,m2p,m2t,m2ts,m2v,m4v,mkv,mov,mpg,mpeg,mpe,mp2p,mp2t,mp4,mts,pes,ps,ts,vob,webm,wmv,xvid,3gp,3g2,3gp2,3gpp,";
 static const char *ImageExts = ",jpg,png,gif,bmp,jpeg,";
 
 #define REGISTER_DECODER(X,x) { \
@@ -119,6 +119,13 @@ static void register_codecs(void)
   REGISTER_DECODER (WMAV2, wmav2);
   REGISTER_DECODER (WMAVOICE, wmavoice);
   
+  // Not sure which PCM codecs we need
+  REGISTER_DECODER (PCM_DVD, pcm_dvd);
+  REGISTER_DECODER (PCM_S16BE, pcm_s16be);
+  REGISTER_DECODER (PCM_S16LE, pcm_s16le);
+  REGISTER_DECODER (PCM_S24BE, pcm_s24be);
+  REGISTER_DECODER (PCM_S24LE, pcm_s24le);
+  
   // Subtitles
   REGISTER_DECODER (ASS, ass);
   REGISTER_DECODER (DVBSUB, dvbsub);
@@ -162,6 +169,7 @@ static void register_formats(void)
   REGISTER_DEMUXER (MATROSKA, matroska);
   REGISTER_DEMUXER (MOV, mov);
   REGISTER_DEMUXER (MPEGPS, mpegps);             // VOB files
+  REGISTER_DEMUXER (MPEGTS, mpegts);
   REGISTER_DEMUXER (MPEGVIDEO, mpegvideo);
   
   // protocols
@@ -816,7 +824,7 @@ bool is_absolute_path(const char *path) {
 
 	// \workspace, /workspace, etc
 	if( strlen(path) > 1 && ( path[0] == '/' || path[0] == '\\') ) 
-		return TRUE
+		return TRUE;
 
 #ifdef WIN32
 	// C:\, D:\, etc

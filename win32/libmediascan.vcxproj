@@ -84,6 +84,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\audio.c" />
     <ClCompile Include="..\src\buffer.c" />
     <ClCompile Include="..\src\error.c" />
     <ClCompile Include="..\src\folder_mon_win32.c" />
@@ -118,6 +119,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\libmediascan.h" />
+    <ClInclude Include="..\src\audio.h" />
     <ClInclude Include="..\src\mediascan.h" />
     <ClInclude Include="..\src\progress.h" />
     <ClInclude Include="..\src\queue.h" />

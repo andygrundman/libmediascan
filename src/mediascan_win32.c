@@ -168,7 +168,7 @@ void recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir)
   
   // Send progress update
   if (s->on_progress) {
-	DWORD tick_ms = GetTickCount();
+	long tick_ms = GetTickCount();
 
 	// Check to see if _last_callback needs to be set to a reasonable time
 	if( s->progress->_last_callback == 0 )
