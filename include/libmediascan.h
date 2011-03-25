@@ -108,17 +108,17 @@ struct _Result {
 typedef struct _Result MediaScanResult;
 
 struct _Progress {
-  const char *phase;    ///< Discovering, Scanning, etc
-  const char *cur_item; ///< most recently scanned item
-  int dir_total;
-  int dir_done;
-  int file_total;
-  int file_done;
-  int eta;    ///< eta in seconds
-  float rate; ///< rate in items/second
+  char *phase;          ///< Discovering, Scanning, etc
+  const char *cur_item; ///< most recently scanned item, NULL on last callback when done
+  int interval;
+  int total;
+  int done;
+  int eta;   ///< eta in seconds
+  int rate;  ///< rate in items/second
   
   // private
-  long _last_callback;
+  long _start_ts;
+  long _last_update_ts;
 };
 typedef struct _Progress MediaScanProgress;
 
@@ -131,7 +131,6 @@ struct _Scan {
   int async_fd;
   
   MediaScanProgress *progress;
-  int progress_interval;
   
   void (*on_result)(struct _Scan *, MediaScanResult *, void *);
   void (*on_error)(struct _Scan *, MediaScanError *, void *);

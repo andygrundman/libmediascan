@@ -8,14 +8,12 @@ sub hash {
     my $self = shift;
     
     return {
-        phase      => $self->phase,
-        cur_item   => $self->cur_item,
-        dir_total  => $self->dir_total,
-        dir_done   => $self->dir_done,
-        file_total => $self->file_total,
-        file_done  => $self->file_done,
-        eta        => $self->eta,
-        rate       => $self->rate,
+        phase    => $self->phase,
+        cur_item => $self->cur_item,
+        total    => $self->total,
+        done     => $self->done,
+        eta      => $self->eta,
+        rate     => $self->rate,
     };
 }
 

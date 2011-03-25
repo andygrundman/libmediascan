@@ -197,6 +197,7 @@ CODE:
   ms_destroy(s);
 }
 
+INCLUDE: xs/Error.xs
 INCLUDE: xs/Progress.xs
 INCLUDE: xs/Result.xs
 INCLUDE: xs/Video.xs

@@ -9,19 +9,20 @@ use Media::Scan;
 
 {
     my $s = Media::Scan->new( [ _f('video') ], {
-        #loglevel => 9,
+    #my $s = Media::Scan->new( [ '/Users/andy/Music/Slim/DLNATestContent' ], {
+        #loglevel => 5,
         ignore => [],
         on_result => sub {
           my $r = shift;
-          warn dump($r->hash) . "\n";
+          warn "Result: " . dump($r->hash) . "\n";
         },
         on_error => sub {
           my $e = shift;
-          warn dump($e);
+          warn "Error: " . dump($e->hash);
         },
         on_progress => sub {
           my $p = shift;
-          warn dump($p);
+          warn "Progress: " . dump($p->hash);
         },
     } );
 }

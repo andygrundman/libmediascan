@@ -19,37 +19,19 @@ OUTPUT:
   RETVAL
 
 int
-dir_total(MediaScanProgress *p)
+total(MediaScanProgress *p)
 CODE:
 {
-  RETVAL = p->dir_total;
+  RETVAL = p->total;
 }
 OUTPUT:
   RETVAL
 
 int
-dir_done(MediaScanProgress *p)
+done(MediaScanProgress *p)
 CODE:
 {
-  RETVAL = p->dir_done;
-}
-OUTPUT:
-  RETVAL
-
-int
-file_total(MediaScanProgress *p)
-CODE:
-{
-  RETVAL = p->file_total;
-}
-OUTPUT:
-  RETVAL
-
-int
-file_done(MediaScanProgress *p)
-CODE:
-{
-  RETVAL = p->file_done;
+  RETVAL = p->done;
 }
 OUTPUT:
   RETVAL
@@ -63,11 +45,11 @@ CODE:
 OUTPUT:
   RETVAL
 
-SV *
+int
 rate(MediaScanProgress *p)
 CODE:
 {
-  RETVAL = newSVnv(p->rate);
+  RETVAL = p->rate;
 }
 OUTPUT:
   RETVAL
