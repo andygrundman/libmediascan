@@ -64,6 +64,9 @@
       <AdditionalDependencies>$(ProjectDir)..\win32\debug\libmediascan.lib;libavcodec.a;libavformat.a;libavutil.a;wsock32.lib;vfw32.lib;libcunit.a;libgcc.a;libmingwex.lib;libz.a;libbz2.a;%(AdditionalDependencies)</AdditionalDependencies>
       <HeapCommitSize>100000</HeapCommitSize>
       <HeapReserveSize>1000000</HeapReserveSize>
+      <StackReserveSize>
+      </StackReserveSize>
+      <StackCommitSize>100000</StackCommitSize>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

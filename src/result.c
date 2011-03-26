@@ -85,7 +85,7 @@ static void scan_dlna_profile(MediaScanResult *r, av_codecs_t *codecs)
   
   p = dlna->first_profile;
   while (p) {
-    dlna_profile_t *prof;
+    dlna_profile_t *prof = NULL;
     
     if (r->flags & USE_EXTENSION) {
       if (p->extensions) {
@@ -396,7 +396,9 @@ void result_destroy(MediaScanResult *r)
   }
   
   if (r->_avf)
+  {
     av_close_input_file(r->_avf);
+  }
   
   if (r->_fp)
     fclose(r->_fp);

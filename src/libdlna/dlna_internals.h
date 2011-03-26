@@ -28,6 +28,11 @@
 #    define dlna_unused
 #endif
 
+#ifdef _MSC_VER
+#undef inline
+#define inline __inline
+#endif
+
 #include "dlna.h"
 
 /**

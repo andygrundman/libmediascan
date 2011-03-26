@@ -1,6 +1,12 @@
-#include <libavformat/avformat.h>
 
 #include <libmediascan.h>
+
+#ifdef WIN32
+#include "mediascan_win32.h"
+#endif
+
+#include <libavformat/avformat.h>
+
 #include "common.h"
 #include "video.h"
 #include "error.h"

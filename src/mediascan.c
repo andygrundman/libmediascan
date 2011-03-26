@@ -10,27 +10,25 @@
 #ifndef WIN32
 #include <dirent.h>
 #include <sys/time.h>
+#include "mediascan_win32.h"
 #else
 #include <time.h>
 #include <Winsock2.h>
 #include <direct.h>
 #endif
 
+#include <libmediascan.h>
 #include <libavformat/avformat.h>
 
-#include <libmediascan.h>
+
 #include "common.h"
-
 #include "queue.h"
-
 #include "progress.h"
 #include "result.h"
 #include "error.h"
 #include "mediascan.h"
 
-#ifdef WIN32
-#include "mediascan_win32.h"
-#endif
+
 
 // If we are on MSVC, disable some stupid MSVC warnings
 #ifdef _MSC_VER
@@ -187,8 +185,8 @@ static void register_formats(void)
 
 static void _init(void)
 {
-  if (Initialized)
-    return;
+//  if (Initialized)
+//    return;
   
   register_codecs();
   register_formats();

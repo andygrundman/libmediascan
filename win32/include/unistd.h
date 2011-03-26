@@ -21,4 +21,9 @@
 
 #define ssize_t int
 
+#ifdef _MSC_VER
+#undef inline
+#define inline __inline
+#endif
+
 #endif /* unistd.h  */
