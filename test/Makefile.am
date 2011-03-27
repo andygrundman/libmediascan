@@ -12,3 +12,5 @@ video_dlna_test_CFLAGS = $(LMS_INCLUDE)
 video_dlna_test_LDADD = $(LMS_LTLIB)
 
 TESTS = api_test video_dlna_test
+
+include_HEADERS = common.h tap.h

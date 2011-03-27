@@ -10,3 +10,6 @@ libmediascan_la_SOURCES = buffer.c mediascan.c progress.c result.c error.c video
 libmediascan_la_CFLAGS = -I$(top_srcdir)/include
 
 libmediascan_la_LDFLAGS = -version-info 0:0:0
+
+include_HEADERS = audio.h buffer.h common.h error.h progress.h queue.h result.h util.h video.h \
+  libdlna/containers.h libdlna/dlna.h libdlna/dlna_internals.h libdlna/profiles.h

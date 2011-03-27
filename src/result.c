@@ -19,7 +19,7 @@
 #include "libdlna/profiles.h"
 
 // Audio formats
-#include "wav.h"
+//#include "wav.h"
 
 type_ext audio_types[] = {
 /*
