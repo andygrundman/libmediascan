@@ -568,7 +568,7 @@ probe_mpeg_ts (AVFormatContext *ctx,
       {
       case CT_MPEG_TRANSPORT_STREAM:
         return xac3 ? &mpeg_ts_sd_na_xac3_iso : &mpeg_ts_sd_na_iso;
-      case CT_MPEG_TRANSPORT_STREAM_DLNA:
+      case CT_MPEG_TRANSPORT_STREAM_DLNA: //TODO: Need to check timing to return either mpeg_ts_sd_na_t or mpeg_ts_sd_na for 0 timing
         return xac3 ? &mpeg_ts_sd_na_xac3_t : &mpeg_ts_sd_na_t;
       case CT_MPEG_TRANSPORT_STREAM_DLNA_NO_TS:
         return xac3 ? &mpeg_ts_sd_na_xac3 : &mpeg_ts_sd_na;
@@ -593,7 +593,7 @@ probe_mpeg_ts (AVFormatContext *ctx,
       {
       case CT_MPEG_TRANSPORT_STREAM:
         return xac3 ? &mpeg_ts_hd_na_xac3_iso : &mpeg_ts_hd_na_iso;
-      case CT_MPEG_TRANSPORT_STREAM_DLNA:
+      case CT_MPEG_TRANSPORT_STREAM_DLNA: //TODO: Need to check timing to return either mpeg_ts_hd_na_t or mpeg_ts_hd_na for 0 timing
         return xac3 ? &mpeg_ts_hd_na_xac3_t : &mpeg_ts_hd_na_t;
       case CT_MPEG_TRANSPORT_STREAM_DLNA_NO_TS:
         return xac3 ? &mpeg_ts_hd_na_xac3 : &mpeg_ts_hd_na;
