@@ -11,5 +11,6 @@ libmediascan_la_CFLAGS = -I$(top_srcdir)/include
 
 libmediascan_la_LDFLAGS = -version-info 0:0:0
 
+# XXX only include in dist, not install
 include_HEADERS = audio.h buffer.h common.h error.h progress.h queue.h result.h util.h video.h \
   libdlna/containers.h libdlna/dlna.h libdlna/dlna_internals.h libdlna/profiles.h
