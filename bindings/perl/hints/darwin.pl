@@ -24,8 +24,8 @@ if ( $Config{myarchname} =~ /i386/ ) {
             $arch .= "-isysroot /Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5";
         }
         else {
-            # 10.5 SDK not installed, use 10.6
-            $arch .= "-isysroot /Developer/SDKs/MacOSX10.6.sdk -mmacosx-version-min=10.6";
+            # 10.5 SDK not installed, use 10.6 only
+            $arch = "-arch x86_64 -arch i386 -isysroot /Developer/SDKs/MacOSX10.6.sdk -mmacosx-version-min=10.6";
         }
     }
     else {

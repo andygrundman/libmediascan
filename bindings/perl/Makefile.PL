@@ -10,7 +10,7 @@ my $DEFINES = '-O2';
 $DEFINES .= ' -Wall' unless $^O =~ /sun|solaris/i;
 $DEFINES .= ' -Wno-unused-value -Wno-format-security' unless $^O =~ /Win32|sun|solaris/i;
 
-if ( -e '../../include/libmediascan.h' ) {
+if ( -e 'MANIFEST.SKIP' ) {
     # For development, statically link to parent libmediascan
     if ( !-d '../../src/.libs' ) {
         die "Please build libmediascan first\n";
@@ -19,10 +19,10 @@ if ( -e '../../include/libmediascan.h' ) {
     push @INC, '-I../../include';
     push @LIBPATH, '-L../../src/.libs';
     $MYEXTLIB .= '../../src/.libs/libmediascan.a ';
-    push @LIBS, '-lavformat -lavcore -lavcodec -lavutil -lz -lbz2 ';
+    push @LIBS, '-lavformat -lavcodec -lavutil -lz -lbz2 ';
 }
 else {
-    push @LIBS, '-lmediascan';
+    push @LIBS, '-lmediascan -lavformat -lavcodec -lavutil -lz -lbz2 ';
 }
 
 if ( $^O =~ /Win32/ ) {
