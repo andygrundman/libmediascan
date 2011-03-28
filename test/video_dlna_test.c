@@ -8,7 +8,7 @@
 #include "tap.h"
 #include "common.h"
 
-#define TEST_COUNT 513
+#define TEST_COUNT 1426
 
 #ifdef _MSC_VER
 
@@ -305,6 +305,302 @@ static void test_DLNA_files(char *file, ExpectedResultType *expected)
     ms_destroy(s);
 } /* test_DLNA_files() */
 
+void test_MPEG_PS_NTSC()
+{
+    ExpectedResultType expected;
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_PS_NTSC");
+	expected.video_width = 720;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "29.97");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "pcm_s16be");
+	expected.audio_bitrate = 1536000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	// NOTE: This scan will cause a lock up if it follows directly after test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_P-108.mpg", &expected);
+//	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_N-1.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_PS_NTSC");
+	expected.video_width = 720;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "29.97");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 224000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_N-3.mpg", &expected);
+
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_PS_NTSC");
+	expected.video_width = 720;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "29.97");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "mp2");
+	expected.audio_bitrate = 224000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_N-5.mpg", &expected);
+
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_PS_NTSC");
+	expected.video_width = 720;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "29.97");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "mp2");
+	expected.audio_bitrate = 256000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_N-7.mpg", &expected);
+
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_PS_NTSC");
+	expected.video_width = 352;
+	expected.video_height = 240; 
+	strcpy(expected.video_fps, "29.97");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "mp2");
+	expected.audio_bitrate = 64000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 1;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_N-8.mpg", &expected);
+
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_PS_NTSC");
+	expected.video_width = 720;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "29.97");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "mp2");
+	expected.audio_bitrate = 256000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_N-9.mpg", &expected);
+
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_PS_NTSC");
+	expected.video_width = 720;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "29.97");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "mp2");
+	expected.audio_bitrate = 224000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_N-13.mpg", &expected);
+
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_PS_NTSC");
+	expected.video_width = 720;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "29.97");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "mp2");
+	expected.audio_bitrate = 224000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_N-14.mpg", &expected);
+
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_PS_NTSC");
+	expected.video_width = 720;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "29.97");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "mp2");
+	expected.audio_bitrate = 1536000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+
+// NOTE: This file causes a lockup TODO: Find out why!
+//	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_N-61.mpg", &expected);
+
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_PS_NTSC");
+	expected.video_width = 544;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "29.97");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "mp2");
+	expected.audio_bitrate = 256000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_N-67.mpg", &expected);
+
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_PS_NTSC");
+	expected.video_width = 720;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "29.97");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "mp2");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_N-68.mpg", &expected);
+
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_PS_NTSC");
+	expected.video_width = 720;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "29.97");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "mp2");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 1;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_N-69.mpg", &expected);
+
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_PS_NTSC");
+	expected.video_width = 720;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "29.97");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "mp2");
+	expected.audio_bitrate = 384000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_N-70.mpg", &expected);
+
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_PS_NTSC");
+	expected.video_width = 352;
+	expected.video_height = 240; 
+	strcpy(expected.video_fps, "29.97");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "mp2");
+	expected.audio_bitrate = 384000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_N-80.mpg", &expected);
+
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_PS_NTSC");
+	expected.video_width = 720;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "29.97");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 224000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_N-86.mpg", &expected);
+
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_PS_NTSC");
+	expected.video_width = 720;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "29.97");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 224000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_N-87.mpg", &expected);
+
+	
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_PS_NTSC");
+	expected.video_width = 480;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "29.97");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "mp2");
+	expected.audio_bitrate = 256000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_N-107.mpg", &expected);
+
+}	/* test_MPEG_PS_NTSC() */
+
+
 void test_MPEG_TS_HD_NA()
 {
     ExpectedResultType expected;
@@ -439,6 +735,141 @@ void test_MPEG_TS_HD_NA()
   
 	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN-8.mpg", &expected);
 }	/* test_MPEG_TS_HD_NA() */
+
+void test_MPEG_TS_HD_NA_T()
+{
+    ExpectedResultType expected;
+
+	// Test for MPEG_TS_HD_NA
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/vnd.dlna.mpeg-tts");
+	strcpy(expected.dlna_profile, "MPEG_TS_HD_NA_T");
+	expected.video_width = 1920;
+	expected.video_height = 1080; 
+	strcpy(expected.video_fps, "30");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN_T-1.mpg", &expected);
+	
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/vnd.dlna.mpeg-tts");
+	strcpy(expected.dlna_profile, "MPEG_TS_HD_NA_T");
+	expected.video_width = 1920;
+	expected.video_height = 1080; 
+	strcpy(expected.video_fps, "30");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN_T-2.mpg", &expected);
+
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/vnd.dlna.mpeg-tts");
+	strcpy(expected.dlna_profile, "MPEG_TS_HD_NA_T");
+	expected.video_width = 1920;
+	expected.video_height = 1080; 
+	strcpy(expected.video_fps, "30");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN_T-3.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/vnd.dlna.mpeg-tts");
+	strcpy(expected.dlna_profile, "MPEG_TS_HD_NA_T");
+	expected.video_width = 1920;
+	expected.video_height = 1080; 
+	strcpy(expected.video_fps, "30");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN_T-4.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/vnd.dlna.mpeg-tts");
+	strcpy(expected.dlna_profile, "MPEG_TS_HD_NA_T");
+	expected.video_width = 1920;
+	expected.video_height = 1080; 
+	strcpy(expected.video_fps, "29.97");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 128000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 1;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN_T-5.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/vnd.dlna.mpeg-tts");
+	strcpy(expected.dlna_profile, "MPEG_TS_HD_NA_T");
+	expected.video_width = 1920;
+	expected.video_height = 1080; 
+	strcpy(expected.video_fps, "24");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN_T-6.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/vnd.dlna.mpeg-tts");
+	strcpy(expected.dlna_profile, "MPEG_TS_HD_NA_T");
+	expected.video_width = 1920;
+	expected.video_height = 1080; 
+	strcpy(expected.video_fps, "29.97");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN_T-7.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/vnd.dlna.mpeg-tts");
+	strcpy(expected.dlna_profile, "MPEG_TS_HD_NA_T");
+	expected.video_width = 1920;
+	expected.video_height = 1080; 
+	strcpy(expected.video_fps, "23.98");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN_T-8.mpg", &expected);
+}	/* test_MPEG_TS_HD_NA_T() */
 
 void test_MPEG_TS_SD_NA()
 {
@@ -743,6 +1174,232 @@ void test_MPEG_TS_SD_NA_T()
 	
 		
 } /* test_MPEG_TS_SD_NA_T() */
+
+void test_MPEG_TS_SD_NA_ISO()
+{
+    ExpectedResultType expected;
+
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_NA_ISO");
+	expected.video_width = 640;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "60");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SN_I-1.mpg", &expected);
+
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_NA_ISO");
+	expected.video_width = 640;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "59.96");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SN_I-2.mpg", &expected);
+
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_NA_ISO");
+	expected.video_width = 544;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "29.97");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SN_I-3.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_NA_ISO");
+	expected.video_width = 480;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "29.97");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SN_I-4.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_NA_ISO");
+	expected.video_width = 352;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "29.97");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SN_I-5.mpg", &expected);
+
+} /* test_MPEG_TS_SD_NA_ISO() */
+
+void test_MPEG_TS_HD_NA_ISO()
+{
+    ExpectedResultType expected;
+
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_HD_NA_ISO");
+	expected.video_width = 1920;
+	expected.video_height = 1080; 
+	strcpy(expected.video_fps, "30");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN_I-1.mpg", &expected);
+
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_HD_NA_ISO");
+	expected.video_width = 1920;
+	expected.video_height = 1080; 
+	strcpy(expected.video_fps, "30");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN_I-2.mpg", &expected);
+
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_HD_NA_ISO");
+	expected.video_width = 1920;
+	expected.video_height = 1080; 
+	strcpy(expected.video_fps, "30");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN_I-3.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_HD_NA_ISO");
+	expected.video_width = 1920;
+	expected.video_height = 1080; 
+	strcpy(expected.video_fps, "30");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN_I-4.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_HD_NA_ISO");
+	expected.video_width = 1920;
+	expected.video_height = 1080; 
+	strcpy(expected.video_fps, "29.97");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 128000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 1;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN_I-5.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_HD_NA_ISO");
+	expected.video_width = 1920;
+	expected.video_height = 1080; 
+	strcpy(expected.video_fps, "24");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN_I-6.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_HD_NA_ISO");
+	expected.video_width = 1920;
+	expected.video_height = 1080; 
+	strcpy(expected.video_fps, "29.97");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN_I-7.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_HD_NA_ISO");
+	expected.video_width = 1920;
+	expected.video_height = 1080; 
+	strcpy(expected.video_fps, "23.98");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN_I-8.mpg", &expected);
+
+} /* test_MPEG_TS_HD_NA_ISO() */
 
 void test_DLNA_large_files()
 {
@@ -1051,6 +1708,809 @@ void test_MPEG_PS_PAL()
 	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_P-108.mpg", &expected);
 } /* test_MPEG_PS_PAL() */
 
+void test_MPEG_TS_SD_EU()
+{
+    ExpectedResultType expected;
+
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_EU");
+	expected.video_width = 544;
+	expected.video_height = 576; 
+	strcpy(expected.video_fps, "25");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 128000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 1;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SE-1.mpg", &expected);
+
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_EU");
+	expected.video_width = 480;
+	expected.video_height = 576; 
+	strcpy(expected.video_fps, "25");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 191000;
+	expected.audio_samplerate = 44000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SE-2.mpg", &expected);
+
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_EU");
+	expected.video_width = 352;
+	expected.video_height = 576; 
+	strcpy(expected.video_fps, "25");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 32000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SE-3.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_EU");
+	expected.video_width = 352;
+	expected.video_height = 288; 
+	strcpy(expected.video_fps, "25");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 191000;
+	expected.audio_samplerate = 44000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SE-4.mpg", &expected);
+
+} /* test_MPEG_TS_SD_EU() */
+
+void test_MPEG_TS_SD_EU_T()
+{
+    ExpectedResultType expected;
+
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_EU_T");
+	expected.video_width = 720;
+	expected.video_height = 576; 
+	strcpy(expected.video_fps, "25");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "mp2");
+	expected.audio_bitrate = 384000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SET-1.mpg", &expected);
+
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_EU_T");
+	expected.video_width = 720;
+	expected.video_height = 576; 
+	strcpy(expected.video_fps, "25");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "mp2");
+	expected.audio_bitrate = 64000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 1;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SET-2.mpg", &expected);
+
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_EU_T");
+	expected.video_width = 720;
+	expected.video_height = 576; 
+	strcpy(expected.video_fps, "25");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "mp2");
+	expected.audio_bitrate = 384000;
+	expected.audio_samplerate = 32000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SET-3.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_EU_T");
+	expected.video_width = 720;
+	expected.video_height = 576; 
+	strcpy(expected.video_fps, "25");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "mp2");
+	expected.audio_bitrate = 384000;
+	expected.audio_samplerate = 44100;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SET-4.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_EU_T");
+	expected.video_width = 720;
+	expected.video_height = 576; 
+	strcpy(expected.video_fps, "25");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "mp2");
+	expected.audio_bitrate = 448000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SET-5.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_EU_T");
+	expected.video_width = 720;
+	expected.video_height = 576; 
+	strcpy(expected.video_fps, "25");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "mp2");
+	expected.audio_bitrate = 96000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 1;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SET-6.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_EU_T");
+	expected.video_width = 720;
+	expected.video_height = 576; 
+	strcpy(expected.video_fps, "25");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "mp2");
+	expected.audio_bitrate = 448000;
+	expected.audio_samplerate = 32000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SET-7.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_EU_T");
+	expected.video_width = 720;
+	expected.video_height = 576; 
+	strcpy(expected.video_fps, "25");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "mp2");
+	expected.audio_bitrate = 448000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SET-8.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_EU_T");
+	expected.video_width = 720;
+	expected.video_height = 576; 
+	strcpy(expected.video_fps, "25");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SET-9.mpg", &expected);
+} /* test_MPEG_TS_SD_EU_T() */
+
+void test_MPEG_TS_SD_EU_ISO()
+{
+    ExpectedResultType expected;
+
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_EU_ISO");
+	expected.video_width = 544;
+	expected.video_height = 576; 
+	strcpy(expected.video_fps, "25");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 128000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 1;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SE_I-1.mpg", &expected);
+
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_EU_ISO");
+	expected.video_width = 480;
+	expected.video_height = 576; 
+	strcpy(expected.video_fps, "25");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 44100;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SE_I-2.mpg", &expected);
+
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_EU_ISO");
+	expected.video_width = 352;
+	expected.video_height = 576; 
+	strcpy(expected.video_fps, "25");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 32000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SE_I-3.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_EU_ISO");
+	expected.video_width = 352;
+	expected.video_height = 288; 
+	strcpy(expected.video_fps, "25");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 44100;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SE_I-4.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_EU_ISO");
+	expected.video_width = 720;
+	expected.video_height = 576; 
+	strcpy(expected.video_fps, "25");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "mp2");
+	expected.audio_bitrate = 384000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SE_I-5.mpg", &expected);
+
+} /* test_MPEG_TS_SD_EU_ISO() */
+
+void test_MPEG_TS_SD_KO()
+{
+    ExpectedResultType expected;
+
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_KO");
+	expected.video_width = 640;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "59.96");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK-2.mpg", &expected);
+
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_KO");
+	expected.video_width = 704;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "30");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK-4.mpg", &expected);
+
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_KO");
+	expected.video_width = 704;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "30");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK-5.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_KO");
+	expected.video_width = 704;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "30");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK-6.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_KO");
+	expected.video_width = 704;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "30");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 128000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 1;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK-7.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_KO");
+	expected.video_width = 704;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "30");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK-8.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_KO");
+	expected.video_width = 704;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "29.97");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK-9.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_KO");
+	expected.video_width = 704;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "24");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK-11.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_KO");
+	expected.video_width = 704;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "23.98");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK-13.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_KO");
+	expected.video_width = 704;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "23.98");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK-13a.mpg", &expected);
+} /* test_MPEG_TS_SD_KO() */
+
+void test_MPEG_TS_SD_KO_T()
+{
+    ExpectedResultType expected;
+
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_KO_T");
+	expected.video_width = 704;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "30");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SKT-4.mpg", &expected);
+
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_KO_T");
+	expected.video_width = 704;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "30");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SKT-5.mpg", &expected);
+
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_KO_T");
+	expected.video_width = 704;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "30");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SKT-6.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_KO_T");
+	expected.video_width = 704;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "30");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 128000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 1;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SKT-7.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_KO_T");
+	expected.video_width = 704;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "30");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SKT-8.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_KO_T");
+	expected.video_width = 704;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "29.97");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SKT-9.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_KO_T");
+	expected.video_width = 704;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "24");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SKT-11.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_KO_T");
+	expected.video_width = 704;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "23.98");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SKT-13.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_KO_T");
+	expected.video_width = 704;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "23.98");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SKT-13a.mpg", &expected);
+
+} /* test_MPEG_TS_SD_KO_T() */
+
+void test_MPEG_TS_SD_KO_ISO()
+{
+    ExpectedResultType expected;
+
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_KO_ISO");
+	expected.video_width = 704;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "30");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK_I-4.mpg", &expected);
+
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_KO_ISO");
+	expected.video_width = 704;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "30");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK_I-5.mpg", &expected);
+
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_KO_ISO");
+	expected.video_width = 704;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "30");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK_I-6.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_KO_ISO");
+	expected.video_width = 704;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "30");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 128000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 1;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK_I-7.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_KO_ISO");
+	expected.video_width = 704;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "30");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK_I-8.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_KO_ISO");
+	expected.video_width = 704;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "29.97");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK_I-9.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_KO_ISO");
+	expected.video_width = 704;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "29.97");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK-9.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_KO_ISO");
+	expected.video_width = 704;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "24");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK_I-11.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_KO_ISO");
+	expected.video_width = 704;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "23.98");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK_I-13.mpg", &expected);
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_VIDEO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_KO_ISO");
+	expected.video_width = 704;
+	expected.video_height = 480; 
+	strcpy(expected.video_fps, "23.98");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "ac3");
+	expected.audio_bitrate = 192000;
+	expected.audio_samplerate = 48000;
+	expected.audio_channels = 2;
+  
+	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK_I-13a.mpg", &expected);
+} /* test_MPEG_TS_SD_KO_ISO() */
+
 void test_DLNA_scanning()
 {
 #ifndef WIN32
@@ -1094,10 +2554,31 @@ main(int argc, char *argv[])
   
   
   test_DLNA_scanning();
-  test_MPEG_TS_HD_NA();
-  test_MPEG_PS_PAL();
+  
+  
+
+// Test US profiles
   test_MPEG_TS_SD_NA();
   test_MPEG_TS_SD_NA_T();
+  test_MPEG_TS_SD_NA_ISO();
+  test_MPEG_TS_HD_NA();
+  test_MPEG_TS_HD_NA_T();
+  test_MPEG_TS_HD_NA_ISO();
+
+// Test EU profiles
+  test_MPEG_TS_SD_EU();
+  test_MPEG_TS_SD_EU_T();
+  test_MPEG_TS_SD_EU_ISO();
+  
+// Test KO Profiles
+  test_MPEG_TS_SD_KO();
+  test_MPEG_TS_SD_KO_T();
+  test_MPEG_TS_SD_KO_ISO();
+
+// Test MPEG
+  test_MPEG_PS_PAL();
+  test_MPEG_PS_NTSC();
+
 
   test_DLNA_large_files();
   
