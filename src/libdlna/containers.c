@@ -64,8 +64,8 @@ mpeg_find_container_type (const char *filename)
     {
       if (buffer[i + MPEG_TS_PACKET_LENGTH_DLNA] == MPEG_TS_SYNC_CODE)
       {
-        if (buffer[i] == 0x00 && buffer [i+1] == 0x00 &&
-            buffer [i+2] == 0x00 && buffer [i+3] == 0x00)
+        if (buffer[i + MPEG_TS_PACKET_LENGTH_DLNA - 4] == 0x00 && buffer [i+ MPEG_TS_PACKET_LENGTH_DLNA - 4+1] == 0x00 &&
+            buffer [i+ MPEG_TS_PACKET_LENGTH_DLNA - 4+2] == 0x00 && buffer [i+ MPEG_TS_PACKET_LENGTH_DLNA - 4+3] == 0x00)
           return CT_MPEG_TRANSPORT_STREAM_DLNA_NO_TS; /* empty timestamp */
         else
           return CT_MPEG_TRANSPORT_STREAM_DLNA; /* valid timestamp */

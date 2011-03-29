@@ -600,7 +600,6 @@ void test_MPEG_PS_NTSC()
 
 }	/* test_MPEG_PS_NTSC() */
 
-
 void test_MPEG_TS_HD_NA()
 {
     ExpectedResultType expected;
