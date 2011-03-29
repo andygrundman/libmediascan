@@ -1,0 +1,41 @@
+Win32 Build Instructions
+----------------------------------------------------------------------
+
+Prerequisits
+Microsoft Visual Studio 2010 or Microsoft Visual C++ 2010
+MinGW - http://www.mingw.org/ http://sourceforge.net/projects/mingw/files/Automated%20MinGW%20Installer/mingw-get-inst/mingw-get-inst-20110316/mingw-get-inst-20110316.exe/download
+Git - http://git-scm.com/
+
+Build Instructions
+
+-- FFMPEG --
+
+Grab the latest version of FFMPEG using the command "git clone git://git.videolan.org/ffmpeg.git ffmpeg"
+Create a file called "myconfig" in the ffmpeg directory containing the following commands: 
+#!/bin/sh
+./configure --extra-cflags="-I/usr/local/include -U__STRICT_ANSI__ -D_MT -mno-cygwin -mms-bitfields" --extra-ldflags="-add-stdcall-alias -L/usr/local/lib" --enable-w32threads --disable-asm --enable-pic --enable-memalign-hack --disable-ffserver --disable-ffplay --target-os=mingw32
+From a MinGW command prompt in the ffmpeg directory execute ./myconfig 
+execute make
+execute make install
+
+
+-- libmediascan --
+
+Grab the latest version of libmediascan using the command "git clone git://github.com/andygrundman/libmediascan.git scan"
+
+
+	-- CUnit --
+
+	From the scan/test/CUnit directory execute ./configure
+	execute make
+	execute make install
+	
+Open libmediascan.sln in Visual Studio 2010
+From the Menu select Build -> Build Solution
+
+The Win32 library should now be generated
+
+
+
+
+
