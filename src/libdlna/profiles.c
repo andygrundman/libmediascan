@@ -481,6 +481,10 @@ audio_profile_guess (AVCodecContext *ac)
   if (ap != AUDIO_PROFILE_INVALID)
     return ap;
 
+  ap = audio_profile_guess_mp1 (ac);
+  if (ap != AUDIO_PROFILE_INVALID)
+    return ap;
+
   ap = audio_profile_guess_mp2 (ac);
   if (ap != AUDIO_PROFILE_INVALID)
     return ap;

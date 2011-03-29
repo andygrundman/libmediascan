@@ -104,6 +104,9 @@
     <ClCompile Include="..\src\audio.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\libdlna\audio_mp1.c">
+      <Filter>libdlna</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\libmediascan.h">

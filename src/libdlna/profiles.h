@@ -120,6 +120,7 @@ typedef enum {
   AUDIO_PROFILE_LPCM,
 
   /* MPEG audio variants */
+  AUDIO_PROFILE_MP1,
   AUDIO_PROFILE_MP2,
   AUDIO_PROFILE_MP3,
   AUDIO_PROFILE_MP3_EXTENDED,
@@ -138,6 +139,7 @@ audio_profile_t audio_profile_guess_amr (AVCodecContext *ac);
 audio_profile_t audio_profile_guess_atrac (AVCodecContext *ac);
 audio_profile_t audio_profile_guess_g726 (AVCodecContext *ac);
 audio_profile_t audio_profile_guess_lpcm (AVCodecContext *ac);
+audio_profile_t audio_profile_guess_mp1 (AVCodecContext *ac);
 audio_profile_t audio_profile_guess_mp2 (AVCodecContext *ac);
 audio_profile_t audio_profile_guess_mp3 (AVCodecContext *ac);
 audio_profile_t audio_profile_guess_wma (AVCodecContext *ac);

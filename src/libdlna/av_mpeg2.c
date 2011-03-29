@@ -65,7 +65,9 @@ static mpeg_ts_stream_t mpeg_ts_valid_streams_eu_sd[] = {
   { 544, 576, 25, 1},
   { 480, 576, 25, 1},
   { 352, 576, 25, 1},
-  { 252, 288, 25, 1}
+  { 352, 288, 25, 1},
+  { 252, 288, 25, 1},
+  { 720, 576, 25, 1}
 };
 
 static mpeg_ts_stream_t mpeg_ts_valid_streams_na_sd[] = {
@@ -74,9 +76,12 @@ static mpeg_ts_stream_t mpeg_ts_valid_streams_na_sd[] = {
   { 704, 480, 30, 1},
   { 704, 480, 24000, 1001},
   { 704, 480, 24, 1},
+  { 704, 480, 60, 1},
+  { 704, 480, 60000, 1001},
   { 640, 480, 30000, 1001},
   { 640, 480, 30, 1},
   { 640, 480, 60, 1},
+  { 640, 480, 60000, 1001},
   { 640, 480, 24000, 1001},
   { 640, 480, 24, 1},
   { 544, 480, 30000, 1001},
@@ -366,6 +371,13 @@ is_mpeg_ts_audio_stream_mp2 (AVFormatContext *ctx dlna_unused,
 }
 
 static int
+is_mpeg_ts_audio_stream_mp1 (AVFormatContext *ctx dlna_unused,
+                             av_codecs_t *codecs)
+{
+  return (audio_profile_guess_mp1 (codecs->ac) == AUDIO_PROFILE_MP1) ? 1 : 0;
+}
+
+static int
 is_mpeg_ts_audio_stream_ac3 (AVFormatContext *ctx dlna_unused,
                              av_codecs_t *codecs)
 {
@@ -499,7 +511,8 @@ probe_mpeg_ts (AVFormatContext *ctx,
           mpeg_ts_valid_streams_eu_sd[i].fps_den == 1)
       {
         if (is_mpeg_ts_audio_stream_ac3 (ctx, codecs) ||
-            is_mpeg_ts_audio_stream_mp2 (ctx, codecs))
+            is_mpeg_ts_audio_stream_mp2 (ctx, codecs) ||
+            is_mpeg_ts_audio_stream_mp1 (ctx, codecs)) // MPEG layer 1, profile 1 is used for some EU streams
         {
           switch (st)
           {
@@ -532,9 +545,15 @@ probe_mpeg_ts (AVFormatContext *ctx,
   /* NA and KO streams can be either SD (Standard Definition)
      or HD (High-Definition) and only support AC3 as audio stream codec */
 
+// Note: Currently FFMPEG incorrectly calculates the total bit rate of some files.
+//		 This change just adds up the video stream and primary audio stream bit rates 
+//		 as an estimate
+//  if (ctx->bit_rate > 19392700)
+//    return NULL; 
+
   /* maximum system bit rate is 19.3927 Mb/s */
-  if (ctx->bit_rate > 19392700)
-    return NULL;
+  if (codecs->vc->bit_rate + codecs->ac->bit_rate > 19392700)
+    return NULL; 
 
   if (codecs->ac->codec_id != CODEC_ID_AC3)
     return NULL;

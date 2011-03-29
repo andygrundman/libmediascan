@@ -94,6 +94,7 @@
     <ClCompile Include="..\src\libdlna\audio_atrac3.c" />
     <ClCompile Include="..\src\libdlna\audio_g726.c" />
     <ClCompile Include="..\src\libdlna\audio_lpcm.c" />
+    <ClCompile Include="..\src\libdlna\audio_mp1.c" />
     <ClCompile Include="..\src\libdlna\audio_mp2.c" />
     <ClCompile Include="..\src\libdlna\audio_mp3.c" />
     <ClCompile Include="..\src\libdlna\audio_wma.c" />

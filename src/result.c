@@ -31,6 +31,8 @@
 // Audio formats
 #include "wav.h"
 
+const char CODEC_MP1[] = "mp1";
+
 static type_ext audio_types[] = {
 /*
   {"mp4", {"mp4", "m4a", "m4b", "m4p", "m4v", "m4r", "k3g", "skm", "3gp", "3g2", "mov", 0}},
@@ -277,6 +279,10 @@ static int scan_video(MediaScanResult *r)
     else if (codecs->ac->codec_name[0] != '\0') {
       a->codec = codecs->ac->codec_name;
     }
+	// Special case for handling MP1 audio streams which FFMPEG can't identify a codec for
+	else if (codecs->ac->codec_id == CODEC_ID_MP1) { 
+	  a->codec = CODEC_MP1;
+	}
     else {
       a->codec = "Unknown";
     }
