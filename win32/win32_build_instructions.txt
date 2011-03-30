@@ -30,6 +30,10 @@ Grab the latest version of libmediascan using the command "git clone git://githu
 	execute make
 	execute make install
 	
+From the MinGW command prompt in the MinGW/bin directory
+execute mingw-get install libz
+execute mingw-get install libarchive
+
 Open libmediascan.sln in Visual Studio 2010
 From the Menu select Build -> Build Solution
 

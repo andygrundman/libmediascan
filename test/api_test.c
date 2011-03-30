@@ -10,7 +10,7 @@
 #include "common.h"
 #include <unistd.h>
 
-#define TEST_COUNT 22
+#define TEST_COUNT 21
 
 static int rcount = 0;
 
@@ -26,11 +26,10 @@ static int rcount = 0;
 /// ### remarks .
 ///-------------------------------------------------------------------------------------------------
 
-static void my_result_callback(MediaScan *s, MediaScanResult *result) {
+static void my_result_callback(MediaScan *s, MediaScanResult *result, void *userdata) {
   //ms_dump_result(result);
   rcount++;
 }
-
 
 ///-------------------------------------------------------------------------------------------------
 ///  Called with progress update.
@@ -43,15 +42,16 @@ static void my_result_callback(MediaScan *s, MediaScanResult *result) {
 ///
 /// ### remarks .
 ///-------------------------------------------------------------------------------------------------
-static void my_error_callback(MediaScan *s, MediaScanError *error) {
+
+static void my_error_callback(MediaScan *s, MediaScanError *error, void *userdata) {
   LOG_WARN("[Error] %s (%s)\n", error->error_string, error->path);
 }
-static void my_progress_callback(MediaScan *s, MediaScanProgress *progress) {
+
+static void my_progress_callback(MediaScan *s, MediaScanProgress *progress, void *userdata) {
   // Do tests on final progress callback only
   if (!progress->cur_item) {
-    ok(progress->dir_total == 13, "final progress callback dir_total is %d", progress->dir_total);
-    ok(progress->file_total == 30, "final progress callback file_total is %d", progress->file_total);
-    ok(rcount == 18, "final result callback count is %d", rcount);
+    ok(progress->total == 35, "final progress callback total is %d", progress->total);
+    ok(rcount == 23, "final result callback count is %d", rcount);
   }
 } /* my_progress_callback() */
 
@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
     
     ms_set_progress_callback(s, my_progress_callback);
     ms_set_progress_interval(s, 60);
-    ok(s->progress_interval == 60, "ms_set_progress_interval s->progress_interval ok");
+    ok(s->progress->interval == 60, "ms_set_progress_interval s->progress_interval ok");
     ok(s->on_progress == my_progress_callback, "ms_set_progress_callback s->on_progress ok");
     
     ms_scan(s);

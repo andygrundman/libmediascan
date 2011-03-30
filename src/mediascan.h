@@ -7,6 +7,7 @@
 // File/dir queue struct definitions
 struct fileq_entry {
   char *file;
+  enum media_type type;
   SIMPLEQ_ENTRY(fileq_entry) entries;
 };
 SIMPLEQ_HEAD(fileq, fileq_entry);
@@ -79,7 +80,7 @@ bool is_absolute_path(const char *path);
 /// ### remarks .
 ///-------------------------------------------------------------------------------------------------
 
-void recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir);
+void recurse_dir(MediaScan *s, const char *path);
 
 #ifdef WIN32
 

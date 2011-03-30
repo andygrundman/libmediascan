@@ -16,7 +16,6 @@
 #include "queue.h"
 #include "mediascan.h"
 
-
 ///-------------------------------------------------------------------------------------------------
 ///  Recursively walk a directory struction using Win32 style directory commands
 ///
@@ -30,12 +29,14 @@
 /// ### remarks .
 ///-------------------------------------------------------------------------------------------------
 
-void recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir)
+void recurse_dir(MediaScan *s, const char *path)
 {
   char *dir = NULL;
   char *p = NULL;
-  struct dirq *subdirq;
   char *tmp_full_path;
+  struct dirq_entry *parent_entry = NULL; // entry for current dir in s->_dirq
+  struct dirq *subdirq; // list of subdirs of the current directory
+ 
 
   // Windows directory browsing variables
   HANDLE hFind = INVALID_HANDLE_VALUE;
@@ -106,66 +107,64 @@ void recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir)
 
     // skip all dot files
     if (name[0] != '.') {
+        if (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+		struct dirq_entry *subdir_entry;
+
         // Construct full path
         *tmp_full_path = 0;
         strcat_s(tmp_full_path, MAX_PATH, dir);
         strcat_s(tmp_full_path, MAX_PATH, "\\");
         strcat_s(tmp_full_path, MAX_PATH, name);
         
-        if (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-        // Entry for complete list of dirs
-        // XXX somewhat inefficient, we create this for every directory
-        // even those that don't end up having any scannable files
-		struct dirq_entry *subdir_entry;
-        struct dirq_entry *entry = malloc(sizeof(struct dirq_entry));
-        entry->dir = _strdup(tmp_full_path);
-        entry->files = malloc(sizeof(struct fileq));
-        SIMPLEQ_INIT(entry->files);
         
-        // Temporary list of subdirs of the current directory
-        subdir_entry = malloc(sizeof(struct dirq_entry));
-        
-        // Copy entry to subdir_entry, dir will be freed by ms_destroy()
-        memcpy(subdir_entry, entry, sizeof(struct dirq_entry));
+        subdir_entry->dir = strdup(tmp_full_path);
         SIMPLEQ_INSERT_TAIL(subdirq, subdir_entry, entries);
         
-        SIMPLEQ_INSERT_TAIL((struct dirq *)s->_dirq, entry, entries);
-        
-        s->progress->dir_total++;
-        
-        LOG_LEVEL(2, "  [%5d] subdir: %s\n", s->progress->dir_total, entry->dir);
+        LOG_INFO(" subdir: %s\n", tmp_full_path);
       }
       else {
 		enum media_type type = _should_scan(s, name);
 
         if ( type ) {
-          // To save memory by not storing the full path to every file,
-          // each dir has a list of files in that dir
-          struct fileq_entry *entry = malloc(sizeof(struct fileq_entry));
-          entry->file = _strdup(name);
-          SIMPLEQ_INSERT_TAIL(curdir->files, entry, entries);
+          struct fileq_entry *entry;
+
+          if (parent_entry == NULL) {
+            // Add parent directory to list of dirs with files
+            parent_entry = malloc(sizeof(struct dirq_entry));
+            parent_entry->dir = strdup(dir);
+            parent_entry->files = malloc(sizeof(struct fileq));
+            SIMPLEQ_INIT(parent_entry->files);
+            SIMPLEQ_INSERT_TAIL((struct dirq *)s->_dirq, parent_entry, entries);
+          }
           
-          s->progress->file_total++;
+          // Add scannable file to this directory list
+          entry = malloc(sizeof(struct fileq_entry));
+          entry->file = strdup(name);
+          entry->type = type;
+          SIMPLEQ_INSERT_TAIL(parent_entry->files, entry, entries);
           
-          LOG_LEVEL(2, "  [%5d] file: %s\n", s->progress->file_total, entry->file);
+          s->progress->total++;
           
-          // Scan the file
-          ms_scan_file(s, tmp_full_path, type);
+          LOG_INFO(" [%5d] file: %s\n", s->progress->total, entry->file);
         }
       }
     }
-  } while (FindNextFile(hFind, &ffd) != 0); 
+  } while (FindNextFile(hFind, &ffd) != 0);
 
-   dwError = GetLastError();
-   if (dwError != ERROR_NO_MORE_FILES) 
-   {
-      LOG_ERROR("Error searching files");
-   }
-
-
+	dwError = GetLastError();
+	if( dwError != ERROR_NO_MORE_FILES)
+	{
+		LOG_ERROR("Error searching files.");
+	}
+    
    FindClose(hFind);
-
   
+  // Send progress update
+  if (s->on_progress)
+    if (progress_update(s->progress, dir))
+      s->on_progress(s, s->progress, s->userdata);
+
+/* Old Progress Code
   // Send progress update
   if (s->on_progress) {
 	long tick_ms = GetTickCount();
@@ -181,13 +180,14 @@ void recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir)
       s->progress->_last_callback = tick_ms;
       s->on_progress(s, s->progress);
     }
-  }
+  } */
+
 
   // process subdirs
   while (!SIMPLEQ_EMPTY(subdirq)) {
     struct dirq_entry *subdir_entry = SIMPLEQ_FIRST(subdirq);
     SIMPLEQ_REMOVE_HEAD(subdirq, entries);
-    recurse_dir(s, subdir_entry->dir, subdir_entry);
+    recurse_dir(s, subdir_entry->dir);
     free(subdir_entry);
   }
   
@@ -197,4 +197,3 @@ void recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir)
 out:
   free(dir);
 } /* recurse_dir() */
-

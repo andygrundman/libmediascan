@@ -17,10 +17,11 @@ AM_PROG_CC_C_O
 
 # Checks for libraries.
 AC_SEARCH_LIBS([pthread_create], [pthread])
-AC_SEARCH_LIBS([ff_avi_demuxer], [avformat], [], [], [-lavdevice -lavcodec -lavformat -lavutil -lz])
-AC_SEARCH_LIBS([av_freep], [avutil], [], [], [-lavutil -lz])
-AC_SEARCH_LIBS([av_destruct_packet], [avcodec])
-AC_SEARCH_LIBS([av_image_copy_plane], [avdevice])
+AC_SEARCH_LIBS([zlibVersion], [z])
+AC_SEARCH_LIBS([BZ2_bzDecompressInit], [bz2])
+AC_SEARCH_LIBS([av_freep], [avutil], [], [], [-lz])
+AC_SEARCH_LIBS([avcodec_version], [avcodec], [], [], [-lavutil -lz])
+AC_SEARCH_LIBS([avformat_version], [avformat], [], [], [-lavcodec -lavutil -lz -lbz2])
 
 # Checks for header files.
 AC_CHECK_HEADERS([fcntl.h stdlib.h string.h unistd.h pthread.h])

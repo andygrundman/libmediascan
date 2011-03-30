@@ -35,7 +35,7 @@ static const char *
 fps2str(double fps)
 {
   static char str[10];
-  uint64_t v = lrintf(fps*100);
+  uint64_t v = lrint(fps*100);
   if     (v% 100      ) sprintf(str, "%3.2f", fps);
   else if(v%(100*1000)) sprintf(str, "%1.0f", fps);
   else                  sprintf(str, "%1.0fk", fps/1000); 
@@ -43,7 +43,7 @@ fps2str(double fps)
 }
 
 
-static void my_result_callback(MediaScan *s, MediaScanResult *r) {
+static void my_result_callback(MediaScan *s, MediaScanResult *r, void *userdata) {
   char *file;
   if ((file = strrchr(r->path, '/')) == NULL)
     if ((file = strrchr(r->path, '\\')) == NULL)
@@ -206,7 +206,7 @@ static void my_result_callback(MediaScan *s, MediaScanResult *r) {
    */
 }
 
-static void my_error_callback(MediaScan *s, MediaScanError *error) {
+static void my_error_callback(MediaScan *s, MediaScanError *error, void *userdata) {
   LOG_ERROR("[Error] %s (%s)\n", error->error_string, error->path);
 }
 

@@ -119,17 +119,17 @@ struct _Result {
 typedef struct _Result MediaScanResult;
 
 struct _Progress {
-  const char *phase;    ///< Discovering, Scanning, etc
-  const char *cur_item; ///< most recently scanned item
-  int dir_total;
-  int dir_done;
-  int file_total;
-  int file_done;
-  int eta;    ///< eta in seconds
-  float rate; ///< rate in items/second
+  char *phase;          ///< Discovering, Scanning, etc
+  const char *cur_item; ///< most recently scanned item, NULL on last callback when done
+  int interval;
+  int total;
+  int done;
+  int eta;   ///< eta in seconds
+  int rate;  ///< rate in items/second
   
   // private
-  long _last_callback;
+  long _start_ts;
+  long _last_update_ts;
 };
 typedef struct _Progress MediaScanProgress;
 
@@ -142,13 +142,13 @@ struct _Scan {
   int async_fd;
   
   MediaScanProgress *progress;
-  int progress_interval;
   
-  void (*on_result)(struct _Scan *, MediaScanResult *);
-  void (*on_error)(struct _Scan *, MediaScanError *);
-  void (*on_progress)(struct _Scan *, MediaScanProgress *);
-  void (*on_background)(struct _Scan *, MediaScanResult *);
-  
+  void (*on_result)(struct _Scan *, MediaScanResult *, void *);
+  void (*on_error)(struct _Scan *, MediaScanError *, void *);
+  void (*on_progress)(struct _Scan *, MediaScanProgress *, void *);
+  void (*on_background)(struct _Scan *, MediaScanResult *, void *);
+  void *userdata;
+
   // private
   void *_dirq; // simple queue of all directories found
   void *_dlna; // libdlna instance
@@ -163,10 +163,10 @@ struct _Scan {
 
 typedef struct _Scan MediaScan;
 
-typedef void (*ResultCallback)(MediaScan *, MediaScanResult *);
-typedef void (*ErrorCallback)(MediaScan *, MediaScanError *);
-typedef void (*ProgressCallback)(MediaScan *, MediaScanProgress *);
-typedef void (*FolderChangeCallback)(MediaScan *, MediaScanResult *);
+typedef void (*ResultCallback)(MediaScan *, MediaScanResult *, void *);
+typedef void (*ErrorCallback)(MediaScan *, MediaScanError *, void *);
+typedef void (*ProgressCallback)(MediaScan *, MediaScanProgress *, void *);
+typedef void (*FolderChangeCallback)(MediaScan *, MediaScanResult *, void *);
 
 ///< libmediascan's errno
 extern int ms_errno;
@@ -249,6 +249,11 @@ void ms_set_progress_callback(MediaScan *s, ProgressCallback callback);
  * called more often than this value. This interval defaults to 1 second.
  */
 void ms_set_progress_interval(MediaScan *s, int seconds);
+
+/**
+ * Set an optional user pointer to be passed to all callbacks.
+ */
+void ms_set_userdata(MediaScan *s, void *data);
 
 /**
  * Begin a recursive scan of all paths previously provided to ms_add_path().

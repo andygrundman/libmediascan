@@ -4,3 +4,12 @@ T_PTROBJ_MG
 
 TYPEMAP
 MediaScan * T_PTROBJ_MG
+
+TYPEMAP
+MediaScanResult * T_PTROBJ_MG
+
+TYPEMAP
+MediaScanError * T_PTROBJ_MG
+
+TYPEMAP
+MediaScanProgress * T_PTROBJ_MG

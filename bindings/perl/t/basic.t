@@ -8,26 +8,25 @@ use FindBin ();
 use Media::Scan;
 
 {
-    my $s = Media::Scan->new( [ '/Users/andy/dev' ], {
-        #loglevel => 9,
-        ignore => [ qw(wav png) ],
-        on_file => sub {
-          my $result = shift;
-          warn dump($result);
+    my $s = Media::Scan->new( [ _f('video') ], {
+    #my $s = Media::Scan->new( [ '/Users/andy/Music/Slim/DLNATestContent' ], {
+        #loglevel => 5,
+        ignore => [],
+        on_result => sub {
+          my $r = shift;
+          warn "Result: " . dump($r->hash) . "\n";
         },
         on_error => sub {
-          my $error = shift;
-          warn dump($error);
+          my $e = shift;
+          warn "Error: " . dump($e->hash);
         },
-        progress => sub {
+        on_progress => sub {
           my $p = shift;
-          warn dump($p);
+          warn "Progress: " . dump($p->hash);
         },
     } );
-    
-    warn dump($s);
 }
 
 sub _f {
-    return catfile( $FindBin::Bin, 'data', shift );
+    return catfile( $FindBin::Bin, '..', '..', '..', 'test', 'data', shift );
 }

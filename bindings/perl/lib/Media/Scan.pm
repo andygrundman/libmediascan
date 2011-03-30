@@ -4,6 +4,12 @@ use strict;
 
 use XS::Object::Magic;
 
+use Media::Scan::Audio;
+use Media::Scan::Image;
+use Media::Scan::Error;
+use Media::Scan::Progress;
+use Media::Scan::Video;
+
 our $VERSION = '0.01';
 
 require XSLoader;

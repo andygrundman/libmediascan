@@ -70,11 +70,11 @@ int clean_suite1(void)
    }
 }
 
-static	void my_result_callback(MediaScan *s, MediaScanResult *result) {
+static	void my_result_callback(MediaScan *s, MediaScanResult *result, void *userdata) {
 
 }
 
-static void my_error_callback(MediaScan *s, MediaScanError *error) { 
+static void my_error_callback(MediaScan *s, MediaScanError *error, void *userdata) { 
 
 } /* my_error_callback() */
 
@@ -260,7 +260,7 @@ void test_ms_scan_5(void)	{
 
 static int progress_called = FALSE;
 
-static void my_progress_callback_6(MediaScan *s, MediaScanProgress *progress) {
+static void my_progress_callback_6(MediaScan *s, MediaScanProgress *progress, void *userdata) {
   // Check final progress callback only
 //  if (!progress->cur_item) {
 //    ok(progress->dir_total == 3, "final progress callback dir_total is %d", progress->dir_total);
@@ -302,14 +302,14 @@ void test_ms_scan_6(void)	{
 	CU_ASSERT(s->on_progress == my_progress_callback_6);
 	
 	
-	CU_ASSERT(s->progress_interval == 1); // Verify that the progress interval is set to 1
+	CU_ASSERT(s->progress->interval == 1); // Verify that the progress interval is set to 1
 
 	ms_set_progress_interval(s, 60);
-	CU_ASSERT(s->progress_interval == 60);
+	CU_ASSERT(s->progress->interval == 60);
 
 	// Reset the callback time
 	progress_called = FALSE;
-	s->progress->_last_callback = 0;
+	s->progress->_last_update_ts = 0;
 	ms_scan(s);
 	CU_ASSERT(progress_called == FALSE);
 	#ifdef WIN32
@@ -321,7 +321,7 @@ void test_ms_scan_6(void)	{
 	CU_ASSERT(progress_called == FALSE);
 
 	// Reset the callback time
-	s->progress->_last_callback = 0;
+	s->progress->_last_update_ts = 0;
 	ms_scan(s);
 	CU_ASSERT(progress_called == FALSE);
 	
@@ -338,14 +338,14 @@ void test_ms_scan_6(void)	{
 
 } /* test_ms_scan_6 */
 
-static	void my_result_callback_1(MediaScan *s, MediaScanResult *result) {
+static	void my_result_callback_1(MediaScan *s, MediaScanResult *result, void *userdata) {
 
 }
 
 static int error_called = FALSE;
 static MediaScanError error;
 
-static void my_error_callback_1(MediaScan *s, MediaScanError *error) { 
+static void my_error_callback_1(MediaScan *s, MediaScanError *error, void *userdata) { 
 	error_called = TRUE;
 	memcpy(&error, error, sizeof(MediaScanError));
 } /* my_error_callback() */

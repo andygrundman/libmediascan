@@ -39,7 +39,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>C:\mingw\msys\1.0\local\lib;$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSdkDir)lib;$(FrameworkSDKDir)\lib;C:\mingw\msys\1.0\lib\gcc\i686-pc-msys\3.4.4;C:\mingw\lib</LibraryPath>
+    <LibraryPath>C:\mingw\msys\1.0\local\lib;$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSdkDir)lib;$(FrameworkSDKDir)\lib;C:\mingw\msys\1.0\lib\gcc\i686-pc-msys\3.4.4;C:\mingw\lib;C:\MinGW\lib\gcc\mingw32\4.5.2;C:\MinGW\lib</LibraryPath>
     <TargetName>DLNA_test</TargetName>
     <OutDir>$(SolutionDir)$(ProjectName)$(Configuration)\</OutDir>
     <IntDir>$(ProjectName)$(Configuration)\</IntDir>

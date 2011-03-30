@@ -45,7 +45,7 @@
 // Global log level flag
 enum log_level Debug = ERR;
 static int Initialized = 0;
-static long PathMax = 0;
+long PathMax = 0;
 int ms_errno = 0;
 
 /*
@@ -262,11 +262,11 @@ MediaScan *ms_create(void)
   s->async_fd = 0;
   
   s->progress = progress_create();
-  s->progress_interval = 1;
   
   s->on_result = NULL;
   s->on_error = NULL;
   s->on_progress = NULL;
+  s->userdata = NULL;
   
   // List of all dirs found
   s->_dirq = malloc(sizeof(struct dirq));
@@ -294,17 +294,8 @@ MediaScan *ms_create(void)
 
 void ms_destroy(MediaScan *s)
 {
-  int i = 0;
-  struct dirq *head = (struct dirq *)s->_dirq;
-  struct dirq_entry *entry = NULL;
-  struct fileq *file_head = NULL;
-  struct fileq_entry *file_entry = NULL;
-
-   if(s == NULL) {
-	// Nothing to free
-    return;
-   }
-
+  int i;
+  
   for (i = 0; i < s->npaths; i++) {
     free( s->paths[i] );
   }
@@ -313,34 +304,10 @@ void ms_destroy(MediaScan *s)
     free( s->ignore_exts[i] );
   }
   
-  // Free everything in our list of dirs/files
-  while (!SIMPLEQ_EMPTY(head)) {
-    entry = SIMPLEQ_FIRST(head);
-    
-    if (entry->files != NULL) {
-      file_head = entry->files;
-      while (!SIMPLEQ_EMPTY(file_head)) {
-        file_entry = SIMPLEQ_FIRST(file_head);
-        free(file_entry->file);
-        SIMPLEQ_REMOVE_HEAD(file_head, entries);
-        free(file_entry);
-      }
-      free(entry->files);
-    }
-    
-    SIMPLEQ_REMOVE_HEAD(head, entries);
-    free(entry->dir);
-    free(entry);
-  }
-  
   progress_destroy(s->progress);
   
   free(s->_dirq);
   free(s->_dlna);
-
-  // Clear the watch list
-  ms_clear_watch(s);
-
   free(s);
 } /* ms_destroy() */
 
@@ -519,7 +486,6 @@ void ms_set_progress_callback(MediaScan *s, ProgressCallback callback)
     LOG_ERROR("MediaScan = NULL, aborting\n");
     return;
   }
-
   s->on_progress = callback;
 } /* ms_set_progress_callback() */
 
@@ -544,8 +510,20 @@ void ms_set_progress_interval(MediaScan *s, int seconds)
     return;
   }
 
-  s->progress_interval = seconds;
+  if(s->progress == NULL) {
+	ms_errno = MSENO_NULLSCANOBJ;
+    LOG_ERROR("Progress = NULL, aborting\n");
+    return;
+  }
+
+  s->progress->interval = seconds;
 } /* ms_set_progress_interval() */
+
+void
+ms_set_userdata(MediaScan *s, void *data)
+{
+  s->userdata = data;
+}
 
 ///-------------------------------------------------------------------------------------------------
 ///  Watch a directory in the background.
@@ -703,19 +681,15 @@ int _should_scan(MediaScan *s, const char *path)
 ///
 /// ### remarks .
 ///-------------------------------------------------------------------------------------------------
-
 void ms_scan(MediaScan *s)
 {
-  int i = 0;  
-//  char *dir;
-  char *phase = NULL;
-
-   if(s == NULL) {
-	ms_errno = MSENO_NULLSCANOBJ;
-    LOG_ERROR("MediaScan = NULL, aborting scan\n");
-    return;
-  }
-
+  int i;
+  struct dirq *dir_head = (struct dirq *)s->_dirq;
+  struct dirq_entry *dir_entry;
+  struct fileq *file_head;
+  struct fileq_entry *file_entry;
+  char *tmp_full_path = malloc((size_t)PathMax);
+  
   if (s->on_result == NULL) {
     LOG_ERROR("Result callback not set, aborting scan\n");
     return;
@@ -725,47 +699,60 @@ void ms_scan(MediaScan *s)
     LOG_ERROR("async mode not yet supported\n");
     // XXX TODO
   }
-
-  /*
-  if (!is_absolute_path(path)) { // XXX Win32
-    // Get full path
-    char *buf = (char *)malloc((size_t)PathMax);
-    if (buf == NULL) {
-      FATAL("Out of memory for directory scan\n");
-      return;
-    }
-
-    dir = getcwd(buf, (size_t)PathMax);
-    strcat(dir, "/");
-    strcat(dir, path);
-  }
-  else {
-    dir = strdup(path);
-  }*/
-
+  
+  // Build a list of all directories and paths
+  // We do this first so we can present an accurate scan eta later
+  progress_start_phase(s->progress, "Discovering");
+  
   for (i = 0; i < s->npaths; i++) {
-    struct dirq_entry *entry = malloc(sizeof(struct dirq_entry));
-    entry->dir = strdup("/"); // so free doesn't choke on this item later
-    entry->files = malloc(sizeof(struct fileq));
-    SIMPLEQ_INIT(entry->files);
-    SIMPLEQ_INSERT_TAIL((struct dirq *)s->_dirq, entry, entries);
+    LOG_INFO("Scanning %s\n", s->paths[i]);
+    recurse_dir(s, s->paths[i]);
+  }
+  
+  // Scan all files found
+  progress_start_phase(s->progress, "Scanning");
+  
+  while (!SIMPLEQ_EMPTY(dir_head)) {
+    dir_entry = SIMPLEQ_FIRST(dir_head);
     
-    phase = (char *)malloc(MAX_PATH);
-    sprintf(phase, "Discovering files in %s", s->paths[i]);
-    s->progress->phase = phase;
-    
-    LOG_LEVEL(1, "Scanning %s\n", s->paths[i]);
-    recurse_dir(s, s->paths[i], entry);
-    
-    // Send final progress callback
-    if (s->on_progress) {
-      s->progress->cur_item = NULL;
-      s->on_progress(s, s->progress);
+    file_head = dir_entry->files;
+    while (!SIMPLEQ_EMPTY(file_head)) {
+      file_entry = SIMPLEQ_FIRST(file_head);
+      
+      // Construct full path
+      *tmp_full_path = 0;
+      strcat(tmp_full_path, dir_entry->dir);
+      strcat(tmp_full_path, "/");
+      strcat(tmp_full_path, file_entry->file);
+      
+      ms_scan_file(s, tmp_full_path, file_entry->type);
+      
+      // Send progress update if necessary
+      if (s->on_progress) {
+        s->progress->done++;
+        if (progress_update(s->progress, tmp_full_path))
+          s->on_progress(s, s->progress, s->userdata);
+      }
+      
+      SIMPLEQ_REMOVE_HEAD(file_head, entries);
+      free(file_entry->file);
+      free(file_entry);
     }
     
-    free(phase);
+    SIMPLEQ_REMOVE_HEAD(dir_head, entries);
+    free(dir_entry->dir);
+    free(dir_entry->files);
+    free(dir_entry);
   }
-} /* ms_scan() */
+  
+  // Send final progress callback
+  if (s->on_progress) {
+    s->progress->cur_item = NULL;
+    s->on_progress(s, s->progress, s->userdata);
+  }
+  
+  free(tmp_full_path);
+}
 
 ///-------------------------------------------------------------------------------------------------
 ///  Scan a single file. Everything that applies to ms_scan also applies to this function. If
@@ -780,11 +767,10 @@ void ms_scan(MediaScan *s)
 ///
 /// ### remarks .
 ///-------------------------------------------------------------------------------------------------
-
-void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type)
+ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type)
 {
-  MediaScanResult *r;
   MediaScanError *e;
+   MediaScanResult *r;
 
   if(s == NULL) {
 	ms_errno = MSENO_NULLSCANOBJ;
@@ -807,7 +793,7 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type)
       if (s->on_error) {
 		ms_errno = MSENO_SCANERROR;
         e = error_create(full_path, MS_ERROR_TYPE_UNKNOWN, "Unrecognized file extension");
-        s->on_error(s, e);
+        s->on_error(s, e, s->userdata);
         error_destroy(e);
         return;
       }
@@ -816,24 +802,20 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type)
   
   r = result_create(s);
   if (r == NULL)
-    return; // ms_errno was set by result_create()
+    return;
   
   r->type = type;
   r->path = full_path;
   
   if ( result_scan(r) ) {
-    s->on_result(s, r);
+    s->on_result(s, r, s->userdata);
   }
   else if (s->on_error && r->error) {
-    s->on_error(s, r->error);
-  }
-  else {
-  	ms_errno = MSENO_NOERRORCALLBACK;
-    LOG_ERROR("Error scanning file with no error callback\n");
+    s->on_error(s, r->error, s->userdata);
   }
   
   result_destroy(r);
-} /* ms_scan_file() */
+}
 
 ///-------------------------------------------------------------------------------------------------
 ///  Query if 'path' is absolute path.

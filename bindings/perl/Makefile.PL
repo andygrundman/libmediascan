@@ -1,33 +1,140 @@
 use strict;
 
 use ExtUtils::MakeMaker qw(WriteMakefile);
+use File::Spec::Functions;
+use Getopt::Long;
 
 my (@INC, @LIBPATH, @LIBS);
-my $MYEXTLIB;
+my ($FFMPEG, $LMS, $MYEXTLIB);
+
+my ($help, $ffmpeg_inc, $ffmpeg_lib, $lms_inc, $lms_lib);
+my $static;
 
 my $DEFINES = '-O2';
 $DEFINES .= ' -Wall' unless $^O =~ /sun|solaris/i;
 $DEFINES .= ' -Wno-unused-value -Wno-format-security' unless $^O =~ /Win32|sun|solaris/i;
 
-if ( -e '../../include/libmediascan.h' ) {
-    # For development, statically link to parent libmediascan
-    if ( !-d '../../src/.libs' ) {
-        die "Please build libmediascan first\n";
-    }
-    
-    push @INC, '-I../../include';
-    push @LIBPATH, '-L../../src/.libs';
-    $MYEXTLIB .= '../../src/.libs/libmediascan.a ';
-    push @LIBS, '-lavformat -lavcore -lavcodec -lavutil -lz -lbz2 ';
-}
-else {
-    push @LIBS, '-lmediascan';
+my $result = GetOptions(
+    "help|h"                 => \$help,
+    "with-ffmpeg-includes=s" => \$ffmpeg_inc,
+    "with-ffmpeg-libs=s"     => \$ffmpeg_lib,
+    "with-lms-includes=s"    => \$lms_inc,
+    "with-lms-libs=s"        => \$lms_lib,
+    "with-static"            => \$static,
+);
+
+if ($help || !$result) {
+    print STDERR <<END;
+Usage: perl Makefile.PL [options]
+
+Configure Media::Scan module.
+
+Options:
+    --with-ffmpeg-includes    Path to directory containing libavformat/avformat.h
+    --with-ffmpeg-libs        Path to directory containing libavformat/libavcodec/libavutil subdirectories
+    --with-lms-includes       Path to directory containing libmediascan.h
+    --with-lms-libs           Path to directory containing libmediascan
+    --with-static             Statically link the module
+
+END
+
+    exit 0;
 }
 
-if ( $^O =~ /Win32/ ) {
-    *MY::postamble = sub {};
-    $MYEXTLIB .= '../../libmediascan.lib '; # XXX
+my @check = qw(/usr/include /usr/local/include /opt/local/include);
+
+# Check in environment-supplied locations before standard ones
+unshift @check, split /:/, $ENV{INCLUDE};
+
+if ( $^O =~ /Win32/i ) {
+    die "TODO: Win32 support\n";
 }
+
+# Look for ffmpeg
+for my $incdir ( $ffmpeg_inc, @check ) {
+    if ( $incdir && -e catfile($incdir, 'libavformat', 'avformat.h') ) {
+        $FFMPEG = 1;
+        $ffmpeg_inc = $incdir;
+        
+        push @INC, '-I' . $ffmpeg_inc;
+        if ($ffmpeg_lib) {
+            push @LIBPATH, '-L' . $ffmpeg_lib;
+        }
+        
+        if ($static) {
+            if ($ffmpeg_lib) {
+                $MYEXTLIB .= $ffmpeg_lib . '/' . 'libavformat$(LIB_EXT) ';
+                $MYEXTLIB .= $ffmpeg_lib . '/' . 'libavcodec$(LIB_EXT) ';
+                $MYEXTLIB .= $ffmpeg_lib . '/' . 'libavutil$(LIB_EXT) ';
+            }
+            else {
+                $MYEXTLIB .= $ffmpeg_inc . '/../lib/libavformat$(LIB_EXT) ';
+                $MYEXTLIB .= $ffmpeg_inc . '/../lib/libavcodec$(LIB_EXT) ';
+                $MYEXTLIB .= $ffmpeg_inc . '/../lib/libavutil$(LIB_EXT) ';
+            }
+        }
+        else {
+            push @LIBS, '-lavformat -lavcodec -lavutil';
+        }
+        
+        push @LIBS, '-lz -lbz2';
+        
+        last;
+    }
+}
+
+if ( !$FFMPEG ) {
+    die "FFmpeg not found, please install it and try again. Checked for libavformat/avformat.h in: " . join(", ", @check) . "\n";
+}
+
+# Look for libmediascan
+for my $incdir ( $lms_inc, @check ) {
+    if ( $incdir && -e catfile($incdir, 'libmediascan.h') ) {
+        $LMS = 1;
+        $lms_inc = $incdir;
+        
+        push @INC, '-I' . $lms_inc;
+        if ($lms_lib) {
+            push @LIBPATH, '-L' . $lms_lib;
+        }
+        
+        if ($static) {
+            if ($lms_lib) {
+                $MYEXTLIB .= $lms_lib . '/' . 'libmediascan$(LIB_EXT) ';
+            }
+            else {
+                $MYEXTLIB .= $lms_inc . '/../lib/libmediascan$(LIB_EXT) ';
+            }
+        }
+        else {
+            push @LIBS, '-lmediascan';
+        }
+        
+        last;
+    }
+}
+
+if ( !$LMS ) {
+    # XXX make a CPAN module version that includes lms as a subdir?
+    die "libmediascan not found, please install it and try again. Checked for libmediascan.h in: " . join(", ", @check) . "\n";
+}
+
+if ( $^O =~ /Win32/i ) {
+    *MY::postamble = sub {};
+
+    # XXX
+    if ($FFMPEG) {
+        push @INC, '-I../ffmpeg'; # XXX
+        $MYEXTLIB .= '../ffmpeg/xxx.lib ';
+    }
+    
+    if ($LMS) {
+        push @INC, '-I../libmediascan';
+        $MYEXTLIB .= '../libmediascan/libmediascan.lib ';
+    }
+}
+
+my $xs_files  = join(' ', glob 'xs/*.xs');
 
 WriteMakefile(
     NAME              => 'Media::Scan',
@@ -42,4 +149,5 @@ WriteMakefile(
     LIBS              => [ join(' ', @LIBPATH, @LIBS) ],
     DEFINE            => $DEFINES,
     MYEXTLIB          => $MYEXTLIB,
+    depend            => { 'Scan.c' => "$xs_files" },
 );
