@@ -169,8 +169,42 @@ static int clean_suite(void)
 }
 
 static int result_called = FALSE;
+static MediaScanResult result;
 
-static	void my_result_callback_2(MediaScan *s, MediaScanResult *result) {
+static void my_result_callback(MediaScan *s, MediaScanResult *r) {
+
+	result.type = r->type;
+	result.path = strdup(r->path);
+	result.flags = r->flags;
+
+	if(r->error)
+		memcpy(result.error, r->error, sizeof(MediaScanError));
+
+	result.mime_type = strdup(r->mime_type);
+	result.dlna_profile = strdup(r->dlna_profile);
+	result.size = r->size;
+	result.mtime = r->mtime;
+	result.bitrate = r->bitrate;
+	result.duration_ms = r->duration_ms;
+
+	if(r->audio)
+	{
+		result.audio = malloc(sizeof(MediaScanAudio));
+		memcpy( result.audio, r->audio, sizeof(MediaScanAudio));
+	}
+
+	if(r->video)
+	{
+		result.video = malloc(sizeof(MediaScanVideo));
+		memcpy( result.video, r->video, sizeof(MediaScanVideo));
+	}
+
+	if(r->image)
+	{
+		result.image = malloc(sizeof(MediaScanImage));
+		memcpy( result.image, r->image, sizeof(MediaScanImage));
+	}
+
 	result_called = TRUE;
 }
 
@@ -188,7 +222,7 @@ static void my_error_callback(MediaScan *s, MediaScanError *error) {
 void test_background_api(void)	{
 	const char *test_path = "D:\\Siojej3";
 	const char *data_path = "data\\video";
-	const char *data_file1 = "wmv92.wmv";
+	const char *data_file1 = "bars-mpeg1video-mp2.mpg";
 	char src[MAX_PATH];
 	char dest[MAX_PATH];
 
@@ -200,14 +234,14 @@ void test_background_api(void)	{
 	result_called = FALSE;
 	
 	CU_ASSERT(s->on_result == NULL);
-	ms_set_result_callback(s, my_result_callback_2);
-	CU_ASSERT(s->on_result == my_result_callback_2);
+	ms_set_result_callback(s, my_result_callback);
+	CU_ASSERT(s->on_result == my_result_callback);
 
 	CU_ASSERT(s->on_error == NULL);
 	ms_set_error_callback(s, my_error_callback); 
 	CU_ASSERT(s->on_error == my_error_callback);
 
-	ms_watch_directory(s, test_path, my_result_callback_2);
+	ms_watch_directory(s, test_path, my_result_callback);
 	CU_ASSERT( result_called == FALSE );
 	Sleep(1000); // Sleep 1 second
 	CU_ASSERT( result_called == FALSE );
