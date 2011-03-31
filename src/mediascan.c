@@ -10,8 +10,8 @@
 #ifndef WIN32
 #include <dirent.h>
 #include <sys/time.h>
-#include "mediascan_win32.h"
 #else
+#include "mediascan_win32.h"
 #include <time.h>
 #include <Winsock2.h>
 #include <direct.h>
@@ -192,7 +192,7 @@ static void _init(void)
   register_formats();
 
 #ifndef WIN32
-  macos_init();
+  unix_init();
 #endif
 
   Initialized = 1;
