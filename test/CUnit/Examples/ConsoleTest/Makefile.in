@@ -15,6 +15,7 @@
 
 @SET_MAKE@
 
+
 VPATH = @srcdir@
 pkgdatadir = $(datadir)/@PACKAGE@
 pkgincludedir = $(includedir)/@PACKAGE@
@@ -34,22 +35,43 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-subdir = CUnit/Headers
-DIST_COMMON = $(am__CUnitInclude_HEADERS_DIST) $(srcdir)/CUnit.h.in \
-	$(srcdir)/Makefile.am $(srcdir)/Makefile.in
+@ENABLE_CONSOLE_TRUE@@ENABLE_EXAMPLES_TRUE@example_PROGRAMS = ConsoleTest$(EXEEXT)
+@ENABLE_CONSOLE_TRUE@@ENABLE_CURSES_TRUE@@ENABLE_EXAMPLES_TRUE@am__append_1 = -l$(CURSES_LIB)
+subdir = Examples/ConsoleTest
+DIST_COMMON = README $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.in
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/config.h
-CONFIG_CLEAN_FILES = CUnit.h
+CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-SOURCES =
-DIST_SOURCES =
-am__CUnitInclude_HEADERS_DIST = CUError.h CUnit.h CUnit_intl.h MyMem.h \
-	TestDB.h TestRun.h Util.h Basic.h Console.h Automated.h \
-	CUCurses.h
+am__installdirs = "$(DESTDIR)$(exampledir)" "$(DESTDIR)$(exampledir)"
+PROGRAMS = $(example_PROGRAMS)
+am__ConsoleTest_SOURCES_DIST = ConsoleTest.c
+@ENABLE_CONSOLE_TRUE@@ENABLE_EXAMPLES_TRUE@am_ConsoleTest_OBJECTS = ConsoleTest.$(OBJEXT)
+ConsoleTest_OBJECTS = $(am_ConsoleTest_OBJECTS)
+am__DEPENDENCIES_1 =
+@ENABLE_CONSOLE_TRUE@@ENABLE_EXAMPLES_TRUE@ConsoleTest_DEPENDENCIES = $(am__DEPENDENCIES_1)
+ConsoleTest_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(ConsoleTest_LDFLAGS) $(LDFLAGS) -o $@
+DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
+depcomp = $(SHELL) $(top_srcdir)/depcomp
+am__depfiles_maybe = depfiles
+am__mv = mv -f
+COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
+	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+LTCOMPILE = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+	--mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+CCLD = $(CC)
+LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
+SOURCES = $(ConsoleTest_SOURCES)
+DIST_SOURCES = $(am__ConsoleTest_SOURCES_DIST)
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -71,8 +93,7 @@ am__nobase_list = $(am__nobase_strip_setup); \
 am__base_list = \
   sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
   sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
-am__installdirs = "$(DESTDIR)$(CUnitIncludedir)"
-HEADERS = $(CUnitInclude_HEADERS)
+DATA = $(example_DATA)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -205,25 +226,19 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-CUnitIncludedir = ${includedir}/CUnit
-AUTOMATED_INCLUDES = Automated.h
-BASIC_INCLUDES = Basic.h
-CONSOLE_INCLUDES = Console.h
-CURSES_INCLUDES = CUCurses.h
-FRAMEWORK_INCLUDES = CUError.h CUnit.h CUnit_intl.h MyMem.h TestDB.h TestRun.h Util.h
-
-# Default configuration without enabling anything
-INCLUDE_FILES = ${FRAMEWORK_INCLUDES} $(BASIC_INCLUDE_FILES) \
-	$(CONSOLE_INCLUDE_FILES) $(AUTOMATED_INCLUDE_FILES) \
-	$(CURSES_INCLUDE_FILES)
-@ENABLE_BASIC_TRUE@BASIC_INCLUDE_FILES = $(BASIC_INCLUDES)
-@ENABLE_CONSOLE_TRUE@CONSOLE_INCLUDE_FILES = $(CONSOLE_INCLUDES)
-@ENABLE_AUTOMATED_TRUE@AUTOMATED_INCLUDE_FILES = $(AUTOMATED_INCLUDES)
-@ENABLE_CURSES_TRUE@CURSES_INCLUDE_FILES = $(CURSES_INCLUDES)
-CUnitInclude_HEADERS = ${INCLUDE_FILES}
+exampledir = ${datadir}/@PACKAGE@/Examples/Console
+@ENABLE_CONSOLE_TRUE@@ENABLE_EXAMPLES_TRUE@ConsoleTest_SOURCES = ConsoleTest.c
+@ENABLE_CONSOLE_TRUE@@ENABLE_EXAMPLES_TRUE@ConsoleTest_LDADD =  \
+@ENABLE_CONSOLE_TRUE@@ENABLE_EXAMPLES_TRUE@	-lcunit \
+@ENABLE_CONSOLE_TRUE@@ENABLE_EXAMPLES_TRUE@	-lcunitexamples \
+@ENABLE_CONSOLE_TRUE@@ENABLE_EXAMPLES_TRUE@	$(am__append_1)
+@ENABLE_CONSOLE_TRUE@@ENABLE_EXAMPLES_TRUE@ConsoleTest_LDFLAGS = -L.. -lm
+@ENABLE_CONSOLE_TRUE@@ENABLE_EXAMPLES_TRUE@INCLUDES = -I..
+@ENABLE_CONSOLE_TRUE@@ENABLE_EXAMPLES_TRUE@example_DATA = README
 all: all-am
 
 .SUFFIXES:
+.SUFFIXES: .c .lo .o .obj
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -233,9 +248,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu CUnit/Headers/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu Examples/ConsoleTest/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu CUnit/Headers/Makefile
+	  $(AUTOMAKE) --gnu Examples/ConsoleTest/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -254,34 +269,107 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
-CUnit.h: $(top_builddir)/config.status $(srcdir)/CUnit.h.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
+install-examplePROGRAMS: $(example_PROGRAMS)
+	@$(NORMAL_INSTALL)
+	test -z "$(exampledir)" || $(MKDIR_P) "$(DESTDIR)$(exampledir)"
+	@list='$(example_PROGRAMS)'; test -n "$(exampledir)" || list=; \
+	for p in $$list; do echo "$$p $$p"; done | \
+	sed 's/$(EXEEXT)$$//' | \
+	while read p p1; do if test -f $$p || test -f $$p1; \
+	  then echo "$$p"; echo "$$p"; else :; fi; \
+	done | \
+	sed -e 'p;s,.*/,,;n;h' -e 's|.*|.|' \
+	    -e 'p;x;s,.*/,,;s/$(EXEEXT)$$//;$(transform);s/$$/$(EXEEXT)/' | \
+	sed 'N;N;N;s,\n, ,g' | \
+	$(AWK) 'BEGIN { files["."] = ""; dirs["."] = 1 } \
+	  { d=$$3; if (dirs[d] != 1) { print "d", d; dirs[d] = 1 } \
+	    if ($$2 == $$4) files[d] = files[d] " " $$1; \
+	    else { print "f", $$3 "/" $$4, $$1; } } \
+	  END { for (d in files) print "f", d, files[d] }' | \
+	while read type dir files; do \
+	    if test "$$dir" = .; then dir=; else dir=/$$dir; fi; \
+	    test -z "$$files" || { \
+	    echo " $(INSTALL_PROGRAM_ENV) $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL_PROGRAM) $$files '$(DESTDIR)$(exampledir)$$dir'"; \
+	    $(INSTALL_PROGRAM_ENV) $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL_PROGRAM) $$files "$(DESTDIR)$(exampledir)$$dir" || exit $$?; \
+	    } \
+	; done
+
+uninstall-examplePROGRAMS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(example_PROGRAMS)'; test -n "$(exampledir)" || list=; \
+	files=`for p in $$list; do echo "$$p"; done | \
+	  sed -e 'h;s,^.*/,,;s/$(EXEEXT)$$//;$(transform)' \
+	      -e 's/$$/$(EXEEXT)/' `; \
+	test -n "$$list" || exit 0; \
+	echo " ( cd '$(DESTDIR)$(exampledir)' && rm -f" $$files ")"; \
+	cd "$(DESTDIR)$(exampledir)" && rm -f $$files
+
+clean-examplePROGRAMS:
+	@list='$(example_PROGRAMS)'; test -n "$$list" || exit 0; \
+	echo " rm -f" $$list; \
+	rm -f $$list || exit $$?; \
+	test -n "$(EXEEXT)" || exit 0; \
+	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
+	echo " rm -f" $$list; \
+	rm -f $$list
+ConsoleTest$(EXEEXT): $(ConsoleTest_OBJECTS) $(ConsoleTest_DEPENDENCIES) 
+	@rm -f ConsoleTest$(EXEEXT)
+	$(ConsoleTest_LINK) $(ConsoleTest_OBJECTS) $(ConsoleTest_LDADD) $(LIBS)
+
+mostlyclean-compile:
+	-rm -f *.$(OBJEXT)
+
+distclean-compile:
+	-rm -f *.tab.c
+
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ConsoleTest.Po@am__quote@
+
+.c.o:
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(COMPILE) -c $<
+
+.c.obj:
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(COMPILE) -c `$(CYGPATH_W) '$<'`
+
+.c.lo:
+@am__fastdepCC_TRUE@	$(LTCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LTCOMPILE) -c -o $@ $<
 
 mostlyclean-libtool:
 	-rm -f *.lo
 
 clean-libtool:
 	-rm -rf .libs _libs
-install-CUnitIncludeHEADERS: $(CUnitInclude_HEADERS)
+install-exampleDATA: $(example_DATA)
 	@$(NORMAL_INSTALL)
-	test -z "$(CUnitIncludedir)" || $(MKDIR_P) "$(DESTDIR)$(CUnitIncludedir)"
-	@list='$(CUnitInclude_HEADERS)'; test -n "$(CUnitIncludedir)" || list=; \
+	test -z "$(exampledir)" || $(MKDIR_P) "$(DESTDIR)$(exampledir)"
+	@list='$(example_DATA)'; test -n "$(exampledir)" || list=; \
 	for p in $$list; do \
 	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
 	  echo "$$d$$p"; \
 	done | $(am__base_list) | \
 	while read files; do \
-	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(CUnitIncludedir)'"; \
-	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(CUnitIncludedir)" || exit $$?; \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(exampledir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(exampledir)" || exit $$?; \
 	done
 
-uninstall-CUnitIncludeHEADERS:
+uninstall-exampleDATA:
 	@$(NORMAL_UNINSTALL)
-	@list='$(CUnitInclude_HEADERS)'; test -n "$(CUnitIncludedir)" || list=; \
+	@list='$(example_DATA)'; test -n "$(exampledir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
 	test -n "$$files" || exit 0; \
-	echo " ( cd '$(DESTDIR)$(CUnitIncludedir)' && rm -f" $$files ")"; \
-	cd "$(DESTDIR)$(CUnitIncludedir)" && rm -f $$files
+	echo " ( cd '$(DESTDIR)$(exampledir)' && rm -f" $$files ")"; \
+	cd "$(DESTDIR)$(exampledir)" && rm -f $$files
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
 	list='$(SOURCES) $(HEADERS) $(LISP) $(TAGS_FILES)'; \
@@ -367,9 +455,9 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(HEADERS)
+all-am: Makefile $(PROGRAMS) $(DATA)
 installdirs:
-	for dir in "$(DESTDIR)$(CUnitIncludedir)"; do \
+	for dir in "$(DESTDIR)$(exampledir)" "$(DESTDIR)$(exampledir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -399,11 +487,14 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-generic clean-libtool mostlyclean-am
+clean-am: clean-examplePROGRAMS clean-generic clean-libtool \
+	mostlyclean-am
 
 distclean: distclean-am
+	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
-distclean-am: clean-am distclean-generic distclean-tags
+distclean-am: clean-am distclean-compile distclean-generic \
+	distclean-tags
 
 dvi: dvi-am
 
@@ -417,7 +508,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-CUnitIncludeHEADERS
+install-data-am: install-exampleDATA install-examplePROGRAMS
 
 install-dvi: install-dvi-am
 
@@ -446,12 +537,14 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
+	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
 mostlyclean: mostlyclean-am
 
-mostlyclean-am: mostlyclean-generic mostlyclean-libtool
+mostlyclean-am: mostlyclean-compile mostlyclean-generic \
+	mostlyclean-libtool
 
 pdf: pdf-am
 
@@ -461,22 +554,24 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-CUnitIncludeHEADERS
+uninstall-am: uninstall-exampleDATA uninstall-examplePROGRAMS
 
 .MAKE: install-am install-strip
 
-.PHONY: CTAGS GTAGS all all-am check check-am clean clean-generic \
-	clean-libtool ctags distclean distclean-generic \
+.PHONY: CTAGS GTAGS all all-am check check-am clean \
+	clean-examplePROGRAMS clean-generic clean-libtool ctags \
+	distclean distclean-compile distclean-generic \
 	distclean-libtool distclean-tags distdir dvi dvi-am html \
-	html-am info info-am install install-CUnitIncludeHEADERS \
-	install-am install-data install-data-am install-dvi \
-	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-info install-info-am install-man \
-	install-pdf install-pdf-am install-ps install-ps-am \
-	install-strip installcheck installcheck-am installdirs \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags uninstall uninstall-CUnitIncludeHEADERS uninstall-am
+	html-am info info-am install install-am install-data \
+	install-data-am install-dvi install-dvi-am install-exampleDATA \
+	install-examplePROGRAMS install-exec install-exec-am \
+	install-html install-html-am install-info install-info-am \
+	install-man install-pdf install-pdf-am install-ps \
+	install-ps-am install-strip installcheck installcheck-am \
+	installdirs maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-compile mostlyclean-generic \
+	mostlyclean-libtool pdf pdf-am ps ps-am tags uninstall \
+	uninstall-am uninstall-exampleDATA uninstall-examplePROGRAMS
 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
