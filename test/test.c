@@ -89,7 +89,7 @@ static void my_error_callback(MediaScan *s, MediaScanError *error, void *userdat
 
 void test_ms_scan(void){
 	
-	char dir[MAX_PATH] = "data";
+	char dir[MAX_PATH] = "data\\video\\dlna";
 	MediaScan *s = ms_create();
 
 	CU_ASSERT(s->npaths == 0);
@@ -435,7 +435,7 @@ int run_unit_tests()
    /* initialize the CUnit test registry */
    if (CUE_SUCCESS != CU_initialize_registry())
       return CU_get_error();
-#ifdef SUPER
+//#ifdef SUPER
    /* add a suite to the registry */
    pSuite = CU_add_suite("File Scanning", init_suite1, clean_suite1);
    if (NULL == pSuite) {
@@ -445,20 +445,20 @@ int run_unit_tests()
 
    /* add the tests to the ms_scan suite */
    if (
-	   NULL == CU_add_test(pSuite, "Simple test of ms_scan()", test_ms_scan) ||
-	   NULL == CU_add_test(pSuite, "Test ms_scan() with no paths", test_ms_scan_2) ||
-	   NULL == CU_add_test(pSuite, "Test of ms_scan() with too many paths", test_ms_scan_3) ||
-	   NULL == CU_add_test(pSuite, "Test of ms_scan() with a bad directory", test_ms_scan_4) ||
+	   NULL == CU_add_test(pSuite, "Simple test of ms_scan()", test_ms_scan)// ||
+//	   NULL == CU_add_test(pSuite, "Test ms_scan() with no paths", test_ms_scan_2) ||
+//	   NULL == CU_add_test(pSuite, "Test of ms_scan() with too many paths", test_ms_scan_3) ||
+//	   NULL == CU_add_test(pSuite, "Test of ms_scan() with a bad directory", test_ms_scan_4) ||
 //	   NULL == CU_add_test(pSuite, "Test of ms_scan() with strange path slashes", test_ms_scan_5) ||
-	   NULL == CU_add_test(pSuite, "Test of ms_scan()'s progress notifications", test_ms_scan_6) ||
-	   NULL == CU_add_test(pSuite, "Test of ms_file_scan()", test_ms_file_scan_1) ||
-	   NULL == CU_add_test(pSuite, "Test of misc functions", test_ms_misc_functions)
+//	   NULL == CU_add_test(pSuite, "Test of ms_scan()'s progress notifications", test_ms_scan_6) ||
+//	   NULL == CU_add_test(pSuite, "Test of ms_file_scan()", test_ms_file_scan_1) ||
+//	   NULL == CU_add_test(pSuite, "Test of misc functions", test_ms_misc_functions)
 	   )
    {
       CU_cleanup_registry();
       return CU_get_error();
    }
-#endif
+//#endif
 
    setupbackground_tests();
 

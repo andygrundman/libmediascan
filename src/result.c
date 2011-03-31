@@ -1,5 +1,10 @@
-#include <fcntl.h>
+
+#define CRTDBG_MAP_ALLOC
 #include <stdlib.h>
+#include <crtdbg.h>
+
+#include <malloc.h>
+#include <fcntl.h>
 #include <string.h>
 
 #ifndef WIN32

@@ -108,7 +108,7 @@ void recurse_dir(MediaScan *s, const char *path)
     // skip all dot files
     if (name[0] != '.') {
         if (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-		struct dirq_entry *subdir_entry;
+		struct dirq_entry *subdir_entry = malloc(sizeof(struct dirq_entry));
 
         // Construct full path
         *tmp_full_path = 0;

@@ -63,6 +63,8 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>$(ProjectDir)..\win32\debug\libmediascan.lib;libavcodec.a;libavformat.a;libavutil.a;wsock32.lib;vfw32.lib;libcunit.a;libgcc.a;libmingwex.lib;libz.a;libbz2.a;%(AdditionalDependencies)</AdditionalDependencies>
+      <HeapReserveSize>1000000</HeapReserveSize>
+      <HeapCommitSize>100000</HeapCommitSize>
     </Link>
     <PreBuildEvent>
       <Command>
