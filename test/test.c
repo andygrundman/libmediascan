@@ -10,6 +10,7 @@
 
 #include <limits.h>
 #include <libmediascan.h>
+#include <libavformat/avformat.h>
 
 #include "../src/mediascan.h"
 #include "Cunit/CUnit/Headers/Basic.h"
@@ -23,6 +24,21 @@ static FILE* temp_file = NULL;
 
 
 int setupbackground_tests();
+
+#ifdef _MSC_VER
+
+int strcasecmp(const char *string1, const char *string2 )
+{
+	return _stricmp(string1, string2);
+}
+
+
+int strncasecmp(const char *string1, const char *string2, size_t count )
+{
+	return _strnicmp(string1, string2, count);
+}
+
+#endif
 
 ///-------------------------------------------------------------------------------------------------
 ///  ------------------------------------------------------------------------------------------
@@ -417,6 +433,31 @@ void test_ms_misc_functions(void)	{
 	ms_destroy(s);
 } /* test_ms_misc_functions() */
 
+
+void test_ms_large_directory(void)	{
+	char dir[MAX_PATH] = "data";
+	MediaScan *s = ms_create();
+
+	CU_ASSERT(s->npaths == 0);
+	ms_add_path(s, dir);
+	CU_ASSERT(s->npaths == 1);
+	CU_ASSERT_STRING_EQUAL(s->paths[0], dir);
+
+
+	CU_ASSERT(s->on_result == NULL);
+	ms_set_result_callback(s, my_result_callback);
+	CU_ASSERT(s->on_result == my_result_callback);
+
+	CU_ASSERT(s->on_error == NULL);
+	ms_set_error_callback(s, my_error_callback); 
+	CU_ASSERT(s->on_error == my_error_callback);
+
+	ms_scan(s);
+
+	ms_destroy(s);
+} /* test_ms_misc_functions() */
+
+
 ///-------------------------------------------------------------------------------------------------
 ///  ------------------------------------------------------------------------------------------
 /// 	  The main() function for setting up and running the tests. Returns a CUE_SUCCESS on
@@ -435,30 +476,33 @@ int run_unit_tests()
    /* initialize the CUnit test registry */
    if (CUE_SUCCESS != CU_initialize_registry())
       return CU_get_error();
-//#ifdef SUPER
+
    /* add a suite to the registry */
    pSuite = CU_add_suite("File Scanning", init_suite1, clean_suite1);
    if (NULL == pSuite) {
       CU_cleanup_registry();
       return CU_get_error();
    }
-
+		ms_set_log_level(DEBUG);
+     av_log_set_level(AV_LOG_DEBUG);
    /* add the tests to the ms_scan suite */
    if (
-	   NULL == CU_add_test(pSuite, "Simple test of ms_scan()", test_ms_scan)// ||
-//	   NULL == CU_add_test(pSuite, "Test ms_scan() with no paths", test_ms_scan_2) ||
-//	   NULL == CU_add_test(pSuite, "Test of ms_scan() with too many paths", test_ms_scan_3) ||
-//	   NULL == CU_add_test(pSuite, "Test of ms_scan() with a bad directory", test_ms_scan_4) ||
+	   NULL == CU_add_test(pSuite, "Simple test of ms_scan()", test_ms_scan) ||
+	   NULL == CU_add_test(pSuite, "Test ms_scan() with no paths", test_ms_scan_2) ||
+	   NULL == CU_add_test(pSuite, "Test of ms_scan() with too many paths", test_ms_scan_3) ||
+	   NULL == CU_add_test(pSuite, "Test of ms_scan() with a bad directory", test_ms_scan_4) ||
+// TODO: The following test fails due to the scanner freezing up.
 //	   NULL == CU_add_test(pSuite, "Test of ms_scan() with strange path slashes", test_ms_scan_5) ||
-//	   NULL == CU_add_test(pSuite, "Test of ms_scan()'s progress notifications", test_ms_scan_6) ||
-//	   NULL == CU_add_test(pSuite, "Test of ms_file_scan()", test_ms_file_scan_1) ||
-//	   NULL == CU_add_test(pSuite, "Test of misc functions", test_ms_misc_functions)
+	   NULL == CU_add_test(pSuite, "Test of ms_scan()'s progress notifications", test_ms_scan_6) ||
+	   NULL == CU_add_test(pSuite, "Test of ms_file_scan()", test_ms_file_scan_1) ||
+// TODO: The following test will also cause FFMPEG to freeze up
+	   NULL == CU_add_test(pSuite, "Test of scanning LOTS of files", test_ms_large_directory) ||
+	   NULL == CU_add_test(pSuite, "Test of misc functions", test_ms_misc_functions)    
 	   )
    {
       CU_cleanup_registry();
       return CU_get_error();
    }
-//#endif
 
    setupbackground_tests();
 

@@ -198,7 +198,6 @@ static void _init(void)
   
   register_codecs();
   register_formats();
-
 #ifndef WIN32
   macos_init();
 #endif
@@ -285,6 +284,15 @@ MediaScan *ms_create(void)
   dlna->inited = 1;
   s->_dlna = (void *)dlna;
   dlna_register_all_media_profiles(dlna);
+
+
+#ifdef WIN32
+    if (!InitializeCriticalSectionAndSpinCount(&s->CriticalSection, 
+        0x00000400) ) 
+        return NULL;
+#endif
+
+
   
   return s;
 } /* ms_create() */
@@ -318,6 +326,9 @@ void ms_destroy(MediaScan *s)
   free(s->_dlna);
 
   ms_clear_watch(s);
+  DeleteCriticalSection(&s->CriticalSection);
+
+
 
   free(s);
 } /* ms_destroy() */
@@ -700,9 +711,14 @@ void ms_scan(MediaScan *s)
   struct fileq *file_head = NULL;
   struct fileq_entry *file_entry = NULL;
   char tmp_full_path[MAX_PATH]; 
-  
+
+  EnterCriticalSection(&s->CriticalSection);
+
+ 
   if (s->on_result == NULL) {
     LOG_ERROR("Result callback not set, aborting scan\n");
+
+    LeaveCriticalSection(&s->CriticalSection);
     return;
   }
   
@@ -764,7 +780,8 @@ void ms_scan(MediaScan *s)
     s->progress->cur_item = NULL;
     s->on_progress(s, s->progress, s->userdata);
   }
-  
+
+    LeaveCriticalSection(&s->CriticalSection);
 }
 
 ///-------------------------------------------------------------------------------------------------

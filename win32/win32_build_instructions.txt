@@ -6,6 +6,11 @@ Microsoft Visual Studio 2010 or Microsoft Visual C++ 2010
 MinGW - http://www.mingw.org/ http://sourceforge.net/projects/mingw/files/Automated%20MinGW%20Installer/mingw-get-inst/mingw-get-inst-20110316/mingw-get-inst-20110316.exe/download
 Git - http://git-scm.com/
 
+Patch Instruction for Mingw32
+
+http://fate.arrozcru.org/mingw32/patches/
+
+
 Build Instructions
 
 -- FFMPEG --

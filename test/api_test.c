@@ -14,6 +14,7 @@
 
 static int rcount = 0;
 
+
 ///-------------------------------------------------------------------------------------------------
 ///  Called with a result.
 ///
@@ -130,7 +131,7 @@ int main(int argc, char *argv[])
   free(bin);
   */
  
-  ms_set_log_level(ERR);
+  //ms_set_log_level(ERR);
   run_unit_tests();
 
   return exit_status();
