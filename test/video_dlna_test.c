@@ -5,6 +5,8 @@
 #include <math.h>
 #include <libmediascan.h>
 
+#include "../src/mediascan.h"
+
 #include "tap.h"
 #include "common.h"
 
@@ -213,7 +215,7 @@ static void my_error_callback(MediaScan *s, MediaScanError *error, void *userdat
 static int result_called = FALSE;
 static MediaScanResult result;
 
-static void my_result_callback2(MediaScan *s, MediaScanResult *r) {
+static void my_result_callback2(MediaScan *s, MediaScanResult *r, void *userdata) {
 
 	result.type = r->type;
 	result.path = strdup(r->path);
@@ -2510,7 +2512,7 @@ void test_MPEG_TS_SD_KO_ISO()
 	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK_I-13a.mpg", &expected);
 } /* test_MPEG_TS_SD_KO_ISO() */
 
-void test_DLNA_scanning()
+void test_DLNA_scanning(char *argv[])
 {
 #ifndef WIN32
   char *bin = NULL;
@@ -2552,7 +2554,7 @@ main(int argc, char *argv[])
   plan(TEST_COUNT);
   
   
-//  test_DLNA_scanning();
+//  test_DLNA_scanning(argv);
   
   
 
