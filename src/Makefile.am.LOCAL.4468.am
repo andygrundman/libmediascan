@@ -1,9 +1,0 @@
-lib_LTLIBRARIES = libmediascan.la
-libmediascan_la_SOURCES = buffer.c mediascan.c progress.c result.c
-libmediascan_la_CFLAGS = -I$(top_srcdir)/include \
--I$(top_srcdir)/win32/include \
--I$(top_srcdir)/win32/include/libavformat \
--I$(top_srcdir)/win32/include/libavdevice \
--I$(top_srcdir)/win32/include/libavcodec
-
-libmediascan_la_LDFLAGS = -version-info 0:0:0

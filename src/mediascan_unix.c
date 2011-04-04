@@ -38,7 +38,7 @@ void
 recurse_dir(MediaScan *s, const char *path)
 {
     char *dir, *p;
-    char *tmp_full_path;
+    char tmp_full_path[PathMax];
     DIR *dirp;
     struct dirent *dp;
     struct dirq *subdirq; // list of subdirs of the current directory
@@ -63,11 +63,7 @@ recurse_dir(MediaScan *s, const char *path)
     // Strip trailing slash if any
     p = &dir[0];
     while (*p != 0) {
-#ifdef _WIN32
-        if (p[1] == 0 && (*p == '/' || *p == '\\'))
-#else
             if (p[1] == 0 && *p == '/')
-#endif
                 *p = 0;
         p++;
     }
@@ -82,7 +78,7 @@ recurse_dir(MediaScan *s, const char *path)
     subdirq = malloc(sizeof(struct dirq));
     SIMPLEQ_INIT(subdirq);
     
-    tmp_full_path = malloc((size_t)PathMax);
+    //tmp_full_path = malloc((size_t)PathMax);
     
     while ((dp = readdir(dirp)) != NULL) {
         char *name = dp->d_name;
@@ -95,8 +91,8 @@ recurse_dir(MediaScan *s, const char *path)
                 struct dirq_entry *subdir_entry = malloc(sizeof(struct dirq_entry));
                 
                 // Construct full path
-                *tmp_full_path = 0;
-                strcat(tmp_full_path, dir);
+                //*tmp_full_path = 0;
+                strcpy(tmp_full_path, dir);
                 strcat(tmp_full_path, "/");
                 strcat(tmp_full_path, name);
                 
@@ -149,7 +145,7 @@ recurse_dir(MediaScan *s, const char *path)
     }
     
     free(subdirq);
-    free(tmp_full_path);
+    //free(tmp_full_path);
     
 out:
     free(dir);

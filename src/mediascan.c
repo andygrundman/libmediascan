@@ -715,7 +715,14 @@ void ms_scan(MediaScan *s)
   struct dirq_entry *dir_entry = NULL;
   struct fileq *file_head = NULL;
   struct fileq_entry *file_entry = NULL;
+
+// TODO: Clean this up 
+#ifdef WIN32
   char tmp_full_path[MAX_PATH]; 
+#else
+  char tmp_full_path[PathMax]; 
+#endif
+
 
 #ifdef WIN32
   EnterCriticalSection(&s->CriticalSection);

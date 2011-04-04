@@ -331,7 +331,7 @@ void test_ms_scan_6(void)	{
 	#ifdef WIN32
 	Sleep(40); // wait 40ms
 	#else
-	sleep(40);
+	sleep(1);
 	#endif
 	ms_scan(s);
 	CU_ASSERT(progress_called == FALSE);
@@ -344,7 +344,7 @@ void test_ms_scan_6(void)	{
 	#ifdef WIN32
 	Sleep(61); // wait 61ms
 	#else
-	sleep(40);
+	sleep(1);
 	#endif;
 	
 	ms_scan(s);
