@@ -15,8 +15,9 @@
 #include <wchar.h>
 #endif
 
-#define MAX_PATHS 128
+#define MAX_PATHS       128
 #define MAX_IGNORE_EXTS 128
+#define MAX_THUMBS      128
 
 enum media_error {
   MS_ERROR_TYPE_UNKNOWN        = -1,
@@ -34,6 +35,12 @@ enum media_type {
 
 enum scan_flags {
   USE_EXTENSION = 1 //< Use a file's extension to determine file format (default)
+};
+
+enum thumb_format {
+  THUMB_AUTO = 1, //< Use JPEG for square thumbnails, transparent PNG for non-square
+  THUMB_JPEG,
+  THUMB_PNG
 };
 
 enum log_level {
@@ -139,11 +146,20 @@ struct _Progress {
 };
 typedef struct _Progress MediaScanProgress;
 
+typedef struct _ThumbSpec {
+  enum thumb_format format;
+  int width;
+  int height;
+  int keep_aspect;
+} MediaScanThumbSpec;
+
 struct _Scan {
   int npaths;
   char *paths[MAX_PATHS];
   int nignore_exts;
   char *ignore_exts[MAX_IGNORE_EXTS];
+  int nthumbspecs;
+  MediaScanThumbSpec *thumbspecs[MAX_THUMBS];
   int async;
   int async_fd;
   
@@ -224,6 +240,20 @@ void ms_add_path(MediaScan *s, const char *path);
  * VIDEO - ignore all video-related extensions.
  */
 void ms_add_ignore_extension(MediaScan *s, const char *extension);
+
+/**
+ * Specify a thumbnail to be created for all media containing an image, such as embedded images
+ * in audio files, video frames, and normal images. Multiple thumbnails can be defined.
+ * @param format One of THUMB_AUTO, THUMB_JPEG, or THUMB_PNG. Auto will use JPEG for square thumbnails
+ * and transparent PNG for non-square images.
+ * @param width If >0, the thumbnail width
+ * @param height If >0, the thumbnail height. If only one of width or height are specified
+ * the other dimension will be set to retain the original aspect ratio.
+ * @param keep_aspect If both width and height are specified, setting this to 1 will
+ * keep the aspect ratio of the source as well as center the image when resizing into
+ * a different aspect ratio.
+ */
+void ms_add_thumbnail_spec(MediaScan *s, enum thumb_format format, int width, int height, int keep_aspect);
 
 /**
  * By default, scans are synchronous. This means the call to ms_scan will

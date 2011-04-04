@@ -78,8 +78,12 @@ image_read_header(MediaScanImage *i, MediaScanResult *r)
     goto out;
   }
   
-  // XXX create thumbnail(s) if requested
-  
 out:
   return ret;
+}
+
+void
+image_create_thumbnail(MediaScanImage *i, MediaScanThumbSpec *spec)
+{
+  // XXX
 }

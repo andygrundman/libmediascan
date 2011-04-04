@@ -254,19 +254,7 @@ MediaScan *ms_create(void)
     return NULL;
   }
   
-  s->npaths = 0;
-  s->paths[0] = NULL;
-  s->nignore_exts = 0;
-  s->ignore_exts[0] = NULL;
-  s->async = 0;
-  s->async_fd = 0;
-  
   s->progress = progress_create();
-  
-  s->on_result = NULL;
-  s->on_error = NULL;
-  s->on_progress = NULL;
-  s->userdata = NULL;
   
   // List of all dirs found
   s->_dirq = malloc(sizeof(struct dirq));
@@ -302,6 +290,10 @@ void ms_destroy(MediaScan *s)
   
   for (i = 0; i < s->nignore_exts; i++) {
     free( s->ignore_exts[i] );
+  }
+  
+  for (i = 0; i < s->nthumbspecs; i++) {
+    free( s->thumbspecs[i] );
   }
   
   progress_destroy(s->progress);
@@ -372,7 +364,7 @@ void ms_add_ignore_extension(MediaScan *s, const char *extension)
   char *tmp = NULL;
 
   if(s == NULL) {
-	ms_errno = MSENO_NULLSCANOBJ;
+	  ms_errno = MSENO_NULLSCANOBJ;
     FATAL("MediaScan = NULL, aborting scan\n");
     return;
   }
@@ -393,6 +385,18 @@ void ms_add_ignore_extension(MediaScan *s, const char *extension)
   
   s->ignore_exts[ s->nignore_exts++ ] = tmp;
 } /* ms_add_ignore_extension() */
+
+void
+ms_add_thumbnail_spec(MediaScan *s, enum thumb_format format, int width, int height, int keep_aspect)
+{
+  MediaScanThumbSpec *spec = malloc(sizeof(MediaScanThumbSpec));
+  spec->format = format;
+  spec->width = width;
+  spec->height = height;
+  spec->keep_aspect = keep_aspect;
+  
+  s->thumbspecs[ s->nthumbspecs++ ] = spec;
+}
 
 ///-------------------------------------------------------------------------------------------------
 ///  By default, scans are synchronous. This means the call to ms_scan will not return until

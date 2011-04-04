@@ -1,6 +1,8 @@
 #include <libmediascan.h>
 
 #include <jpeglib.h>
+#include <libexif/exif-data.h>
+
 #include <setjmp.h>
 #include <stdlib.h>
 #include <string.h>
@@ -256,7 +258,30 @@ image_jpeg_read_header(MediaScanImage *i, MediaScanResult *r)
     }
   }
   
-  // XXX Process Exif looking for orientation tag
+  // Process Exif tag
+  if (j->cinfo->marker_list != NULL) {
+    jpeg_saved_marker_ptr marker = j->cinfo->marker_list;
+
+    while (marker != NULL) {      
+      if (marker->marker == 0xE1 
+        && marker->data[0] == 'E' && marker->data[1] == 'x'
+        && marker->data[2] == 'i' && marker->data[3] == 'f'
+      ) {
+        ExifData *exif;
+        
+        LOG_DEBUG("Parsing EXIF tag of size %d\n", marker->data_length);
+        exif = exif_data_new_from_data(marker->data, marker->data_length);
+        if (exif != NULL) {
+          // XXX get all tags or only important ones?  
+          exif_data_free(exif);
+        }
+        
+        break;
+      }
+      
+      marker = marker->next;
+    }
+  }
   
 out:
   return ret;

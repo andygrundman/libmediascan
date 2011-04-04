@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
   char *dir;
 
   plan(TEST_COUNT);  
-  ms_set_log_level(INFO);
+  ms_set_log_level(MEMORY);
 
   // Get path to this binary
   bin = _findbin(argv[0]);
@@ -43,6 +43,7 @@ int main(int argc, char *argv[])
     ms_add_path(s, dir);    
     ms_add_ignore_extension(s, "VIDEO");
     ms_add_ignore_extension(s, "AUDIO");
+    ms_add_thumbnail_spec(s, THUMB_AUTO, 75, 75, 1);
     ms_set_result_callback(s, my_result_callback);
     ms_set_error_callback(s, my_error_callback);
     ms_set_progress_callback(s, my_progress_callback);

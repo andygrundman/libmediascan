@@ -325,6 +325,7 @@ scan_image(MediaScanResult *r)
 {
   int ret = 1;
   MediaScanImage *i = NULL;
+  MediaScan *s;
   
   // Open the file and read in a buffer of at least 8 bytes
   if ( !ensure_opened_with_buf(r, 8) ) {
@@ -342,6 +343,14 @@ scan_image(MediaScanResult *r)
     r->error = error_create(r->path, MS_ERROR_READ, "Invalid or corrupt image file");
     ret = 0;
     goto out;
+  }
+  
+  // Create thumbnail(s)
+  s = (MediaScan *)r->_scan;
+  if (s->nthumbspecs) {
+    int i;
+    for (i = 0; i < s->nthumbspecs; i++)
+      image_create_thumbnail(i, s->thumbspecs[i]);
   }
   
 out:
