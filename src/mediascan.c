@@ -18,7 +18,6 @@
 #ifndef WIN32
 #include <dirent.h>
 #include <sys/time.h>
-#include "mediascan_win32.h"
 #else
 #include <time.h>
 #include <Winsock2.h>
@@ -27,6 +26,10 @@
 
 #include <libmediascan.h>
 #include <libavformat/avformat.h>
+
+#ifdef WIN32
+#include "mediascan_win32.h"
+#endif
 
 
 #include "common.h"
@@ -326,8 +329,10 @@ void ms_destroy(MediaScan *s)
   free(s->_dlna);
 
   ms_clear_watch(s);
-  DeleteCriticalSection(&s->CriticalSection);
 
+#ifdef WIN32
+  DeleteCriticalSection(&s->CriticalSection);
+#endif
 
 
   free(s);
@@ -712,13 +717,16 @@ void ms_scan(MediaScan *s)
   struct fileq_entry *file_entry = NULL;
   char tmp_full_path[MAX_PATH]; 
 
+#ifdef WIN32
   EnterCriticalSection(&s->CriticalSection);
-
+#endif
  
   if (s->on_result == NULL) {
     LOG_ERROR("Result callback not set, aborting scan\n");
 
+#ifdef WIN32
     LeaveCriticalSection(&s->CriticalSection);
+#endif
     return;
   }
   
@@ -781,7 +789,9 @@ void ms_scan(MediaScan *s)
     s->on_progress(s, s->progress, s->userdata);
   }
 
+  #ifdef WIN32
     LeaveCriticalSection(&s->CriticalSection);
+  #endif
 }
 
 ///-------------------------------------------------------------------------------------------------

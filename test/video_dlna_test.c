@@ -10,7 +10,17 @@
 
 #define TEST_COUNT 1426
 
+#ifndef FALSE
+#define FALSE 0
+#endif
+
+#ifndef TRUE
+#define TRUE 1
+#endif
+
 #ifdef _MSC_VER
+
+
 
 int strcasecmp(const char *string1, const char *string2 )
 {
@@ -2521,7 +2531,7 @@ void test_MPEG_TS_SD_KO_ISO()
 	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK_I-13a.mpg", &expected);
 } /* test_MPEG_TS_SD_KO_ISO() */
 
-void test_DLNA_scanning()
+void test_DLNA_scanning(char *argv[])
 {
 #ifndef WIN32
   char *bin = NULL;
@@ -2563,7 +2573,7 @@ main(int argc, char *argv[])
   plan(TEST_COUNT);
   
   
-//  test_DLNA_scanning();
+  test_DLNA_scanning(argv);
   
   
 
