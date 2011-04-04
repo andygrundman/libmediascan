@@ -72,8 +72,6 @@ progress_update(MediaScanProgress *p, const char *cur_item)
 {
   struct timeval now;
   
-  LOG_DEBUG("progress_update %s\n", cur_item);
-  
   gettimeofday(&now, NULL);
   
   if (now.tv_sec - p->_last_update_ts >= p->interval) {

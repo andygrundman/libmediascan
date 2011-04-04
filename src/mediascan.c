@@ -623,6 +623,9 @@ int _should_scan(MediaScan *s, const char *path)
   char *p = NULL;
   char *found = NULL;
   char *ext = strrchr(path, '.');
+  int skip_audio = 0;
+  int skip_video = 0;
+  int skip_image = 0;
 
   if (ext != NULL) {
     // Copy the extension and lowercase it
@@ -645,22 +648,27 @@ int _should_scan(MediaScan *s, const char *path)
       for (i = 0; i < s->nignore_exts; i++) {
         if (strstr(extc, s->ignore_exts[i]))
           return TYPE_UNKNOWN;
+        
+        if (!strcmp("AUDIO", s->ignore_exts[i]))
+          skip_audio = 1;
+        else if (!strcmp("VIDEO", s->ignore_exts[i]))
+          skip_video = 1;
+        else if (!strcmp("IMAGE", s->ignore_exts[i]))
+          skip_image = 1;
       }
     }
     
-    
-    
     found = strstr(VideoExts, extc);
     if (found)
-      return TYPE_VIDEO;
+      return skip_video ? TYPE_UNKNOWN : TYPE_VIDEO;
     
     found = strstr(AudioExts, extc);
     if (found)
-      return TYPE_AUDIO;
+      return skip_audio ? TYPE_UNKNOWN : TYPE_AUDIO;
     
     found = strstr(ImageExts, extc);
     if (found)
-      return TYPE_IMAGE;
+      return skip_image ? TYPE_UNKNOWN : TYPE_IMAGE;
     
     return TYPE_UNKNOWN;
   }
@@ -767,13 +775,13 @@ void ms_scan(MediaScan *s)
 ///
 /// ### remarks .
 ///-------------------------------------------------------------------------------------------------
- void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type)
+void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type)
 {
   MediaScanError *e;
-   MediaScanResult *r;
+  MediaScanResult *r;
 
-  if(s == NULL) {
-	ms_errno = MSENO_NULLSCANOBJ;
+  if (s == NULL) {
+    ms_errno = MSENO_NULLSCANOBJ;
     LOG_ERROR("MediaScan = NULL, aborting scan\n");
     return;
   }
@@ -791,7 +799,7 @@ void ms_scan(MediaScan *s)
     type = _should_scan(s, full_path);
     if (!type) {
       if (s->on_error) {
-		ms_errno = MSENO_SCANERROR;
+        ms_errno = MSENO_SCANERROR;
         e = error_create(full_path, MS_ERROR_TYPE_UNKNOWN, "Unrecognized file extension");
         s->on_error(s, e, s->userdata);
         error_destroy(e);

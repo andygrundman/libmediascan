@@ -64,13 +64,18 @@ struct _Audio {
 typedef struct _Audio MediaScanAudio;
 
 struct _Image {
+  const char *codec;
   int width;
   int height;
+  int channels;
   int offset;       // byte offset to start of image
   const char *data; // image data, if needed
   
   struct _Image **thumbnails;
   struct _Tag **tags;
+  
+  // private members
+  void *_jpeg;      // JPEG-specific internal data
 };
 typedef struct _Image MediaScanImage;
 
@@ -115,6 +120,7 @@ struct _Result {
   void *_scan;      // reference to scan that created this result
   void *_avf;       // AVFormatContext instance
   FILE *_fp;        // opened file if necessary
+  void *_buf;       // buffer if necessary
 };
 typedef struct _Result MediaScanResult;
 

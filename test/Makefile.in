@@ -33,8 +33,9 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-check_PROGRAMS = api_test$(EXEEXT) video_dlna_test$(EXEEXT)
-TESTS = api_test$(EXEEXT) video_dlna_test$(EXEEXT)
+check_PROGRAMS = api_test$(EXEEXT) video_dlna_test$(EXEEXT) \
+	image_test$(EXEEXT)
+TESTS = api_test$(EXEEXT) video_dlna_test$(EXEEXT) image_test$(EXEEXT)
 subdir = test
 DIST_COMMON = $(include_HEADERS) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in
@@ -56,6 +57,13 @@ api_test_DEPENDENCIES = $(LMS_LTLIB)
 api_test_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(api_test_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
+am_image_test_OBJECTS = image_test-tap.$(OBJEXT) \
+	image_test-image_test.$(OBJEXT)
+image_test_OBJECTS = $(am_image_test_OBJECTS)
+image_test_DEPENDENCIES = $(LMS_LTLIB)
+image_test_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(image_test_CFLAGS) \
+	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 am_video_dlna_test_OBJECTS = video_dlna_test-tap.$(OBJEXT) \
 	video_dlna_test-video_dlna_test.$(OBJEXT) \
 	video_dlna_test-test.$(OBJEXT) \
@@ -77,8 +85,10 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = $(api_test_SOURCES) $(video_dlna_test_SOURCES)
-DIST_SOURCES = $(api_test_SOURCES) $(video_dlna_test_SOURCES)
+SOURCES = $(api_test_SOURCES) $(image_test_SOURCES) \
+	$(video_dlna_test_SOURCES)
+DIST_SOURCES = $(api_test_SOURCES) $(image_test_SOURCES) \
+	$(video_dlna_test_SOURCES)
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -212,6 +222,9 @@ api_test_LDADD = $(LMS_LTLIB) -lcunit
 video_dlna_test_SOURCES = tap.c video_dlna_test.c test.c test_background.c
 video_dlna_test_CFLAGS = $(LMS_INCLUDE)
 video_dlna_test_LDADD = $(LMS_LTLIB) -lcunit
+image_test_SOURCES = tap.c image_test.c
+image_test_CFLAGS = $(LMS_INCLUDE)
+image_test_LDADD = $(LMS_LTLIB)
 include_HEADERS = common.h tap.h
 all: all-am
 
@@ -256,6 +269,9 @@ clean-checkPROGRAMS:
 api_test$(EXEEXT): $(api_test_OBJECTS) $(api_test_DEPENDENCIES) 
 	@rm -f api_test$(EXEEXT)
 	$(api_test_LINK) $(api_test_OBJECTS) $(api_test_LDADD) $(LIBS)
+image_test$(EXEEXT): $(image_test_OBJECTS) $(image_test_DEPENDENCIES) 
+	@rm -f image_test$(EXEEXT)
+	$(image_test_LINK) $(image_test_OBJECTS) $(image_test_LDADD) $(LIBS)
 video_dlna_test$(EXEEXT): $(video_dlna_test_OBJECTS) $(video_dlna_test_DEPENDENCIES) 
 	@rm -f video_dlna_test$(EXEEXT)
 	$(video_dlna_test_LINK) $(video_dlna_test_OBJECTS) $(video_dlna_test_LDADD) $(LIBS)
@@ -270,6 +286,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/api_test-tap.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/api_test-test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/api_test-test_background.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/image_test-image_test.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/image_test-tap.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/video_dlna_test-tap.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/video_dlna_test-test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/video_dlna_test-test_background.Po@am__quote@
@@ -351,6 +369,34 @@ api_test-test_background.obj: test_background.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_background.c' object='api_test-test_background.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(api_test_CFLAGS) $(CFLAGS) -c -o api_test-test_background.obj `if test -f 'test_background.c'; then $(CYGPATH_W) 'test_background.c'; else $(CYGPATH_W) '$(srcdir)/test_background.c'; fi`
+
+image_test-tap.o: tap.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(image_test_CFLAGS) $(CFLAGS) -MT image_test-tap.o -MD -MP -MF $(DEPDIR)/image_test-tap.Tpo -c -o image_test-tap.o `test -f 'tap.c' || echo '$(srcdir)/'`tap.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/image_test-tap.Tpo $(DEPDIR)/image_test-tap.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tap.c' object='image_test-tap.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(image_test_CFLAGS) $(CFLAGS) -c -o image_test-tap.o `test -f 'tap.c' || echo '$(srcdir)/'`tap.c
+
+image_test-tap.obj: tap.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(image_test_CFLAGS) $(CFLAGS) -MT image_test-tap.obj -MD -MP -MF $(DEPDIR)/image_test-tap.Tpo -c -o image_test-tap.obj `if test -f 'tap.c'; then $(CYGPATH_W) 'tap.c'; else $(CYGPATH_W) '$(srcdir)/tap.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/image_test-tap.Tpo $(DEPDIR)/image_test-tap.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tap.c' object='image_test-tap.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(image_test_CFLAGS) $(CFLAGS) -c -o image_test-tap.obj `if test -f 'tap.c'; then $(CYGPATH_W) 'tap.c'; else $(CYGPATH_W) '$(srcdir)/tap.c'; fi`
+
+image_test-image_test.o: image_test.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(image_test_CFLAGS) $(CFLAGS) -MT image_test-image_test.o -MD -MP -MF $(DEPDIR)/image_test-image_test.Tpo -c -o image_test-image_test.o `test -f 'image_test.c' || echo '$(srcdir)/'`image_test.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/image_test-image_test.Tpo $(DEPDIR)/image_test-image_test.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='image_test.c' object='image_test-image_test.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(image_test_CFLAGS) $(CFLAGS) -c -o image_test-image_test.o `test -f 'image_test.c' || echo '$(srcdir)/'`image_test.c
+
+image_test-image_test.obj: image_test.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(image_test_CFLAGS) $(CFLAGS) -MT image_test-image_test.obj -MD -MP -MF $(DEPDIR)/image_test-image_test.Tpo -c -o image_test-image_test.obj `if test -f 'image_test.c'; then $(CYGPATH_W) 'image_test.c'; else $(CYGPATH_W) '$(srcdir)/image_test.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/image_test-image_test.Tpo $(DEPDIR)/image_test-image_test.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='image_test.c' object='image_test-image_test.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(image_test_CFLAGS) $(CFLAGS) -c -o image_test-image_test.obj `if test -f 'image_test.c'; then $(CYGPATH_W) 'image_test.c'; else $(CYGPATH_W) '$(srcdir)/image_test.c'; fi`
 
 video_dlna_test-tap.o: tap.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(video_dlna_test_CFLAGS) $(CFLAGS) -MT video_dlna_test-tap.o -MD -MP -MF $(DEPDIR)/video_dlna_test-tap.Tpo -c -o video_dlna_test-tap.o `test -f 'tap.c' || echo '$(srcdir)/'`tap.c

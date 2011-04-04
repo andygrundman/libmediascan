@@ -31,8 +31,8 @@
 #include "profiles.h"
 #include "containers.h"
 
-extern dlna_registered_profile_t dlna_profile_image_jpeg;
-extern dlna_registered_profile_t dlna_profile_image_png;
+//extern dlna_registered_profile_t dlna_profile_image_jpeg;
+//extern dlna_registered_profile_t dlna_profile_image_png;
 extern dlna_registered_profile_t dlna_profile_audio_ac3;
 extern dlna_registered_profile_t dlna_profile_audio_amr;
 extern dlna_registered_profile_t dlna_profile_audio_atrac3;
@@ -77,8 +77,8 @@ dlna_register_all_media_profiles (dlna_t *dlna)
   if (!dlna->inited)
     dlna = dlna_init ();
   
-  dlna_register_profile (dlna, &dlna_profile_image_jpeg);
-  dlna_register_profile (dlna, &dlna_profile_image_png);
+//  dlna_register_profile (dlna, &dlna_profile_image_jpeg);
+//  dlna_register_profile (dlna, &dlna_profile_image_png);
   dlna_register_profile (dlna, &dlna_profile_audio_ac3);
   dlna_register_profile (dlna, &dlna_profile_audio_amr);
   dlna_register_profile (dlna, &dlna_profile_audio_atrac3);
@@ -104,12 +104,14 @@ dlna_register_media_profile (dlna_t *dlna, dlna_media_profile_t profile)
   
   switch (profile)
   {
+/*
   case DLNA_PROFILE_IMAGE_JPEG:
     dlna_register_profile (dlna, &dlna_profile_image_jpeg);
     break;
   case DLNA_PROFILE_IMAGE_PNG:
     dlna_register_profile (dlna, &dlna_profile_image_png);
     break;
+*/
   case DLNA_PROFILE_AUDIO_AC3:
     dlna_register_profile (dlna, &dlna_profile_audio_ac3);
     break;

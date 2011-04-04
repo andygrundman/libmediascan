@@ -18,10 +18,12 @@
 #include <libmediascan.h>
 
 #include "common.h"
+#include "buffer.h"
 #include "result.h"
 #include "error.h"
 #include "video.h"
 #include "audio.h"
+#include "image.h"
 #include "util.h"
 
 // DLNA support
@@ -136,6 +138,24 @@ static int ensure_opened(MediaScanResult *r)
   }
   return 1;
 } /* ensure_opened() */
+
+static int ensure_opened_with_buf(MediaScanResult *r, int min_bytes)
+{
+  Buffer *buf;
+  
+  if ( !ensure_opened(r) )
+    return 0;
+  
+  buf = (Buffer *)malloc(sizeof(Buffer));
+  r->_buf = (void *)buf;
+  
+  buffer_init(buf, BUF_SIZE);
+  
+  if ( !buffer_check_load(buf, r->_fp, min_bytes, BUF_SIZE) )
+    return 0;
+  
+  return 1;
+}
 
 ///-------------------------------------------------------------------------------------------------
 ///  Sets a file metadata.
@@ -300,6 +320,34 @@ out:
   return ret;
 } /* scan_video() */
 
+static int
+scan_image(MediaScanResult *r)
+{
+  int ret = 1;
+  MediaScanImage *i = NULL;
+  
+  // Open the file and read in a buffer of at least 8 bytes
+  if ( !ensure_opened_with_buf(r, 8) ) {
+    r->error = error_create(r->path, MS_ERROR_FILE, "Unable to open file for reading");
+    ret = 0;
+    goto out;
+  }
+  
+  // General metadata
+  set_file_metadata(r);
+  
+  i = r->image = image_create();
+  
+  if ( !image_read_header(i, r) ) {
+    r->error = error_create(r->path, MS_ERROR_READ, "Invalid or corrupt image file");
+    ret = 0;
+    goto out;
+  }
+  
+out:
+  return ret;
+}
+
 ///-------------------------------------------------------------------------------------------------
 ///  Result create.
 ///
@@ -315,7 +363,7 @@ MediaScanResult *result_create(MediaScan *s)
 {
   MediaScanResult *r = (MediaScanResult *)calloc(sizeof(MediaScanResult), 1);
   if (r == NULL) {
-	ms_errno = MSENO_MEMERROR;
+    ms_errno = MSENO_MEMERROR;
     FATAL("Out of memory for new MediaScanResult object\n");
     return NULL;
   }
@@ -324,23 +372,8 @@ MediaScanResult *result_create(MediaScan *s)
   
   r->type = TYPE_UNKNOWN;
   r->flags = USE_EXTENSION;
-  r->path = NULL;
-  r->error = NULL;
-  
-  r->mime_type = NULL;
-  r->dlna_profile = NULL;
-  r->size = 0;
-  r->mtime = 0;
-  r->bitrate = 0;
-  r->duration_ms = 0;
-  
-  r->audio = NULL;
-  r->image = NULL;
-  r->video = NULL;
   
   r->_scan = s;
-  r->_avf = NULL;
-  r->_fp = NULL;
   
   return r;
 } /* result_create() */
@@ -366,6 +399,10 @@ int result_scan(MediaScanResult *r)
   switch (r->type) {
     case TYPE_VIDEO:
       return scan_video(r);
+      break;
+    
+    case TYPE_IMAGE:
+      return scan_image(r);
       break;
     
     default:
@@ -395,6 +432,9 @@ void result_destroy(MediaScanResult *r)
   if (r->audio)
     audio_destroy(r->audio);
   
+  if (r->image)
+    image_destroy(r->image);
+  
   if (r->_avf)
   {
     av_close_input_file(r->_avf);
@@ -402,6 +442,9 @@ void result_destroy(MediaScanResult *r)
   
   if (r->_fp)
     fclose(r->_fp);
+  
+  if (r->_buf)
+    buffer_free((Buffer *)r->_buf);
 
   LOG_MEM("destroy MediaScanResult @ %p\n", r);
   free(r);
@@ -423,22 +466,36 @@ void ms_dump_result(MediaScanResult *r)
   LOG_OUTPUT("  DLNA profile: %s\n", r->dlna_profile);
   LOG_OUTPUT("  File size:    %lld\n", r->size);
   LOG_OUTPUT("  Modified:     %d\n", r->mtime);
-  LOG_OUTPUT("  Bitrate:      %d bps\n", r->bitrate);
-  LOG_OUTPUT("  Duration:     %d ms\n", r->duration_ms);
+  if (r->bitrate)
+    LOG_OUTPUT("  Bitrate:      %d bps\n", r->bitrate);
+  if (r->duration_ms)
+    LOG_OUTPUT("  Duration:     %d ms\n", r->duration_ms);
   
   switch (r->type) {
     case TYPE_VIDEO:
-      LOG_OUTPUT("  Video: %s\n", r->video->codec);
+      LOG_OUTPUT("  Video:        %s\n", r->video->codec);
       LOG_OUTPUT("    Dimensions: %d x %d\n", r->video->width, r->video->height);
       LOG_OUTPUT("    Framerate:  %.2f\n", r->video->fps);
       if (r->audio) {
-        LOG_OUTPUT("  Audio: %s\n", r->audio->codec);
+        LOG_OUTPUT("  Audio:        %s\n", r->audio->codec);
         LOG_OUTPUT("    Bitrate:    %d bps\n", r->audio->bitrate);
         LOG_OUTPUT("    Samplerate: %d kHz\n", r->audio->samplerate);
         LOG_OUTPUT("    Channels:   %d\n", r->audio->channels);
       }
       LOG_OUTPUT("  FFmpeg details:\n");
       av_dump_format(r->_avf, 0, r->path, 0);
+      break;
+    
+    case TYPE_IMAGE:
+      LOG_OUTPUT("  Image:        %s\n", r->image->codec);
+      LOG_OUTPUT("    Dimensions: %d x %d\n", r->image->width, r->image->height);
+      break;
+    
+    case TYPE_AUDIO:
+      LOG_OUTPUT("  Audio:        %s\n", r->audio->codec);
+      LOG_OUTPUT("    Bitrate:    %d bps\n", r->audio->bitrate);
+      LOG_OUTPUT("    Samplerate: %d kHz\n", r->audio->samplerate);
+      LOG_OUTPUT("    Channels:   %d\n", r->audio->channels);
       break;
       
     default:
@@ -512,60 +569,4 @@ scan_audio(ScanData s)
   
   return;
 }
-
-static void
-scan_image(ScanData s)
-{
-  // XXX
-}
-
-ScanData
-mediascan_new_ScanData(const char *path, int flags, int type)
-{
-  ScanData s = (ScanData)calloc(sizeof(struct _ScanData), 1);
-  if (s == NULL) {
-    FATAL("Out of memory for new ScanData object\n");
-    return NULL;
-  }
-  
-  s->path = path;
-  s->flags = flags;
-  s->type = type;
-  
-  switch (type) {
-    case TYPE_VIDEO:
-      scan_video(s);
-      break;
-      
-    case TYPE_AUDIO:
-      scan_audio(s);
-      break;
-      
-    case TYPE_IMAGE:
-      scan_image(s);
-      break;
-  }
-    
-  return s;
-}
-
-void
-mediascan_free_ScanData(ScanData s)
-{
-  if (s->streams)
-    free(s->streams);
-  
-  if (s->_avf != NULL)
-    av_close_input_file(s->_avf);
-  
-  free(s);
-}
-
-void
-mediascan_add_StreamData(ScanData s, int nstreams)
-{
-  s->nstreams = nstreams;
-  s->streams = (StreamData)calloc(sizeof(struct _StreamData), nstreams);
-}
-
 */
