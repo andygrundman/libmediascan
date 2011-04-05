@@ -8,7 +8,7 @@
 #include <string.h>
 #include <dirent.h>
 #include <errno.h>
-
+#include <unistd.h>
 
 #include <libmediascan.h>
 #include "common.h"

@@ -7,7 +7,6 @@
 #ifndef _LIBMEDIASCAN_H
 #define _LIBMEDIASCAN_H
 
-#include <unistd.h>
 #include <stdio.h>
 
 #ifdef WIN32

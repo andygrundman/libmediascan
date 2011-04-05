@@ -2,7 +2,6 @@
 
 #include "tap.h"
 #include "common.h"
-#include <unistd.h>
 
 #define TEST_COUNT 21
 

@@ -1,6 +1,5 @@
 // Test all DLNA video profiles
 
-#include <unistd.h>
 #include <stdint.h>
 #include <math.h>
 #include <libmediascan.h>
