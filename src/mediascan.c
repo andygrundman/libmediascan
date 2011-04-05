@@ -83,11 +83,11 @@ static const char *ImageExts = ",jpg,png,gif,bmp,jpeg,";
 
 #define REGISTER_DECODER(X,x) { \
   extern AVCodec ff_##x##_decoder; \
-  avcodec_register(&ff_##x##_decoder); LOG_DEBUG("%p - %s\n", &ff_##x##_decoder, #X);}
+  avcodec_register(&ff_##x##_decoder); }
 
 #define REGISTER_PARSER(X,x) { \
   extern AVCodecParser ff_##x##_parser; \
-  av_register_codec_parser(&ff_##x##_parser); LOG_DEBUG("%p - %s\n", &ff_##x##_parser, #X); }
+  av_register_codec_parser(&ff_##x##_parser); }
 
 ///-------------------------------------------------------------------------------------------------
 ///  Register codecs to be used with ffmpeg.
@@ -100,8 +100,6 @@ static const char *ImageExts = ",jpg,png,gif,bmp,jpeg,";
 
 static void register_codecs(void)
 {
-printf("----------------------- REGISTER_DECODER -------------------------\n");
-
   // Video codecs
   REGISTER_DECODER (H263, h263);
   REGISTER_DECODER (H264, h264);
@@ -144,9 +142,6 @@ printf("----------------------- REGISTER_DECODER -------------------------\n");
   REGISTER_DECODER (DVDSUB, dvdsub);
   REGISTER_DECODER (PGSSUB, pgssub);
   REGISTER_DECODER (XSUB, xsub);
-  
-
-  printf("----------------------- REGISTER_PARSER -------------------------\n");
 
   // Parsers 
   REGISTER_PARSER (AAC, aac);
@@ -161,7 +156,8 @@ printf("----------------------- REGISTER_DECODER -------------------------\n");
 
 #define REGISTER_DEMUXER(X,x) { \
   extern AVInputFormat ff_##x##_demuxer; \
-	av_register_input_format(&ff_##x##_demuxer); LOG_DEBUG("%p  - %s\n", &ff_##x##_demuxer, #X);}
+	av_register_input_format(&ff_##x##_demuxer); }
+	
 #define REGISTER_PROTOCOL(X,x) { \
   extern URLProtocol ff_##x##_protocol; \
   av_register_protocol2(&ff_##x##_protocol, sizeof(ff_##x##_protocol)); }
@@ -177,9 +173,6 @@ printf("----------------------- REGISTER_DECODER -------------------------\n");
 
 static void register_formats(void)
 {
-  printf("----------------------- REGISTER_DEMUXER -------------------------\n");
-
-
   // demuxers
   REGISTER_DEMUXER (ASF, asf);
   REGISTER_DEMUXER (AVI, avi);
@@ -190,9 +183,6 @@ static void register_formats(void)
   REGISTER_DEMUXER (MPEGPS, mpegps);             // VOB files
   REGISTER_DEMUXER (MPEGTS, mpegts);
   REGISTER_DEMUXER (MPEGVIDEO, mpegvideo);
-
-
-    printf("----------------------- REGISTER_PROTOCOL -------------------------\n");
 
   // protocols
   REGISTER_PROTOCOL (FILE, file);
