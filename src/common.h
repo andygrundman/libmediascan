@@ -17,7 +17,11 @@
 #endif
 
 extern enum log_level Debug;
-extern long PathMax;
+
+
+#ifndef MAX_PATH
+#define MAX_PATH _PC_PATH_MAX
+#endif
 
 #define LOG_OUTPUT(...) fprintf(stdout, __VA_ARGS__)
 

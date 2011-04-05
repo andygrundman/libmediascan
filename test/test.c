@@ -331,7 +331,7 @@ void test_ms_scan_6(void)	{
 	#ifdef WIN32
 	Sleep(40); // wait 40ms
 	#else
-	sleep(40);
+	sleep(1);
 	#endif
 	ms_scan(s);
 	CU_ASSERT(progress_called == FALSE);
@@ -344,7 +344,7 @@ void test_ms_scan_6(void)	{
 	#ifdef WIN32
 	Sleep(61); // wait 61ms
 	#else
-	sleep(40);
+	sleep(1);
 	#endif;
 	
 	ms_scan(s);
@@ -483,8 +483,8 @@ int run_unit_tests()
       CU_cleanup_registry();
       return CU_get_error();
    }
-		ms_set_log_level(DEBUG);
-     av_log_set_level(AV_LOG_DEBUG);
+//		ms_set_log_level(DEBUG);
+//     av_log_set_level(AV_LOG_DEBUG);
    /* add the tests to the ms_scan suite */
    if (
 	   NULL == CU_add_test(pSuite, "Simple test of ms_scan()", test_ms_scan) ||

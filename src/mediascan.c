@@ -48,17 +48,12 @@
 #pragma warning( disable: 4996 )
 #endif
 
-#ifndef MAX_PATH
-#define MAX_PATH _PC_PATH_MAX
-#endif
-
 // DLNA support
 #include "libdlna/dlna_internals.h"
 
 // Global log level flag
 enum log_level Debug = ERR;
 static int Initialized = 0;
-long PathMax = MAX_PATH;
 int ms_errno = 0;
 
 /*
@@ -87,11 +82,11 @@ static const char *ImageExts = ",jpg,png,gif,bmp,jpeg,";
 
 #define REGISTER_DECODER(X,x) { \
           extern AVCodec ff_##x##_decoder; \
-          avcodec_register(&ff_##x##_decoder); }
+		  avcodec_register(&ff_##x##_decoder); printf("%X - %s\n", &ff_##x##_decoder, #X);}
 
 #define REGISTER_PARSER(X,x) { \
           extern AVCodecParser ff_##x##_parser; \
-          av_register_codec_parser(&ff_##x##_parser); }
+		  av_register_codec_parser(&ff_##x##_parser); printf("%X - %s\n", &ff_##x##_parser, #X); }
 
 ///-------------------------------------------------------------------------------------------------
 ///  Register codecs to be used with ffmpeg.
@@ -104,7 +99,10 @@ static const char *ImageExts = ",jpg,png,gif,bmp,jpeg,";
 
 static void register_codecs(void)
 {
+printf("----------------------- REGISTER_DECODER -------------------------\n");
+
   // Video codecs
+  REGISTER_DECODER (H263, h263);
   REGISTER_DECODER (H264, h264);
   REGISTER_DECODER (MPEG1VIDEO, mpeg1video);
   REGISTER_DECODER (MPEG2VIDEO, mpeg2video);
@@ -112,18 +110,20 @@ static void register_codecs(void)
   REGISTER_DECODER (MSMPEG4V1, msmpeg4v1);
   REGISTER_DECODER (MSMPEG4V2, msmpeg4v2);
   REGISTER_DECODER (MSMPEG4V3, msmpeg4v3);
+  REGISTER_DECODER (VP6, vp6);
   REGISTER_DECODER (VP6F, vp6f);
   REGISTER_DECODER (VP8, vp8);
   REGISTER_DECODER (WMV1, wmv1);
   REGISTER_DECODER (WMV2, wmv2);
   REGISTER_DECODER (WMV3, wmv3);
-  
+
+
   // Audio codecs, needed to get details of audio tracks in videos
   REGISTER_DECODER (AAC, aac);
   REGISTER_DECODER (AC3, ac3);
   REGISTER_DECODER (DCA, dca); // DTS
-  REGISTER_DECODER (MP3, mp3);
   REGISTER_DECODER (MP2, mp2);
+  REGISTER_DECODER (MP3, mp3);
   REGISTER_DECODER (VORBIS, vorbis);
   REGISTER_DECODER (WMAPRO, wmapro);
   REGISTER_DECODER (WMAV1, wmav1);
@@ -144,10 +144,14 @@ static void register_codecs(void)
   REGISTER_DECODER (PGSSUB, pgssub);
   REGISTER_DECODER (XSUB, xsub);
   
+
+  printf("----------------------- REGISTER_PARSER -------------------------\n");
+
   // Parsers 
   REGISTER_PARSER (AAC, aac);
   REGISTER_PARSER (AC3, ac3);
   REGISTER_PARSER (DCA, dca); // DTS
+  REGISTER_PARSER (H263, h263);
   REGISTER_PARSER (H264, h264);
   REGISTER_PARSER (MPEG4VIDEO, mpeg4video);
   REGISTER_PARSER (MPEGAUDIO, mpegaudio);
@@ -156,7 +160,7 @@ static void register_codecs(void)
 
 #define REGISTER_DEMUXER(X,x) { \
     extern AVInputFormat ff_##x##_demuxer; \
-    av_register_input_format(&ff_##x##_demuxer); }
+	av_register_input_format(&ff_##x##_demuxer); printf("%X  - %s\n", &ff_##x##_demuxer, #X);}
 #define REGISTER_PROTOCOL(X,x) { \
     extern URLProtocol ff_##x##_protocol; \
     av_register_protocol2(&ff_##x##_protocol, sizeof(ff_##x##_protocol)); }
@@ -172,6 +176,9 @@ static void register_codecs(void)
 
 static void register_formats(void)
 {
+  printf("----------------------- REGISTER_DEMUXER -------------------------\n");
+
+
   // demuxers
   REGISTER_DEMUXER (ASF, asf);
   REGISTER_DEMUXER (AVI, avi);
@@ -182,7 +189,10 @@ static void register_formats(void)
   REGISTER_DEMUXER (MPEGPS, mpegps);             // VOB files
   REGISTER_DEMUXER (MPEGTS, mpegts);
   REGISTER_DEMUXER (MPEGVIDEO, mpegvideo);
-  
+
+
+    printf("----------------------- REGISTER_PROTOCOL -------------------------\n");
+
   // protocols
   REGISTER_PROTOCOL (FILE, file);
 } /* register_formats() */
@@ -278,13 +288,7 @@ MediaScan *ms_create(void)
   s->_dlna = (void *)dlna;
   dlna_register_all_media_profiles(dlna);
 
-
-#ifdef WIN32
-    if (!InitializeCriticalSectionAndSpinCount(&s->CriticalSection, 
-        0x00000400) ) 
-        return NULL;
-#endif
-
+  InitCriticalSection(&s->CriticalSection);
 
   
   return s;
@@ -324,10 +328,7 @@ void ms_destroy(MediaScan *s)
 
   ms_clear_watch(s);
 
-#ifdef WIN32
-  DeleteCriticalSection(&s->CriticalSection);
-#endif
-
+  CleanupCriticalSection(&s->CriticalSection);
 
   free(s);
 } /* ms_destroy() */
@@ -552,11 +553,20 @@ void ms_set_progress_interval(MediaScan *s, int seconds)
   s->progress->interval = seconds;
 } /* ms_set_progress_interval() */
 
-void
-ms_set_userdata(MediaScan *s, void *data)
+///-------------------------------------------------------------------------------------------------
+///  Set userdata.
+///
+/// @author Andy Grundman
+/// @date 04/05/2011
+///
+/// @param [in,out] s    If non-null, the.
+/// @param [in,out] data If non-null, the data.
+///-------------------------------------------------------------------------------------------------
+
+void ms_set_userdata(MediaScan *s, void *data)
 {
   s->userdata = data;
-}
+} /* ms_set_userdata() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  Watch a directory in the background.
@@ -729,18 +739,16 @@ void ms_scan(MediaScan *s)
   struct dirq_entry *dir_entry = NULL;
   struct fileq *file_head = NULL;
   struct fileq_entry *file_entry = NULL;
+
   char tmp_full_path[MAX_PATH]; 
 
-#ifdef WIN32
-  EnterCriticalSection(&s->CriticalSection);
-#endif
+  StartCriticalSection(&s->CriticalSection);
  
   if (s->on_result == NULL) {
     LOG_ERROR("Result callback not set, aborting scan\n");
 
-#ifdef WIN32
-    LeaveCriticalSection(&s->CriticalSection);
-#endif
+    EndCriticalSection(&s->CriticalSection);
+
     return;
   }
   
@@ -803,10 +811,9 @@ void ms_scan(MediaScan *s)
     s->on_progress(s, s->progress, s->userdata);
   }
 
-  #ifdef WIN32
-    LeaveCriticalSection(&s->CriticalSection);
-  #endif
-}
+  EndCriticalSection(&s->CriticalSection);
+
+} /* ms_scan() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  Scan a single file. Everything that applies to ms_scan also applies to this function. If
@@ -869,7 +876,7 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type)
   }
   
   result_destroy(r);
-}
+} /* ms_scan_file() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  Query if 'path' is absolute path.
