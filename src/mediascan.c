@@ -81,12 +81,12 @@ static const char *VideoExts = ",asf,avi,divx,flv,hdmov,m1v,m2p,m2t,m2ts,m2v,m4v
 static const char *ImageExts = ",jpg,png,gif,bmp,jpeg,";
 
 #define REGISTER_DECODER(X,x) { \
-          extern AVCodec ff_##x##_decoder; \
-		  avcodec_register(&ff_##x##_decoder); printf("%X - %s\n", &ff_##x##_decoder, #X);}
+  extern AVCodec ff_##x##_decoder; \
+  avcodec_register(&ff_##x##_decoder); LOG_DEBUG("%p - %s\n", &ff_##x##_decoder, #X);}
 
 #define REGISTER_PARSER(X,x) { \
-          extern AVCodecParser ff_##x##_parser; \
-		  av_register_codec_parser(&ff_##x##_parser); printf("%X - %s\n", &ff_##x##_parser, #X); }
+  extern AVCodecParser ff_##x##_parser; \
+  av_register_codec_parser(&ff_##x##_parser); LOG_DEBUG("%p - %s\n", &ff_##x##_parser, #X); }
 
 ///-------------------------------------------------------------------------------------------------
 ///  Register codecs to be used with ffmpeg.
@@ -159,11 +159,11 @@ printf("----------------------- REGISTER_DECODER -------------------------\n");
 } /* register_codecs() */
 
 #define REGISTER_DEMUXER(X,x) { \
-    extern AVInputFormat ff_##x##_demuxer; \
-	av_register_input_format(&ff_##x##_demuxer); printf("%X  - %s\n", &ff_##x##_demuxer, #X);}
+  extern AVInputFormat ff_##x##_demuxer; \
+	av_register_input_format(&ff_##x##_demuxer); LOG_DEBUG("%p  - %s\n", &ff_##x##_demuxer, #X);}
 #define REGISTER_PROTOCOL(X,x) { \
-    extern URLProtocol ff_##x##_protocol; \
-    av_register_protocol2(&ff_##x##_protocol, sizeof(ff_##x##_protocol)); }
+  extern URLProtocol ff_##x##_protocol; \
+  av_register_protocol2(&ff_##x##_protocol, sizeof(ff_##x##_protocol)); }
 
 ///-------------------------------------------------------------------------------------------------
 ///  Registers the formats for FFmpeg.

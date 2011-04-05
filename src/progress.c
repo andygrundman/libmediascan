@@ -8,6 +8,7 @@
 #include "win32/include/win32config.h"
 #else
 #include <sys/time.h>
+#include <unistd.h>
 #endif
 
 #include <stdarg.h>

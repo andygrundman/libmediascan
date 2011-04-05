@@ -12,6 +12,8 @@
 #ifdef WIN32
 #include <Windows.h>
 #include <wchar.h>
+#else
+#include <pthread.h>
 #endif
 
 #define MAX_PATHS       128
