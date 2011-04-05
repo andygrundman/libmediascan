@@ -55,6 +55,7 @@
 enum log_level Debug = ERR;
 static int Initialized = 0;
 int ms_errno = 0;
+long PathMax = MAX_PATH;
 
 /*
  Video support
