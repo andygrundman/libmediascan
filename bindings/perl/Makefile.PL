@@ -11,7 +11,7 @@ my ($help, $ffmpeg_inc, $ffmpeg_lib, $lms_inc, $lms_lib);
 my $static;
 
 my $DEFINES = '-O2';
-$DEFINES .= ' -Wall' unless $^O =~ /sun|solaris/i;
+$DEFINES .= ' -Wall' unless $^O =~ /sun|solaris|Win32/i;
 $DEFINES .= ' -Wno-unused-value -Wno-format-security' unless $^O =~ /Win32|sun|solaris/i;
 
 my $result = GetOptions(
@@ -47,7 +47,8 @@ my @check = qw(/usr/include /usr/local/include /opt/local/include);
 unshift @check, split /:/, $ENV{INCLUDE};
 
 if ( $^O =~ /Win32/i ) {
-    die "TODO: Win32 support\n";
+	push @check, 'win32/include';
+  $static = 1;
 }
 
 # Look for ffmpeg
@@ -72,13 +73,12 @@ for my $incdir ( $ffmpeg_inc, @check ) {
                 $MYEXTLIB .= $ffmpeg_inc . '/../lib/libavcodec$(LIB_EXT) ';
                 $MYEXTLIB .= $ffmpeg_inc . '/../lib/libavutil$(LIB_EXT) ';
             }
-        }
+		}
         else {
             push @LIBS, '-lavformat -lavcodec -lavutil';
         }
         
-        push @LIBS, '-lz -lbz2';
-        
+		print "Using ffmpeg from $ffmpeg_inc\n";
         last;
     }
 }
@@ -102,14 +102,15 @@ for my $incdir ( $lms_inc, @check ) {
             if ($lms_lib) {
                 $MYEXTLIB .= $lms_lib . '/' . 'libmediascan$(LIB_EXT) ';
             }
-            else {
-                $MYEXTLIB .= $lms_inc . '/../lib/libmediascan$(LIB_EXT) ';
+			else {
+	            	$MYEXTLIB .= $lms_inc . '/../lib/libmediascan$(LIB_EXT) ';
             }
         }
         else {
             push @LIBS, '-lmediascan';
         }
         
+		print "Using libmediascan from $lms_inc\n";
         last;
     }
 }
@@ -120,18 +121,8 @@ if ( !$LMS ) {
 }
 
 if ( $^O =~ /Win32/i ) {
+    $MYEXTLIB .= 'win32/lib/libgcc.a win32/lib/libmingwex.a win32/lib/libz.a win32/lib/libbz2.a ';
     *MY::postamble = sub {};
-
-    # XXX
-    if ($FFMPEG) {
-        push @INC, '-I../ffmpeg'; # XXX
-        $MYEXTLIB .= '../ffmpeg/xxx.lib ';
-    }
-    
-    if ($LMS) {
-        push @INC, '-I../libmediascan';
-        $MYEXTLIB .= '../libmediascan/libmediascan.lib ';
-    }
 }
 
 my $xs_files  = join(' ', glob 'xs/*.xs');
@@ -141,7 +132,6 @@ WriteMakefile(
     VERSION_FROM      => 'lib/Media/Scan.pm',
     PREREQ_PM         => {
         'Test::Warn' => 0,
-        'XS::Object::Magic' => 0,
     },
     ABSTRACT_FROM     => 'lib/Media/Scan.pm',
     AUTHOR            => 'Andy Grundman <andy@slimdevices.com>',
