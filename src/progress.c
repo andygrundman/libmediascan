@@ -44,12 +44,12 @@ MediaScanProgress *progress_create(void)
   LOG_MEM("new MediaScanProgress @ %p\n", p);
   
   return p;
-}
+} /* progress_create() */
 
 void
 progress_start_phase(MediaScanProgress *p, const char *fmt, ...)
 {
-  char *phase = (char *)malloc((size_t)PathMax);
+  char *phase = (char *)malloc((size_t)MAX_PATH);
   struct timeval now;
   va_list ap;
   
@@ -62,22 +62,35 @@ progress_start_phase(MediaScanProgress *p, const char *fmt, ...)
   
   p->phase = phase;
   
+#ifdef WIN32
+  p->_start_ts = GetTickCount();
+#else
   gettimeofday(&now, NULL);
   p->_start_ts = now.tv_sec;
-}
+#endif
+} /* progress_start_phase() */
 
 // Returns 1 if progress was updated and callback should be called
 int
 progress_update(MediaScanProgress *p, const char *cur_item)
 {
+  long time;
+
+  
+#ifdef WIN32
+  time = GetTickCount();
+#else
   struct timeval now;
-  
-  LOG_DEBUG("progress_update %s\n", cur_item);
-  
+
   gettimeofday(&now, NULL);
-  
-  if (now.tv_sec - p->_last_update_ts >= p->interval) {
-    int elapsed = now.tv_sec - p->_start_ts;
+  time = now.tv_sec;
+#endif
+
+  LOG_DEBUG("progress_update %s\n", cur_item);
+
+
+  if (time - p->_last_update_ts >= p->interval) {
+    int elapsed = time - p->_start_ts;
     
     if (elapsed > 0) {
       p->rate = (int)((p->done / elapsed) + 0.5);
@@ -86,13 +99,13 @@ progress_update(MediaScanProgress *p, const char *cur_item)
     }
     
     p->cur_item = cur_item;
-    p->_last_update_ts = now.tv_sec;
+    p->_last_update_ts = time;
     
     return 1;
   }
   
   return 0;
-}
+} /* progress_update() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  Destroy a MediaScanProgress instance.
@@ -112,4 +125,4 @@ void progress_destroy(MediaScanProgress *p)
   
   LOG_MEM("destroy MediaScanProgress @ %p\n", p);  
   free(p);
-}
+} /* progress_destroy() */

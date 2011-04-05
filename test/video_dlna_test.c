@@ -234,7 +234,7 @@ static void my_error_callback(MediaScan *s, MediaScanError *error, void *userdat
 static int result_called = FALSE;
 static MediaScanResult result;
 
-static void my_result_callback2(MediaScan *s, MediaScanResult *r) {
+static void my_result_callback2(MediaScan *s, MediaScanResult *r, void *userdata) {
 
 	result.type = r->type;
 	result.path = strdup(r->path);

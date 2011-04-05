@@ -159,6 +159,8 @@ struct _Scan {
 		HANDLE	ghSignalEvent; 
 		HANDLE  hThread; 
 		CRITICAL_SECTION CriticalSection;
+	#else
+		pthread_mutex_t CriticalSection;
 	#endif
 };
 

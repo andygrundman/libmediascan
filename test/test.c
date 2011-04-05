@@ -483,8 +483,8 @@ int run_unit_tests()
       CU_cleanup_registry();
       return CU_get_error();
    }
-		ms_set_log_level(DEBUG);
-     av_log_set_level(AV_LOG_DEBUG);
+//		ms_set_log_level(DEBUG);
+//     av_log_set_level(AV_LOG_DEBUG);
    /* add the tests to the ms_scan suite */
    if (
 	   NULL == CU_add_test(pSuite, "Simple test of ms_scan()", test_ms_scan) ||
