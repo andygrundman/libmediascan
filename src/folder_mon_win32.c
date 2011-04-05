@@ -6,7 +6,7 @@
 
 #include "mediascan.h"
 #include "common.h"
-
+#include "util.h"
 
 ///-------------------------------------------------------------------------------------------------
 ///  Watch directory.

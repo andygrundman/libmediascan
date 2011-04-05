@@ -26,7 +26,16 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#ifdef _MSC_VER
+#pragma warning( disable: 4244 )
+#endif
+
 #include <libavcodec/avcodec.h>
+
+#ifdef _MSC_VER
+#pragma warning( default: 4244 )
+#endif
+
 
 #include "dlna_internals.h"
 #include "profiles.h"

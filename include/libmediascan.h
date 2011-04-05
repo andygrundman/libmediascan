@@ -15,6 +15,10 @@
 #include <wchar.h>
 #endif
 
+#ifdef __GNUC__
+#include <ptrehad.h>
+#endif
+
 #define MAX_PATHS 128
 #define MAX_IGNORE_EXTS 128
 

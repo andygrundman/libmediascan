@@ -24,10 +24,10 @@ void InitCriticalSection(void *lp)
 #ifdef WIN32
     if (!InitializeCriticalSectionAndSpinCount((LPCRITICAL_SECTION)lp, 
         0x00000400) ) 
-        return NULL;
+        return;
 #else
 	*lp = PTHREAD_MUTEX_INITIALIZER;
-
+	pthread_mutex_init((pthread_mutex_t*)lp, NULL);
 #endif
 }
 
