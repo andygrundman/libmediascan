@@ -12,6 +12,9 @@
 
 #include "win32config.h"
 
+
+
+
 ///-------------------------------------------------------------------------------------------------
 ///  Ends the program while outputting a final string to the console.
 ///

@@ -171,7 +171,7 @@ static int clean_suite(void)
 static int result_called = FALSE;
 static MediaScanResult result;
 
-static void my_result_callback(MediaScan *s, MediaScanResult *r) {
+static void my_result_callback(MediaScan *s, MediaScanResult *r, void *userdata) {
 
 	result.type = r->type;
 	result.path = strdup(r->path);
@@ -208,7 +208,7 @@ static void my_result_callback(MediaScan *s, MediaScanResult *r) {
 	result_called = TRUE;
 }
 
-static void my_error_callback(MediaScan *s, MediaScanError *error) { 
+static void my_error_callback(MediaScan *s, MediaScanError *error, void *userdata) { 
 
 } /* my_error_callback() */
 

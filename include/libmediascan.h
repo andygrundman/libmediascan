@@ -179,6 +179,7 @@ struct _Scan {
 		DWORD   dwThreadId;
 		HANDLE	ghSignalEvent; 
 		HANDLE  hThread; 
+		CRITICAL_SECTION CriticalSection;
 	#endif
 };
 

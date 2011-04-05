@@ -132,8 +132,11 @@ DWORD WINAPI WatchDirectory(thread_data_type *thread_data)
 					strcat( full_path, "\\");
 					strcat( full_path, buf );
                     printf("Found File Changed: %s\n", full_path);
+
+					EnterCriticalSection(&s->CriticalSection); 
 					ms_scan_file(s, full_path, TYPE_UNKNOWN);
-                    
+                    LeaveCriticalSection(&s->CriticalSection);
+
                     if( 0 == pRecord->NextEntryOffset )
                         break;
                     pRecord = (FILE_NOTIFY_INFORMATION *)(&((unsigned char*)Buffer)[pRecord->NextEntryOffset]);

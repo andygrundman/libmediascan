@@ -4,12 +4,21 @@
 // summary:	mediascan class
 ///-------------------------------------------------------------------------------------------------
 
-#include <ctype.h>
+#ifdef _DEBUG
+#define CRTDBG_MAP_ALLOC
 #include <stdlib.h>
+#include <crtdbg.h>
+#else
+#include <stdlib.h>
+#endif
+
+
+#include <ctype.h>
 
 #ifndef WIN32
 #include <dirent.h>
 #include <sys/time.h>
+#include <unistd.h>
 #else
 #include "mediascan_win32.h"
 #include <time.h>
@@ -19,6 +28,10 @@
 
 #include <libmediascan.h>
 #include <libavformat/avformat.h>
+
+#ifdef WIN32
+#include "mediascan_win32.h"
+#endif
 
 
 #include "common.h"
@@ -45,7 +58,7 @@
 // Global log level flag
 enum log_level Debug = ERR;
 static int Initialized = 0;
-long PathMax = 0;
+long PathMax = MAX_PATH;
 int ms_errno = 0;
 
 /*
@@ -190,7 +203,6 @@ static void _init(void)
   
   register_codecs();
   register_formats();
-
 #ifndef WIN32
   unix_init();
 #endif
@@ -265,6 +277,15 @@ MediaScan *ms_create(void)
   dlna->inited = 1;
   s->_dlna = (void *)dlna;
   dlna_register_all_media_profiles(dlna);
+
+
+#ifdef WIN32
+    if (!InitializeCriticalSectionAndSpinCount(&s->CriticalSection, 
+        0x00000400) ) 
+        return NULL;
+#endif
+
+
   
   return s;
 } /* ms_create() */
@@ -300,6 +321,14 @@ void ms_destroy(MediaScan *s)
   
   free(s->_dirq);
   free(s->_dlna);
+
+  ms_clear_watch(s);
+
+#ifdef WIN32
+  DeleteCriticalSection(&s->CriticalSection);
+#endif
+
+
   free(s);
 } /* ms_destroy() */
 
@@ -697,13 +726,21 @@ void ms_scan(MediaScan *s)
 {
   int i;
   struct dirq *dir_head = (struct dirq *)s->_dirq;
-  struct dirq_entry *dir_entry;
-  struct fileq *file_head;
-  struct fileq_entry *file_entry;
-  char *tmp_full_path = malloc((size_t)PathMax);
-  
+  struct dirq_entry *dir_entry = NULL;
+  struct fileq *file_head = NULL;
+  struct fileq_entry *file_entry = NULL;
+  char tmp_full_path[MAX_PATH]; 
+
+#ifdef WIN32
+  EnterCriticalSection(&s->CriticalSection);
+#endif
+ 
   if (s->on_result == NULL) {
     LOG_ERROR("Result callback not set, aborting scan\n");
+
+#ifdef WIN32
+    LeaveCriticalSection(&s->CriticalSection);
+#endif
     return;
   }
   
@@ -732,9 +769,12 @@ void ms_scan(MediaScan *s)
       file_entry = SIMPLEQ_FIRST(file_head);
       
       // Construct full path
-      *tmp_full_path = 0;
-      strcat(tmp_full_path, dir_entry->dir);
+	  strcpy(tmp_full_path, dir_entry->dir);
+#ifdef WIN32
+      strcat(tmp_full_path, "\\");
+#else
       strcat(tmp_full_path, "/");
+#endif
       strcat(tmp_full_path, file_entry->file);
       
       ms_scan_file(s, tmp_full_path, file_entry->type);
@@ -762,8 +802,10 @@ void ms_scan(MediaScan *s)
     s->progress->cur_item = NULL;
     s->on_progress(s, s->progress, s->userdata);
   }
-  
-  free(tmp_full_path);
+
+  #ifdef WIN32
+    LeaveCriticalSection(&s->CriticalSection);
+  #endif
 }
 
 ///-------------------------------------------------------------------------------------------------
@@ -781,8 +823,8 @@ void ms_scan(MediaScan *s)
 ///-------------------------------------------------------------------------------------------------
 void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type)
 {
-  MediaScanError *e;
-  MediaScanResult *r;
+  MediaScanError *e = NULL;
+  MediaScanResult *r = NULL;
 
   if (s == NULL) {
     ms_errno = MSENO_NULLSCANOBJ;

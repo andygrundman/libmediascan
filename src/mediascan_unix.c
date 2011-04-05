@@ -14,6 +14,8 @@
 #include "common.h"
 #include "mediascan.h"
 
+extern long PathMax;
+
 void unix_init(void)
 {
   PathMax = pathconf(".", _PC_PATH_MAX); // 1024
@@ -130,7 +132,7 @@ recurse_dir(MediaScan *s, const char *path)
       }
     }
   }
-    
+  
   closedir(dirp);
   
   // Send progress update

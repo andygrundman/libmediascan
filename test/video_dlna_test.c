@@ -11,7 +11,28 @@
 
 #define TEST_COUNT 1426
 
+#ifndef FALSE
+#define FALSE 0
+#endif
+
+#ifndef TRUE
+#define TRUE 1
+#endif
+
 #ifdef _MSC_VER
+
+
+
+int strcasecmp(const char *string1, const char *string2 )
+{
+	return _stricmp(string1, string2);
+}
+
+
+int strncasecmp(const char *string1, const char *string2, size_t count )
+{
+	return _strnicmp(string1, string2, count);
+}
 
 ///-------------------------------------------------------------------------------------------------
 ///  Inline assembly version of float rounding function
@@ -2551,11 +2572,8 @@ main(int argc, char *argv[])
   ExpectedResultType expected;
 
   plan(TEST_COUNT);
-  
-  
-//  test_DLNA_scanning(argv);
-  
-  
+    
+  test_DLNA_scanning(argv);
 
 // Test US profiles
   test_MPEG_TS_SD_NA();
