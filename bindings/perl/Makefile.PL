@@ -47,8 +47,11 @@ my @check = qw(/usr/include /usr/local/include /opt/local/include);
 unshift @check, split /:/, $ENV{INCLUDE};
 
 if ( $^O =~ /Win32/i ) {
-	push @check, 'win32/include';
-  $static = 1;
+    if ( !-d 'win32' ) {
+        die "Please read README.win32 for instructions on building on Windows\n";
+    }
+    push @check, 'win32/include';
+    $static = 1;
 }
 
 # Look for ffmpeg
@@ -73,12 +76,12 @@ for my $incdir ( $ffmpeg_inc, @check ) {
                 $MYEXTLIB .= $ffmpeg_inc . '/../lib/libavcodec$(LIB_EXT) ';
                 $MYEXTLIB .= $ffmpeg_inc . '/../lib/libavutil$(LIB_EXT) ';
             }
-		}
+        }
         else {
             push @LIBS, '-lavformat -lavcodec -lavutil';
         }
         
-		print "Using ffmpeg from $ffmpeg_inc\n";
+        print "Using ffmpeg from $ffmpeg_inc\n";
         last;
     }
 }
@@ -102,15 +105,15 @@ for my $incdir ( $lms_inc, @check ) {
             if ($lms_lib) {
                 $MYEXTLIB .= $lms_lib . '/' . 'libmediascan$(LIB_EXT) ';
             }
-			else {
-	            	$MYEXTLIB .= $lms_inc . '/../lib/libmediascan$(LIB_EXT) ';
+            else {
+                $MYEXTLIB .= $lms_inc . '/../lib/libmediascan$(LIB_EXT) ';
             }
         }
         else {
             push @LIBS, '-lmediascan';
         }
         
-		print "Using libmediascan from $lms_inc\n";
+        print "Using libmediascan from $lms_inc\n";
         last;
     }
 }
