@@ -523,7 +523,7 @@ int run_unit_tests()
       CU_cleanup_registry();
       return CU_get_error();
    }
-		ms_set_log_level(DEBUG);
+//		ms_set_log_level(DEBUG);
 //     av_log_set_level(AV_LOG_DEBUG);
    /* add the tests to the ms_scan suite */
    if (
@@ -533,11 +533,10 @@ int run_unit_tests()
 	   NULL == CU_add_test(pSuite, "Test of ms_scan() with a bad directory", test_ms_scan_4) ||
 // TODO: The following test fails due to the scanner freezing up.
 //	   NULL == CU_add_test(pSuite, "Test of ms_scan() with strange path slashes", test_ms_scan_5) ||
-//	   NULL == CU_add_test(pSuite, "Test of ms_scan()'s progress notifications", test_ms_scan_6) ||
+	   NULL == CU_add_test(pSuite, "Test of ms_scan()'s progress notifications", test_ms_scan_6) ||
 	   NULL == CU_add_test(pSuite, "Test of ms_file_scan()", test_ms_file_scan_1) ||
-// TODO: The following test will also cause FFMPEG to freeze up
 	   NULL == CU_add_test(pSuite, "Test of scanning LOTS of files", test_ms_large_directory) ||
-	//   NULL == CU_add_test(pSuite, "Test of misc functions", test_ms_misc_functions) ||
+	   NULL == CU_add_test(pSuite, "Test of misc functions", test_ms_misc_functions) ||
    	   NULL == CU_add_test(pSuite, "Simple test of ASF audio file", test_ms_file_asf_audio) 
 	   )
    {
@@ -545,7 +544,7 @@ int run_unit_tests()
       return CU_get_error();
    }
 
-  // setupbackground_tests();
+   setupbackground_tests();
 
    /* Run all tests using the CUnit Basic interface */
    CU_basic_set_mode(CU_BRM_VERBOSE);

@@ -207,8 +207,8 @@ static void register_formats(void)
 
 static void _init(void)
 {
-//  if (Initialized)
-//    return;
+  if (Initialized)
+    return;
   
   register_codecs();
   register_formats();
