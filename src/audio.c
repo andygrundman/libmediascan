@@ -7,7 +7,15 @@
 #include "mediascan_win32.h"
 #endif
 
+#ifdef _MSC_VER 
+#pragma warning( disable: 4244 ) 
+#endif
+
 #include <libavformat/avformat.h>
+
+#ifdef _MSC_VER
+#pragma warning( default: 4244 )
+#endif
 
 #include "common.h"
 #include "audio.h"

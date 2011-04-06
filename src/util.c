@@ -22,10 +22,11 @@
 void InitCriticalSection(void *lp)
 {
 #ifdef WIN32
-  if (!InitializeCriticalSectionAndSpinCount((LPCRITICAL_SECTION)lp, 0x00000400) ) 
-    return NULL;
+    if (!InitializeCriticalSectionAndSpinCount((LPCRITICAL_SECTION)lp, 
+        0x00000400) ) 
+        return;
 #else
-  pthread_mutex_init((pthread_mutex_t *)lp, NULL);
+	pthread_mutex_init((pthread_mutex_t*)lp, NULL);
 #endif
 }
 
@@ -48,7 +49,7 @@ void StartCriticalSection(void *lp)
 
 #else // POSIX
 
-	pthread_mutex_lock( (pthread_mutex_t *)lp );
+	pthread_mutex_lock( (pthread_mutex_t*)lp );
 
 #endif
 
@@ -62,7 +63,7 @@ void EndCriticalSection(void *lp)
 
   #else // POSIX
 	
-	pthread_mutex_unlock( (pthread_mutex_t *)lp );
+	pthread_mutex_unlock( (pthread_mutex_t*)lp );
 
   #endif
 }

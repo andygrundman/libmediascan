@@ -13,11 +13,13 @@
 #ifdef WIN32
 #include <Windows.h>
 #include <wchar.h>
-#else
+#endif
+
+#ifdef __GNUC__
 #include <pthread.h>
 #endif
 
-#define MAX_PATHS       128
+#define MAX_PATHS 128
 #define MAX_IGNORE_EXTS 128
 #define MAX_THUMBS      8
 

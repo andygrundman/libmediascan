@@ -6,9 +6,14 @@
 // If we are on MSVC, disable some stupid MSVC warnings
 #ifdef _MSC_VER
 #pragma warning( disable: 4996 )
+#pragma warning( disable: 4244 )
 #endif
 
 #include <libavformat/avformat.h>
+
+#ifdef _MSC_VER
+#pragma warning( default: 4244 )
+#endif
 
 #include "containers.h"
 #include "profiles.h"

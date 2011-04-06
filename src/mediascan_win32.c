@@ -15,6 +15,7 @@
 #include "common.h"
 #include "queue.h"
 #include "mediascan.h"
+#include "progress.h"
 
 ///-------------------------------------------------------------------------------------------------
 ///  Recursively walk a directory struction using Win32 style directory commands
@@ -117,7 +118,7 @@ void recurse_dir(MediaScan *s, const char *path)
         strcat_s(tmp_full_path, MAX_PATH, name);
         
         
-        subdir_entry->dir = strdup(tmp_full_path);
+        subdir_entry->dir = _strdup(tmp_full_path);
         SIMPLEQ_INSERT_TAIL(subdirq, subdir_entry, entries);
         
         LOG_INFO(" subdir: %s\n", tmp_full_path);
@@ -131,7 +132,7 @@ void recurse_dir(MediaScan *s, const char *path)
           if (parent_entry == NULL) {
             // Add parent directory to list of dirs with files
             parent_entry = malloc(sizeof(struct dirq_entry));
-            parent_entry->dir = strdup(dir);
+            parent_entry->dir = _strdup(dir);
             parent_entry->files = malloc(sizeof(struct fileq));
             SIMPLEQ_INIT(parent_entry->files);
             SIMPLEQ_INSERT_TAIL((struct dirq *)s->_dirq, parent_entry, entries);
@@ -139,7 +140,7 @@ void recurse_dir(MediaScan *s, const char *path)
           
           // Add scannable file to this directory list
           entry = malloc(sizeof(struct fileq_entry));
-          entry->file = strdup(name);
+          entry->file = _strdup(name);
           entry->type = type;
           SIMPLEQ_INSERT_TAIL(parent_entry->files, entry, entries);
           

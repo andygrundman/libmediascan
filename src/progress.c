@@ -51,7 +51,11 @@ void
 progress_start_phase(MediaScanProgress *p, const char *fmt, ...)
 {
   char *phase = (char *)malloc((size_t)MAX_PATH);
+
+#ifndef WIN32
   struct timeval now;
+#endif
+
   va_list ap;
   
   if (p->phase)

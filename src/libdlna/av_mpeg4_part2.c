@@ -25,7 +25,15 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#ifdef _MSC_VER
+#pragma warning( disable: 4244 )
+#endif
+
 #include <libavcodec/avcodec.h>
+
+#ifdef _MSC_VER
+#pragma warning( default: 4244 )
+#endif
 
 #include "dlna_internals.h"
 #include "profiles.h"
@@ -763,7 +771,7 @@ mpeg4_get_vcodec (AVCodecContext *vc)
     return MPEG4_VCODEC_INVALID;
   
   for (i = 0; avf_vcodec_mapping[i].codec_id != -1; i++)
-    if (vc->codec_id == (unsigned int) avf_vcodec_mapping[i].codec_id)
+    if (vc->codec_id == avf_vcodec_mapping[i].codec_id)
       return avf_vcodec_mapping[i].type;
 
   return MPEG4_VCODEC_INVALID;

@@ -22,8 +22,17 @@
 #ifndef _PROFILES_H_
 #define _PROFILES_H_
 
+#ifdef _MSC_VER 
+#pragma warning( disable: 4244 ) 
+#endif
+
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
+
+#ifdef _MSC_VER
+#pragma warning( default: 4244 )
+#endif
+
 
 #include "dlna_internals.h"
 #include "containers.h"

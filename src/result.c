@@ -8,14 +8,23 @@
 #include "win32config.h"
 #endif
 
+#include <sys/stat.h>
+
 // If we are on MSVC, disable some stupid MSVC warnings
 #ifdef _MSC_VER
 #pragma warning( disable: 4996 )
+#pragma warning( disable: 4244 ) 
 #endif
 
-#include <sys/stat.h>
 #include <libavformat/avformat.h>
+
+#ifdef _MSC_VER
+#pragma warning( default: 4244 )
+#endif
+
 #include <libmediascan.h>
+
+
 
 #include "common.h"
 #include "buffer.h"
@@ -188,7 +197,7 @@ static void set_file_metadata(MediaScanResult *r)
 
   if ( !fstat(fd, &buf) ) {
     r->size = buf.st_size;
-    r->mtime = buf.st_mtime;
+    r->mtime = (int)buf.st_mtime;
   }    
 } /* set_file_metadata() */
 
@@ -269,7 +278,7 @@ static int scan_video(MediaScanResult *r)
   set_file_metadata(r);
 
   r->bitrate     = avf->bit_rate;
-  r->duration_ms = avf->duration / 1000;
+  r->duration_ms = (int)(avf->duration / 1000);
 
   // Video-specific metadata
   v = r->video = video_create();
