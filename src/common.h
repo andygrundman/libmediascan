@@ -20,7 +20,7 @@ extern enum log_level Debug;
 
 
 #ifndef MAX_PATH
-#define MAX_PATH _PC_PATH_MAX
+#define MAX_PATH 1024
 #endif
 
 #define LOG_OUTPUT(...) fprintf(stdout, __VA_ARGS__)

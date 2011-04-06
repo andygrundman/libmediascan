@@ -16,7 +16,7 @@
 #endif
 
 #ifdef __GNUC__
-#include <ptrehad.h>
+#include <pthread.h>
 #endif
 
 #define MAX_PATHS 128

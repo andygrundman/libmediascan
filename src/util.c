@@ -26,7 +26,6 @@ void InitCriticalSection(void *lp)
         0x00000400) ) 
         return;
 #else
-	*lp = PTHREAD_MUTEX_INITIALIZER;
 	pthread_mutex_init((pthread_mutex_t*)lp, NULL);
 #endif
 }
@@ -50,7 +49,7 @@ void StartCriticalSection(void *lp)
 
 #else // POSIX
 
-	pthread_mutex_lock( (pthread_mutex_t)lp );
+	pthread_mutex_lock( (pthread_mutex_t*)lp );
 
 #endif
 
@@ -64,7 +63,7 @@ void EndCriticalSection(void *lp)
 
   #else // POSIX
 	
-	pthread_mutex_unlock( (pthread_mutex_t)lp );
+	pthread_mutex_unlock( (pthread_mutex_t*)lp );
 
   #endif
 }

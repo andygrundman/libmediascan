@@ -104,8 +104,12 @@ static void my_error_callback(MediaScan *s, MediaScanError *error, void *userdat
 ///-------------------------------------------------------------------------------------------------
 
 void test_ms_scan(void){
-	
+	#ifdef WIN32
 	char dir[MAX_PATH] = "data\\video\\dlna";
+	#else
+	char dir[MAX_PATH] = "data/video/dlna";
+	#endif
+	
 	MediaScan *s = ms_create();
 
 	CU_ASSERT(s->npaths == 0);
@@ -296,7 +300,11 @@ static void my_progress_callback_6(MediaScan *s, MediaScanProgress *progress, vo
 ///-------------------------------------------------------------------------------------------------
 
 void test_ms_scan_6(void)	{
+#ifdef WIN32
+	char dir[MAX_PATH] = "data\\audio\\mp3";
+#else
 	char dir[MAX_PATH] = "data/audio/mp3";
+#endif
 	MediaScan *s = ms_create();
 
 	CU_ASSERT(s->npaths == 0);
@@ -374,9 +382,13 @@ static void my_error_callback_1(MediaScan *s, MediaScanError *error, void *userd
 ///-------------------------------------------------------------------------------------------------
 
 void test_ms_file_scan_1(void)	{
-	char valid_file[MAX_PATH] = "data\video\bars-mpeg4-aac.m4v";
-	char invalid_file[MAX_PATH] = "data\video\notafile.m4v";
-	
+#ifdef WIN32
+	char valid_file[MAX_PATH] = "data\\video\\bars-mpeg4-aac.m4v";
+	char invalid_file[MAX_PATH] = "data\\video\\notafile.m4v";
+#else
+	char valid_file[MAX_PATH] = "data/video/bars-mpeg4-aac.m4v";
+	char invalid_file[MAX_PATH] = "data/video/notafile.m4v";
+#endif
 	MediaScan *s = ms_create();
 	
 	// Check null mediascan oject
@@ -418,6 +430,34 @@ void test_ms_file_scan_1(void)	{
 
 	ms_destroy(s);
 } /* test_ms_file_scan_1 */
+
+
+void test_ms_file_asf_audio(void)	{
+#ifdef WIN32
+	char asf_file[MAX_PATH] = "data\\audio\\wmv92-with-audio.wmv";
+#else
+	char asf_file[MAX_PATH] = "data/audio/wmv92-with-audio.wmv";
+#endif
+	MediaScan *s = ms_create();
+	
+	CU_ASSERT(s->on_result == NULL);
+	ms_set_result_callback(s, my_result_callback_1);
+	CU_ASSERT(s->on_result == my_result_callback_1);
+
+	// Set up an error callback
+	CU_ASSERT(s->on_error == NULL);
+	ms_set_error_callback(s, my_error_callback); 
+	CU_ASSERT(s->on_error == my_error_callback);
+
+	// Now scan a valid video file, with an error handler
+	ms_errno = 0;
+	error_called = FALSE;
+	ms_scan_file(s, asf_file, TYPE_VIDEO);
+	// Need more info to run this test
+
+	ms_destroy(s);
+} /* test_ms_file_asf_audio */
+
 
 ///-------------------------------------------------------------------------------------------------
 ///  Test ms_set_async and ms_set_log_level
@@ -483,7 +523,7 @@ int run_unit_tests()
       CU_cleanup_registry();
       return CU_get_error();
    }
-//		ms_set_log_level(DEBUG);
+		ms_set_log_level(DEBUG);
 //     av_log_set_level(AV_LOG_DEBUG);
    /* add the tests to the ms_scan suite */
    if (
@@ -493,18 +533,19 @@ int run_unit_tests()
 	   NULL == CU_add_test(pSuite, "Test of ms_scan() with a bad directory", test_ms_scan_4) ||
 // TODO: The following test fails due to the scanner freezing up.
 //	   NULL == CU_add_test(pSuite, "Test of ms_scan() with strange path slashes", test_ms_scan_5) ||
-	   NULL == CU_add_test(pSuite, "Test of ms_scan()'s progress notifications", test_ms_scan_6) ||
+//	   NULL == CU_add_test(pSuite, "Test of ms_scan()'s progress notifications", test_ms_scan_6) ||
 	   NULL == CU_add_test(pSuite, "Test of ms_file_scan()", test_ms_file_scan_1) ||
 // TODO: The following test will also cause FFMPEG to freeze up
 	   NULL == CU_add_test(pSuite, "Test of scanning LOTS of files", test_ms_large_directory) ||
-	   NULL == CU_add_test(pSuite, "Test of misc functions", test_ms_misc_functions)    
+	//   NULL == CU_add_test(pSuite, "Test of misc functions", test_ms_misc_functions) ||
+   	   NULL == CU_add_test(pSuite, "Simple test of ASF audio file", test_ms_file_asf_audio) 
 	   )
    {
       CU_cleanup_registry();
       return CU_get_error();
    }
 
-   setupbackground_tests();
+  // setupbackground_tests();
 
    /* Run all tests using the CUnit Basic interface */
    CU_basic_set_mode(CU_BRM_VERBOSE);
