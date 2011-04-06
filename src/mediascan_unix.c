@@ -57,7 +57,13 @@ recurse_dir(MediaScan *s, const char *path)
         strcat(dir, path);
     }
     else {
-        dir = strdup(path);
+#ifdef USING_TCMALLOC
+      // strdup will cause tcmalloc to crash on free
+      dir = (char *)malloc((size_t)PathMax);
+      strcpy(dir, path);
+#else
+      dir = strdup(path);
+#endif
     }
     
     // Strip trailing slash if any

@@ -24,6 +24,7 @@
 #include "video.h"
 #include "audio.h"
 #include "image.h"
+#include "thumb.h"
 #include "util.h"
 
 // DLNA support
@@ -326,6 +327,7 @@ scan_image(MediaScanResult *r)
   int ret = 1;
   MediaScanImage *i = NULL;
   MediaScan *s;
+  int w, h;
   
   // Open the file and read in a buffer of at least 8 bytes
   if ( !ensure_opened_with_buf(r, 8) ) {
@@ -338,6 +340,7 @@ scan_image(MediaScanResult *r)
   set_file_metadata(r);
   
   i = r->image = image_create();
+  i->path = r->path;
   
   if ( !image_read_header(i, r) ) {
     r->error = error_create(r->path, MS_ERROR_READ, "Invalid or corrupt image file");
@@ -345,13 +348,28 @@ scan_image(MediaScanResult *r)
     goto out;
   }
   
+  // Save original image dimensions as thumbnail creation may alter it (e.g. for JPEG scaling)
+  w = i->width;
+  h = i->height;
+  
   // Create thumbnail(s)
   s = (MediaScan *)r->_scan;
   if (s->nthumbspecs) {
-    int i;
-    for (i = 0; i < s->nthumbspecs; i++)
-      image_create_thumbnail(i, s->thumbspecs[i]);
+    int x;
+    
+    // XXX sort from biggest to smallest, resize in series
+    // XXX Move image_load call here
+    
+    for (x = 0; x < s->nthumbspecs; x++) {
+      MediaScanImage *thumb = thumb_create_from_image(i, s->thumbspecs[x]);
+      if (thumb)
+        image_add_thumbnail(i, thumb);
+    }
   }
+  
+  // Restore dimensions
+  i->width = w;
+  i->height = h;
   
 out:
   return ret;
@@ -470,6 +488,8 @@ void result_destroy(MediaScanResult *r)
 
 void ms_dump_result(MediaScanResult *r)
 {
+  int i;
+  
   LOG_OUTPUT("%s\n", r->path);
   LOG_OUTPUT("  MIME type:    %s\n", r->mime_type);
   LOG_OUTPUT("  DLNA profile: %s\n", r->dlna_profile);
@@ -498,6 +518,23 @@ void ms_dump_result(MediaScanResult *r)
     case TYPE_IMAGE:
       LOG_OUTPUT("  Image:        %s\n", r->image->codec);
       LOG_OUTPUT("    Dimensions: %d x %d\n", r->image->width, r->image->height);
+      for (i = 0; i < r->image->nthumbnails; i++) {
+        MediaScanImage *thumb = r->image->thumbnails[i];
+        Buffer *dbuf = (Buffer *)thumb->_dbuf;
+        LOG_OUTPUT("    Thumbnail:  %d x %d %s (%d bytes)\n", thumb->width, thumb->height, thumb->codec, buffer_len(dbuf));
+
+#ifdef DUMP_THUMBNAILS
+        {
+          FILE *tfp;
+          char file[MAX_PATH];
+          sprintf(file, "thumb%d.%s", i, "jpg");
+          tfp = fopen(file, "wb");
+          fwrite(buffer_ptr(dbuf), 1, buffer_len(dbuf), tfp);
+          fclose(tfp);
+          LOG_OUTPUT("      Saved to: %s\n", file);
+        }
+#endif
+      }
       break;
     
     case TYPE_AUDIO:

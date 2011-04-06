@@ -1,11 +1,13 @@
 
 #include <libmediascan.h>
+#include <stdlib.h>
 
 #ifdef WIN32
 #include "mediascan_win32.h"
 #endif
 
 #include "common.h"
+#include "buffer.h"
 #include "image.h"
 #include "error.h"
 #include "image_jpeg.h"
@@ -22,14 +24,31 @@ image_create(void)
   
   LOG_MEM("new MediaScanImage @ %p\n", i);
   
+  i->orientation = ORIENTATION_NORMAL;
+  
   return i;
 }
 
 void
 image_destroy(MediaScanImage *i)
 {
-  if (i->_jpeg)
-    image_jpeg_destroy(i);
+  int x;
+  
+  // Note: i->path is always a pointer to an existing path from Result, etc
+  // and is not freed here.
+  
+  // free uncompressed data if any
+  image_unload(i);
+  
+  // free compressed data if any
+  if (i->_dbuf) {
+    buffer_free(i->_dbuf);
+    free(i->_dbuf);
+  }
+  
+  // free thumbnails
+  for (x = 0; x < i->nthumbnails; x++)
+    image_destroy(i->thumbnails[x]);
   
   LOG_MEM("destroy MediaScanImage @ %p\n", i);
   free(i);
@@ -83,7 +102,76 @@ out:
 }
 
 void
-image_create_thumbnail(MediaScanImage *i, MediaScanThumbSpec *spec)
+image_add_thumbnail(MediaScanImage *i, MediaScanImage *thumb)
 {
-  // XXX
+  if (i->nthumbnails < MAX_THUMBS)
+    i->thumbnails[ i->nthumbnails++ ] = thumb;
+}
+
+int
+image_load(MediaScanImage *i, MediaScanThumbSpec *spec_hint)
+{
+  int ret = 1;
+  
+  if (i->_pixbuf_size)
+    return 1;
+  
+  // Each type-specific loader is expected to call image_alloc_pixbuf to
+  // allocate the necessary space for the decompressed image
+  
+  if (!strcmp("JPEG", i->codec)) {
+    if ( !image_jpeg_load(i, spec_hint) ) {
+      ret = 0;
+      goto out;
+    }
+  }
+  else if (!strcmp("PNG", i->codec)) {
+    if ( !image_png_load(i) ) {
+      ret = 0;
+      goto out;
+    }
+  }
+  else if (!strcmp("GIF", i->codec)) {
+    if ( !image_gif_load(i) ) {
+      ret = 0;
+      goto out;
+    }
+  }
+  else if (!strcmp("BMP", i->codec)) {
+    if ( !image_bmp_load(i) ) {
+      ret = 0;
+      goto out;
+    }
+  }
+  
+out:
+  return ret;
+}
+
+void
+image_alloc_pixbuf(MediaScanImage *i, int width, int height)
+{
+  int size = width * height * sizeof(uint32_t);
+  
+  // XXX memory_limit
+  
+  i->_pixbuf = (uint32_t *)malloc(size);
+  i->_pixbuf_size = size;
+  
+  LOG_MEM("new pixbuf for image of size %d x %d (%d bytes)\n",
+    width, height, size);
+}
+
+void
+image_unload(MediaScanImage *i)
+{
+  if (i->_jpeg)
+    image_jpeg_destroy(i);
+  
+  if (i->_pixbuf_size) {
+    LOG_MEM("destroy pixbuf of size %d bytes\n", i->_pixbuf_size);
+    
+    free(i->_pixbuf);
+    i->_pixbuf_size = 0;
+  }
 }

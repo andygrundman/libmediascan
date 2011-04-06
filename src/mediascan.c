@@ -408,13 +408,15 @@ void ms_add_ignore_extension(MediaScan *s, const char *extension)
 } /* ms_add_ignore_extension() */
 
 void
-ms_add_thumbnail_spec(MediaScan *s, enum thumb_format format, int width, int height, int keep_aspect)
+ms_add_thumbnail_spec(MediaScan *s, enum thumb_format format, int width, int height, int keep_aspect, uint32_t bgcolor, int quality)
 {
   MediaScanThumbSpec *spec = malloc(sizeof(MediaScanThumbSpec));
   spec->format = format;
   spec->width = width;
   spec->height = height;
   spec->keep_aspect = keep_aspect;
+  spec->bgcolor = 0;
+  spec->jpeg_quality = quality;
   
   s->thumbspecs[ s->nthumbspecs++ ] = spec;
 }

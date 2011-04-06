@@ -36,4 +36,10 @@ extern enum log_level Debug;
 
 #define BUF_SIZE 4096
 
+// Define if running under tcmalloc
+#define USING_TCMALLOC
+
+// Define to have ms_dump_result write out thumbnail images
+#define DUMP_THUMBNAILS
+
 #endif // _COMMON_H

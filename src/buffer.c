@@ -1061,9 +1061,11 @@ buffer_check_load(Buffer *buf, FILE *fp, int min_wanted, int max_wanted)
 
     tmp = (unsigned char *)malloc(actual_wanted);
     
+    /*
     LOG_DEBUG("Buffering from file @ %ld (min_wanted %d, max_wanted %d, adjusted to %d)\n",
       ftell(fp), min_wanted, max_wanted, actual_wanted
     );
+    */
 
     if ( (read = fread(tmp, 1, actual_wanted, fp)) <= 0 ) {
       if (ferror(fp)) {
@@ -1086,7 +1088,7 @@ buffer_check_load(Buffer *buf, FILE *fp, int min_wanted, int max_wanted)
       goto out;
     }
 
-    LOG_DEBUG("Buffered %d bytes, new pos %ld\n", read, ftell(fp));
+    //LOG_DEBUG("Buffered %d bytes, new pos %ld\n", read, ftell(fp));
 
 out:
     free(tmp);

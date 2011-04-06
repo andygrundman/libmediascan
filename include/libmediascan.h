@@ -8,6 +8,7 @@
 #define _LIBMEDIASCAN_H
 
 #include <stdio.h>
+#include <stdint.h>
 
 #ifdef WIN32
 #include <Windows.h>
@@ -18,7 +19,7 @@
 
 #define MAX_PATHS       128
 #define MAX_IGNORE_EXTS 128
-#define MAX_THUMBS      128
+#define MAX_THUMBS      8
 
 enum media_error {
   MS_ERROR_TYPE_UNKNOWN        = -1,
@@ -42,6 +43,17 @@ enum thumb_format {
   THUMB_AUTO = 1, //< Use JPEG for square thumbnails, transparent PNG for non-square
   THUMB_JPEG,
   THUMB_PNG
+};
+
+enum exif_orientation {
+  ORIENTATION_NORMAL = 1,
+  ORIENTATION_MIRROR_HORIZ,
+  ORIENTATION_180,
+  ORIENTATION_MIRROR_VERT,
+  ORIENTATION_MIRROR_HORIZ_270_CCW,
+  ORIENTATION_90_CCW,
+  ORIENTATION_MIRROR_HORIZ_90_CCW,
+  ORIENTATION_270_CCW
 };
 
 enum log_level {
@@ -72,18 +84,25 @@ struct _Audio {
 typedef struct _Audio MediaScanAudio;
 
 struct _Image {
+  const char *path;    ///< Path to the file containing this image
   const char *codec;
   int width;
   int height;
   int channels;
+  int has_alpha;
   int offset;       // byte offset to start of image
-  const char *data; // image data, if needed
+  enum exif_orientation orientation;
   
-  struct _Image **thumbnails;
+  int nthumbnails;
+  struct _Image *thumbnails[MAX_THUMBS];
   struct _Tag **tags;
   
   // private members
-  void *_jpeg;      // JPEG-specific internal data
+  void *_dbuf;          // Buffer for compressed image data
+  uint32_t *_pixbuf;    // Uncompressed image data used during resize
+  int _pixbuf_size;     // Size of data in pixbuf
+  int _pixbuf_is_copy;  // Flag if dst pixbuf is a pointer to src pixbuf
+  void *_jpeg;          // JPEG-specific internal data
 };
 typedef struct _Image MediaScanImage;
 
@@ -152,6 +171,14 @@ typedef struct _ThumbSpec {
   int width;
   int height;
   int keep_aspect;
+  uint32_t bgcolor;
+  int jpeg_quality;
+  
+  // Internal data
+  int width_padding;
+  int width_inner;
+  int height_padding;
+  int height_inner;
 } MediaScanThumbSpec;
 
 struct _Scan {
@@ -256,8 +283,11 @@ void ms_add_ignore_extension(MediaScan *s, const char *extension);
  * @param keep_aspect If both width and height are specified, setting this to 1 will
  * keep the aspect ratio of the source as well as center the image when resizing into
  * a different aspect ratio.
+ * @param bgcolor If the image needs to be padded and is not transparent, specify a 24-bit bgcolor
+ * such as 0xffffff (white) or 0x000000 (black).
+ * @param quality For JPEG thumbnails, specify the desired quality. Defaults to 90 if set to 0.
  */
-void ms_add_thumbnail_spec(MediaScan *s, enum thumb_format format, int width, int height, int keep_aspect);
+void ms_add_thumbnail_spec(MediaScan *s, enum thumb_format format, int width, int height, int keep_aspect, uint32_t bgcolor, int quality);
 
 /**
  * By default, scans are synchronous. This means the call to ms_scan will
