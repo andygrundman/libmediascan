@@ -18,6 +18,10 @@
 #define TRUE 1
 #endif
 
+#ifndef MAX_PATH
+#define MAX_PATH 1024
+#endif
+
 #ifdef _MSC_VER
 
 
@@ -294,6 +298,14 @@ static void my_result_callback2(MediaScan *s, MediaScanResult *r, void *userdata
 static void test_DLNA_files(char *file, ExpectedResultType *expected)
 {
 	MediaScan *s = NULL;
+	char full_file[MAX_PATH];
+	
+	#ifdef WIN32
+	strcpy(full_file, "data\\video\\dlna_individual\\");
+	#else
+	strcpy(full_file, "data/video/dlna_individual/");
+	#endif
+	strcat(full_file, file);
 
 	s = ms_create();
     ms_set_result_callback(s, my_result_callback2);
@@ -302,7 +314,7 @@ static void test_DLNA_files(char *file, ExpectedResultType *expected)
 	// Scan the file
 	result_called = FALSE;
 	memset( &result, 0, sizeof(MediaScanResult));
-	ms_scan_file(s, file, TYPE_UNKNOWN);
+	ms_scan_file(s, full_file, TYPE_UNKNOWN);
 
 	// Check the result
 	ok(result_called == TRUE, "%s scanned", file);
@@ -361,7 +373,7 @@ void test_MPEG_PS_NTSC()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_N-3.mpg", &expected);
+	test_DLNA_files("B-MP2PS_N-3.mpg", &expected);
 
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
@@ -378,7 +390,7 @@ void test_MPEG_PS_NTSC()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_N-5.mpg", &expected);
+	test_DLNA_files("B-MP2PS_N-5.mpg", &expected);
 
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
@@ -395,7 +407,7 @@ void test_MPEG_PS_NTSC()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_N-7.mpg", &expected);
+	test_DLNA_files("B-MP2PS_N-7.mpg", &expected);
 
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
@@ -412,7 +424,7 @@ void test_MPEG_PS_NTSC()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 1;
   
-	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_N-8.mpg", &expected);
+	test_DLNA_files("B-MP2PS_N-8.mpg", &expected);
 
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
@@ -429,7 +441,7 @@ void test_MPEG_PS_NTSC()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_N-9.mpg", &expected);
+	test_DLNA_files("B-MP2PS_N-9.mpg", &expected);
 
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
@@ -446,7 +458,7 @@ void test_MPEG_PS_NTSC()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_N-13.mpg", &expected);
+	test_DLNA_files("B-MP2PS_N-13.mpg", &expected);
 
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
@@ -463,7 +475,7 @@ void test_MPEG_PS_NTSC()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_N-14.mpg", &expected);
+	test_DLNA_files("B-MP2PS_N-14.mpg", &expected);
 
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
@@ -480,9 +492,7 @@ void test_MPEG_PS_NTSC()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
 
-// NOTE: This file causes a lockup TODO: Find out why!
-//	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_N-61.mpg", &expected);
-
+	test_DLNA_files("B-MP2PS_N-61.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -498,7 +508,7 @@ void test_MPEG_PS_NTSC()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_N-67.mpg", &expected);
+	test_DLNA_files("B-MP2PS_N-67.mpg", &expected);
 
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
@@ -515,7 +525,7 @@ void test_MPEG_PS_NTSC()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_N-68.mpg", &expected);
+	test_DLNA_files("B-MP2PS_N-68.mpg", &expected);
 
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
@@ -532,7 +542,7 @@ void test_MPEG_PS_NTSC()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 1;
   
-	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_N-69.mpg", &expected);
+	test_DLNA_files("B-MP2PS_N-69.mpg", &expected);
 
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
@@ -549,7 +559,7 @@ void test_MPEG_PS_NTSC()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_N-70.mpg", &expected);
+	test_DLNA_files("B-MP2PS_N-70.mpg", &expected);
 
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
@@ -566,7 +576,7 @@ void test_MPEG_PS_NTSC()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_N-80.mpg", &expected);
+	test_DLNA_files("B-MP2PS_N-80.mpg", &expected);
 
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
@@ -583,7 +593,7 @@ void test_MPEG_PS_NTSC()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_N-86.mpg", &expected);
+	test_DLNA_files("B-MP2PS_N-86.mpg", &expected);
 
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
@@ -600,7 +610,7 @@ void test_MPEG_PS_NTSC()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_N-87.mpg", &expected);
+	test_DLNA_files("B-MP2PS_N-87.mpg", &expected);
 
 	
 	memset( &expected, 0, sizeof(MediaScanResult) );
@@ -617,7 +627,7 @@ void test_MPEG_PS_NTSC()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_N-107.mpg", &expected);
+	test_DLNA_files("B-MP2PS_N-107.mpg", &expected);
 
 }	/* test_MPEG_PS_NTSC() */
 
@@ -640,7 +650,7 @@ void test_MPEG_TS_HD_NA()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN-1.mpg", &expected);
+	test_DLNA_files("O-MP2TS_HN-1.mpg", &expected);
 	
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -656,7 +666,7 @@ void test_MPEG_TS_HD_NA()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN-2.mpg", &expected);
+	test_DLNA_files("O-MP2TS_HN-2.mpg", &expected);
 
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
@@ -673,7 +683,7 @@ void test_MPEG_TS_HD_NA()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN-3.mpg", &expected);
+	test_DLNA_files("O-MP2TS_HN-3.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -689,7 +699,7 @@ void test_MPEG_TS_HD_NA()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN-4.mpg", &expected);
+	test_DLNA_files("O-MP2TS_HN-4.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -705,7 +715,7 @@ void test_MPEG_TS_HD_NA()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 1;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN-5.mpg", &expected);
+	test_DLNA_files("O-MP2TS_HN-5.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -721,7 +731,7 @@ void test_MPEG_TS_HD_NA()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN-6.mpg", &expected);
+	test_DLNA_files("O-MP2TS_HN-6.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -737,7 +747,7 @@ void test_MPEG_TS_HD_NA()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN-7.mpg", &expected);
+	test_DLNA_files("O-MP2TS_HN-7.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -753,7 +763,7 @@ void test_MPEG_TS_HD_NA()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN-8.mpg", &expected);
+	test_DLNA_files("O-MP2TS_HN-8.mpg", &expected);
 }	/* test_MPEG_TS_HD_NA() */
 
 void test_MPEG_TS_HD_NA_T()
@@ -775,7 +785,7 @@ void test_MPEG_TS_HD_NA_T()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN_T-1.mpg", &expected);
+	test_DLNA_files("O-MP2TS_HN_T-1.mpg", &expected);
 	
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -791,7 +801,7 @@ void test_MPEG_TS_HD_NA_T()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN_T-2.mpg", &expected);
+	test_DLNA_files("O-MP2TS_HN_T-2.mpg", &expected);
 
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
@@ -808,7 +818,7 @@ void test_MPEG_TS_HD_NA_T()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN_T-3.mpg", &expected);
+	test_DLNA_files("O-MP2TS_HN_T-3.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -824,7 +834,7 @@ void test_MPEG_TS_HD_NA_T()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN_T-4.mpg", &expected);
+	test_DLNA_files("O-MP2TS_HN_T-4.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -840,7 +850,7 @@ void test_MPEG_TS_HD_NA_T()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 1;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN_T-5.mpg", &expected);
+	test_DLNA_files("O-MP2TS_HN_T-5.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -856,7 +866,7 @@ void test_MPEG_TS_HD_NA_T()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN_T-6.mpg", &expected);
+	test_DLNA_files("O-MP2TS_HN_T-6.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -872,7 +882,7 @@ void test_MPEG_TS_HD_NA_T()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN_T-7.mpg", &expected);
+	test_DLNA_files("O-MP2TS_HN_T-7.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -888,7 +898,7 @@ void test_MPEG_TS_HD_NA_T()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN_T-8.mpg", &expected);
+	test_DLNA_files("O-MP2TS_HN_T-8.mpg", &expected);
 }	/* test_MPEG_TS_HD_NA_T() */
 
 void test_MPEG_TS_SD_NA()
@@ -910,7 +920,7 @@ void test_MPEG_TS_SD_NA()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SN-1.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SN-1.mpg", &expected);
 	
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -926,7 +936,7 @@ void test_MPEG_TS_SD_NA()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SN-2.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SN-2.mpg", &expected);
 
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
@@ -943,7 +953,7 @@ void test_MPEG_TS_SD_NA()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SN-3.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SN-3.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -959,7 +969,7 @@ void test_MPEG_TS_SD_NA()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SN-4.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SN-4.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -975,7 +985,7 @@ void test_MPEG_TS_SD_NA()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SN-5.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SN-5.mpg", &expected);
 } /* test_MPEG_TS_SD_NA() */
 
 void test_MPEG_TS_SD_NA_T()
@@ -998,7 +1008,7 @@ void test_MPEG_TS_SD_NA_T()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SNT-1.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SNT-1.mpg", &expected);
 	
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -1014,7 +1024,7 @@ void test_MPEG_TS_SD_NA_T()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SNT-2.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SNT-2.mpg", &expected);
 	
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -1030,7 +1040,7 @@ void test_MPEG_TS_SD_NA_T()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SNT-3.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SNT-3.mpg", &expected);
 	
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -1046,7 +1056,7 @@ void test_MPEG_TS_SD_NA_T()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SNT-4.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SNT-4.mpg", &expected);
 	
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -1062,7 +1072,7 @@ void test_MPEG_TS_SD_NA_T()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SNT-5.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SNT-5.mpg", &expected);
 	
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -1078,7 +1088,7 @@ void test_MPEG_TS_SD_NA_T()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SNT-6.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SNT-6.mpg", &expected);
 	
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -1094,7 +1104,7 @@ void test_MPEG_TS_SD_NA_T()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 1;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SNT-7.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SNT-7.mpg", &expected);
 	
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -1110,7 +1120,7 @@ void test_MPEG_TS_SD_NA_T()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SNT-8.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SNT-8.mpg", &expected);
 	
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -1126,7 +1136,7 @@ void test_MPEG_TS_SD_NA_T()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SNT-9.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SNT-9.mpg", &expected);
 	
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -1142,7 +1152,7 @@ void test_MPEG_TS_SD_NA_T()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SNT-10.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SNT-10.mpg", &expected);
 	
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -1158,7 +1168,7 @@ void test_MPEG_TS_SD_NA_T()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SNT-11.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SNT-11.mpg", &expected);
 	
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -1174,7 +1184,7 @@ void test_MPEG_TS_SD_NA_T()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SNT-12.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SNT-12.mpg", &expected);
 	
 		memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -1190,7 +1200,7 @@ void test_MPEG_TS_SD_NA_T()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SNT-13.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SNT-13.mpg", &expected);
 	
 		
 } /* test_MPEG_TS_SD_NA_T() */
@@ -1214,7 +1224,7 @@ void test_MPEG_TS_SD_NA_ISO()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SN_I-1.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SN_I-1.mpg", &expected);
 
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
@@ -1231,7 +1241,7 @@ void test_MPEG_TS_SD_NA_ISO()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SN_I-2.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SN_I-2.mpg", &expected);
 
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
@@ -1248,7 +1258,7 @@ void test_MPEG_TS_SD_NA_ISO()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SN_I-3.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SN_I-3.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -1264,7 +1274,7 @@ void test_MPEG_TS_SD_NA_ISO()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SN_I-4.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SN_I-4.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -1280,7 +1290,7 @@ void test_MPEG_TS_SD_NA_ISO()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SN_I-5.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SN_I-5.mpg", &expected);
 
 } /* test_MPEG_TS_SD_NA_ISO() */
 
@@ -1303,7 +1313,7 @@ void test_MPEG_TS_HD_NA_ISO()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN_I-1.mpg", &expected);
+	test_DLNA_files("O-MP2TS_HN_I-1.mpg", &expected);
 
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
@@ -1320,7 +1330,7 @@ void test_MPEG_TS_HD_NA_ISO()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN_I-2.mpg", &expected);
+	test_DLNA_files("O-MP2TS_HN_I-2.mpg", &expected);
 
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
@@ -1337,7 +1347,7 @@ void test_MPEG_TS_HD_NA_ISO()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN_I-3.mpg", &expected);
+	test_DLNA_files("O-MP2TS_HN_I-3.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -1353,7 +1363,7 @@ void test_MPEG_TS_HD_NA_ISO()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN_I-4.mpg", &expected);
+	test_DLNA_files("O-MP2TS_HN_I-4.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -1369,7 +1379,7 @@ void test_MPEG_TS_HD_NA_ISO()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 1;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN_I-5.mpg", &expected);
+	test_DLNA_files("O-MP2TS_HN_I-5.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -1385,7 +1395,7 @@ void test_MPEG_TS_HD_NA_ISO()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN_I-6.mpg", &expected);
+	test_DLNA_files("O-MP2TS_HN_I-6.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -1401,7 +1411,7 @@ void test_MPEG_TS_HD_NA_ISO()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN_I-7.mpg", &expected);
+	test_DLNA_files("O-MP2TS_HN_I-7.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -1417,7 +1427,7 @@ void test_MPEG_TS_HD_NA_ISO()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN_I-8.mpg", &expected);
+	test_DLNA_files("O-MP2TS_HN_I-8.mpg", &expected);
 
 } /* test_MPEG_TS_HD_NA_ISO() */
 
@@ -1439,7 +1449,7 @@ void test_DLNA_large_files()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN-2-long.mpg", &expected);
+	test_DLNA_files("O-MP2TS_HN-2-long.mpg", &expected);
 
 
 	// Test for MPEG_TS_HD_NA
@@ -1457,7 +1467,7 @@ void test_DLNA_large_files()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SNT-1-long.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SNT-1-long.mpg", &expected);
 
 	
 } /* test_DLNA_large_files() */
@@ -1481,8 +1491,7 @@ void test_MPEG_PS_PAL()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	// TODO: This file causes FFMPEG to freeze if called directly after test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_HN-8.mpg", &expected);
-	//test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_P-2.mpg", &expected);
+	test_DLNA_files("B-MP2PS_P-2.mpg", &expected);
 
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
@@ -1499,7 +1508,7 @@ void test_MPEG_PS_PAL()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_P-4.mpg", &expected);
+	test_DLNA_files("B-MP2PS_P-4.mpg", &expected);
 
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
@@ -1516,7 +1525,7 @@ void test_MPEG_PS_PAL()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_P-6.mpg", &expected);
+	test_DLNA_files("B-MP2PS_P-6.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -1532,7 +1541,7 @@ void test_MPEG_PS_PAL()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 1;
   
-	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_P-11.mpg", &expected);
+	test_DLNA_files("B-MP2PS_P-11.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -1548,7 +1557,7 @@ void test_MPEG_PS_PAL()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_P-12.mpg", &expected);
+	test_DLNA_files("B-MP2PS_P-12.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -1564,7 +1573,7 @@ void test_MPEG_PS_PAL()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_P-20.mpg", &expected);
+	test_DLNA_files("B-MP2PS_P-20.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -1580,7 +1589,7 @@ void test_MPEG_PS_PAL()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_P-21.mpg", &expected);
+	test_DLNA_files("B-MP2PS_P-21.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -1596,8 +1605,7 @@ void test_MPEG_PS_PAL()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	// TODO: This file causes FFMPEG to freeze up and not return
-	//test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_P-66.mpg", &expected);
+	test_DLNA_files("B-MP2PS_P-66.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -1613,7 +1621,7 @@ void test_MPEG_PS_PAL()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_P-88.mpg", &expected);
+	test_DLNA_files("B-MP2PS_P-88.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -1629,7 +1637,7 @@ void test_MPEG_PS_PAL()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 1;
   
-	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_P-89.mpg", &expected);
+	test_DLNA_files("B-MP2PS_P-89.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -1645,7 +1653,7 @@ void test_MPEG_PS_PAL()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_P-90.mpg", &expected);
+	test_DLNA_files("B-MP2PS_P-90.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -1661,7 +1669,7 @@ void test_MPEG_PS_PAL()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_P-94.mpg", &expected);
+	test_DLNA_files("B-MP2PS_P-94.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -1677,7 +1685,7 @@ void test_MPEG_PS_PAL()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_P-96.mpg", &expected);
+	test_DLNA_files("B-MP2PS_P-96.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -1693,7 +1701,7 @@ void test_MPEG_PS_PAL()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_P-98.mpg", &expected);
+	test_DLNA_files("B-MP2PS_P-98.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -1709,7 +1717,7 @@ void test_MPEG_PS_PAL()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_P-106.mpg", &expected);
+	test_DLNA_files("B-MP2PS_P-106.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -1725,7 +1733,7 @@ void test_MPEG_PS_PAL()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_P-108.mpg", &expected);
+	test_DLNA_files("B-MP2PS_P-108.mpg", &expected);
 } /* test_MPEG_PS_PAL() */
 
 void test_MPEG_TS_SD_EU()
@@ -1747,7 +1755,7 @@ void test_MPEG_TS_SD_EU()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 1;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SE-1.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SE-1.mpg", &expected);
 
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
@@ -1764,7 +1772,7 @@ void test_MPEG_TS_SD_EU()
 	expected.audio_samplerate = 44100;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SE-2.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SE-2.mpg", &expected);
 
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
@@ -1781,7 +1789,7 @@ void test_MPEG_TS_SD_EU()
 	expected.audio_samplerate = 32000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SE-3.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SE-3.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -1797,7 +1805,7 @@ void test_MPEG_TS_SD_EU()
 	expected.audio_samplerate = 44100;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SE-4.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SE-4.mpg", &expected);
 
 } /* test_MPEG_TS_SD_EU() */
 
@@ -1820,7 +1828,7 @@ void test_MPEG_TS_SD_EU_T()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SET-1.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SET-1.mpg", &expected);
 
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
@@ -1837,7 +1845,7 @@ void test_MPEG_TS_SD_EU_T()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 1;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SET-2.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SET-2.mpg", &expected);
 
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
@@ -1854,7 +1862,7 @@ void test_MPEG_TS_SD_EU_T()
 	expected.audio_samplerate = 32000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SET-3.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SET-3.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -1870,7 +1878,7 @@ void test_MPEG_TS_SD_EU_T()
 	expected.audio_samplerate = 44100;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SET-4.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SET-4.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -1886,7 +1894,7 @@ void test_MPEG_TS_SD_EU_T()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SET-5.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SET-5.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -1902,7 +1910,7 @@ void test_MPEG_TS_SD_EU_T()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 1;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SET-6.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SET-6.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -1918,7 +1926,7 @@ void test_MPEG_TS_SD_EU_T()
 	expected.audio_samplerate = 32000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SET-7.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SET-7.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -1934,7 +1942,7 @@ void test_MPEG_TS_SD_EU_T()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SET-8.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SET-8.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -1950,7 +1958,7 @@ void test_MPEG_TS_SD_EU_T()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SET-9.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SET-9.mpg", &expected);
 } /* test_MPEG_TS_SD_EU_T() */
 
 void test_MPEG_TS_SD_EU_ISO()
@@ -1972,7 +1980,7 @@ void test_MPEG_TS_SD_EU_ISO()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 1;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SE_I-1.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SE_I-1.mpg", &expected);
 
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
@@ -1989,7 +1997,7 @@ void test_MPEG_TS_SD_EU_ISO()
 	expected.audio_samplerate = 44100;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SE_I-2.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SE_I-2.mpg", &expected);
 
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
@@ -2006,7 +2014,7 @@ void test_MPEG_TS_SD_EU_ISO()
 	expected.audio_samplerate = 32000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SE_I-3.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SE_I-3.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -2022,7 +2030,7 @@ void test_MPEG_TS_SD_EU_ISO()
 	expected.audio_samplerate = 44100;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SE_I-4.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SE_I-4.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -2038,7 +2046,7 @@ void test_MPEG_TS_SD_EU_ISO()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SE_I-5.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SE_I-5.mpg", &expected);
 
 } /* test_MPEG_TS_SD_EU_ISO() */
 
@@ -2061,7 +2069,7 @@ void test_MPEG_TS_SD_KO()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK-2.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SK-2.mpg", &expected);
 
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
@@ -2078,7 +2086,7 @@ void test_MPEG_TS_SD_KO()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK-4.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SK-4.mpg", &expected);
 
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
@@ -2095,7 +2103,7 @@ void test_MPEG_TS_SD_KO()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK-5.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SK-5.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -2111,7 +2119,7 @@ void test_MPEG_TS_SD_KO()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK-6.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SK-6.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -2127,7 +2135,7 @@ void test_MPEG_TS_SD_KO()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 1;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK-7.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SK-7.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -2143,7 +2151,7 @@ void test_MPEG_TS_SD_KO()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK-8.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SK-8.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -2159,7 +2167,7 @@ void test_MPEG_TS_SD_KO()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK-9.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SK-9.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -2175,7 +2183,7 @@ void test_MPEG_TS_SD_KO()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK-11.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SK-11.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -2191,7 +2199,7 @@ void test_MPEG_TS_SD_KO()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK-13.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SK-13.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -2207,7 +2215,7 @@ void test_MPEG_TS_SD_KO()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK-13a.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SK-13a.mpg", &expected);
 } /* test_MPEG_TS_SD_KO() */
 
 void test_MPEG_TS_SD_KO_T()
@@ -2229,7 +2237,7 @@ void test_MPEG_TS_SD_KO_T()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SKT-4.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SKT-4.mpg", &expected);
 
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
@@ -2246,7 +2254,7 @@ void test_MPEG_TS_SD_KO_T()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SKT-5.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SKT-5.mpg", &expected);
 
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
@@ -2263,7 +2271,7 @@ void test_MPEG_TS_SD_KO_T()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SKT-6.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SKT-6.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -2279,7 +2287,7 @@ void test_MPEG_TS_SD_KO_T()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 1;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SKT-7.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SKT-7.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -2295,7 +2303,7 @@ void test_MPEG_TS_SD_KO_T()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SKT-8.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SKT-8.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -2311,7 +2319,7 @@ void test_MPEG_TS_SD_KO_T()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SKT-9.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SKT-9.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -2327,7 +2335,7 @@ void test_MPEG_TS_SD_KO_T()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SKT-11.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SKT-11.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -2343,7 +2351,7 @@ void test_MPEG_TS_SD_KO_T()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SKT-13.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SKT-13.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -2359,7 +2367,7 @@ void test_MPEG_TS_SD_KO_T()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SKT-13a.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SKT-13a.mpg", &expected);
 
 } /* test_MPEG_TS_SD_KO_T() */
 
@@ -2382,7 +2390,7 @@ void test_MPEG_TS_SD_KO_ISO()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK_I-4.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SK_I-4.mpg", &expected);
 
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
@@ -2399,7 +2407,7 @@ void test_MPEG_TS_SD_KO_ISO()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK_I-5.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SK_I-5.mpg", &expected);
 
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
@@ -2416,7 +2424,7 @@ void test_MPEG_TS_SD_KO_ISO()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK_I-6.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SK_I-6.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -2432,7 +2440,7 @@ void test_MPEG_TS_SD_KO_ISO()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 1;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK_I-7.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SK_I-7.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -2448,7 +2456,7 @@ void test_MPEG_TS_SD_KO_ISO()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK_I-8.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SK_I-8.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -2464,7 +2472,7 @@ void test_MPEG_TS_SD_KO_ISO()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK_I-9.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SK_I-9.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -2480,7 +2488,7 @@ void test_MPEG_TS_SD_KO_ISO()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK-9.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SK-9.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -2496,7 +2504,7 @@ void test_MPEG_TS_SD_KO_ISO()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK_I-11.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SK_I-11.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -2512,7 +2520,7 @@ void test_MPEG_TS_SD_KO_ISO()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK_I-13.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SK_I-13.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
@@ -2528,7 +2536,7 @@ void test_MPEG_TS_SD_KO_ISO()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	test_DLNA_files("data\\video\\dlna_individual\\O-MP2TS_SK_I-13a.mpg", &expected);
+	test_DLNA_files("O-MP2TS_SK_I-13a.mpg", &expected);
 } /* test_MPEG_TS_SD_KO_ISO() */
 
 void test_DLNA_scanning(char *argv[])
