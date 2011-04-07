@@ -293,12 +293,121 @@ image_png_load(MediaScanImage *i)
     }
   }
   
-  free(ptr);
+  free((void *)ptr);
   
   // This is not required, so we can save some time by not reading post-image chunks
   //png_read_end(p->png_ptr, p->info_ptr);
   
   return 1;
+}
+
+static void
+image_png_write_buf(png_structp png_ptr, png_bytep data, png_size_t len)
+{
+  Buffer *buf = (Buffer *)png_get_io_ptr(png_ptr);
+  
+  // Copy buffer
+  buffer_append(buf, data, len);
+  
+  LOG_DEBUG("image_png_write_buf wrote %ld bytes\n", len);
+}
+
+static void
+image_png_flush_buf(png_structp png_ptr)
+{
+  // Nothing
+}
+
+void
+image_png_compress(MediaScanImage *i, MediaScanThumbSpec *spec)
+{
+  int j, x, y;
+  int color_space = PNG_COLOR_TYPE_RGB_ALPHA;
+  volatile unsigned char *ptr = NULL;
+  png_structp png_ptr;
+  png_infop info_ptr;
+  Buffer *buf;
+  
+  if (!i->_pixbuf_size) {
+    LOG_WARN("PNG compression requires pixbuf data\n");
+    return;
+  }
+  
+  png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+  if (!png_ptr) {
+    FATAL("Could not initialize libpng\n");
+  }
+  
+  info_ptr = png_create_info_struct(png_ptr);
+  if (!info_ptr) {
+    png_destroy_write_struct(&png_ptr, NULL);
+    FATAL("Could not initialize libpng\n");
+  }
+  
+  // Initialize buffer for compressed data
+  buf = (Buffer *)malloc(sizeof(Buffer));
+  buffer_init(buf, BUF_SIZE);
+  i->_dbuf = (void *)buf;
+  
+  png_set_write_fn(png_ptr, buf, image_png_write_buf, image_png_flush_buf);
+  
+  if (setjmp( png_jmpbuf(png_ptr) )) {
+    if (ptr != NULL)
+      free((void *)ptr);
+    return;
+  }
+  
+  // Match output color space with input file
+  switch (i->channels) {
+    case 4:
+    case 3:
+      LOG_DEBUG("PNG output color space set to RGBA\n");
+      color_space = PNG_COLOR_TYPE_RGB_ALPHA;
+      break;
+    case 2:
+    case 1:
+      LOG_DEBUG("PNG output color space set to gray alpha\n");
+      color_space = PNG_COLOR_TYPE_GRAY_ALPHA;
+      break;
+  }
+  
+  png_set_IHDR(png_ptr, info_ptr, spec->width, spec->height, 8, color_space,
+    PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+  
+  png_write_info(png_ptr, info_ptr);
+  
+  ptr = (unsigned char *)malloc(png_get_rowbytes(png_ptr, info_ptr));
+  
+  j = 0;
+  
+  if (color_space == PNG_COLOR_TYPE_GRAY_ALPHA) {
+    for (y = 0; y < spec->height; y++) {
+      for (x = 0; x < spec->width; x++)  {
+        ptr[x * 2]     = COL_BLUE(i->_pixbuf[j]);
+        ptr[x * 2 + 1] = COL_ALPHA(i->_pixbuf[j]);
+        j++;
+      }
+      png_write_row(png_ptr, (png_bytep)ptr);
+    }
+  }
+  else { // RGB  
+    for (y = 0; y < spec->height; y++) {
+      for (x = 0; x < spec->width; x++)  {
+        ptr[x * 4]     = COL_RED(i->_pixbuf[j]);
+        ptr[x * 4 + 1] = COL_GREEN(i->_pixbuf[j]);
+        ptr[x * 4 + 2] = COL_BLUE(i->_pixbuf[j]);
+        ptr[x * 4 + 3] = COL_ALPHA(i->_pixbuf[j]);
+        j++;
+      }
+      png_write_row(png_ptr, (png_bytep)ptr);
+    }
+  }
+	
+  free((void *)ptr);
+  
+  png_write_end(png_ptr, info_ptr);
+  
+  png_destroy_write_struct(&png_ptr, &info_ptr);
 }
 
 void

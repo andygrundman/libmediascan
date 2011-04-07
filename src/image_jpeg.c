@@ -489,7 +489,7 @@ image_jpeg_compress(MediaScanImage *i, MediaScanThumbSpec *spec)
 #ifdef JCS_EXTENSIONS
   JSAMPROW *data = NULL;
 #else
-  volatile unsigned char *data = NULL;
+  volatile unsigned char *data = NULL; // volatile = won't be rolled back if longjmp is called
   JSAMPROW row_pointer[1];
   int y, row_stride;
 #endif

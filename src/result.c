@@ -536,7 +536,10 @@ void ms_dump_result(MediaScanResult *r)
         {
           FILE *tfp;
           char file[MAX_PATH];
-          sprintf(file, "thumb%d.%s", i, "jpg");
+          if (!strcmp("JPEG", thumb->codec))
+            sprintf(file, "thumb%d.jpg", i);
+          else
+            sprintf(file, "thumb%d.png", i);
           tfp = fopen(file, "wb");
           fwrite(buffer_ptr(dbuf), 1, buffer_len(dbuf), tfp);
           fclose(tfp);

@@ -57,12 +57,19 @@ thumb_create_from_image(MediaScanImage *i, MediaScanThumbSpec *spec)
   if ( !thumb_resize(i, thumb, spec) )
     goto err;
   
+  if (spec->format == THUMB_AUTO) {
+    // Transparent source always gets output as PNG
+    if (i->has_alpha)
+      spec->format = THUMB_PNG;
+    // Use PNG if any padding was applied so it will be transparent
+    else if (spec->height_padding || spec->width_padding)
+      spec->format = THUMB_PNG;
+    else
+      spec->format = THUMB_JPEG;
+  }
+  
   // Compress pixbuf data into thumb->data
-  switch (spec->format) {
-    case THUMB_AUTO:
-      LOG_ERROR("THUMB_AUTO TODO\n");
-      break;
-      
+  switch (spec->format) {  
     case THUMB_JPEG:
       thumb->codec = "JPEG";
       image_jpeg_compress(thumb, spec);
@@ -70,6 +77,7 @@ thumb_create_from_image(MediaScanImage *i, MediaScanThumbSpec *spec)
       
     case THUMB_PNG:
       thumb->codec = "PNG";
+      image_png_compress(thumb, spec);
       break;
   }
   

@@ -10,6 +10,7 @@ static int rcount = 0;
 static void my_result_callback(MediaScan *s, MediaScanResult *result, void *userdata) {
   ms_dump_result(result);
   rcount++;
+  exit(0);
 }
 
 static void my_error_callback(MediaScan *s, MediaScanError *error, void *userdata) {
@@ -43,9 +44,8 @@ int main(int argc, char *argv[])
     ms_add_ignore_extension(s, "VIDEO");
     ms_add_ignore_extension(s, "AUDIO");
     ms_add_ignore_extension(s, "bmp");
-    ms_add_ignore_extension(s, "jpg");
     ms_add_ignore_extension(s, "gif");
-    ms_add_thumbnail_spec(s, THUMB_JPEG, 100, 0, 1, 0, 0);
+    ms_add_thumbnail_spec(s, THUMB_AUTO, 100, 0, 1, 0, 0);
     ms_set_result_callback(s, my_result_callback);
     ms_set_error_callback(s, my_error_callback);
     ms_set_progress_callback(s, my_progress_callback);
