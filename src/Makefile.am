@@ -1,7 +1,7 @@
 lib_LTLIBRARIES = libmediascan.la
 
 libmediascan_la_SOURCES = audio.c buffer.c mediascan.c mediascan_unix.c progress.c result.c error.c video.c util.c \
-  image.c image_jpeg.c image_png.c thumb.c \
+  image.c image_jpeg.c image_png.c image_bmp.c thumb.c \
   libdlna/audio_aac.c libdlna/audio_ac3.c libdlna/audio_amr.c libdlna/audio_atrac3.c \
   libdlna/audio_g726.c libdlna/audio_lpcm.c libdlna/audio_mp2.c libdlna/audio_mp3.c \
   libdlna/audio_wma.c libdlna/av_mpeg1.c libdlna/av_mpeg2.c libdlna/av_mpeg4_part10.c \

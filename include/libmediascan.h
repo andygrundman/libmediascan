@@ -106,6 +106,7 @@ struct _Image {
   int _pixbuf_is_copy;  // Flag if dst pixbuf is a pointer to src pixbuf
   void *_jpeg;          // JPEG-specific internal data
   void *_png;           // PNG-specific internal data
+  void *_bmp;           // BMP-specific internal data
 };
 typedef struct _Image MediaScanImage;
 

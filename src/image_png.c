@@ -127,12 +127,15 @@ image_png_read_header(MediaScanImage *i, MediaScanResult *r)
   i->has_alpha = 1;
   
   // Match with DLNA profile
-  for (x = 0; png_profiles_mapping[x].profile; x++) {
-    if (i->width  <= png_profiles_mapping[x].max_width &&
-        i->height <= png_profiles_mapping[x].max_height) {
-          r->dlna_profile = png_profiles_mapping[x].profile->id;
-          r->mime_type    = png_profiles_mapping[x].profile->mime;
-          break;
+  // DLNA does not support interlaced images
+  if (png_get_interlace_type(p->png_ptr, p->info_ptr) == PNG_INTERLACE_NONE) {
+    for (x = 0; png_profiles_mapping[x].profile; x++) {
+      if (i->width  <= png_profiles_mapping[x].max_width &&
+          i->height <= png_profiles_mapping[x].max_height) {
+            r->dlna_profile = png_profiles_mapping[x].profile->id;
+            r->mime_type    = png_profiles_mapping[x].profile->mime;
+            break;
+      }
     }
   }
   

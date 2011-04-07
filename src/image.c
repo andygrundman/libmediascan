@@ -12,6 +12,8 @@
 #include "error.h"
 #include "image_jpeg.h"
 #include "image_png.h"
+#include "image_gif.h"
+#include "image_bmp.h"
 
 MediaScanImage *
 image_create(void)
@@ -88,11 +90,19 @@ image_read_header(MediaScanImage *i, MediaScanResult *r)
       if (bptr[1] == 'I' && bptr[2] == 'F' && bptr[3] == '8'
         && (bptr[4] == '7' || bptr[4] == '9') && bptr[5] == 'a') {
           i->codec = "GIF";
+          if ( !image_gif_read_header(i, r) ) {
+            ret = 0;
+            goto out;
+          }
       }
       break;
     case 'B':
       if (bptr[1] == 'M') {
         i->codec = "BMP";
+        if ( !image_bmp_read_header(i, r) ) {
+          ret = 0;
+          goto out;
+        }
       }
       break;
   }
@@ -172,6 +182,12 @@ image_unload(MediaScanImage *i)
 {
   if (i->_jpeg)
     image_jpeg_destroy(i);
+  
+  if (i->_png)
+    image_png_destroy(i);
+  
+  if (i->_bmp)
+    image_bmp_destroy(i);
   
   if (i->_pixbuf_size) {
     LOG_MEM("destroy pixbuf of size %d bytes\n", i->_pixbuf_size);

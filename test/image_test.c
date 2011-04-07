@@ -43,6 +43,7 @@ int main(int argc, char *argv[])
     ms_add_path(s, dir);    
     ms_add_ignore_extension(s, "VIDEO");
     ms_add_ignore_extension(s, "AUDIO");
+    ms_add_ignore_extension(s, "jpg");
     ms_add_ignore_extension(s, "bmp");
     ms_add_ignore_extension(s, "gif");
     ms_add_thumbnail_spec(s, THUMB_AUTO, 100, 0, 1, 0, 0);

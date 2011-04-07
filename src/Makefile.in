@@ -63,13 +63,14 @@ am_libmediascan_la_OBJECTS = libmediascan_la-audio.lo \
 	libmediascan_la-result.lo libmediascan_la-error.lo \
 	libmediascan_la-video.lo libmediascan_la-util.lo \
 	libmediascan_la-image.lo libmediascan_la-image_jpeg.lo \
-	libmediascan_la-image_png.lo libmediascan_la-thumb.lo \
-	libmediascan_la-audio_aac.lo libmediascan_la-audio_ac3.lo \
-	libmediascan_la-audio_amr.lo libmediascan_la-audio_atrac3.lo \
-	libmediascan_la-audio_g726.lo libmediascan_la-audio_lpcm.lo \
-	libmediascan_la-audio_mp2.lo libmediascan_la-audio_mp3.lo \
-	libmediascan_la-audio_wma.lo libmediascan_la-av_mpeg1.lo \
-	libmediascan_la-av_mpeg2.lo libmediascan_la-av_mpeg4_part10.lo \
+	libmediascan_la-image_png.lo libmediascan_la-image_bmp.lo \
+	libmediascan_la-thumb.lo libmediascan_la-audio_aac.lo \
+	libmediascan_la-audio_ac3.lo libmediascan_la-audio_amr.lo \
+	libmediascan_la-audio_atrac3.lo libmediascan_la-audio_g726.lo \
+	libmediascan_la-audio_lpcm.lo libmediascan_la-audio_mp2.lo \
+	libmediascan_la-audio_mp3.lo libmediascan_la-audio_wma.lo \
+	libmediascan_la-av_mpeg1.lo libmediascan_la-av_mpeg2.lo \
+	libmediascan_la-av_mpeg4_part10.lo \
 	libmediascan_la-av_mpeg4_part2.lo libmediascan_la-av_wmv9.lo \
 	libmediascan_la-containers.lo libmediascan_la-profiles.lo
 libmediascan_la_OBJECTS = $(am_libmediascan_la_OBJECTS)
@@ -210,7 +211,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 lib_LTLIBRARIES = libmediascan.la
 libmediascan_la_SOURCES = audio.c buffer.c mediascan.c mediascan_unix.c progress.c result.c error.c video.c util.c \
-  image.c image_jpeg.c image_png.c thumb.c \
+  image.c image_jpeg.c image_png.c image_bmp.c thumb.c \
   libdlna/audio_aac.c libdlna/audio_ac3.c libdlna/audio_amr.c libdlna/audio_atrac3.c \
   libdlna/audio_g726.c libdlna/audio_lpcm.c libdlna/audio_mp2.c libdlna/audio_mp3.c \
   libdlna/audio_wma.c libdlna/av_mpeg1.c libdlna/av_mpeg2.c libdlna/av_mpeg4_part10.c \
@@ -311,6 +312,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmediascan_la-containers.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmediascan_la-error.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmediascan_la-image.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmediascan_la-image_bmp.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmediascan_la-image_jpeg.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmediascan_la-image_png.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmediascan_la-mediascan.Plo@am__quote@
@@ -426,6 +428,13 @@ libmediascan_la-image_png.lo: image_png.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='image_png.c' object='libmediascan_la-image_png.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmediascan_la_CFLAGS) $(CFLAGS) -c -o libmediascan_la-image_png.lo `test -f 'image_png.c' || echo '$(srcdir)/'`image_png.c
+
+libmediascan_la-image_bmp.lo: image_bmp.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmediascan_la_CFLAGS) $(CFLAGS) -MT libmediascan_la-image_bmp.lo -MD -MP -MF $(DEPDIR)/libmediascan_la-image_bmp.Tpo -c -o libmediascan_la-image_bmp.lo `test -f 'image_bmp.c' || echo '$(srcdir)/'`image_bmp.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libmediascan_la-image_bmp.Tpo $(DEPDIR)/libmediascan_la-image_bmp.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='image_bmp.c' object='libmediascan_la-image_bmp.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmediascan_la_CFLAGS) $(CFLAGS) -c -o libmediascan_la-image_bmp.lo `test -f 'image_bmp.c' || echo '$(srcdir)/'`image_bmp.c
 
 libmediascan_la-thumb.lo: thumb.c
 @am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmediascan_la_CFLAGS) $(CFLAGS) -MT libmediascan_la-thumb.lo -MD -MP -MF $(DEPDIR)/libmediascan_la-thumb.Tpo -c -o libmediascan_la-thumb.lo `test -f 'thumb.c' || echo '$(srcdir)/'`thumb.c
