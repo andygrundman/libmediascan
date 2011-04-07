@@ -109,6 +109,7 @@
     <ClCompile Include="..\src\libdlna\image_png.c" />
     <ClCompile Include="..\src\libdlna\profiles.c" />
     <ClCompile Include="..\src\libdlna\upnp_dms.c" />
+    <ClCompile Include="..\src\lookup3.c" />
     <ClCompile Include="..\src\mediascan.c">
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">/D "_CRT_SECURE_NO_WARNINGS" %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>

@@ -322,16 +322,21 @@ static void test_DLNA_files(char *file, ExpectedResultType *expected)
 	// Video part of the check
 	ok(result.type == expected->type, "type is video ok");
 	is(result.mime_type, expected->mime_type, "MIME type %s", expected->mime_type);
-    is(result.dlna_profile, expected->dlna_profile, "DLNA profile ok");
+  is(result.dlna_profile, expected->dlna_profile, "DLNA profile ok");
+
+	if(result.video != NULL) {
 	ok(result.video->width == expected->video_width, "video width %d ok", expected->video_width);
 	ok(result.video->height == expected->video_height, "video height %d ok", expected->video_height);
-    is(fps2str(result.video->fps), expected->video_fps, "framerate %s ok", expected->video_fps);
+  is(fps2str(result.video->fps), expected->video_fps, "framerate %s ok", expected->video_fps);
+	}
 
+	if(result.audio != NULL) {
 	// Audio part of the check
 	is(result.audio->codec, expected->audio_codec, "audio codec %s ok", expected->audio_codec);
 	ok(result.audio->bitrate == expected->audio_bitrate, "audio bitrate %d ok", expected->audio_bitrate);
 	ok(result.audio->samplerate == expected->audio_samplerate, "audio samplerate %d ok", expected->audio_samplerate);
 	ok(result.audio->channels == expected->audio_channels, "audio channels %d ok", expected->audio_channels);
+	}
 
 	printf("------------------------------------------------------\n");
 
@@ -356,8 +361,7 @@ void test_MPEG_PS_NTSC()
 	expected.audio_samplerate = 48000;
 	expected.audio_channels = 2;
   
-	// NOTE: This scan will cause a lock up if it follows directly after test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_P-108.mpg", &expected);
-//	test_DLNA_files("data\\video\\dlna_individual\\B-MP2PS_N-1.mpg", &expected);
+	test_DLNA_files("B-MP2PS_N-1.mpg", &expected);
 
 	memset( &expected, 0, sizeof(MediaScanResult) );
 	expected.type = TYPE_VIDEO;
