@@ -16,7 +16,6 @@
 #include "libdlna/profiles.h"
 
 #define DEFAULT_JPEG_QUALITY 90
-#define BUFFER_SIZE 4096
 
 // Forward declarations
 static void parse_exif_ifd(ExifContent *content, void *data);
@@ -206,15 +205,15 @@ buf_dst_mgr_init(j_compress_ptr cinfo)
   struct buf_dst_mgr *dst = (void *)cinfo->dest;
   
   // Temporary internal buffer
-  dst->buf = (JOCTET *)malloc(BUFFER_SIZE);
+  dst->buf = (JOCTET *)malloc(BUF_SIZE);
   
   // Storage for full compressed data
   dst->dbuf = (Buffer *)malloc(sizeof(Buffer));
-  buffer_init(dst->dbuf, BUFFER_SIZE);
+  buffer_init(dst->dbuf, BUF_SIZE);
   
   dst->off = dst->buf;
   dst->jdst.next_output_byte = dst->off;
-  dst->jdst.free_in_buffer = BUFFER_SIZE;
+  dst->jdst.free_in_buffer = BUF_SIZE;
 }
 
 static boolean
@@ -224,14 +223,14 @@ buf_dst_mgr_empty(j_compress_ptr cinfo)
   void *tmp;
   
   // Copy tmp buffer to image buffer
-  buffer_append(dst->dbuf, dst->buf, BUFFER_SIZE);
+  buffer_append(dst->dbuf, dst->buf, BUF_SIZE);
 
   // Reuse the tmp buffer for the next chunk
   dst->off = dst->buf;
   dst->jdst.next_output_byte = dst->off;
-  dst->jdst.free_in_buffer = BUFFER_SIZE;
+  dst->jdst.free_in_buffer = BUF_SIZE;
   
-  LOG_MEM("buf_dst_mgr_empty, copied %d bytes (total now %d)\n", BUFFER_SIZE, buffer_len(dst->dbuf));
+  LOG_MEM("buf_dst_mgr_empty, copied %d bytes (total now %d)\n", BUF_SIZE, buffer_len(dst->dbuf));
   
   return TRUE;
 }
@@ -241,7 +240,7 @@ buf_dst_mgr_term(j_compress_ptr cinfo)
 {
   struct buf_dst_mgr *dst = (void *)cinfo->dest;
 
-  size_t sz = BUFFER_SIZE - dst->jdst.free_in_buffer;
+  size_t sz = BUF_SIZE - dst->jdst.free_in_buffer;
   
   if (sz > 0) {
     // Copy final buffer to image data

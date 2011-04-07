@@ -11,6 +11,7 @@
 #include "image.h"
 #include "error.h"
 #include "image_jpeg.h"
+#include "image_png.h"
 
 MediaScanImage *
 image_create(void)
@@ -77,6 +78,10 @@ image_read_header(MediaScanImage *i, MediaScanResult *r)
       if (bptr[1] == 'P' && bptr[2] == 'N' && bptr[3] == 'G'
         && bptr[4] == 0x0d && bptr[5] == 0x0a && bptr[6] == 0x1a && bptr[7] == 0x0a) {
           i->codec = "PNG";
+          if ( !image_png_read_header(i, r) ) {
+            ret = 0;
+            goto out;
+          }
       }
       break;
     case 'G':
