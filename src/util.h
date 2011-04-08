@@ -11,8 +11,10 @@ void CleanupCriticalSection(void *lp);
 void StartCriticalSection(void *lp);
 void EndCriticalSection(void *lp);
 
+#ifdef WIN32
 int _GetFileSize(const char *fileName, LPTSTR lpszString, DWORD dwSize);
 int _GetFileTime(const char *fileName, LPTSTR lpszString, DWORD dwSize);
+#endif
 
 uint32_t hashlittle( const void *key, size_t length, uint32_t initval);
 

@@ -181,6 +181,10 @@ static void set_file_metadata(MediaScanResult *r)
   int fd;
   struct stat buf;
   
+  // XXX Win32 code needed?
+  //_GetFileTime(r->path, fileData, MAX_PATH);
+  //_GetFileSize(r->path, fileData, MAX_PATH);
+  
   if (r->_avf) {
     // Use ffmpeg API because it already has the file open
     AVFormatContext *avf = r->_avf;
@@ -273,9 +277,6 @@ static int scan_video(MediaScanResult *r)
   }
   
   scan_dlna_profile(r, codecs);
-  
-  // General metadata
-  set_file_metadata(r);
 
   r->bitrate     = avf->bit_rate;
   r->duration_ms = (int)(avf->duration / 1000);
@@ -344,9 +345,6 @@ scan_image(MediaScanResult *r)
     ret = 0;
     goto out;
   }
-  
-  // General metadata
-  set_file_metadata(r);
   
   i = r->image = image_create();
   i->path = r->path;
@@ -434,17 +432,14 @@ int result_scan(MediaScanResult *r)
     r->error = error_create("", MS_ERROR_TYPE_INVALID_PARAMS, "Invalid parameters passed to result_scan()");
     return 0;
   }
+  
+  // General metadata (mtime/size)
+  set_file_metadata(r);
 
 	// Generate a hash of the full file path, modified time, and file size
-	r->hash = 0;
-  r->hash = hashlittle(r->path, strlen(r->path), r->hash); // Add path to hash
-
-	_GetFileTime(r->path, fileData, MAX_PATH);
-  r->hash = hashlittle(fileData, strlen(fileData), r->hash); // Add time to hash
-
-	_GetFileSize(r->path, fileData, MAX_PATH);
-  r->hash = hashlittle(fileData, strlen(fileData), r->hash); // Add file size to hash
-
+  sprintf(fileData, "%s%d%ld", r->path, r->mtime, r->size);
+  r->hash = hashlittle(fileData, strlen(fileData), 0);
+  
   switch (r->type) {
     case TYPE_VIDEO:
       return scan_video(r);
