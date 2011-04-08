@@ -35,17 +35,15 @@ int main(int argc, char *argv[])
 
   // Get path to this binary
   bin = _findbin(argv[0]);
-  dir = _abspath(bin, "../data"); // because binary is in .libs dir
+  //dir = _abspath(bin, "../data"); // because binary is in .libs dir
+  dir = "/Users/andy/Music/Slim/DLNATestContent";
 
   // Scan all image files
   {
     MediaScan *s = ms_create();
     ms_add_path(s, dir);    
-    ms_add_ignore_extension(s, "VIDEO");
     ms_add_ignore_extension(s, "AUDIO");
-    ms_add_ignore_extension(s, "jpg");
-    ms_add_ignore_extension(s, "bmp");
-    ms_add_ignore_extension(s, "gif");
+    ms_add_ignore_extension(s, "IMAGE");
     ms_add_thumbnail_spec(s, THUMB_AUTO, 100, 0, 1, 0, 0);
     ms_set_result_callback(s, my_result_callback);
     ms_set_error_callback(s, my_error_callback);
@@ -54,7 +52,7 @@ int main(int argc, char *argv[])
     ms_destroy(s);
   }
   
-  free(dir);
+  //free(dir);
   free(bin);
  
   return exit_status();

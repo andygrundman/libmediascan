@@ -223,6 +223,7 @@ static int scan_video(MediaScanResult *r)
   AVCodec *c = NULL;
   MediaScanVideo *v = NULL;
   MediaScanAudio *a = NULL;
+  MediaScan *s = NULL;
   av_codecs_t *codecs = NULL;
   int AVError = 0;
   int ret = 1;
@@ -283,10 +284,15 @@ static int scan_video(MediaScanResult *r)
 
   // Video-specific metadata
   v = r->video = video_create();
+  v->path = r->path;
   
   c = avcodec_find_decoder(codecs->vc->codec_id);  
   if (c) {
     v->codec = c->name;
+    
+    // Save structures needed for thumbnail generation
+    v->_codecs = (void *)codecs;
+    v->_avc = (void *)c;
   }
   else if (codecs->vc->codec_name[0] != '\0') {
     v->codec = codecs->vc->codec_name;
@@ -301,19 +307,21 @@ static int scan_video(MediaScanResult *r)
   
   // Audio metadata from the primary audio stream
   if (codecs->ac) {
+    AVCodec *ac = NULL;
+    
     a = r->audio = audio_create();
     
-    c = avcodec_find_decoder(codecs->ac->codec_id);  
-    if (c) {
-      a->codec = c->name;
+    ac = avcodec_find_decoder(codecs->ac->codec_id);  
+    if (ac) {
+      a->codec = ac->name;
     }
     else if (codecs->ac->codec_name[0] != '\0') {
       a->codec = codecs->ac->codec_name;
     }
-	// Special case for handling MP1 audio streams which FFMPEG can't identify a codec for
-	else if (codecs->ac->codec_id == CODEC_ID_MP1) { 
-	  a->codec = CODEC_MP1;
-	}
+    // Special case for handling MP1 audio streams which FFMPEG can't identify a codec for
+    else if (codecs->ac->codec_id == CODEC_ID_MP1) { 
+      a->codec = CODEC_MP1;
+    }
     else {
       a->codec = "Unknown";
     }
@@ -324,6 +332,24 @@ static int scan_video(MediaScanResult *r)
   }
   
   // XXX additional streams(?), thumbnails, tags
+  
+  // Create thumbnail(s) if we found a valid video decoder above
+  s = (MediaScan *)r->_scan;
+  if (s->nthumbspecs && v->_avc) {
+    int x;    
+    MediaScanImage *i = video_create_image_from_frame(v, r); // Decode and load a frame of video we'll use for the thumbnail
+    
+    // XXX sort from biggest to smallest, resize in series
+    
+    for (x = 0; x < s->nthumbspecs; x++) {
+      MediaScanImage *thumb = thumb_create_from_image(i, s->thumbspecs[x]);
+      if (thumb)
+        video_add_thumbnail(v, thumb);
+    }
+    
+    image_destroy(i);
+  }
+  
 out:
   if (codecs)
     free(codecs);
@@ -436,7 +462,7 @@ int result_scan(MediaScanResult *r)
   set_file_metadata(r);
 
 	// Generate a hash of the full file path, modified time, and file size
-  sprintf(fileData, "%s%d%ld", r->path, r->mtime, r->size);
+  sprintf(fileData, "%s%d%lld", r->path, r->mtime, r->size);
   r->hash = hashlittle(fileData, strlen(fileData), 0);
   
   switch (r->type) {

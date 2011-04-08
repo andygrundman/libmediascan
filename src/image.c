@@ -170,7 +170,7 @@ image_alloc_pixbuf(MediaScanImage *i, int width, int height)
   
   // XXX memory_limit
   
-  i->_pixbuf = (uint32_t *)malloc(size);
+  i->_pixbuf = (uint32_t *)calloc(size, 1);
   i->_pixbuf_size = size;
   
   LOG_MEM("new pixbuf for image of size %d x %d (%d bytes)\n",

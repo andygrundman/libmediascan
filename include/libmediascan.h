@@ -111,14 +111,23 @@ struct _Image {
 typedef struct _Image MediaScanImage;
 
 struct _Video {
+  const char *path;    ///< Path to the file containing this video
   const char *codec;
   int width;
   int height;
   double fps;
   
+  int nthumbnails;
+  struct _Image *thumbnails[MAX_THUMBS];
+  
   struct _Audio **streams;
-  struct _Image **thumbnails;
   struct _Tag **tags;
+  
+  // private members
+  uint32_t *_pixbuf;    // Uncompressed frame image data used during resize
+  int _pixbuf_size;     // Size of data in pixbuf
+  void *_codecs;        // av_codecs_t containing AVStream, AVCodecContext for video/audio
+  void *_avc;           // AVCodec instance
 };
 typedef struct _Video MediaScanVideo;
 

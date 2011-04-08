@@ -227,9 +227,11 @@ av_profile_get_codecs (AVFormatContext *ctx)
 
   codecs->as = audio_stream >= 0 ? ctx->streams[audio_stream] : NULL;
   codecs->ac = audio_stream >= 0 ? ctx->streams[audio_stream]->codec : NULL;
+  codecs->asid = audio_stream;
 
   codecs->vs = video_stream >= 0 ? ctx->streams[video_stream] : NULL;
   codecs->vc = video_stream >= 0 ? ctx->streams[video_stream]->codec : NULL;
+  codecs->vsid = video_stream;
 
   /* check for at least one video stream and one audio stream in container */
   if (!codecs->ac && !codecs->vc)
