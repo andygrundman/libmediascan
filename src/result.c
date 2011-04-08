@@ -426,7 +426,6 @@ MediaScanResult *result_create(MediaScan *s)
 int result_scan(MediaScanResult *r)
 {
 	char fileData[MAX_PATH];
-	long	fileSize;
 
   if (!r->type || !r->path) {
     r->error = error_create("", MS_ERROR_TYPE_INVALID_PARAMS, "Invalid parameters passed to result_scan()");
