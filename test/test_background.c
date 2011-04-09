@@ -228,6 +228,7 @@ void test_background_api(void)	{
 
 	MediaScan *s = ms_create();
 
+	CU_ASSERT_FATAL(s != NULL);
 
 	// Do some set for the test
 	CU_ASSERT( _mkdir(test_path) != -1 );

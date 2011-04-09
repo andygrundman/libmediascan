@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <libmediascan.h>
 
+#include "util.h"
 
 void InitCriticalSection(void *lp)
 {
@@ -68,6 +69,33 @@ void EndCriticalSection(void *lp)
   #endif
 }
 
+///-------------------------------------------------------------------------------------------------
+///  Calculate a hash for a file
+///
+/// @author Henry Bennett
+/// @date 04/09/2011
+///
+/// @param [in,out] file File to hash
+///
+/// @return the file hash
+///-------------------------------------------------------------------------------------------------
+
+uint32_t HashFile(const char *file) {
+	uint32_t hash;
+	char fileData[MAX_PATH];
+
+	// Generate a hash of the full file path, modified time, and file size
+	hash = 0;
+	hash = hashlittle(file, strlen(file), hash); // Add path to hash
+
+	_GetFileTime(file, fileData, MAX_PATH);
+	hash = hashlittle(fileData, strlen(fileData), hash); // Add time to hash
+
+	_GetFileSize(file, fileData, MAX_PATH);
+	hash = hashlittle(fileData, strlen(fileData), hash); // Add file size to hash
+
+	return hash;
+} /* HashFile() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  Match file extension.

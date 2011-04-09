@@ -350,6 +350,8 @@ MediaScanResult *result_create(MediaScan *s)
   r->_scan = s;
   r->_avf = NULL;
   r->_fp = NULL;
+
+	r->hash = 0;
   
   return r;
 } /* result_create() */
@@ -367,23 +369,10 @@ MediaScanResult *result_create(MediaScan *s)
 
 int result_scan(MediaScanResult *r)
 {
-	char fileData[MAX_PATH];
-	long	fileSize;
-
   if (!r->type || !r->path) {
     r->error = error_create("", MS_ERROR_TYPE_INVALID_PARAMS, "Invalid parameters passed to result_scan()");
-    return 0;
+    return FALSE;
   }
-
-	// Generate a hash of the full file path, modified time, and file size
-	r->hash = 0;
-  r->hash = hashlittle(r->path, strlen(r->path), r->hash); // Add path to hash
-
-	_GetFileTime(r->path, fileData, MAX_PATH);
-  r->hash = hashlittle(fileData, strlen(fileData), r->hash); // Add time to hash
-
-	_GetFileSize(r->path, fileData, MAX_PATH);
-  r->hash = hashlittle(fileData, strlen(fileData), r->hash); // Add file size to hash
 
   switch (r->type) {
     case TYPE_VIDEO:
@@ -393,8 +382,8 @@ int result_scan(MediaScanResult *r)
     default:
       break;
   }
-  
-  return 0;
+
+  return FALSE;
 } /* result_scan() */
 
 ///-------------------------------------------------------------------------------------------------

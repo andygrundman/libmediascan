@@ -12,8 +12,20 @@
 
 #include "win32config.h"
 
+///-------------------------------------------------------------------------------------------------
+///  Gets a file size.
+///
+/// @author Henry Bennett
+/// @date 04/09/2011
+///
+/// @param fileName						 Filename of the file.
+/// @param [in,out] lpszString File size converted to a string
+/// @param dwSize							 String length
+///
+/// @return success.
+///-------------------------------------------------------------------------------------------------
 
-int _GetFileSize(const char *fileName, LPTSTR lpszString, DWORD dwSize)
+int _GetFileSize(const char *fileName, char *lpszString, long dwSize)
 {
     BOOL                        fOk;
     WIN32_FILE_ATTRIBUTE_DATA   fileInfo;
@@ -30,9 +42,22 @@ int _GetFileSize(const char *fileName, LPTSTR lpszString, DWORD dwSize)
         TEXT("%02d"), fileInfo.nFileSizeLow);
 
 		return dwRet;
-}
+} /* _GetFileSize() */
 
- int _GetFileTime(const char *fileName, LPTSTR lpszString, DWORD dwSize)
+ ///-------------------------------------------------------------------------------------------------
+ ///  Gets a file's last modified time.
+ ///
+ /// @author Henry Bennett
+ /// @date 04/09/2011
+ ///
+ /// @param fileName					  Filename of the file.
+ /// @param [in,out] lpszString Modified time formatted in a string
+ /// @param dwSize						  Length of a string
+ ///
+ /// @return success.
+ ///-------------------------------------------------------------------------------------------------
+
+ int _GetFileTime(const char *fileName, char *lpszString, long dwSize)
 {
     BOOL                        fOk;
     WIN32_FILE_ATTRIBUTE_DATA   fileInfo;
@@ -60,7 +85,45 @@ int _GetFileSize(const char *fileName, LPTSTR lpszString, DWORD dwSize)
     if( S_OK == dwRet )
         return TRUE;
     else return FALSE;
-}
+} /* _GetFileTime() */
+
+ int TouchFile(const char *fileName)
+ {    
+	  HANDLE hFile;
+
+	  FILETIME ft;
+    SYSTEMTIME st;
+    int f;
+
+		hFile = CreateFile(fileName,               // file to open
+                  GENERIC_READ | GENERIC_WRITE,          // open for reading/writing
+                  FILE_SHARE_READ,       // share for reading
+                  NULL,                  // default security
+                  OPEN_EXISTING,         // existing file only
+                  FILE_ATTRIBUTE_NORMAL, // normal file
+                  NULL);                 // no attr. template
+		if (hFile == INVALID_HANDLE_VALUE) 
+    { 
+        return FALSE; 
+    }
+
+
+    GetSystemTime(&st);              // Gets the current system time
+    SystemTimeToFileTime(&st, &ft);  // Converts the current system time to file time format
+    f = SetFileTime(hFile,           // Sets last-write time of the file 
+        (LPFILETIME) NULL,           // to the converted current system time 
+        (LPFILETIME) NULL, 
+        &ft);  
+
+		if(!f)
+		{
+			int err = GetLastError();
+		}
+
+		CloseHandle(hFile);
+
+    return f;
+ }
 
 
 ///-------------------------------------------------------------------------------------------------
@@ -81,5 +144,5 @@ void croak(char *fmt, ...) {
 	printf(fmt, argptr);
     va_end(argptr);
 	//exit(-1);
-};
+} /* croak() */
 
