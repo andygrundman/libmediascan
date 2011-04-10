@@ -280,7 +280,7 @@ static int scan_video(MediaScanResult *r)
   scan_dlna_profile(r, codecs);
 
   r->bitrate     = avf->bit_rate;
-  r->duration_ms = (int)(avf->duration / 1000);
+  r->duration_ms = (int)(avf->duration / AV_TIME_BASE);
 
   // Video-specific metadata
   v = r->video = video_create();
@@ -548,12 +548,6 @@ void ms_dump_result(MediaScanResult *r)
       LOG_OUTPUT("  Video:        %s\n", r->video->codec);
       LOG_OUTPUT("    Dimensions: %d x %d\n", r->video->width, r->video->height);
       LOG_OUTPUT("    Framerate:  %.2f\n", r->video->fps);
-      if (r->audio) {
-        LOG_OUTPUT("  Audio:        %s\n", r->audio->codec);
-        LOG_OUTPUT("    Bitrate:    %d bps\n", r->audio->bitrate);
-        LOG_OUTPUT("    Samplerate: %d kHz\n", r->audio->samplerate);
-        LOG_OUTPUT("    Channels:   %d\n", r->audio->channels);
-      }
       for (i = 0; i < r->video->nthumbnails; i++) {
         MediaScanImage *thumb = r->video->thumbnails[i];
         Buffer *dbuf = (Buffer *)thumb->_dbuf;
@@ -574,6 +568,12 @@ void ms_dump_result(MediaScanResult *r)
         }
 #endif
       }
+      if (r->audio) {
+        LOG_OUTPUT("  Audio:        %s\n", r->audio->codec);
+        LOG_OUTPUT("    Bitrate:    %d bps\n", r->audio->bitrate);
+        LOG_OUTPUT("    Samplerate: %d kHz\n", r->audio->samplerate);
+        LOG_OUTPUT("    Channels:   %d\n", r->audio->channels);
+      }
       LOG_OUTPUT("  FFmpeg details:\n");
       av_dump_format(r->_avf, 0, r->path, 0);
       break;
@@ -591,9 +591,9 @@ void ms_dump_result(MediaScanResult *r)
           FILE *tfp;
           char file[MAX_PATH];
           if (!strcmp("JPEG", thumb->codec))
-            sprintf(file, "thumb%d.jpg", i);
+            sprintf(file, "image-thumb%d.jpg", i);
           else
-            sprintf(file, "thumb%d.png", i);
+            sprintf(file, "image-thumb%d.png", i);
           tfp = fopen(file, "wb");
           fwrite(buffer_ptr(dbuf), 1, buffer_len(dbuf), tfp);
           fclose(tfp);

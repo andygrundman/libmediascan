@@ -54,6 +54,7 @@ video_create_image_from_frame(MediaScanVideo *v, MediaScanResult *r)
   AVPacket packet;
   struct SwsContext *swsc = NULL;
   int got_picture;
+  int64_t duration_tb = ((double)avf->duration / AV_TIME_BASE) / av_q2d(codecs->vs->time_base);
   
   if ( (avcodec_open(codecs->vc, codec)) < 0 ) {
     LOG_ERROR("Couldn't open video codec %s for thumbnail creation\n", codec->name);
@@ -81,7 +82,8 @@ video_create_image_from_frame(MediaScanVideo *v, MediaScanResult *r)
   // * If really ambitious, use OpenCV for finding a frame with a face?
   
   // XXX other ways to seek if this fails
-  //av_seek_frame(avf, codecs->vsid, 0, 0);
+  // XXX for now, seek 50% into the video
+  av_seek_frame(avf, codecs->vsid, (int)(duration_tb / 2), 0);
     
   for (;;) {  
     if ( (av_read_frame(avf, &packet)) < 0 ) {
@@ -97,7 +99,7 @@ video_create_image_from_frame(MediaScanVideo *v, MediaScanResult *r)
     if ( !(packet.flags & PKT_FLAG_KEY) )
       continue;
   
-    LOG_DEBUG("Video packet: pos %lld size %d, stream_index %d, duration %d\n", packet.pos, packet.size, packet.stream_index, packet.duration);
+    LOG_DEBUG("Using video packet: pos %lld size %d, stream_index %d, duration %d\n", packet.pos, packet.size, packet.stream_index, packet.duration);
   
     if ( (avcodec_decode_video2(codecs->vc, frame, &got_picture, &packet)) < 0 ) {
       LOG_ERROR("Error decoding video frame\n");
@@ -108,10 +110,8 @@ video_create_image_from_frame(MediaScanVideo *v, MediaScanResult *r)
       int rgb_bufsize;
       uint8_t *rgb_buffer = NULL;
       
-      LOG_DEBUG("Video frame: key_frame: %d, pict_type: %d\n", frame->key_frame, frame->pict_type);
-      
       // use swscale to convert from source format to RGBA in our buffer with no resizing
-      // XXX what scaler is best here?
+      // XXX what scaler is fastest here when not actually resizing?
       swsc = sws_getContext(i->width, i->height, codecs->vc->pix_fmt,
           i->width, i->height, PIX_FMT_RGB24, SWS_FAST_BILINEAR, NULL, NULL, NULL);
       if (!swsc) {
