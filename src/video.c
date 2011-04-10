@@ -186,9 +186,6 @@ video_destroy(MediaScanVideo *v)
 {
   int x;
   
-  // free loaded frame if any
-  video_unload_frame(v);
-  
   // free thumbnails
   for (x = 0; x < v->nthumbnails; x++)
     image_destroy(v->thumbnails[x]);
