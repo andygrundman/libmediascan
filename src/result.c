@@ -338,16 +338,17 @@ static int scan_video(MediaScanResult *r)
   if (s->nthumbspecs && v->_avc) {
     int x;    
     MediaScanImage *i = video_create_image_from_frame(v, r); // Decode and load a frame of video we'll use for the thumbnail
+    if (i) {
+      // XXX sort from biggest to smallest, resize in series
     
-    // XXX sort from biggest to smallest, resize in series
+      for (x = 0; x < s->nthumbspecs; x++) {
+        MediaScanImage *thumb = thumb_create_from_image(i, s->thumbspecs[x]);
+        if (thumb)
+          video_add_thumbnail(v, thumb);
+      }
     
-    for (x = 0; x < s->nthumbspecs; x++) {
-      MediaScanImage *thumb = thumb_create_from_image(i, s->thumbspecs[x]);
-      if (thumb)
-        video_add_thumbnail(v, thumb);
+      image_destroy(i);
     }
-    
-    image_destroy(i);
   }
   
 out:
@@ -552,6 +553,26 @@ void ms_dump_result(MediaScanResult *r)
         LOG_OUTPUT("    Bitrate:    %d bps\n", r->audio->bitrate);
         LOG_OUTPUT("    Samplerate: %d kHz\n", r->audio->samplerate);
         LOG_OUTPUT("    Channels:   %d\n", r->audio->channels);
+      }
+      for (i = 0; i < r->video->nthumbnails; i++) {
+        MediaScanImage *thumb = r->video->thumbnails[i];
+        Buffer *dbuf = (Buffer *)thumb->_dbuf;
+        LOG_OUTPUT("    Thumbnail:  %d x %d %s (%d bytes)\n", thumb->width, thumb->height, thumb->codec, buffer_len(dbuf));
+
+#ifdef DUMP_THUMBNAILS
+        {
+          FILE *tfp;
+          char file[MAX_PATH];
+          if (!strcmp("JPEG", thumb->codec))
+            sprintf(file, "video-thumb%d.jpg", i);
+          else
+            sprintf(file, "video-thumb%d.png", i);
+          tfp = fopen(file, "wb");
+          fwrite(buffer_ptr(dbuf), 1, buffer_len(dbuf), tfp);
+          fclose(tfp);
+          LOG_OUTPUT("      Saved to: %s\n", file);
+        }
+#endif
       }
       LOG_OUTPUT("  FFmpeg details:\n");
       av_dump_format(r->_avf, 0, r->path, 0);

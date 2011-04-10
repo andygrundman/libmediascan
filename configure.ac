@@ -25,6 +25,7 @@ AC_SEARCH_LIBS([exif_loader_new], [exif], [], [], [-lexif])
 AC_SEARCH_LIBS([av_freep], [avutil], [], [], [-lz])
 AC_SEARCH_LIBS([avcodec_version], [avcodec], [], [], [-lavutil -lz])
 AC_SEARCH_LIBS([avformat_version], [avformat], [], [], [-lavcodec -lavutil -lz -lbz2])
+AC_SEARCH_LIBS([sws_scale], [swscale], [], [], [-lswscale])
 
 # Checks for header files.
 AC_CHECK_HEADERS([fcntl.h stdlib.h string.h unistd.h pthread.h])
