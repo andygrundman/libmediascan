@@ -32,6 +32,8 @@ Building Media::Scan on Win32
 
 * Make sure vcvarsall.bat has been run.
 
+* Sacrifice an animal of your choice to the Microsoft build gods.
+
 * perl Makefile.PL
 
 * nmake

@@ -254,6 +254,7 @@ for my $incdir ( $gif_inc, @check ) {
         }
         
         # Look for libgif or libungif as a fallback
+        $gif_lib_name = 'gif';
         for my $libdir ( $gif_lib, map { (my $p = $_) =~ s,/include,/lib,; $p } @check ) {
             if ( glob("$libdir/libgif*") ) {
                 $gif_lib_name = 'gif';
