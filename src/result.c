@@ -158,6 +158,7 @@ static int ensure_opened_with_buf(MediaScanResult *r, int min_bytes)
   
   buf = (Buffer *)malloc(sizeof(Buffer));
   r->_buf = (void *)buf;
+  LOG_MEM("new result buffer @ %p\n", r->_buf);
   
   buffer_init(buf, BUF_SIZE);
   
@@ -352,8 +353,10 @@ static int scan_video(MediaScanResult *r)
   }
   
 out:
-  if (codecs)
+  if (codecs) {
+    LOG_MEM("destroy video codecs @ %p\n", codecs);
     free(codecs);
+  }
 
   return ret;
 } /* scan_video() */
@@ -513,8 +516,11 @@ void result_destroy(MediaScanResult *r)
   if (r->_fp)
     fclose(r->_fp);
   
-  if (r->_buf)
+  if (r->_buf) {
     buffer_free((Buffer *)r->_buf);
+    LOG_MEM("destroy result buffer @ %p\n", r->_buf);
+    free(r->_buf);
+  }
 
   LOG_MEM("destroy MediaScanResult @ %p\n", r);
   free(r);

@@ -46,6 +46,7 @@ image_destroy(MediaScanImage *i)
   // free compressed data if any
   if (i->_dbuf) {
     buffer_free(i->_dbuf);
+    LOG_MEM("destroy image data buf @ %p\n", i->_dbuf);
     free(i->_dbuf);
   }
   
@@ -190,8 +191,8 @@ image_alloc_pixbuf(MediaScanImage *i, int width, int height)
   i->_pixbuf = (uint32_t *)calloc(size, 1);
   i->_pixbuf_size = size;
   
-  LOG_MEM("new pixbuf for image of size %d x %d (%d bytes)\n",
-    width, height, size);
+  LOG_MEM("new pixbuf @ %p for image of size %d x %d (%d bytes)\n",
+    i->_pixbuf, width, height, size);
 }
 
 void
@@ -207,7 +208,7 @@ image_unload(MediaScanImage *i)
     image_bmp_destroy(i);
   
   if (i->_pixbuf_size) {
-    LOG_MEM("destroy pixbuf of size %d bytes\n", i->_pixbuf_size);
+    LOG_MEM("destroy pixbuf @ %p of size %d bytes\n", i->_pixbuf, i->_pixbuf_size);
     
     free(i->_pixbuf);
     i->_pixbuf_size = 0;

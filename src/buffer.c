@@ -50,7 +50,7 @@ buffer_init(Buffer *buffer, uint32_t len)
   buffer->cache = 0;
   buffer->ncached = 0;
 
-  LOG_MEM("new Buffer at %p with %d bytes\n", buffer->buf, len);
+  LOG_MEM("new Buffer @ %p with %d bytes\n", buffer->buf, len);
 }
 
 /* Allows easy reuse of a buffer, will init or clear buffer if it already exists */

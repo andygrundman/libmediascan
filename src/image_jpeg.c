@@ -206,9 +206,11 @@ buf_dst_mgr_init(j_compress_ptr cinfo)
   
   // Temporary internal buffer
   dst->buf = (JOCTET *)malloc(BUF_SIZE);
+  LOG_MEM("new JPEG buf @ %p\n", dst->buf);
   
   // Storage for full compressed data
   dst->dbuf = (Buffer *)malloc(sizeof(Buffer));
+  LOG_MEM("new JPEG dbuf @ %p\n", dst->dbuf);
   buffer_init(dst->dbuf, BUF_SIZE);
   
   dst->off = dst->buf;
@@ -247,6 +249,7 @@ buf_dst_mgr_term(j_compress_ptr cinfo)
     buffer_append(dst->dbuf, dst->buf, sz);
   }
   
+  LOG_MEM("destroy JPEG buf @ %p\n", dst->buf);
   free(dst->buf);
 
   LOG_MEM("buf_dst_mgr_term, copied final %ld bytes (total bytes %d)\n", sz, buffer_len(dst->dbuf));
@@ -293,6 +296,8 @@ image_jpeg_read_header(MediaScanImage *i, MediaScanResult *r)
   
   j->cinfo = malloc(sizeof(struct jpeg_decompress_struct));
   j->jpeg_error_pub = malloc(sizeof(struct jpeg_error_mgr));
+  LOG_MEM("new JPEG cinfo @ %p\n", j->cinfo);
+  LOG_MEM("new JPEG error_pub @ %p\n", j->jpeg_error_pub);
   
   j->cinfo->err = jpeg_std_error(j->jpeg_error_pub);
   j->jpeg_error_pub->error_exit = libjpeg_error_handler;
@@ -345,8 +350,10 @@ image_jpeg_read_header(MediaScanImage *i, MediaScanResult *r)
         
         LOG_DEBUG("Parsing EXIF tag of size %d\n", marker->data_length);
         exif = exif_data_new_from_data(marker->data, marker->data_length);
+        LOG_MEM("new EXIF data @ %p\n", exif);
         if (exif != NULL) {
           exif_data_foreach_content(exif, parse_exif_ifd, (void *)i);
+          LOG_MEM("destroy EXIF data @ %p\n", exif);
           exif_data_free(exif);
         }
         
@@ -373,6 +380,7 @@ image_jpeg_load(MediaScanImage *i, MediaScanThumbSpec *spec_hint)
   if (setjmp(setjmp_buffer)) {
     // See if we have partially decoded an image and hit a fatal error, but still have a usable image
     if (ptr != NULL) {
+      LOG_MEM("destroy JPEG load ptr @ %p\n", ptr);
       free(ptr);
       ptr = NULL;
     }
@@ -437,6 +445,7 @@ image_jpeg_load(MediaScanImage *i, MediaScanThumbSpec *spec_hint)
   
   ptr = (unsigned char *)malloc(w * j->cinfo->output_components);
   line[0] = ptr;
+  LOG_MEM("new JPEG load ptr @ %p\n", ptr);
   
   if (j->cinfo->output_components == 3) { // RGB
     while (j->cinfo->output_scanline < j->cinfo->output_height) {
@@ -469,6 +478,7 @@ image_jpeg_load(MediaScanImage *i, MediaScanThumbSpec *spec_hint)
     }
   }
   
+  LOG_MEM("destroy JPEG load ptr @ %p\n", ptr);
   free(ptr);
   
   jpeg_finish_decompress(j->cinfo);
@@ -512,8 +522,10 @@ image_jpeg_compress(MediaScanImage *i, MediaScanThumbSpec *spec)
   cinfo.in_color_space   = JCS_RGB; // output is always RGB even if source was grayscale
 
   if (setjmp(setjmp_buffer)) {
-    if (data != NULL)
+    if (data != NULL) {
+      LOG_MEM("destroy JPEG data row @ %p\n", data);
       free((void *)data);
+    }
     return;
   }
 
@@ -529,6 +541,7 @@ image_jpeg_compress(MediaScanImage *i, MediaScanThumbSpec *spec)
 
 #ifdef JCS_EXTENSIONS
   data = (JSAMPROW *)malloc(i->height);
+  LOG_MEM("new JPEG data row @ %p\n", data);
 
   for (x = 0; x < i->height; x++)
     data[x] = (JSAMPROW)&i->_pixbuf[x * i->width];
@@ -542,6 +555,7 @@ image_jpeg_compress(MediaScanImage *i, MediaScanThumbSpec *spec)
   // Normal libjpeg
   row_stride = cinfo.image_width * 3;
   data = (unsigned char *)malloc(row_stride);
+  LOG_MEM("new JPEG data row @ %p\n", data);
 
   y = 0;
   while (cinfo.next_scanline < cinfo.image_height) {
@@ -558,6 +572,7 @@ image_jpeg_compress(MediaScanImage *i, MediaScanThumbSpec *spec)
 
   jpeg_finish_compress(&cinfo);
 
+  LOG_MEM("destroy JPEG data row @ %p\n", data);
   free((void *)data);
   
   jpeg_destroy_compress(&cinfo);
@@ -573,7 +588,9 @@ image_jpeg_destroy(MediaScanImage *i)
     JPEGData *j = (JPEGData *)i->_jpeg;
 
     jpeg_destroy_decompress(j->cinfo);
-    free(j->cinfo);    
+    LOG_MEM("destroy JPEG cinfo @ %p\n", j->cinfo);
+    free(j->cinfo);
+    LOG_MEM("destroy JPEG error_pub @ %p\n", j->jpeg_error_pub);
     free(j->jpeg_error_pub);
   
     LOG_MEM("destroy JPEGData @ %p\n", i->_jpeg);
