@@ -96,7 +96,7 @@ struct _Image {
   enum exif_orientation orientation;
   
   int nthumbnails;
-  struct _Image *thumbnails[MAX_THUMBS];
+  struct _Image *thumbnails[MAX_THUMBS]; // XXX refactor to private
   struct _Tag **tags;
   
   // private members
@@ -153,6 +153,8 @@ struct _Result {
   int duration_ms;
 
 	uint32_t hash;
+	
+	// XXX refactor thumbnails here, since all types have thumbnails
   
   MediaScanAudio *audio; ///< Audio-specific data, only present if type is TYPE_AUDIO or TYPE_VIDEO.
   MediaScanImage *image; ///< Image-specific data, only present if type is TYPE_IMAGE.
@@ -374,6 +376,15 @@ void ms_async_process(MediaScan *s);
  * to stdout.
  */
 void ms_dump_result(MediaScanResult *r);
+
+/**
+ * Get thumbnail data for a given result.
+ * @param r MediaScanResult instance.
+ * @param index 0-based index of the thumbnail to return. Check r->nthumbnails for the total number.
+ * @param *length (OUT) Returns the length of the thumbnail data.
+ * @return A pointer to the raw JPEG or PNG thumbnail data.
+ */ 
+const uint8_t * ms_result_get_thumbnail(MediaScanResult *r, int index, int *length);
 
 ///-------------------------------------------------------------------------------------------------
 ///  Watch a directory in the background.

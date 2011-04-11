@@ -123,6 +123,23 @@ image_add_thumbnail(MediaScanImage *i, MediaScanImage *thumb)
     i->thumbnails[ i->nthumbnails++ ] = thumb;
 }
 
+uint8_t *
+image_get_thumbnail(MediaScanImage *i, int index, int *length)
+{
+  uint8_t *ret = NULL;
+  if (i->nthumbnails >= index) {
+    MediaScanImage *thumb = i->thumbnails[index];
+    Buffer *buf = (Buffer *)thumb->_dbuf;
+    *length = buffer_len(buf);
+    ret = (uint8_t *)buffer_ptr(buf);
+  }
+  else {
+    *length = 0;
+  }
+  
+  return ret;
+}
+
 int
 image_load(MediaScanImage *i, MediaScanThumbSpec *spec_hint)
 {

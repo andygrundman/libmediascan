@@ -24,6 +24,7 @@ sub new {
     $opts->{async}  ||= 0;
     $opts->{paths}  = $paths;
     $opts->{ignore} ||= [];
+    $opts->{thumbnails} ||= [];
     
     if ( ref $opts->{ignore} ne 'ARRAY' ) {
         die "ignore must be an array reference";

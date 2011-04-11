@@ -39,7 +39,8 @@
 #include "result.h"
 #include "error.h"
 #include "mediascan.h"
-
+#include "image.h"
+#include "video.h"
 
 
 // If we are on MSVC, disable some stupid MSVC warnings
@@ -419,15 +420,20 @@ void ms_add_ignore_extension(MediaScan *s, const char *extension)
 void
 ms_add_thumbnail_spec(MediaScan *s, enum thumb_format format, int width, int height, int keep_aspect, uint32_t bgcolor, int quality)
 {
-  MediaScanThumbSpec *spec = malloc(sizeof(MediaScanThumbSpec));
-  spec->format = format;
-  spec->width = width;
-  spec->height = height;
-  spec->keep_aspect = keep_aspect;
-  spec->bgcolor = 0;
-  spec->jpeg_quality = quality;
-  
-  s->thumbspecs[ s->nthumbspecs++ ] = spec;
+  // Must have at least width or height
+  if (width > 0 || height > 0) {
+    MediaScanThumbSpec *spec = (MediaScanThumbSpec *)calloc(sizeof(MediaScanThumbSpec), 1);
+    spec->format = format;
+    spec->width = width;
+    spec->height = height;
+    spec->keep_aspect = keep_aspect;
+    spec->bgcolor = bgcolor;
+    spec->jpeg_quality = quality;
+    
+    LOG_DEBUG("ms_add_thumbnail_spec width %d height %d\n", spec->width, spec->height);
+    
+    s->thumbspecs[ s->nthumbspecs++ ] = spec;
+  }
 }
 
 ///-------------------------------------------------------------------------------------------------
@@ -911,4 +917,26 @@ bool is_absolute_path(const char *path) {
 	return FALSE;
 } /* is_absolute_path() */
 
-
+const uint8_t *
+ms_result_get_thumbnail(MediaScanResult *r, int index, int *length)
+{
+  uint8_t *ret = NULL;
+  *length = 0;
+  
+  // XXX refactor, thumbnails should be stored in result
+  switch (r->type) {
+    case TYPE_VIDEO:
+      ret = video_get_thumbnail(r->video, index, length);
+      break;
+    
+    case TYPE_IMAGE:
+      ret = image_get_thumbnail(r->image, index, length);
+      break;
+    
+    case TYPE_AUDIO:
+      // XXX
+      break;
+  }
+  
+  return (const uint8_t *)ret;
+}

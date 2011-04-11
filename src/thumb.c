@@ -15,9 +15,13 @@
 #include "fixed.h"
 
 MediaScanImage *
-thumb_create_from_image(MediaScanImage *i, MediaScanThumbSpec *spec)
+thumb_create_from_image(MediaScanImage *i, MediaScanThumbSpec *spec_orig)
 {
   MediaScanImage *thumb;
+  
+  // Create a copy of the spec, so we can adjust width/height as needed
+  MediaScanThumbSpec *spec = (MediaScanThumbSpec *)calloc(sizeof(MediaScanThumbSpec), 1);
+  memcpy(spec, spec_orig, sizeof(MediaScanThumbSpec));
   
   thumb = image_create();
   thumb->path = i->path;
@@ -89,6 +93,8 @@ err:
   thumb = NULL;
 
 ok:
+  free(spec);
+  
   return thumb;
 }
 

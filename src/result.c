@@ -331,7 +331,7 @@ static int scan_video(MediaScanResult *r)
     a->channels = codecs->ac->channels;    
   }
   
-  // XXX additional streams(?), thumbnails, tags
+  // XXX additional streams(?), tags
   
   // Create thumbnail(s) if we found a valid video decoder above
   s = (MediaScan *)r->_scan;

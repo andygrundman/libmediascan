@@ -82,8 +82,8 @@ video_create_image_from_frame(MediaScanVideo *v, MediaScanResult *r)
   // * If really ambitious, use OpenCV for finding a frame with a face?
   
   // XXX other ways to seek if this fails
-  // XXX for now, seek 50% into the video
-  av_seek_frame(avf, codecs->vsid, (int)(duration_tb / 2), 0);
+  // XXX for now, seek 10% into the video
+  av_seek_frame(avf, codecs->vsid, (int)((double)duration_tb * 0.1), 0);
     
   for (;;) {  
     if ( (av_read_frame(avf, &packet)) < 0 ) {
@@ -179,6 +179,23 @@ video_add_thumbnail(MediaScanVideo *v, MediaScanImage *thumb)
 {
   if (v->nthumbnails < MAX_THUMBS)
     v->thumbnails[ v->nthumbnails++ ] = thumb;
+}
+
+uint8_t *
+video_get_thumbnail(MediaScanVideo *v, int index, int *length)
+{
+  uint8_t *ret = NULL;
+  if (v->nthumbnails >= index) {
+    MediaScanImage *thumb = v->thumbnails[index];
+    Buffer *buf = (Buffer *)thumb->_dbuf;
+    *length = buffer_len(buf);
+    ret = (uint8_t *)buffer_ptr(buf);
+  }
+  else {
+    *length = 0;
+  }
+  
+  return ret;
 }
 
 void
