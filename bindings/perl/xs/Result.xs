@@ -96,7 +96,7 @@ CODE:
         const uint8_t *data = ms_result_get_thumbnail(r, i, &len);
         if (len) {
           SV *thumb = newSVpvn(data, len); // XXX is there a way to just use the original pointer and avoid Perl copying data?
-          SvREADONLY_on(thumb);
+          //SvREADONLY_on(thumb); // Enable this if we can use the original pointer
           av_push(RETVAL, thumb);
         }
       }
@@ -108,7 +108,7 @@ CODE:
         const uint8_t *data = ms_result_get_thumbnail(r, i, &len);
         if (len) {
           SV *thumb = newSVpvn(data, len);
-          SvREADONLY_on(thumb);
+          //SvREADONLY_on(thumb); // Enable this if we can use the original pointer
           av_push(RETVAL, thumb);
         }
       }
