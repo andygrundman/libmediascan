@@ -19,9 +19,13 @@ AM_PROG_CC_C_O
 AC_SEARCH_LIBS([pthread_create], [pthread])
 AC_SEARCH_LIBS([zlibVersion], [z])
 AC_SEARCH_LIBS([BZ2_bzDecompressInit], [bz2])
+AC_SEARCH_LIBS([jpeg_read_header], [jpeg], [], [], [-ljpeg])
+AC_SEARCH_LIBS([png_create_read_struct], [png], [], [], [-lpng])
+AC_SEARCH_LIBS([exif_loader_new], [exif], [], [], [-lexif])
 AC_SEARCH_LIBS([av_freep], [avutil], [], [], [-lz])
 AC_SEARCH_LIBS([avcodec_version], [avcodec], [], [], [-lavutil -lz])
 AC_SEARCH_LIBS([avformat_version], [avformat], [], [], [-lavcodec -lavutil -lz -lbz2])
+AC_SEARCH_LIBS([sws_scale], [swscale], [], [], [-lswscale])
 
 # Checks for header files.
 AC_CHECK_HEADERS([fcntl.h stdlib.h string.h unistd.h pthread.h])

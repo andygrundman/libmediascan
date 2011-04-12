@@ -39,7 +39,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>C:\mingw\msys\1.0\local\lib;$(SolutionDir)ffmpeg\libavcodec;$(SolutionDir)ffmpeg\libswscale;$(SolutionDir)ffmpeg\libavdevice;$(SolutionDir)ffmpeg\libavfilter;$(SolutionDir)ffmpeg\libavformat;$(SolutionDir)ffmpeg\libavutil;$(SolutionDir)ffmpeg\libpostproc;C:\mingw\lib\gcc\mingw32\4.5.2;C:\mingw\lib;D:\workspace\scan\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\mingw\msys\1.0\local\lib;C:\mingw\lib\gcc\mingw32\4.5.2;C:\mingw\lib;D:\workspace\scan\lib;$(LibraryPath)</LibraryPath>
     <TargetName>API_test</TargetName>
     <IntDir>$(ProjectName)$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)$(ProjectName)$(Configuration)\</OutDir>
@@ -64,7 +64,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <HeapReserveSize>1000000</HeapReserveSize>
       <HeapCommitSize>100000</HeapCommitSize>
-      <AdditionalDependencies>$(ProjectDir)..\win32\debug\libmediascan.lib;libavcodec.a;libavformat.a;libavutil.a;wsock32.lib;vfw32.lib;libcunit.a;libgcc.a;libmingwex.lib;libz.a;libbz2.a;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectDir)..\win32\debug\libmediascan.lib;wsock32.lib;vfw32.lib;libcunit.a;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
       <Command>

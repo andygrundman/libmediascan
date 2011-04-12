@@ -76,9 +76,12 @@ typedef struct av_codecs_s {
   /* audio stream and codec */
   AVStream *as;
   AVCodecContext *ac;
+  int asid;
+  
   /* video stream and codec */
   AVStream *vs;
   AVCodecContext *vc;
+  int vsid;
 } av_codecs_t;
 
 typedef struct dlna_registered_profile_s {

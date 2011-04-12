@@ -27,10 +27,13 @@
 
 
 #include "common.h"
+#include "buffer.h"
 #include "result.h"
 #include "error.h"
 #include "video.h"
 #include "audio.h"
+#include "image.h"
+#include "thumb.h"
 #include "util.h"
 
 // DLNA support
@@ -146,6 +149,24 @@ static int ensure_opened(MediaScanResult *r)
   return 1;
 } /* ensure_opened() */
 
+static int ensure_opened_with_buf(MediaScanResult *r, int min_bytes)
+{
+  Buffer *buf;
+  
+  if ( !ensure_opened(r) )
+    return 0;
+  
+  buf = (Buffer *)malloc(sizeof(Buffer));
+  r->_buf = (void *)buf;
+  
+  buffer_init(buf, BUF_SIZE);
+  
+  if ( !buffer_check_load(buf, r->_fp, min_bytes, BUF_SIZE) )
+    return 0;
+  
+  return 1;
+}
+
 ///-------------------------------------------------------------------------------------------------
 ///  Sets a file metadata.
 ///
@@ -159,6 +180,10 @@ static void set_file_metadata(MediaScanResult *r)
 {
   int fd;
   struct stat buf;
+  
+  // XXX Win32 code needed?
+  //_GetFileTime(r->path, fileData, MAX_PATH);
+  //_GetFileSize(r->path, fileData, MAX_PATH);
   
   if (r->_avf) {
     // Use ffmpeg API because it already has the file open
@@ -198,6 +223,7 @@ static int scan_video(MediaScanResult *r)
   AVCodec *c = NULL;
   MediaScanVideo *v = NULL;
   MediaScanAudio *a = NULL;
+  MediaScan *s = NULL;
   av_codecs_t *codecs = NULL;
   int AVError = 0;
   int ret = 1;
@@ -252,19 +278,21 @@ static int scan_video(MediaScanResult *r)
   }
   
   scan_dlna_profile(r, codecs);
-  
-  // General metadata
-  set_file_metadata(r);
 
   r->bitrate     = avf->bit_rate;
-  r->duration_ms = (int)(avf->duration / 1000);
+  r->duration_ms = (int)(avf->duration / AV_TIME_BASE);
 
   // Video-specific metadata
   v = r->video = video_create();
+  v->path = r->path;
   
   c = avcodec_find_decoder(codecs->vc->codec_id);  
   if (c) {
     v->codec = c->name;
+    
+    // Save structures needed for thumbnail generation
+    v->_codecs = (void *)codecs;
+    v->_avc = (void *)c;
   }
   else if (codecs->vc->codec_name[0] != '\0') {
     v->codec = codecs->vc->codec_name;
@@ -279,19 +307,21 @@ static int scan_video(MediaScanResult *r)
   
   // Audio metadata from the primary audio stream
   if (codecs->ac) {
+    AVCodec *ac = NULL;
+    
     a = r->audio = audio_create();
     
-    c = avcodec_find_decoder(codecs->ac->codec_id);  
-    if (c) {
-      a->codec = c->name;
+    ac = avcodec_find_decoder(codecs->ac->codec_id);  
+    if (ac) {
+      a->codec = ac->name;
     }
     else if (codecs->ac->codec_name[0] != '\0') {
       a->codec = codecs->ac->codec_name;
     }
-	// Special case for handling MP1 audio streams which FFMPEG can't identify a codec for
-	else if (codecs->ac->codec_id == CODEC_ID_MP1) { 
-	  a->codec = CODEC_MP1;
-	}
+    // Special case for handling MP1 audio streams which FFMPEG can't identify a codec for
+    else if (codecs->ac->codec_id == CODEC_ID_MP1) { 
+      a->codec = CODEC_MP1;
+    }
     else {
       a->codec = "Unknown";
     }
@@ -302,12 +332,82 @@ static int scan_video(MediaScanResult *r)
   }
   
   // XXX additional streams(?), thumbnails, tags
+  
+  // Create thumbnail(s) if we found a valid video decoder above
+  s = (MediaScan *)r->_scan;
+  if (s->nthumbspecs && v->_avc) {
+    int x;    
+    MediaScanImage *i = video_create_image_from_frame(v, r); // Decode and load a frame of video we'll use for the thumbnail
+    if (i) {
+      // XXX sort from biggest to smallest, resize in series
+    
+      for (x = 0; x < s->nthumbspecs; x++) {
+        MediaScanImage *thumb = thumb_create_from_image(i, s->thumbspecs[x]);
+        if (thumb)
+          video_add_thumbnail(v, thumb);
+      }
+    
+      image_destroy(i);
+    }
+  }
+  
 out:
   if (codecs)
     free(codecs);
 
   return ret;
 } /* scan_video() */
+
+static int
+scan_image(MediaScanResult *r)
+{
+  int ret = 1;
+  MediaScanImage *i = NULL;
+  MediaScan *s;
+  int w, h;
+  
+  // Open the file and read in a buffer of at least 8 bytes
+  if ( !ensure_opened_with_buf(r, 8) ) {
+    r->error = error_create(r->path, MS_ERROR_FILE, "Unable to open file for reading");
+    ret = 0;
+    goto out;
+  }
+  
+  i = r->image = image_create();
+  i->path = r->path;
+  
+  if ( !image_read_header(i, r) ) {
+    r->error = error_create(r->path, MS_ERROR_READ, "Invalid or corrupt image file");
+    ret = 0;
+    goto out;
+  }
+  
+  // Save original image dimensions as thumbnail creation may alter it (e.g. for JPEG scaling)
+  w = i->width;
+  h = i->height;
+  
+  // Create thumbnail(s)
+  s = (MediaScan *)r->_scan;
+  if (s->nthumbspecs) {
+    int x;
+    
+    // XXX sort from biggest to smallest, resize in series
+    // XXX Move image_load call here
+    
+    for (x = 0; x < s->nthumbspecs; x++) {
+      MediaScanImage *thumb = thumb_create_from_image(i, s->thumbspecs[x]);
+      if (thumb)
+        image_add_thumbnail(i, thumb);
+    }
+  }
+  
+  // Restore dimensions
+  i->width = w;
+  i->height = h;
+  
+out:
+  return ret;
+}
 
 ///-------------------------------------------------------------------------------------------------
 ///  Result create.
@@ -324,7 +424,7 @@ MediaScanResult *result_create(MediaScan *s)
 {
   MediaScanResult *r = (MediaScanResult *)calloc(sizeof(MediaScanResult), 1);
   if (r == NULL) {
-	ms_errno = MSENO_MEMERROR;
+    ms_errno = MSENO_MEMERROR;
     FATAL("Out of memory for new MediaScanResult object\n");
     return NULL;
   }
@@ -333,19 +433,6 @@ MediaScanResult *result_create(MediaScan *s)
   
   r->type = TYPE_UNKNOWN;
   r->flags = USE_EXTENSION;
-  r->path = NULL;
-  r->error = NULL;
-  
-  r->mime_type = NULL;
-  r->dlna_profile = NULL;
-  r->size = 0;
-  r->mtime = 0;
-  r->bitrate = 0;
-  r->duration_ms = 0;
-  
-  r->audio = NULL;
-  r->image = NULL;
-  r->video = NULL;
   
   r->_scan = s;
   r->_avf = NULL;
@@ -369,14 +456,27 @@ MediaScanResult *result_create(MediaScan *s)
 
 int result_scan(MediaScanResult *r)
 {
+	char fileData[MAX_PATH];
+
   if (!r->type || !r->path) {
     r->error = error_create("", MS_ERROR_TYPE_INVALID_PARAMS, "Invalid parameters passed to result_scan()");
     return FALSE;
   }
+  
+  // General metadata (mtime/size)
+  set_file_metadata(r);
 
+	// Generate a hash of the full file path, modified time, and file size
+//  sprintf(fileData, "%s%d%lld", r->path, r->mtime, r->size);
+//  r->hash = hashlittle(fileData, strlen(fileData), 0);
+  
   switch (r->type) {
     case TYPE_VIDEO:
       return scan_video(r);
+      break;
+    
+    case TYPE_IMAGE:
+      return scan_image(r);
       break;
     
     default:
@@ -406,6 +506,9 @@ void result_destroy(MediaScanResult *r)
   if (r->audio)
     audio_destroy(r->audio);
   
+  if (r->image)
+    image_destroy(r->image);
+  
   if (r->_avf)
   {
     av_close_input_file(r->_avf);
@@ -413,6 +516,9 @@ void result_destroy(MediaScanResult *r)
   
   if (r->_fp)
     fclose(r->_fp);
+  
+  if (r->_buf)
+    buffer_free((Buffer *)r->_buf);
 
   LOG_MEM("destroy MediaScanResult @ %p\n", r);
   free(r);
@@ -429,27 +535,83 @@ void result_destroy(MediaScanResult *r)
 
 void ms_dump_result(MediaScanResult *r)
 {
+  int i;
+  
   LOG_OUTPUT("%s\n", r->path);
   LOG_OUTPUT("  MIME type:    %s\n", r->mime_type);
   LOG_OUTPUT("  DLNA profile: %s\n", r->dlna_profile);
   LOG_OUTPUT("  File size:    %lld\n", r->size);
   LOG_OUTPUT("  Modified:     %d\n", r->mtime);
-  LOG_OUTPUT("  Bitrate:      %d bps\n", r->bitrate);
-  LOG_OUTPUT("  Duration:     %d ms\n", r->duration_ms);
+  if (r->bitrate)
+    LOG_OUTPUT("  Bitrate:      %d bps\n", r->bitrate);
+  if (r->duration_ms)
+    LOG_OUTPUT("  Duration:     %d ms\n", r->duration_ms);
   
   switch (r->type) {
     case TYPE_VIDEO:
-      LOG_OUTPUT("  Video: %s\n", r->video->codec);
+      LOG_OUTPUT("  Video:        %s\n", r->video->codec);
       LOG_OUTPUT("    Dimensions: %d x %d\n", r->video->width, r->video->height);
       LOG_OUTPUT("    Framerate:  %.2f\n", r->video->fps);
+      for (i = 0; i < r->video->nthumbnails; i++) {
+        MediaScanImage *thumb = r->video->thumbnails[i];
+        Buffer *dbuf = (Buffer *)thumb->_dbuf;
+        LOG_OUTPUT("    Thumbnail:  %d x %d %s (%d bytes)\n", thumb->width, thumb->height, thumb->codec, buffer_len(dbuf));
+
+#ifdef DUMP_THUMBNAILS
+        {
+          FILE *tfp;
+          char file[MAX_PATH];
+          if (!strcmp("JPEG", thumb->codec))
+            sprintf(file, "video-thumb%d.jpg", i);
+          else
+            sprintf(file, "video-thumb%d.png", i);
+          tfp = fopen(file, "wb");
+          fwrite(buffer_ptr(dbuf), 1, buffer_len(dbuf), tfp);
+          fclose(tfp);
+          LOG_OUTPUT("      Saved to: %s\n", file);
+        }
+#endif
+      }
       if (r->audio) {
-        LOG_OUTPUT("  Audio: %s\n", r->audio->codec);
+        LOG_OUTPUT("  Audio:        %s\n", r->audio->codec);
         LOG_OUTPUT("    Bitrate:    %d bps\n", r->audio->bitrate);
         LOG_OUTPUT("    Samplerate: %d kHz\n", r->audio->samplerate);
         LOG_OUTPUT("    Channels:   %d\n", r->audio->channels);
       }
       LOG_OUTPUT("  FFmpeg details:\n");
       av_dump_format(r->_avf, 0, r->path, 0);
+      break;
+    
+    case TYPE_IMAGE:
+      LOG_OUTPUT("  Image:        %s\n", r->image->codec);
+      LOG_OUTPUT("    Dimensions: %d x %d\n", r->image->width, r->image->height);
+      for (i = 0; i < r->image->nthumbnails; i++) {
+        MediaScanImage *thumb = r->image->thumbnails[i];
+        Buffer *dbuf = (Buffer *)thumb->_dbuf;
+        LOG_OUTPUT("    Thumbnail:  %d x %d %s (%d bytes)\n", thumb->width, thumb->height, thumb->codec, buffer_len(dbuf));
+
+#ifdef DUMP_THUMBNAILS
+        {
+          FILE *tfp;
+          char file[MAX_PATH];
+          if (!strcmp("JPEG", thumb->codec))
+            sprintf(file, "image-thumb%d.jpg", i);
+          else
+            sprintf(file, "image-thumb%d.png", i);
+          tfp = fopen(file, "wb");
+          fwrite(buffer_ptr(dbuf), 1, buffer_len(dbuf), tfp);
+          fclose(tfp);
+          LOG_OUTPUT("      Saved to: %s\n", file);
+        }
+#endif
+      }
+      break;
+    
+    case TYPE_AUDIO:
+      LOG_OUTPUT("  Audio:        %s\n", r->audio->codec);
+      LOG_OUTPUT("    Bitrate:    %d bps\n", r->audio->bitrate);
+      LOG_OUTPUT("    Samplerate: %d kHz\n", r->audio->samplerate);
+      LOG_OUTPUT("    Channels:   %d\n", r->audio->channels);
       break;
       
     default:
@@ -523,60 +685,4 @@ scan_audio(ScanData s)
   
   return;
 }
-
-static void
-scan_image(ScanData s)
-{
-  // XXX
-}
-
-ScanData
-mediascan_new_ScanData(const char *path, int flags, int type)
-{
-  ScanData s = (ScanData)calloc(sizeof(struct _ScanData), 1);
-  if (s == NULL) {
-    FATAL("Out of memory for new ScanData object\n");
-    return NULL;
-  }
-  
-  s->path = path;
-  s->flags = flags;
-  s->type = type;
-  
-  switch (type) {
-    case TYPE_VIDEO:
-      scan_video(s);
-      break;
-      
-    case TYPE_AUDIO:
-      scan_audio(s);
-      break;
-      
-    case TYPE_IMAGE:
-      scan_image(s);
-      break;
-  }
-    
-  return s;
-}
-
-void
-mediascan_free_ScanData(ScanData s)
-{
-  if (s->streams)
-    free(s->streams);
-  
-  if (s->_avf != NULL)
-    av_close_input_file(s->_avf);
-  
-  free(s);
-}
-
-void
-mediascan_add_StreamData(ScanData s, int nstreams)
-{
-  s->nstreams = nstreams;
-  s->streams = (StreamData)calloc(sizeof(struct _StreamData), nstreams);
-}
-
 */

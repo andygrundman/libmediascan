@@ -50,7 +50,7 @@ buffer_init(Buffer *buffer, uint32_t len)
   buffer->cache = 0;
   buffer->ncached = 0;
 
-  LOG_DEBUG("Buffer allocated with %d bytes\n", len);
+  LOG_MEM("new Buffer at %p with %d bytes\n", buffer->buf, len);
 }
 
 /* Allows easy reuse of a buffer, will init or clear buffer if it already exists */
@@ -72,7 +72,7 @@ void
 buffer_free(Buffer *buffer)
 {
   if (buffer->alloc > 0) {
-    LOG_DEBUG("Buffer high water mark: %d\n", buffer->alloc);
+    LOG_MEM("destroy Buffer @ %p, high water mark: %d\n", buffer->buf, buffer->alloc);
     memset(buffer->buf, 0, buffer->alloc);
     buffer->alloc = 0;
     free(buffer->buf);
@@ -1062,9 +1062,11 @@ buffer_check_load(Buffer *buf, FILE *fp, int min_wanted, int max_wanted)
 
     tmp = (unsigned char *)malloc(actual_wanted);
     
+    /*
     LOG_DEBUG("Buffering from file @ %ld (min_wanted %d, max_wanted %d, adjusted to %d)\n",
       ftell(fp), min_wanted, max_wanted, actual_wanted
     );
+    */
 
     if ( (read = fread(tmp, 1, actual_wanted, fp)) <= 0 ) {
       if (ferror(fp)) {
@@ -1087,7 +1089,7 @@ buffer_check_load(Buffer *buf, FILE *fp, int min_wanted, int max_wanted)
       goto out;
     }
 
-    LOG_DEBUG("Buffered %d bytes, new pos %ld\n", read, ftell(fp));
+    //LOG_DEBUG("Buffered %d bytes, new pos %ld\n", read, ftell(fp));
 
 out:
     free(tmp);

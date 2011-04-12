@@ -1,5 +1,4 @@
 #include <string.h>
-#include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -8,6 +7,7 @@
 #ifdef _MSC_VER
 #pragma warning( disable: 4996 )
 #pragma warning( disable: 4244 )
+#include "win32config.h"
 #endif
 
 #include <libavformat/avformat.h>

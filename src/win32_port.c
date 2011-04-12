@@ -125,7 +125,6 @@ int _GetFileSize(const char *fileName, char *lpszString, long dwSize)
     return f;
  }
 
-
 ///-------------------------------------------------------------------------------------------------
 ///  Ends the program while outputting a final string to the console.
 ///

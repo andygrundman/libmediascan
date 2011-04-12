@@ -7,6 +7,10 @@
 
 #include <libmediascan.h>
 
+// Include the XS::Object::Magic code inline to get
+// around some problems on Windows
+#include "Magic.c"
+
 // Enable for debug output
 #define MEDIA_SCAN_DEBUG
 
@@ -55,17 +59,19 @@ _on_result(MediaScan *s, MediaScanResult *result, void *userdata)
   
   xs_object_magic_attach_struct(aTHX_ SvRV(obj), (void *)result);
   
-  dSP;
-  PUSHMARK(SP);
-  XPUSHs(obj);
-  PUTBACK;
+  {
+    dSP;
+    PUSHMARK(SP);
+    XPUSHs(obj);
+    PUTBACK;
     
-  call_sv(callback, G_VOID | G_DISCARD | G_EVAL);
-  
-  SPAGAIN;
-  if (SvTRUE(ERRSV)) {
-    warn("Error in on_result callback (ignored): %s", SvPV_nolen(ERRSV));
-    POPs;
+    call_sv(callback, G_VOID | G_DISCARD | G_EVAL);
+    
+    SPAGAIN;
+    if (SvTRUE(ERRSV)) {
+      warn("Error in on_result callback (ignored): %s", SvPV_nolen(ERRSV));
+      POPs;
+    }
   }
 }
 
@@ -84,16 +90,18 @@ _on_error(MediaScan *s, MediaScanError *error, void *userdata)
   sv_bless(obj, gv_stashpv("Media::Scan::Error", 0));
   xs_object_magic_attach_struct(aTHX_ SvRV(obj), (void *)error);
   
-  dSP;
-  PUSHMARK(SP);
-  XPUSHs(obj);
-  PUTBACK;
-  call_sv(callback, G_VOID | G_DISCARD | G_EVAL);
-  
-  SPAGAIN;
-  if (SvTRUE(ERRSV)) {
-    warn("Error in on_error callback (ignored): %s", SvPV_nolen(ERRSV));
-    POPs;
+  {
+    dSP;
+    PUSHMARK(SP);
+    XPUSHs(obj);
+    PUTBACK;
+    call_sv(callback, G_VOID | G_DISCARD | G_EVAL);
+    
+    SPAGAIN;
+    if (SvTRUE(ERRSV)) {
+      warn("Error in on_error callback (ignored): %s", SvPV_nolen(ERRSV));
+      POPs;
+    }
   }
 }
 
@@ -112,16 +120,18 @@ _on_progress(MediaScan *s, MediaScanProgress *progress, void *userdata)
   sv_bless(obj, gv_stashpv("Media::Scan::Progress", 0));
   xs_object_magic_attach_struct(aTHX_ SvRV(obj), (void *)progress);
   
-  dSP;
-  PUSHMARK(SP);
-  XPUSHs(obj);
-  PUTBACK;
-  call_sv(callback, G_VOID | G_DISCARD | G_EVAL);
-  
-  SPAGAIN;
-  if (SvTRUE(ERRSV)) {
-    warn("Error in on_progress callback (ignored): %s", SvPV_nolen(ERRSV));
-    POPs;
+  {
+    dSP;
+    PUSHMARK(SP);
+    XPUSHs(obj);
+    PUTBACK;
+    call_sv(callback, G_VOID | G_DISCARD | G_EVAL);
+    
+    SPAGAIN;
+    if (SvTRUE(ERRSV)) {
+      warn("Error in on_progress callback (ignored): %s", SvPV_nolen(ERRSV));
+      POPs;
+    }
   }
 }
 
@@ -156,12 +166,14 @@ CODE:
   int i;
   MediaScan *s = xs_object_magic_get_struct_rv(aTHX_ self);
   HV *selfh = (HV *)SvRV(self);
+  AV *paths, *ignore;
+  int async;
   
   // Set log level
   ms_set_log_level( SvIV(*(my_hv_fetch(selfh, "loglevel"))) );
   
   // Set paths to scan
-  AV *paths = (AV *)SvRV(*(my_hv_fetch(selfh, "paths")));
+  paths = (AV *)SvRV(*(my_hv_fetch(selfh, "paths")));
   for (i = 0; i < av_len(paths) + 1; i++) {
     SV **path = av_fetch(paths, i, 0);
     if (path != NULL && SvPOK(*path))
@@ -169,7 +181,7 @@ CODE:
   }
   
   // Set extensions to ignore
-  AV *ignore = (AV *)SvRV(*(my_hv_fetch(selfh, "ignore")));
+  ignore = (AV *)SvRV(*(my_hv_fetch(selfh, "ignore")));
   for (i = 0; i < av_len(ignore) + 1; i++) {
     SV **ext = av_fetch(ignore, i, 0);
     if (ext != NULL && SvPOK(*ext))
@@ -177,7 +189,7 @@ CODE:
   }
   
   // Set async or sync operation
-  int async = SvIV(*(my_hv_fetch(selfh, "async")));
+  async = SvIV(*(my_hv_fetch(selfh, "async")));
   ms_set_async(s, async ? 1 : 0);
   
   // Set callbacks

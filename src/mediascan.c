@@ -18,6 +18,7 @@
 #ifndef WIN32
 #include <dirent.h>
 #include <sys/time.h>
+#include <unistd.h>
 #else
 #include <time.h>
 #include <Winsock2.h>
@@ -205,7 +206,7 @@ static void _init(void)
   register_codecs();
   register_formats();
 #ifndef WIN32
-  macos_init();
+  unix_init();
 #endif
   Initialized = 1;
   ms_errno = 0;
@@ -291,13 +292,6 @@ MediaScan *ms_create(void)
     return NULL;
   }
   
-  s->npaths = 0;
-  s->paths[0] = NULL;
-  s->nignore_exts = 0;
-  s->ignore_exts[0] = NULL;
-  s->async = 0;
-  s->async_fd = 0;
-  
   s->progress = progress_create();
   
   s->on_result = NULL;
@@ -376,6 +370,10 @@ void ms_destroy(MediaScan *s)
   
   for (i = 0; i < s->nignore_exts; i++) {
     free( s->ignore_exts[i] );
+  }
+  
+  for (i = 0; i < s->nthumbspecs; i++) {
+    free( s->thumbspecs[i] );
   }
   
   progress_destroy(s->progress);
@@ -476,6 +474,34 @@ void ms_add_ignore_extension(MediaScan *s, const char *extension)
   
   s->ignore_exts[ s->nignore_exts++ ] = tmp;
 } /* ms_add_ignore_extension() */
+
+///-------------------------------------------------------------------------------------------------
+///  Add thumbnail spec.
+///
+/// @author Andy Grundman
+/// @date 04/11/2011
+///
+/// @param [in,out] s  If non-null, the.
+/// @param format			 Describes the format to use.
+/// @param width			 The width.
+/// @param height			 The height.
+/// @param keep_aspect The keep aspect.
+/// @param bgcolor		 The bgcolor.
+/// @param quality		 The quality.
+///-------------------------------------------------------------------------------------------------
+
+void ms_add_thumbnail_spec(MediaScan *s, enum thumb_format format, int width, int height, int keep_aspect, uint32_t bgcolor, int quality)
+{
+  MediaScanThumbSpec *spec = malloc(sizeof(MediaScanThumbSpec));
+  spec->format = format;
+  spec->width = width;
+  spec->height = height;
+  spec->keep_aspect = keep_aspect;
+  spec->bgcolor = 0;
+  spec->jpeg_quality = quality;
+  
+  s->thumbspecs[ s->nthumbspecs++ ] = spec;
+} /* ms_add_thumbnail_spec() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  By default, scans are synchronous. This means the call to ms_scan will not return until
@@ -715,6 +741,9 @@ int _should_scan(MediaScan *s, const char *path)
   char *p = NULL;
   char *found = NULL;
   char *ext = strrchr(path, '.');
+  int skip_audio = 0;
+  int skip_video = 0;
+  int skip_image = 0;
 
   if (ext != NULL) {
     // Copy the extension and lowercase it
@@ -737,22 +766,27 @@ int _should_scan(MediaScan *s, const char *path)
       for (i = 0; i < s->nignore_exts; i++) {
         if (strstr(extc, s->ignore_exts[i]))
           return TYPE_UNKNOWN;
+        
+        if (!strcmp("AUDIO", s->ignore_exts[i]))
+          skip_audio = 1;
+        else if (!strcmp("VIDEO", s->ignore_exts[i]))
+          skip_video = 1;
+        else if (!strcmp("IMAGE", s->ignore_exts[i]))
+          skip_image = 1;
       }
     }
     
-    
-    
     found = strstr(VideoExts, extc);
     if (found)
-      return TYPE_VIDEO;
+      return skip_video ? TYPE_UNKNOWN : TYPE_VIDEO;
     
     found = strstr(AudioExts, extc);
     if (found)
-      return TYPE_AUDIO;
+      return skip_audio ? TYPE_UNKNOWN : TYPE_AUDIO;
     
     found = strstr(ImageExts, extc);
     if (found)
-      return TYPE_IMAGE;
+      return skip_image ? TYPE_UNKNOWN : TYPE_IMAGE;
     
     return TYPE_UNKNOWN;
   }

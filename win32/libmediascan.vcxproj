@@ -45,7 +45,7 @@
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..;$(SolutionDir)..\include;$(SolutionDir)include;C:\mingw\msys\1.0\local\include;$(SolutionDir)..\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..;$(SolutionDir)..\include;$(SolutionDir)include;$(ProjectDir)zlib-1.2.5;$(ProjectDir)libpng-1.5.2;C:\mingw\msys\1.0\local\include;$(SolutionDir)..\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CallingConvention>Cdecl</CallingConvention>
       <CompileAs>CompileAsC</CompileAs>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -57,8 +57,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalLibraryDirectories>$(ProjectDir)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(ProjectDir)..\lib\libdb_small51s.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)\..\lib;C:\mingw\msys\1.0\local\lib;C:\mingw\lib\gcc\mingw32\4.5.2;C:\mingw\lib;D:\workspace\scan\test</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(ProjectDir)..\lib\libdb_small51s.lib;$(ProjectDir)..\win32\libpng-1.5.2\projects\vstudio\Debug Library\libpng15.lib;$(ProjectDir)..\win32\libpng-1.5.2\projects\vstudio\Debug Library\zlib.lib;libexif.a;libjpeg.a;libintl.lib;libgif.a;libavcodec.a;libavformat.a;libavutil.a;libswscale.a;libbz2.a;libgcc.a;libmingwex.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <PreBuildEvent>
       <Command>
@@ -89,6 +89,10 @@
     <ClCompile Include="..\src\buffer.c" />
     <ClCompile Include="..\src\error.c" />
     <ClCompile Include="..\src\folder_mon_win32.c" />
+    <ClCompile Include="..\src\image.c" />
+    <ClCompile Include="..\src\image_bmp.c" />
+    <ClCompile Include="..\src\image_jpeg.c" />
+    <ClCompile Include="..\src\image_png.c" />
     <ClCompile Include="..\src\libdlna\audio_aac.c" />
     <ClCompile Include="..\src\libdlna\audio_ac3.c" />
     <ClCompile Include="..\src\libdlna\audio_amr.c" />
@@ -105,8 +109,6 @@
     <ClCompile Include="..\src\libdlna\av_mpeg4_part2.c" />
     <ClCompile Include="..\src\libdlna\av_wmv9.c" />
     <ClCompile Include="..\src\libdlna\containers.c" />
-    <ClCompile Include="..\src\libdlna\image_jpeg.c" />
-    <ClCompile Include="..\src\libdlna\image_png.c" />
     <ClCompile Include="..\src\libdlna\profiles.c" />
     <ClCompile Include="..\src\libdlna\upnp_dms.c" />
     <ClCompile Include="..\src\lookup3.c" />
@@ -116,9 +118,11 @@
     <ClCompile Include="..\src\mediascan_win32.c" />
     <ClCompile Include="..\src\progress.c" />
     <ClCompile Include="..\src\result.c" />
+    <ClCompile Include="..\src\thumb.c" />
     <ClCompile Include="..\src\util.c" />
     <ClCompile Include="..\src\video.c" />
     <ClCompile Include="..\src\win32_port.c" />
+    <ClCompile Include="..\src\win_iconv.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\libmediascan.h" />
@@ -130,6 +134,7 @@
     <ClInclude Include="..\src\util.h" />
     <ClInclude Include="..\src\video.h" />
     <ClInclude Include="..\src\wav.h" />
+    <ClInclude Include="include\win32config.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

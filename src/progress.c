@@ -8,6 +8,7 @@
 #include "win32/include/win32config.h"
 #else
 #include <sys/time.h>
+#include <unistd.h>
 #endif
 
 #include <stdarg.h>
@@ -79,7 +80,6 @@ int
 progress_update(MediaScanProgress *p, const char *cur_item)
 {
   long time;
-
   
 #ifdef WIN32
   time = GetTickCount();

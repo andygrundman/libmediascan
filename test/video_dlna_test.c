@@ -6,6 +6,8 @@
 #include <stdint.h>
 #include <math.h>
 
+#include "../src/mediascan.h"
+
 #include "tap.h"
 #include "common.h"
 
@@ -2584,11 +2586,8 @@ main(int argc, char *argv[])
   ExpectedResultType expected;
 
   plan(TEST_COUNT);
-  
-  
+    
   test_DLNA_scanning(argv);
-  
-  
 
 // Test US profiles
   test_MPEG_TS_SD_NA();

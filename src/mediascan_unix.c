@@ -8,7 +8,7 @@
 #include <string.h>
 #include <dirent.h>
 #include <errno.h>
-
+#include <unistd.h>
 
 #include <libmediascan.h>
 #include "common.h"
@@ -16,7 +16,7 @@
 
 extern long PathMax;
 
-void macos_init(void)
+void unix_init(void)
 {
   PathMax = pathconf(".", _PC_PATH_MAX); // 1024
 }
@@ -57,15 +57,21 @@ recurse_dir(MediaScan *s, const char *path)
         strcat(dir, path);
     }
     else {
-        dir = strdup(path);
+#ifdef USING_TCMALLOC
+      // strdup will cause tcmalloc to crash on free
+      dir = (char *)malloc((size_t)PathMax);
+      strcpy(dir, path);
+#else
+      dir = strdup(path);
+#endif
     }
     
     // Strip trailing slash if any
     p = &dir[0];
     while (*p != 0) {
-            if (p[1] == 0 && *p == '/')
-                *p = 0;
-        p++;
+      if (p[1] == 0 && *p == '/')
+        *p = 0;
+      p++;
     }
     
     LOG_INFO("Recursed into %s\n", dir);
@@ -77,8 +83,6 @@ recurse_dir(MediaScan *s, const char *path)
     
     subdirq = malloc(sizeof(struct dirq));
     SIMPLEQ_INIT(subdirq);
-    
-    //tmp_full_path = malloc((size_t)PathMax);
     
     while ((dp = readdir(dirp)) != NULL) {
         char *name = dp->d_name;
