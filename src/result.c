@@ -281,7 +281,7 @@ static int scan_video(MediaScanResult *r)
   scan_dlna_profile(r, codecs);
 
   r->bitrate     = avf->bit_rate;
-  r->duration_ms = (int)(avf->duration / AV_TIME_BASE);
+  r->duration_ms = (int)(avf->duration / 1000);
 
   // Video-specific metadata
   v = r->video = video_create();
