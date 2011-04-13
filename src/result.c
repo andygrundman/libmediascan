@@ -13,7 +13,7 @@
 // If we are on MSVC, disable some stupid MSVC warnings
 #ifdef _MSC_VER
 #pragma warning( disable: 4996 )
-#pragma warning( disable: 4244 ) 
+#pragma warning( disable: 4244 )
 #endif
 
 #include <libavformat/avformat.h>
@@ -74,7 +74,7 @@ static type_handler audio_handlers[] = {
   { "wav", wav_scan },
   { "wvp", get_ape_metadata, get_wavpack_info, 0 },
 */
-  { NULL, 0 }
+  {NULL, 0}
 };
 
 ///-------------------------------------------------------------------------------------------------
@@ -83,35 +83,34 @@ static type_handler audio_handlers[] = {
 /// @author Andy Grundman
 /// @date 03/24/2011
 ///
-/// @param [in,out] r	   If non-null, the.
+/// @param [in,out] r    If non-null, the.
 /// @param [in,out] codecs If non-null, the codecs.
 ///-------------------------------------------------------------------------------------------------
 
-static void scan_dlna_profile(MediaScanResult *r, av_codecs_t *codecs)
-{
+static void scan_dlna_profile(MediaScanResult *r, av_codecs_t *codecs) {
   dlna_registered_profile_t *p;
   dlna_profile_t *profile = NULL;
   dlna_container_type_t st;
-  AVFormatContext *avf = (AVFormatContext *)r->_avf;
+  AVFormatContext *avf = (AVFormatContext *) r->_avf;
   dlna_t *dlna = (dlna_t *)((MediaScan *)r->_scan)->_dlna;
-  
+
   st = stream_get_container(avf);
-  
+
   p = dlna->first_profile;
   while (p) {
     dlna_profile_t *prof = NULL;
-    
+
     if (r->flags & USE_EXTENSION) {
       if (p->extensions) {
         /* check for valid file extension */
-        if (!match_file_extension (r->path, p->extensions)) {
+        if (!match_file_extension(r->path, p->extensions)) {
           p = p->next;
           continue;
         }
       }
     }
-    
-    prof = p->probe (avf, st, codecs);
+
+    prof = p->probe(avf, st, codecs);
     if (prof) {
       profile = prof;
       profile->class = p->class;
@@ -119,12 +118,12 @@ static void scan_dlna_profile(MediaScanResult *r, av_codecs_t *codecs)
     }
     p = p->next;
   }
-  
+
   if (profile) {
     r->mime_type = profile->mime;
     r->dlna_profile = profile->id;
   }
-} /* scan_dlna_profile() */
+}                               /* scan_dlna_profile() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  Ensures the object is open
@@ -137,33 +136,32 @@ static void scan_dlna_profile(MediaScanResult *r, av_codecs_t *codecs)
 /// @return .
 ///-------------------------------------------------------------------------------------------------
 
-static int ensure_opened(MediaScanResult *r)
-{
+static int ensure_opened(MediaScanResult *r) {
   // Open the file unless we already have an open fd
-  if ( !r->_fp ) {
+  if (!r->_fp) {
     if ((r->_fp = fopen(r->path, "rb")) == NULL) {
       LOG_WARN("Cannot open %s: %s\n", r->path, strerror(errno));
       return 0;
     }
   }
   return 1;
-} /* ensure_opened() */
+}                               /* ensure_opened() */
 
-static int ensure_opened_with_buf(MediaScanResult *r, int min_bytes)
-{
+static int ensure_opened_with_buf(MediaScanResult *r, int min_bytes) {
   Buffer *buf;
-  
-  if ( !ensure_opened(r) )
+
+  if (!ensure_opened(r))
     return 0;
-  
+
   buf = (Buffer *)malloc(sizeof(Buffer));
   r->_buf = (void *)buf;
-  
+  LOG_MEM("new result buffer @ %p\n", r->_buf);
+
   buffer_init(buf, BUF_SIZE);
-  
-  if ( !buffer_check_load(buf, r->_fp, min_bytes, BUF_SIZE) )
+
+  if (!buffer_check_load(buf, r->_fp, min_bytes, BUF_SIZE))
     return 0;
-  
+
   return 1;
 }
 
@@ -176,34 +174,33 @@ static int ensure_opened_with_buf(MediaScanResult *r, int min_bytes)
 /// @param [in,out] r If non-null, the.
 ///-------------------------------------------------------------------------------------------------
 
-static void set_file_metadata(MediaScanResult *r)
-{
+static void set_file_metadata(MediaScanResult *r) {
   int fd;
   struct stat buf;
-  
+
   // XXX Win32 code needed?
   //_GetFileTime(r->path, fileData, MAX_PATH);
   //_GetFileSize(r->path, fileData, MAX_PATH);
-  
+
   if (r->_avf) {
     // Use ffmpeg API because it already has the file open
     AVFormatContext *avf = r->_avf;
     URLContext *h = url_fileno(avf->pb);
-    fd = (intptr_t)h->priv_data;
+    fd = (intptr_t) h->priv_data;
   }
   else {
     // Open the file if necessary
-    if ( !ensure_opened(r) )
+    if (!ensure_opened(r))
       return;
-    
+
     fd = fileno(r->_fp);
   }
 
-  if ( !fstat(fd, &buf) ) {
+  if (!fstat(fd, &buf)) {
     r->size = buf.st_size;
     r->mtime = (int)buf.st_mtime;
-  }    
-} /* set_file_metadata() */
+  }
+}                               /* set_file_metadata() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  Scan a video file with libavformat
@@ -216,8 +213,7 @@ static void set_file_metadata(MediaScanResult *r)
 /// @return .
 ///-------------------------------------------------------------------------------------------------
 
-static int scan_video(MediaScanResult *r)
-{
+static int scan_video(MediaScanResult *r) {
   AVFormatContext *avf = NULL;
   AVInputFormat *iformat = NULL;
   AVCodec *c = NULL;
@@ -231,11 +227,11 @@ static int scan_video(MediaScanResult *r)
   if (r->flags & USE_EXTENSION) {
     // Set AVInputFormat based on file extension to avoid guessing
     while ((iformat = av_iformat_next(iformat))) {
-      if ( av_match_ext(r->path, iformat->name) )
+      if (av_match_ext(r->path, iformat->name))
         break;
 
       if (iformat->extensions) {
-        if ( av_match_ext(r->path, iformat->extensions) )
+        if (av_match_ext(r->path, iformat->extensions))
           break;
       }
     }
@@ -244,23 +240,23 @@ static int scan_video(MediaScanResult *r)
       LOG_INFO("Forcing format: %s\n", iformat->name);
   }
 
-  if ( (AVError = av_open_input_file(&avf, r->path, iformat, 0, NULL)) != 0 ) {
+  if ((AVError = av_open_input_file(&avf, r->path, iformat, 0, NULL)) != 0) {
     r->error = error_create(r->path, MS_ERROR_FILE, "[libavformat] Unable to open file for reading");
     r->error->averror = AVError;
     ret = 0;
     goto out;
   }
 
-  if ( (AVError = av_find_stream_info(avf)) < 0 ) {
+  if ((AVError = av_find_stream_info(avf)) < 0) {
     r->error = error_create(r->path, MS_ERROR_READ, "[libavformat] Unable to find stream info");
     r->error->averror = AVError;
     ret = 0;
-	av_close_input_file(avf);
+    av_close_input_file(avf);
     goto out;
   }
 
   r->_avf = (void *)avf;
-  
+
   // Use libdlna's handy codecs struct
   codecs = av_profile_get_codecs(avf);
   if (!codecs) {
@@ -268,7 +264,7 @@ static int scan_video(MediaScanResult *r)
     goto out;
   }
 
-  if ( stream_ctx_is_audio(codecs) ) {
+  if (stream_ctx_is_audio(codecs)) {
     // XXX some extensions (e.g. mp4) can be either video or audio,
     // if after checking we don't find a video stream, we need to
     // send the result through the audio path
@@ -276,20 +272,20 @@ static int scan_video(MediaScanResult *r)
     ret = 0;
     goto out;
   }
-  
+
   scan_dlna_profile(r, codecs);
 
-  r->bitrate     = avf->bit_rate;
-  r->duration_ms = (int)(avf->duration / AV_TIME_BASE);
+  r->bitrate = avf->bit_rate;
+  r->duration_ms = (int)(avf->duration / 1000);
 
   // Video-specific metadata
   v = r->video = video_create();
   v->path = r->path;
-  
-  c = avcodec_find_decoder(codecs->vc->codec_id);  
+
+  c = avcodec_find_decoder(codecs->vc->codec_id);
   if (c) {
     v->codec = c->name;
-    
+
     // Save structures needed for thumbnail generation
     v->_codecs = (void *)codecs;
     v->_avc = (void *)c;
@@ -300,18 +296,18 @@ static int scan_video(MediaScanResult *r)
   else {
     v->codec = "Unknown";
   }
-  
+
   v->width = codecs->vc->width;
   v->height = codecs->vc->height;
   v->fps = av_q2d(codecs->vs->avg_frame_rate);
-  
+
   // Audio metadata from the primary audio stream
   if (codecs->ac) {
     AVCodec *ac = NULL;
-    
+
     a = r->audio = audio_create();
-    
-    ac = avcodec_find_decoder(codecs->ac->codec_id);  
+
+    ac = avcodec_find_decoder(codecs->ac->codec_id);
     if (ac) {
       a->codec = ac->name;
     }
@@ -319,92 +315,92 @@ static int scan_video(MediaScanResult *r)
       a->codec = codecs->ac->codec_name;
     }
     // Special case for handling MP1 audio streams which FFMPEG can't identify a codec for
-    else if (codecs->ac->codec_id == CODEC_ID_MP1) { 
+    else if (codecs->ac->codec_id == CODEC_ID_MP1) {
       a->codec = CODEC_MP1;
     }
     else {
       a->codec = "Unknown";
     }
-    
+
     a->bitrate = codecs->ac->bit_rate;
     a->samplerate = codecs->ac->sample_rate;
-    a->channels = codecs->ac->channels;    
+    a->channels = codecs->ac->channels;
   }
-  
-  // XXX additional streams(?), thumbnails, tags
-  
+
+  // XXX additional streams(?), tags
+
   // Create thumbnail(s) if we found a valid video decoder above
   s = (MediaScan *)r->_scan;
   if (s->nthumbspecs && v->_avc) {
-    int x;    
-    MediaScanImage *i = video_create_image_from_frame(v, r); // Decode and load a frame of video we'll use for the thumbnail
+    int x;
+    MediaScanImage *i = video_create_image_from_frame(v, r);  // Decode and load a frame of video we'll use for the thumbnail
     if (i) {
       // XXX sort from biggest to smallest, resize in series
-    
+
       for (x = 0; x < s->nthumbspecs; x++) {
         MediaScanImage *thumb = thumb_create_from_image(i, s->thumbspecs[x]);
         if (thumb)
           video_add_thumbnail(v, thumb);
       }
-    
+
       image_destroy(i);
     }
   }
-  
+
 out:
-  if (codecs)
+  if (codecs) {
+    LOG_MEM("destroy video codecs @ %p\n", codecs);
     free(codecs);
+  }
 
   return ret;
-} /* scan_video() */
+}                               /* scan_video() */
 
-static int
-scan_image(MediaScanResult *r)
-{
+static int scan_image(MediaScanResult *r) {
   int ret = 1;
   MediaScanImage *i = NULL;
   MediaScan *s;
   int w, h;
-  
+
   // Open the file and read in a buffer of at least 8 bytes
-  if ( !ensure_opened_with_buf(r, 8) ) {
+  if (!ensure_opened_with_buf(r, 8)) {
     r->error = error_create(r->path, MS_ERROR_FILE, "Unable to open file for reading");
     ret = 0;
     goto out;
   }
-  
+
   i = r->image = image_create();
   i->path = r->path;
-  
-  if ( !image_read_header(i, r) ) {
+
+  if (!image_read_header(i, r)) {
     r->error = error_create(r->path, MS_ERROR_READ, "Invalid or corrupt image file");
     ret = 0;
     goto out;
   }
-  
+
   // Save original image dimensions as thumbnail creation may alter it (e.g. for JPEG scaling)
   w = i->width;
   h = i->height;
-  
+
   // Create thumbnail(s)
   s = (MediaScan *)r->_scan;
   if (s->nthumbspecs) {
     int x;
-    
+
     // XXX sort from biggest to smallest, resize in series
     // XXX Move image_load call here
-    
+
     for (x = 0; x < s->nthumbspecs; x++) {
       MediaScanImage *thumb = thumb_create_from_image(i, s->thumbspecs[x]);
       if (thumb)
         image_add_thumbnail(i, thumb);
     }
   }
-  
+
   // Restore dimensions
   i->width = w;
   i->height = h;
-  
+
 out:
   return ret;
 }
@@ -420,28 +416,27 @@ out:
 /// @return null if it fails, else.
 ///-------------------------------------------------------------------------------------------------
 
-MediaScanResult *result_create(MediaScan *s)
-{
+MediaScanResult *result_create(MediaScan *s) {
   MediaScanResult *r = (MediaScanResult *)calloc(sizeof(MediaScanResult), 1);
   if (r == NULL) {
     ms_errno = MSENO_MEMERROR;
     FATAL("Out of memory for new MediaScanResult object\n");
     return NULL;
   }
-  
+
   LOG_MEM("new MediaScanResult @ %p\n", r);
-  
+
   r->type = TYPE_UNKNOWN;
   r->flags = USE_EXTENSION;
-  
+
   r->_scan = s;
   r->_avf = NULL;
   r->_fp = NULL;
 
-	r->hash = 0;
-  
+  r->hash = 0;
+
   return r;
-} /* result_create() */
+}                               /* result_create() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  Result scan.
@@ -454,37 +449,36 @@ MediaScanResult *result_create(MediaScan *s)
 /// @return .
 ///-------------------------------------------------------------------------------------------------
 
-int result_scan(MediaScanResult *r)
-{
-	char fileData[MAX_PATH];
+int result_scan(MediaScanResult *r) {
+  char fileData[MAX_PATH];
 
   if (!r->type || !r->path) {
     r->error = error_create("", MS_ERROR_TYPE_INVALID_PARAMS, "Invalid parameters passed to result_scan()");
     return FALSE;
   }
-  
+
   // General metadata (mtime/size)
   set_file_metadata(r);
 
-	// Generate a hash of the full file path, modified time, and file size
+  // Generate a hash of the full file path, modified time, and file size
 //  sprintf(fileData, "%s%d%lld", r->path, r->mtime, r->size);
 //  r->hash = hashlittle(fileData, strlen(fileData), 0);
-  
+
   switch (r->type) {
     case TYPE_VIDEO:
       return scan_video(r);
       break;
-    
+
     case TYPE_IMAGE:
       return scan_image(r);
       break;
-    
+
     default:
       break;
   }
 
   return FALSE;
-} /* result_scan() */
+}                               /* result_scan() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  Result destroy.
@@ -495,34 +489,35 @@ int result_scan(MediaScanResult *r)
 /// @param [in,out] r If non-null, the.
 ///-------------------------------------------------------------------------------------------------
 
-void result_destroy(MediaScanResult *r)
-{
+void result_destroy(MediaScanResult *r) {
   if (r->error)
     error_destroy(r->error);
-  
+
   if (r->video)
     video_destroy(r->video);
 
   if (r->audio)
     audio_destroy(r->audio);
-  
+
   if (r->image)
     image_destroy(r->image);
-  
-  if (r->_avf)
-  {
+
+  if (r->_avf) {
     av_close_input_file(r->_avf);
   }
-  
+
   if (r->_fp)
     fclose(r->_fp);
-  
-  if (r->_buf)
+
+  if (r->_buf) {
     buffer_free((Buffer *)r->_buf);
+    LOG_MEM("destroy result buffer @ %p\n", r->_buf);
+    free(r->_buf);
+  }
 
   LOG_MEM("destroy MediaScanResult @ %p\n", r);
   free(r);
-} /* result_destroy() */
+}                               /* result_destroy() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  Dump result to the log output
@@ -533,10 +528,9 @@ void result_destroy(MediaScanResult *r)
 /// @param [in,out] r If non-null, the.
 ///-------------------------------------------------------------------------------------------------
 
-void ms_dump_result(MediaScanResult *r)
-{
+void ms_dump_result(MediaScanResult *r) {
   int i;
-  
+
   LOG_OUTPUT("%s\n", r->path);
   LOG_OUTPUT("  MIME type:    %s\n", r->mime_type);
   LOG_OUTPUT("  DLNA profile: %s\n", r->dlna_profile);
@@ -546,7 +540,7 @@ void ms_dump_result(MediaScanResult *r)
     LOG_OUTPUT("  Bitrate:      %d bps\n", r->bitrate);
   if (r->duration_ms)
     LOG_OUTPUT("  Duration:     %d ms\n", r->duration_ms);
-  
+
   switch (r->type) {
     case TYPE_VIDEO:
       LOG_OUTPUT("  Video:        %s\n", r->video->codec);
@@ -555,7 +549,8 @@ void ms_dump_result(MediaScanResult *r)
       for (i = 0; i < r->video->nthumbnails; i++) {
         MediaScanImage *thumb = r->video->thumbnails[i];
         Buffer *dbuf = (Buffer *)thumb->_dbuf;
-        LOG_OUTPUT("    Thumbnail:  %d x %d %s (%d bytes)\n", thumb->width, thumb->height, thumb->codec, buffer_len(dbuf));
+        LOG_OUTPUT("    Thumbnail:  %d x %d %s (%d bytes)\n", thumb->width,
+                   thumb->height, thumb->codec, buffer_len(dbuf));
 
 #ifdef DUMP_THUMBNAILS
         {
@@ -581,14 +576,15 @@ void ms_dump_result(MediaScanResult *r)
       LOG_OUTPUT("  FFmpeg details:\n");
       av_dump_format(r->_avf, 0, r->path, 0);
       break;
-    
+
     case TYPE_IMAGE:
       LOG_OUTPUT("  Image:        %s\n", r->image->codec);
       LOG_OUTPUT("    Dimensions: %d x %d\n", r->image->width, r->image->height);
       for (i = 0; i < r->image->nthumbnails; i++) {
         MediaScanImage *thumb = r->image->thumbnails[i];
         Buffer *dbuf = (Buffer *)thumb->_dbuf;
-        LOG_OUTPUT("    Thumbnail:  %d x %d %s (%d bytes)\n", thumb->width, thumb->height, thumb->codec, buffer_len(dbuf));
+        LOG_OUTPUT("    Thumbnail:  %d x %d %s (%d bytes)\n", thumb->width,
+                   thumb->height, thumb->codec, buffer_len(dbuf));
 
 #ifdef DUMP_THUMBNAILS
         {
@@ -606,19 +602,19 @@ void ms_dump_result(MediaScanResult *r)
 #endif
       }
       break;
-    
+
     case TYPE_AUDIO:
       LOG_OUTPUT("  Audio:        %s\n", r->audio->codec);
       LOG_OUTPUT("    Bitrate:    %d bps\n", r->audio->bitrate);
       LOG_OUTPUT("    Samplerate: %d kHz\n", r->audio->samplerate);
       LOG_OUTPUT("    Channels:   %d\n", r->audio->channels);
       break;
-      
+
     default:
       LOG_OUTPUT("  Type: Unknown\n");
       break;
-  } 
-} /* ms_dump_result() */
+  }
+}                               /* ms_dump_result() */
 
 /*
 static type_handler *

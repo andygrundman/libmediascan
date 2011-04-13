@@ -1,0 +1,10 @@
+lms should maintain its own database of path/mtime/size info for use in stat-based
+change detection and rescan mode
+  Use http://www.burtleburtle.net/bob/c/lookup3.c to hash url/mtime/size
+  Or http://code.google.com/p/smhasher/
+
+Symlink/Mac alias/Win32 shortcut handling
+
+Needs to support scanning playlist files
+
+Add CUnit to be built as a dependency when running make check

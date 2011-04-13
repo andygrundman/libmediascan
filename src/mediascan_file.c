@@ -1,6 +1,5 @@
 ///-------------------------------------------------------------------------------------------------
-// file:	D:\workspace\libmediascan\src\mediascan_file.c
+// file:  D:\workspace\libmediascan\src\mediascan_file.c
 //
-// summary:	Mediascan File Abstraction Functions
+// summary: Mediascan File Abstraction Functions
 ///-------------------------------------------------------------------------------------------------
-

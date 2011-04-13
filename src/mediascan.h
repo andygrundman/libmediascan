@@ -8,20 +8,20 @@
 struct fileq_entry {
   char *file;
   enum media_type type;
-  SIMPLEQ_ENTRY(fileq_entry) entries;
+    SIMPLEQ_ENTRY(fileq_entry) entries;
 };
 SIMPLEQ_HEAD(fileq, fileq_entry);
 
 struct dirq_entry {
   char *dir;
   struct fileq *files;
-  SIMPLEQ_ENTRY(dirq_entry) entries;
+    SIMPLEQ_ENTRY(dirq_entry) entries;
 };
 SIMPLEQ_HEAD(dirq, dirq_entry);
 
 struct thread_data {
-   MediaScan *s;
-   char  *lpDir;
+  MediaScan *s;
+  char *lpDir;
 };
 
 typedef struct thread_data thread_data_type;
@@ -45,7 +45,7 @@ typedef struct thread_data thread_data_type;
 /// @date 03/15/2011
 ///
 /// @param [in,out] s If non-null, the.
-/// @param path		  Full pathname of the file.
+/// @param path     Full pathname of the file.
 ///
 /// @return .
 ///
@@ -56,13 +56,13 @@ int _should_scan(MediaScan *s, const char *path);
 
 
 ///-------------------------------------------------------------------------------------------------
-/// <summary>	Query if 'path' is absolute path. </summary>
+/// <summary> Query if 'path' is absolute path. </summary>
 ///
-/// <remarks>	Henry Bennett, 03/16/2011. </remarks>
+/// <remarks> Henry Bennett, 03/16/2011. </remarks>
 ///
 /// <param name="path"> Pathname to check </param>
 ///
-/// <returns>	true if absolute path, false if not. </returns>
+/// <returns> true if absolute path, false if not. </returns>
 ///-------------------------------------------------------------------------------------------------
 
 bool is_absolute_path(const char *path);
@@ -73,8 +73,8 @@ bool is_absolute_path(const char *path);
 /// @author Henry Bennett
 /// @date 03/15/2011
 ///
-/// @param [in,out] s	   If non-null, the.
-/// @param path			   Full pathname of the file.
+/// @param [in,out] s    If non-null, the.
+/// @param path        Full pathname of the file.
 /// @param [in,out] curdir If non-null, the curdir.
 ///
 /// ### remarks .

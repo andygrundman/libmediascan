@@ -7,22 +7,31 @@ use File::Spec::Functions;
 use FindBin ();
 use Media::Scan;
 
+my $c = 1;
 {
-    my $s = Media::Scan->new( [ _f('video') ], {
-    #my $s = Media::Scan->new( [ '/Users/andy/Music/Slim/DLNATestContent' ], {
+    #my $s = Media::Scan->new( [ _f('video') ], {
+    my $s = Media::Scan->new( [ '/Users/andy/Music/Slim/DLNATestContent' ], {
         #loglevel => 5,
         ignore => [],
+        thumbnails => [
+            { width => 200 },
+        ],
         on_result => sub {
           my $r = shift;
-          warn "Result: " . dump($r->hash) . "\n";
+          #warn "Result: " . dump($r->as_hash) . "\n";
+          open my $fh, '>', 'thumb' . $c . '.jpg';
+          print $fh $r->thumbnails->[0];
+          close $fh;
+          warn "Wrote thumb${c}.jpg\n";
+          $c++;
         },
         on_error => sub {
           my $e = shift;
-          warn "Error: " . dump($e->hash);
+          warn "Error: " . dump($e->as_hash);
         },
         on_progress => sub {
           my $p = shift;
-          warn "Progress: " . dump($p->hash);
+          warn "Progress: " . dump($p->as_hash);
         },
     } );
 }

@@ -166,7 +166,7 @@ CODE:
   int i;
   MediaScan *s = xs_object_magic_get_struct_rv(aTHX_ self);
   HV *selfh = (HV *)SvRV(self);
-  AV *paths, *ignore;
+  AV *paths, *ignore, *thumbnails;
   int async;
   
   // Set log level
@@ -186,6 +186,59 @@ CODE:
     SV **ext = av_fetch(ignore, i, 0);
     if (ext != NULL && SvPOK(*ext))
       ms_add_ignore_extension(s, SvPVX(*ext));
+  }
+  
+  // Set thumbnail specs
+  // Array of hashes: { format => 'AUTO|JPEG|PNG', width => 100, height => 100, keep_aspect => 1, bgcolor => 0xffffff, quality => 90 },
+  thumbnails = (AV *)SvRV(*(my_hv_fetch(selfh, "thumbnails")));
+  for (i = 0; i < av_len(thumbnails) + 1; i++) {
+    SV **spec_sv = av_fetch(thumbnails, i, 0);
+    if (spec_sv != NULL && SvROK(*spec_sv)) {
+      HV *spec = (HV *)SvRV(*spec_sv);
+      
+      // Defaults
+      enum thumb_format format = THUMB_AUTO;
+      int width = 0;
+      int height = 0;
+      int keep_aspect = 1;
+      uint32_t bgcolor = 0;
+      int quality = 90;
+      
+      if (my_hv_exists(spec, "format")) {
+        SV *f = *(my_hv_fetch(spec, "format"));
+        if (SvPOK(f)) {
+          const char *fs = SvPVX(f);
+          format = !strcmp(fs, "JPEG") ? THUMB_JPEG : !strcmp(fs, "PNG") ? THUMB_PNG : THUMB_AUTO;
+        }
+      }
+      if (my_hv_exists(spec, "width")) {
+        SV *u = *(my_hv_fetch(spec, "width"));
+        if (SvIOK(u))
+          width = SvUV(u);
+      }
+      if (my_hv_exists(spec, "height")) {
+        SV *u = *(my_hv_fetch(spec, "height"));
+        if (SvIOK(u))
+          height = SvUV(u);
+      }
+      if (my_hv_exists(spec, "keep_aspect")) {
+        SV *u = *(my_hv_fetch(spec, "keep_aspect"));
+        if (SvIOK(u))
+          keep_aspect = SvUV(u) == 1 ? 1 : 0;
+      }
+      if (my_hv_exists(spec, "bgcolor")) {
+        SV *u = *(my_hv_fetch(spec, "bgcolor"));
+        if (SvIOK(u))
+          bgcolor = SvUV(u);
+      }
+      if (my_hv_exists(spec, "quality")) {
+        SV *u = *(my_hv_fetch(spec, "quality"));
+        if (SvIOK(u))
+          quality = SvUV(u);
+      }
+      
+      ms_add_thumbnail_spec(s, format, width, height, keep_aspect, bgcolor, quality);
+    }
   }
   
   // Set async or sync operation
@@ -213,3 +266,4 @@ INCLUDE: xs/Error.xs
 INCLUDE: xs/Progress.xs
 INCLUDE: xs/Result.xs
 INCLUDE: xs/Video.xs
+INCLUDE: xs/Image.xs

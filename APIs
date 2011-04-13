@@ -7,9 +7,11 @@ $s = Media::Scan->new(
   {
     ### Options
     async => 1, # if 0, new() will return after all files are scanned
-    thumbnails => [ '100x100', '75w', '250h' ], # $result will contain generated thumbnail(s) of any/all images. For video, uses random(?) frame
     ignore => [ qw(wav png VIDEO) ], # list of file extensions to ignore, special all-caps keywords ignore all files of that type (AUDIO, IMAGE, VIDEO)
-    
+    thumbnails => [
+      { format => 'AUTO', width => 100, height => 100, keep_aspect => 1, bgcolor => 0xffffff, quality => 90 },
+      ...
+    ], # $result will contain generated thumbnail(s) of any/all images. For video, uses random(?) frame
     
       
     ### Callbacks
