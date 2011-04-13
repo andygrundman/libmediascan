@@ -1,7 +1,7 @@
 ///-------------------------------------------------------------------------------------------------
-// file:	libmediascan\include\libmediascan.h
+// file:  libmediascan\include\libmediascan.h
 //
-// summary:	External header for the LibMediaScan library.
+// summary: External header for the LibMediaScan library.
 ///-------------------------------------------------------------------------------------------------
 
 #ifndef _LIBMEDIASCAN_H
@@ -11,7 +11,7 @@
 
 #include <unistd.h>
 #include <stdio.h>
-#include <stdint.h>  
+#include <stdint.h>
 
 #ifdef WIN32
 #include <Windows.h>
@@ -28,10 +28,10 @@
 #define MAX_THUMBS      8
 
 enum media_error {
-  MS_ERROR_TYPE_UNKNOWN        = -1,
+  MS_ERROR_TYPE_UNKNOWN = -1,
   MS_ERROR_TYPE_INVALID_PARAMS = -2,
-  MS_ERROR_FILE                = -3,
-  MS_ERROR_READ                = -4
+  MS_ERROR_FILE = -3,
+  MS_ERROR_READ = -4
 };
 
 enum media_type {
@@ -42,11 +42,11 @@ enum media_type {
 };
 
 enum scan_flags {
-  USE_EXTENSION = 1 //< Use a file's extension to determine file format (default)
+  USE_EXTENSION = 1             //< Use a file's extension to determine file format (default)
 };
 
 enum thumb_format {
-  THUMB_AUTO = 1, //< Use JPEG for square thumbnails, transparent PNG for non-square
+  THUMB_AUTO = 1,               //< Use JPEG for square thumbnails, transparent PNG for non-square
   THUMB_JPEG,
   THUMB_PNG
 };
@@ -63,10 +63,10 @@ enum exif_orientation {
 };
 
 enum log_level {
-  ERR    = 1,
-  WARN   = 2,
-  INFO   = 3,
-  DEBUG  = 4,
+  ERR = 1,
+  WARN = 2,
+  INFO = 3,
+  DEBUG = 4,
   MEMORY = 9
 };
 
@@ -83,55 +83,55 @@ struct _Audio {
   int vbr;
   int samplerate;
   int channels;
-  
+
   struct _Image **images;
   struct _Tag **tags;
 };
 typedef struct _Audio MediaScanAudio;
 
 struct _Image {
-  const char *path;    ///< Path to the file containing this image
+  const char *path;             ///< Path to the file containing this image
   const char *codec;
   int width;
   int height;
   int channels;
   int has_alpha;
-  int offset;       // byte offset to start of image
+  int offset;                   // byte offset to start of image
   enum exif_orientation orientation;
-  
+
   int nthumbnails;
-  struct _Image *thumbnails[MAX_THUMBS]; // XXX refactor to private
+  struct _Image *thumbnails[MAX_THUMBS];  // XXX refactor to private
   struct _Tag **tags;
-  
+
   // private members
-  void *_dbuf;          // Buffer for compressed image data
-  uint32_t *_pixbuf;    // Uncompressed image data used during resize
-  int _pixbuf_size;     // Size of data in pixbuf
-  int _pixbuf_is_copy;  // Flag if dst pixbuf is a pointer to src pixbuf
-  void *_jpeg;          // JPEG-specific internal data
-  void *_png;           // PNG-specific internal data
-  void *_bmp;           // BMP-specific internal data
+  void *_dbuf;                  // Buffer for compressed image data
+  uint32_t *_pixbuf;            // Uncompressed image data used during resize
+  int _pixbuf_size;             // Size of data in pixbuf
+  int _pixbuf_is_copy;          // Flag if dst pixbuf is a pointer to src pixbuf
+  void *_jpeg;                  // JPEG-specific internal data
+  void *_png;                   // PNG-specific internal data
+  void *_bmp;                   // BMP-specific internal data
 };
 typedef struct _Image MediaScanImage;
 
 struct _Video {
-  const char *path;    ///< Path to the file containing this video
+  const char *path;             ///< Path to the file containing this video
   const char *codec;
   int width;
   int height;
   double fps;
-  
+
   int nthumbnails;
   struct _Image *thumbnails[MAX_THUMBS];
-  
+
   struct _Audio **streams;
   struct _Tag **tags;
-  
+
   // private members
-  uint32_t *_pixbuf;    // Uncompressed frame image data used during resize
-  int _pixbuf_size;     // Size of data in pixbuf
-  void *_codecs;        // av_codecs_t containing AVStream, AVCodecContext for video/audio
-  void *_avc;           // AVCodec instance
+  uint32_t *_pixbuf;            // Uncompressed frame image data used during resize
+  int _pixbuf_size;             // Size of data in pixbuf
+  void *_codecs;                // av_codecs_t containing AVStream, AVCodecContext for video/audio
+  void *_avc;                   // AVCodec instance
 };
 typedef struct _Video MediaScanVideo;
 
@@ -148,39 +148,39 @@ struct _Result {
   const char *path;
   enum scan_flags flags;
   MediaScanError *error;
-  
+
   const char *mime_type;
   const char *dlna_profile;
   off_t size;
   int mtime;
-  int bitrate; ///< total bitrate
+  int bitrate;                  ///< total bitrate
   int duration_ms;
 
-	uint32_t hash;
-	
-	// XXX refactor thumbnails here, since all types have thumbnails
-  
-  MediaScanAudio *audio; ///< Audio-specific data, only present if type is TYPE_AUDIO or TYPE_VIDEO.
-  MediaScanImage *image; ///< Image-specific data, only present if type is TYPE_IMAGE.
-  MediaScanVideo *video; ///< Video-specific data, only present if type is TYPE_VIDEO.
-  
+  uint32_t hash;
+
+  // XXX refactor thumbnails here, since all types have thumbnails
+
+  MediaScanAudio *audio;        ///< Audio-specific data, only present if type is TYPE_AUDIO or TYPE_VIDEO.
+  MediaScanImage *image;        ///< Image-specific data, only present if type is TYPE_IMAGE.
+  MediaScanVideo *video;        ///< Video-specific data, only present if type is TYPE_VIDEO.
+
   // private members
-  void *_scan;      // reference to scan that created this result
-  void *_avf;       // AVFormatContext instance
-  FILE *_fp;        // opened file if necessary
-  void *_buf;       // buffer if necessary
+  void *_scan;                  // reference to scan that created this result
+  void *_avf;                   // AVFormatContext instance
+  FILE *_fp;                    // opened file if necessary
+  void *_buf;                   // buffer if necessary
 };
 typedef struct _Result MediaScanResult;
 
 struct _Progress {
-  char *phase;          ///< Discovering, Scanning, etc
-  const char *cur_item; ///< most recently scanned item, NULL on last callback when done
+  char *phase;                  ///< Discovering, Scanning, etc
+  const char *cur_item;         ///< most recently scanned item, NULL on last callback when done
   int interval;
   int total;
   int done;
-  int eta;   ///< eta in seconds
-  int rate;  ///< rate in items/second
-  
+  int eta;                      ///< eta in seconds
+  int rate;                     ///< rate in items/second
+
   // private
   long _start_ts;
   long _last_update_ts;
@@ -194,7 +194,7 @@ typedef struct _ThumbSpec {
   int keep_aspect;
   uint32_t bgcolor;
   int jpeg_quality;
-  
+
   // Internal data
   int width_padding;
   int width_inner;
@@ -211,52 +211,52 @@ struct _Scan {
   MediaScanThumbSpec *thumbspecs[MAX_THUMBS];
   int async;
   int async_fd;
-  
+
   MediaScanProgress *progress;
-  
-  void (*on_result)(struct _Scan *, MediaScanResult *, void *);
-  void (*on_error)(struct _Scan *, MediaScanError *, void *);
-  void (*on_progress)(struct _Scan *, MediaScanProgress *, void *);
-  void (*on_background)(struct _Scan *, MediaScanResult *, void *);
+
+  void (*on_result) (struct _Scan *, MediaScanResult *, void *);
+  void (*on_error) (struct _Scan *, MediaScanError *, void *);
+  void (*on_progress) (struct _Scan *, MediaScanProgress *, void *);
+  void (*on_background) (struct _Scan *, MediaScanResult *, void *);
   void *userdata;
 
-	DB *dbp;           /* DB structure handle */
+  DB *dbp;                      /* DB structure handle */
 
   // private
-  void *_dirq; // simple queue of all directories found
-  void *_dlna; // libdlna instance
+  void *_dirq;                  // simple queue of all directories found
+  void *_dlna;                  // libdlna instance
 
   // win32 background scanning threads
-	#ifdef WIN32
-		DWORD   dwThreadId;
-		HANDLE	ghSignalEvent; 
-		HANDLE  hThread; 
-		CRITICAL_SECTION CriticalSection;
-	#else
-		pthread_mutex_t CriticalSection;
-	#endif
+#ifdef WIN32
+  DWORD dwThreadId;
+  HANDLE ghSignalEvent;
+  HANDLE hThread;
+  CRITICAL_SECTION CriticalSection;
+#else
+  pthread_mutex_t CriticalSection;
+#endif
 };
 
 typedef struct _Scan MediaScan;
 
-typedef void (*ResultCallback)(MediaScan *, MediaScanResult *, void *);
-typedef void (*ErrorCallback)(MediaScan *, MediaScanError *, void *);
-typedef void (*ProgressCallback)(MediaScan *, MediaScanProgress *, void *);
-typedef void (*FolderChangeCallback)(MediaScan *, MediaScanResult *, void *);
+typedef void (*ResultCallback) (MediaScan *, MediaScanResult *, void *);
+typedef void (*ErrorCallback) (MediaScan *, MediaScanError *, void *);
+typedef void (*ProgressCallback) (MediaScan *, MediaScanProgress *, void *);
+typedef void (*FolderChangeCallback) (MediaScan *, MediaScanResult *, void *);
 
 ///< libmediascan's errno
 extern int ms_errno;
 
 // This failure will be set if...
 enum {
-	MSENO_DIRECTORYFAIL			=	1000,	// ms_scan doesn't have a valid directory in its scan list
-	MSENO_NORESULTCALLBACK	=	1001,	// no result callback set
-	MSENO_NULLSCANOBJ				=	1002,	// Illegal scan oject
-	MSENO_SCANERROR					=	1003,	// ScanErrorObject thrown
-	MSENO_MEMERROR					=	1004,	// Out of memory error
-	MSENO_NOERRORCALLBACK		=	1005,	// No error callback
-	MSENO_THREADERROR				=	1006, // Theading error
-	MSENO_DBERROR						=	1007  // Database error
+  MSENO_DIRECTORYFAIL = 1000,   // ms_scan doesn't have a valid directory in its scan list
+  MSENO_NORESULTCALLBACK = 1001,  // no result callback set
+  MSENO_NULLSCANOBJ = 1002,     // Illegal scan oject
+  MSENO_SCANERROR = 1003,       // ScanErrorObject thrown
+  MSENO_MEMERROR = 1004,        // Out of memory error
+  MSENO_NOERRORCALLBACK = 1005, // No error callback
+  MSENO_THREADERROR = 1006,     // Theading error
+  MSENO_DBERROR = 1007          // Database error
 };
 
 /**
@@ -273,7 +273,7 @@ void ms_set_log_level(enum log_level level);
 /**
  * Allocate a new MediaScan object.
  */
-MediaScan * ms_create(void);
+MediaScan *ms_create(void);
 
 /**
  * Destroy the given MediaScan object. If a scan is currently in progress
@@ -311,7 +311,8 @@ void ms_add_ignore_extension(MediaScan *s, const char *extension);
  * such as 0xffffff (white) or 0x000000 (black).
  * @param quality For JPEG thumbnails, specify the desired quality. Defaults to 90 if set to 0.
  */
-void ms_add_thumbnail_spec(MediaScan *s, enum thumb_format format, int width, int height, int keep_aspect, uint32_t bgcolor, int quality);
+void ms_add_thumbnail_spec(MediaScan *s, enum thumb_format format, int width,
+                           int height, int keep_aspect, uint32_t bgcolor, int quality);
 
 /**
  * By default, scans are synchronous. This means the call to ms_scan will
@@ -325,7 +326,7 @@ void ms_set_async(MediaScan *s, int enabled);
  * This callback is required or a scan cannot be started.
  */
 void ms_set_result_callback(MediaScan *s, ResultCallback callback);
- 
+
 /**
  * Set a callback that will be called for all errors.
  * This callback is optional.
@@ -390,8 +391,8 @@ void ms_dump_result(MediaScanResult *r);
  * @param index 0-based index of the thumbnail to return. Check r->nthumbnails for the total number.
  * @param *length (OUT) Returns the length of the thumbnail data.
  * @return A pointer to the raw JPEG or PNG thumbnail data.
- */ 
-const uint8_t * ms_result_get_thumbnail(MediaScanResult *r, int index, int *length);
+ */
+const uint8_t *ms_result_get_thumbnail(MediaScanResult *r, int index, int *length);
 
 ///-------------------------------------------------------------------------------------------------
 ///  Watch a directory in the background.
