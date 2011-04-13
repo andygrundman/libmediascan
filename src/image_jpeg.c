@@ -1,11 +1,17 @@
+
+#include <stdlib.h>
+
+
 #include <libmediascan.h>
 
-#include <jpeglib.h>
 #include <libexif/exif-data.h>
 
 #include <setjmp.h>
-#include <stdlib.h>
 #include <string.h>
+
+#define HAVE_BOOLEAN
+#include <jpeglib.h>
+
 
 #include "common.h"
 #include "buffer.h"
@@ -16,6 +22,10 @@
 #include "libdlna/profiles.h"
 
 #define DEFAULT_JPEG_QUALITY 90
+
+#ifdef WIN32
+#define warn printf
+#endif
 
 // Forward declarations
 static void parse_exif_ifd(ExifContent *content, void *data);

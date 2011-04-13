@@ -7,13 +7,17 @@
 #ifndef _LIBMEDIASCAN_H
 #define _LIBMEDIASCAN_H
 
+#include <db.h>
+
+#include <unistd.h>
 #include <stdio.h>
-#include <stdint.h>
+#include <stdint.h>  
 
 #ifdef WIN32
 #include <Windows.h>
 #include <wchar.h>
 #endif
+
 
 #ifdef __GNUC__
 #include <pthread.h>
@@ -216,6 +220,8 @@ struct _Scan {
   void (*on_background)(struct _Scan *, MediaScanResult *, void *);
   void *userdata;
 
+	DB *dbp;           /* DB structure handle */
+
   // private
   void *_dirq; // simple queue of all directories found
   void *_dlna; // libdlna instance
@@ -243,13 +249,14 @@ extern int ms_errno;
 
 // This failure will be set if...
 enum {
-	MSENO_DIRECTORYFAIL =		1000,	// ms_scan doesn't have a valid directory in its scan list
-	MSENO_NORESULTCALLBACK =	1001,	// no result callback set
-	MSENO_NULLSCANOBJ =			1002,	// Illegal scan oject
-	MSENO_SCANERROR =			1003,	// ScanErrorObject thrown
-	MSENO_MEMERROR =			1004,	// Out of memory error
-	MSENO_NOERRORCALLBACK =		1005,	// No error callback
-	MSENO_THREADERROR =			1006
+	MSENO_DIRECTORYFAIL			=	1000,	// ms_scan doesn't have a valid directory in its scan list
+	MSENO_NORESULTCALLBACK	=	1001,	// no result callback set
+	MSENO_NULLSCANOBJ				=	1002,	// Illegal scan oject
+	MSENO_SCANERROR					=	1003,	// ScanErrorObject thrown
+	MSENO_MEMERROR					=	1004,	// Out of memory error
+	MSENO_NOERRORCALLBACK		=	1005,	// No error callback
+	MSENO_THREADERROR				=	1006, // Theading error
+	MSENO_DBERROR						=	1007  // Database error
 };
 
 /**

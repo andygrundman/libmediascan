@@ -86,8 +86,44 @@ int clean_suite1(void)
    }
 }
 
-static	void my_result_callback(MediaScan *s, MediaScanResult *result, void *userdata) {
+static int result_called = FALSE;
+static MediaScanResult result;
 
+static void my_result_callback(MediaScan *s, MediaScanResult *r, void *userdata) {
+
+	result.type = r->type;
+	result.path = strdup(r->path);
+	result.flags = r->flags;
+
+	if(r->error)
+		memcpy(result.error, r->error, sizeof(MediaScanError));
+
+	result.mime_type = strdup(r->mime_type);
+	result.dlna_profile = strdup(r->dlna_profile);
+	result.size = r->size;
+	result.mtime = r->mtime;
+	result.bitrate = r->bitrate;
+	result.duration_ms = r->duration_ms;
+
+	if(r->audio)
+	{
+		result.audio = malloc(sizeof(MediaScanAudio));
+		memcpy( result.audio, r->audio, sizeof(MediaScanAudio));
+	}
+
+	if(r->video)
+	{
+		result.video = malloc(sizeof(MediaScanVideo));
+		memcpy( result.video, r->video, sizeof(MediaScanVideo));
+	}
+
+	if(r->image)
+	{
+		result.image = malloc(sizeof(MediaScanImage));
+		memcpy( result.image, r->image, sizeof(MediaScanImage));
+	}
+
+	result_called = TRUE;
 }
 
 static void my_error_callback(MediaScan *s, MediaScanError *error, void *userdata) { 
@@ -111,6 +147,8 @@ void test_ms_scan(void){
 	#endif
 	
 	MediaScan *s = ms_create();
+
+	CU_ASSERT_FATAL(s != NULL);
 
 	CU_ASSERT(s->npaths == 0);
 	ms_add_path(s, dir);
@@ -145,6 +183,8 @@ void test_ms_scan_2(void)
 {
 	MediaScan *s = ms_create();
 
+	CU_ASSERT_FATAL(s != NULL);
+
 	// Do not add a path and then attempt to scan
 	CU_ASSERT(s->npaths == 0);
 
@@ -177,6 +217,8 @@ void test_ms_scan_3(void)	{
 	int i = 0;
 
 	MediaScan *s = ms_create();
+
+	CU_ASSERT_FATAL(s != NULL);
 
 	CU_ASSERT(s->npaths == 0);
 
@@ -214,6 +256,9 @@ void test_ms_scan_3(void)	{
 void test_ms_scan_4(void)	{
 	char dir[MAX_PATH] = "notadirectory";
 	MediaScan *s = ms_create();
+
+	CU_ASSERT_FATAL(s != NULL);
+
 
 	CU_ASSERT(s->npaths == 0);
 	ms_add_path(s, dir);
@@ -253,6 +298,8 @@ void test_ms_scan_5(void)	{
 		{ "data", "data/", "data\\" };
 
 	MediaScan *s = ms_create();
+
+	CU_ASSERT_FATAL(s != NULL);
 
 	for(i = 0; i < NUM_STRINGS; i++)
 	{
@@ -306,6 +353,9 @@ void test_ms_scan_6(void)	{
 	char dir[MAX_PATH] = "data/audio/mp3";
 #endif
 	MediaScan *s = ms_create();
+
+	CU_ASSERT_FATAL(s != NULL);
+
 
 	CU_ASSERT(s->npaths == 0);
 	ms_add_path(s, dir);
@@ -391,6 +441,8 @@ void test_ms_file_scan_1(void)	{
 #endif
 	MediaScan *s = ms_create();
 	
+	CU_ASSERT_FATAL(s != NULL);
+
 	// Check null mediascan oject
 	ms_errno = 0;
 	ms_scan_file(NULL, invalid_file, TYPE_VIDEO);
@@ -440,6 +492,8 @@ void test_ms_file_asf_audio(void)	{
 #endif
 	MediaScan *s = ms_create();
 	
+	CU_ASSERT_FATAL(s != NULL);
+
 	CU_ASSERT(s->on_result == NULL);
 	ms_set_result_callback(s, my_result_callback_1);
 	CU_ASSERT(s->on_result == my_result_callback_1);
@@ -468,7 +522,9 @@ void test_ms_file_asf_audio(void)	{
 
 void test_ms_misc_functions(void)	{
 	MediaScan *s = ms_create();
-	
+
+	CU_ASSERT_FATAL(s != NULL);
+
 
 	ms_destroy(s);
 } /* test_ms_misc_functions() */
@@ -477,6 +533,8 @@ void test_ms_misc_functions(void)	{
 void test_ms_large_directory(void)	{
 	char dir[MAX_PATH] = "data";
 	MediaScan *s = ms_create();
+
+	CU_ASSERT_FATAL(s != NULL);
 
 	CU_ASSERT(s->npaths == 0);
 	ms_add_path(s, dir);
@@ -496,6 +554,52 @@ void test_ms_large_directory(void)	{
 
 	ms_destroy(s);
 } /* test_ms_misc_functions() */
+
+
+
+void test_ms_db(void)	{
+
+#ifdef WIN32
+	char valid_file[MAX_PATH] = "data\\video\\bars-mpeg4-aac.m4v";
+#else
+	char valid_file[MAX_PATH] = "data/video/bars-mpeg4-aac.m4v";
+#endif
+
+	MediaScan *s = ms_create();
+
+	CU_ASSERT_FATAL(s != NULL);
+
+	CU_ASSERT(s->npaths == 0);
+
+	CU_ASSERT(s->on_result == NULL);
+	ms_set_result_callback(s, my_result_callback);
+	CU_ASSERT(s->on_result == my_result_callback);
+
+	CU_ASSERT(s->on_error == NULL);
+	ms_set_error_callback(s, my_error_callback); 
+	CU_ASSERT(s->on_error == my_error_callback);
+
+	ms_errno = 0;
+	error_called = FALSE;
+
+	// Okay scan a file
+	result_called = FALSE;
+	ms_scan_file(s, valid_file, TYPE_VIDEO);
+	CU_ASSERT(result_called == TRUE);
+
+	// now scan the same file again and make sure it is skipped
+	result_called = FALSE;
+	ms_scan_file(s, valid_file, TYPE_VIDEO);
+	CU_ASSERT(result_called == FALSE);
+
+	// now scan the same file again, this time with a different modification time and make sure it is scanned
+	TouchFile(valid_file);
+	result_called = FALSE;
+	ms_scan_file(s, valid_file, TYPE_VIDEO);
+	CU_ASSERT(result_called == TRUE);
+
+	ms_destroy(s);
+} /* test_ms_db() */
 
 
 ///-------------------------------------------------------------------------------------------------
@@ -535,9 +639,11 @@ int run_unit_tests()
 //	   NULL == CU_add_test(pSuite, "Test of ms_scan() with strange path slashes", test_ms_scan_5) ||
 	   NULL == CU_add_test(pSuite, "Test of ms_scan()'s progress notifications", test_ms_scan_6) ||
 	   NULL == CU_add_test(pSuite, "Test of ms_file_scan()", test_ms_file_scan_1) ||
-	   NULL == CU_add_test(pSuite, "Test of scanning LOTS of files", test_ms_large_directory) ||
+//NULL == CU_add_test(pSuite, "Test of scanning LOTS of files", test_ms_large_directory) ||
 	   NULL == CU_add_test(pSuite, "Test of misc functions", test_ms_misc_functions) ||
-   	   NULL == CU_add_test(pSuite, "Simple test of ASF audio file", test_ms_file_asf_audio) 
+  	   NULL == CU_add_test(pSuite, "Simple test of ASF audio file", test_ms_file_asf_audio) ||
+   	   NULL == CU_add_test(pSuite, "Test Berkeley database functionality", test_ms_db)
+			 
 	   )
    {
       CU_cleanup_registry();

@@ -79,7 +79,7 @@ image_png_read_buf(png_structp png_ptr, png_bytep data, png_size_t len)
   if ( !buffer_check_load(p->buf, p->fp, len, BUF_SIZE) )
     goto eof;
 
-  png_memcpy(data, buffer_ptr(p->buf), len);
+  memcpy(data, buffer_ptr(p->buf), len);
   buffer_consume(p->buf, len);
   goto ok;
  

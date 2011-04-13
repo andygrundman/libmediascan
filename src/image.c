@@ -1,10 +1,13 @@
 
+
 #include <libmediascan.h>
 #include <stdlib.h>
+
 
 #ifdef WIN32
 #include "mediascan_win32.h"
 #endif
+
 
 #include "common.h"
 #include "buffer.h"
@@ -12,7 +15,7 @@
 #include "error.h"
 #include "image_jpeg.h"
 #include "image_png.h"
-#include "image_gif.h"
+//#include "image_gif.h"
 #include "image_bmp.h"
 
 MediaScanImage *
@@ -87,16 +90,16 @@ image_read_header(MediaScanImage *i, MediaScanResult *r)
           }
       }
       break;
-    case 'G':
-      if (bptr[1] == 'I' && bptr[2] == 'F' && bptr[3] == '8'
-        && (bptr[4] == '7' || bptr[4] == '9') && bptr[5] == 'a') {
-          i->codec = "GIF";
-          if ( !image_gif_read_header(i, r) ) {
-            ret = 0;
-            goto out;
-          }
-      }
-      break;
+//    case 'G':
+//      if (bptr[1] == 'I' && bptr[2] == 'F' && bptr[3] == '8'
+//        && (bptr[4] == '7' || bptr[4] == '9') && bptr[5] == 'a') {
+//          i->codec = "GIF";
+//          if ( !image_gif_read_header(i, r) ) {
+//            ret = 0;
+//            goto out;
+//          }
+//      }
+//      break;
     case 'B':
       if (bptr[1] == 'M') {
         i->codec = "BMP";
@@ -164,12 +167,12 @@ image_load(MediaScanImage *i, MediaScanThumbSpec *spec_hint)
       goto out;
     }
   }
-  else if (!strcmp("GIF", i->codec)) {
-    if ( !image_gif_load(i) ) {
-      ret = 0;
-      goto out;
-    }
-  }
+//  else if (!strcmp("GIF", i->codec)) {
+//    if ( !image_gif_load(i) ) {
+//      ret = 0;
+//      goto out;
+//    }
+//  }
   else if (!strcmp("BMP", i->codec)) {
     if ( !image_bmp_load(i) ) {
       ret = 0;

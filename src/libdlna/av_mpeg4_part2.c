@@ -27,6 +27,7 @@
 
 #ifdef _MSC_VER
 #pragma warning( disable: 4244 )
+#include "win32config.h"
 #endif
 
 #include <libavcodec/avcodec.h>

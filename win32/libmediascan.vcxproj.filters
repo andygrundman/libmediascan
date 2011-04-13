@@ -80,12 +80,6 @@
     <ClCompile Include="..\src\libdlna\av_mpeg4_part2.c">
       <Filter>libdlna</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\libdlna\image_jpeg.c">
-      <Filter>libdlna</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\libdlna\image_png.c">
-      <Filter>libdlna</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\libdlna\upnp_dms.c">
       <Filter>libdlna</Filter>
     </ClCompile>
@@ -108,6 +102,24 @@
       <Filter>libdlna</Filter>
     </ClCompile>
     <ClCompile Include="..\src\lookup3.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\image.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\image_bmp.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\image_jpeg.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\image_png.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\thumb.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\win_iconv.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -137,6 +149,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\audio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\win32config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

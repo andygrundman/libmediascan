@@ -41,7 +41,7 @@
 #include "mediascan.h"
 #include "image.h"
 #include "video.h"
-
+#include "util.h"
 
 // If we are on MSVC, disable some stupid MSVC warnings
 #ifdef _MSC_VER
@@ -56,6 +56,7 @@ enum log_level Debug = ERR;
 static int Initialized = 0;
 int ms_errno = 0;
 long PathMax = MAX_PATH;
+DB_ENV *myEnv;            /* Env structure handle */
 
 /*
  Video support
@@ -83,11 +84,11 @@ static const char *ImageExts = ",jpg,png,gif,bmp,jpeg,";
 
 #define REGISTER_DECODER(X,x) { \
           extern AVCodec ff_##x##_decoder; \
-		  avcodec_register(&ff_##x##_decoder); /* printf("%X - %s\n", &ff_##x##_decoder, #X); */}
+		  avcodec_register(&ff_##x##_decoder); }
 
 #define REGISTER_PARSER(X,x) { \
           extern AVCodecParser ff_##x##_parser; \
-		  av_register_codec_parser(&ff_##x##_parser); /* printf("%X - %s\n", &ff_##x##_parser, #X); */}
+		  av_register_codec_parser(&ff_##x##_parser); }
 
 ///-------------------------------------------------------------------------------------------------
 ///  Register codecs to be used with ffmpeg.
@@ -100,8 +101,6 @@ static const char *ImageExts = ",jpg,png,gif,bmp,jpeg,";
 
 static void register_codecs(void)
 {
-//printf("----------------------- REGISTER_DECODER -------------------------\n");
-
   // Video codecs
   REGISTER_DECODER (H263, h263);
   REGISTER_DECODER (H264, h264);
@@ -145,9 +144,6 @@ static void register_codecs(void)
   REGISTER_DECODER (PGSSUB, pgssub);
   REGISTER_DECODER (XSUB, xsub);
   
-
-//  printf("----------------------- REGISTER_PARSER -------------------------\n");
-
   // Parsers 
   REGISTER_PARSER (AAC, aac);
   REGISTER_PARSER (AC3, ac3);
@@ -161,7 +157,7 @@ static void register_codecs(void)
 
 #define REGISTER_DEMUXER(X,x) { \
     extern AVInputFormat ff_##x##_demuxer; \
-	av_register_input_format(&ff_##x##_demuxer); /* printf("%X  - %s\n", &ff_##x##_demuxer, #X); */}
+	av_register_input_format(&ff_##x##_demuxer); }
 #define REGISTER_PROTOCOL(X,x) { \
     extern URLProtocol ff_##x##_protocol; \
     av_register_protocol2(&ff_##x##_protocol, sizeof(ff_##x##_protocol)); }
@@ -177,9 +173,6 @@ static void register_codecs(void)
 
 static void register_formats(void)
 {
-  //printf("----------------------- REGISTER_DEMUXER -------------------------\n");
-
-
   // demuxers
   REGISTER_DEMUXER (ASF, asf);
   REGISTER_DEMUXER (AVI, avi);
@@ -190,9 +183,6 @@ static void register_formats(void)
   REGISTER_DEMUXER (MPEGPS, mpegps);             // VOB files
   REGISTER_DEMUXER (MPEGTS, mpegts);
   REGISTER_DEMUXER (MPEGVIDEO, mpegvideo);
-
-
-//    printf("----------------------- REGISTER_PROTOCOL -------------------------\n");
 
   // protocols
   REGISTER_PROTOCOL (FILE, file);
@@ -209,7 +199,10 @@ static void register_formats(void)
 
 static void _init(void)
 {
-  if (Initialized)
+	u_int32_t env_flags;      /* env open flags */
+	int ret;                  /* function return value */
+
+	if (Initialized)
     return;
   
   register_codecs();
@@ -217,9 +210,30 @@ static void _init(void)
 #ifndef WIN32
   unix_init();
 #endif
-
   Initialized = 1;
   ms_errno = 0;
+
+  // Create an environment object and initialize it for error reporting. 
+	ret = db_env_create(&myEnv, 0);
+	if (ret != 0) {
+    fprintf(stderr, "Error creating env handle: %s\n", db_strerror(ret));
+    return;
+	}
+
+	// Open the environment.
+	env_flags = DB_CREATE |			// If the environment does not exist, create it.
+              DB_INIT_MPOOL;	// Initialize the in-memory cache.
+
+	ret = myEnv->open(myEnv,		// DB_ENV ptr
+  ".",												// env home directory
+  env_flags,									// Open flags 
+  0);													// File mode (default)
+
+	if (ret != 0) {
+    fprintf(stderr, "Environment open failed: %s", db_strerror(ret));
+    return;
+	} 
+
 } /* _init() */
 
 ///-------------------------------------------------------------------------------------------------
@@ -265,6 +279,9 @@ void ms_set_log_level(enum log_level level)
 
 MediaScan *ms_create(void)
 {
+	u_int32_t flags;   /* database open flags */
+	int ret;           /* function return value */
+
   MediaScan *s = NULL;
   dlna_t *dlna = NULL;
   
@@ -272,13 +289,52 @@ MediaScan *ms_create(void)
   
   s = (MediaScan *)calloc(sizeof(MediaScan), 1);
   if (s == NULL) {
-	ms_errno = MSENO_MEMERROR;
+		ms_errno = MSENO_MEMERROR;
     FATAL("Out of memory for new MediaScan object\n");
     return NULL;
   }
   
   s->progress = progress_create();
   
+  s->on_result = NULL;
+  s->on_error = NULL;
+  s->on_progress = NULL;
+  s->userdata = NULL;
+
+	/* Initialize the structure. This
+ 	 * database is not opened in an environment, 
+   * so the environment pointer is NULL. */
+	ret = db_create(&s->dbp, myEnv, 0);
+	if (ret != 0) {
+		ms_errno = MSENO_DBERROR;
+    FATAL("Database creation failure\n");
+
+	  progress_destroy(s->progress);
+
+    return NULL;
+	}
+	
+	/* Database open flags */
+	flags = DB_CREATE | DB_TRUNCATE;    /* If the database does not exist, 
+                       * create it.*/
+
+	/* open the database */
+	ret = s->dbp->open(s->dbp,        /* DB structure pointer */
+                NULL,       /* Transaction pointer */
+                "my_db.db", /* On-disk file that holds the database. */
+                NULL,       /* Optional logical database name */
+                DB_BTREE,   /* Database access method */
+                flags,      /* Open flags */
+                0);         /* File mode (using defaults) */
+	if (ret != 0) {
+		ms_errno = MSENO_DBERROR;
+    FATAL("Database creation failure\n");
+
+		progress_destroy(s->progress);
+
+    return NULL;
+	}
+
   // List of all dirs found
   s->_dirq = malloc(sizeof(struct dirq));
   SIMPLEQ_INIT((struct dirq *)s->_dirq);
@@ -330,6 +386,10 @@ void ms_destroy(MediaScan *s)
   ms_clear_watch(s);
 
   CleanupCriticalSection(&s->CriticalSection);
+
+	/* When we're done with the database, close it. */
+	if (s->dbp != NULL)
+    s->dbp->close(s->dbp, 0); 
 
   free(s);
 } /* ms_destroy() */
@@ -417,24 +477,37 @@ void ms_add_ignore_extension(MediaScan *s, const char *extension)
   s->ignore_exts[ s->nignore_exts++ ] = tmp;
 } /* ms_add_ignore_extension() */
 
-void
-ms_add_thumbnail_spec(MediaScan *s, enum thumb_format format, int width, int height, int keep_aspect, uint32_t bgcolor, int quality)
+///-------------------------------------------------------------------------------------------------
+///  Add thumbnail spec.
+///
+/// @author Andy Grundman
+/// @date 04/11/2011
+///
+/// @param [in,out] s  If non-null, the.
+/// @param format			 Describes the format to use.
+/// @param width			 The width.
+/// @param height			 The height.
+/// @param keep_aspect The keep aspect.
+/// @param bgcolor		 The bgcolor.
+/// @param quality		 The quality.
+///-------------------------------------------------------------------------------------------------
+
+void ms_add_thumbnail_spec(MediaScan *s, enum thumb_format format, int width, int height, int keep_aspect, uint32_t bgcolor, int quality)
 {
   // Must have at least width or height
   if (width > 0 || height > 0) {
     MediaScanThumbSpec *spec = (MediaScanThumbSpec *)calloc(sizeof(MediaScanThumbSpec), 1);
-    spec->format = format;
-    spec->width = width;
-    spec->height = height;
-    spec->keep_aspect = keep_aspect;
+  spec->format = format;
+  spec->width = width;
+  spec->height = height;
+  spec->keep_aspect = keep_aspect;
     spec->bgcolor = bgcolor;
-    spec->jpeg_quality = quality;
-    
+  spec->jpeg_quality = quality;
+  
     LOG_DEBUG("ms_add_thumbnail_spec width %d height %d\n", spec->width, spec->height);
     
-    s->thumbspecs[ s->nthumbspecs++ ] = spec;
-  }
-}
+  s->thumbspecs[ s->nthumbspecs++ ] = spec;
+} /* ms_add_thumbnail_spec() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  By default, scans are synchronous. This means the call to ms_scan will not return until
@@ -840,6 +913,9 @@ void ms_scan(MediaScan *s)
 {
   MediaScanError *e = NULL;
   MediaScanResult *r = NULL;
+	int ret;
+	uint32_t hash;
+	DBT key;
 
   if(s == NULL) {
 	ms_errno = MSENO_NULLSCANOBJ;
@@ -855,6 +931,21 @@ void ms_scan(MediaScan *s)
   
   LOG_INFO("Scanning file %s\n", full_path);
   
+	// Check if the file has been recently scanned
+	hash = HashFile(full_path);
+
+	// Zero out the DBTs before using them.
+	memset(&key, 0, sizeof(DBT));
+	key.data = &hash;
+	key.size = sizeof(uint32_t);
+
+
+	if( s->dbp->exists(s->dbp, NULL, &key, 0) != DB_NOTFOUND )
+	{
+    LOG_INFO("File hash %X already scanned\n", hash);
+		return;
+	}
+
   if (type == TYPE_UNKNOWN) {
     // auto-detect type
     type = _should_scan(s, full_path);
@@ -877,6 +968,26 @@ void ms_scan(MediaScan *s)
   r->path = full_path;
   
   if ( result_scan(r) ) {
+		DBT key, data;
+
+		r->hash = HashFile(full_path);
+
+
+		// Zero out the DBTs before using them.
+	  memset(&key, 0, sizeof(DBT));
+    memset(&data, 0, sizeof(DBT));
+
+		key.data = &r->hash;
+		key.size = sizeof(uint32_t);
+
+		data.data = full_path;
+		data.size = strlen(full_path) +1; 
+
+		ret = s->dbp->put(s->dbp, NULL, &key, &data, DB_NOOVERWRITE);
+		if (ret == DB_KEYEXIST) {
+			s->dbp->err(s->dbp, ret, "Put failed because key %X already exists", r->hash);
+		}
+
     s->on_result(s, r, s->userdata);
   }
   else if (s->on_error && r->error) {
@@ -922,7 +1033,7 @@ ms_result_get_thumbnail(MediaScanResult *r, int index, int *length)
 {
   uint8_t *ret = NULL;
   *length = 0;
-  
+
   // XXX refactor, thumbnails should be stored in result
   switch (r->type) {
     case TYPE_VIDEO:

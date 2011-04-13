@@ -7,6 +7,7 @@
 #ifdef _MSC_VER
 #pragma warning( disable: 4996 )
 #pragma warning( disable: 4244 )
+#include "win32config.h"
 #endif
 
 #include <libavformat/avformat.h>

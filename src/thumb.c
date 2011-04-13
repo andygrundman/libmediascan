@@ -131,8 +131,8 @@ thumb_resize(MediaScanImage *src, MediaScanImage *dst, MediaScanThumbSpec *spec)
   
   // Determine padding if necessary
   if (spec->keep_aspect) {
-    float source_ar = 1.0 * src->width / src->height;
-    float dest_ar   = 1.0 * dst->width / dst->height;
+    float source_ar = 1.0f * src->width / src->height;
+    float dest_ar   = 1.0f * dst->width / dst->height;
     
     if (source_ar >= dest_ar) {
       spec->height_padding = (int)((dst->height - (dst->width / source_ar)) / 2);

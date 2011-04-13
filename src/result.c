@@ -438,6 +438,10 @@ MediaScanResult *result_create(MediaScan *s)
   r->flags = USE_EXTENSION;
   
   r->_scan = s;
+  r->_avf = NULL;
+  r->_fp = NULL;
+
+	r->hash = 0;
   
   return r;
 } /* result_create() */
@@ -459,15 +463,15 @@ int result_scan(MediaScanResult *r)
 
   if (!r->type || !r->path) {
     r->error = error_create("", MS_ERROR_TYPE_INVALID_PARAMS, "Invalid parameters passed to result_scan()");
-    return 0;
+    return FALSE;
   }
   
   // General metadata (mtime/size)
   set_file_metadata(r);
 
 	// Generate a hash of the full file path, modified time, and file size
-  sprintf(fileData, "%s%d%lld", r->path, r->mtime, r->size);
-  r->hash = hashlittle(fileData, strlen(fileData), 0);
+//  sprintf(fileData, "%s%d%lld", r->path, r->mtime, r->size);
+//  r->hash = hashlittle(fileData, strlen(fileData), 0);
   
   switch (r->type) {
     case TYPE_VIDEO:
@@ -481,8 +485,8 @@ int result_scan(MediaScanResult *r)
     default:
       break;
   }
-  
-  return 0;
+
+  return FALSE;
 } /* result_scan() */
 
 ///-------------------------------------------------------------------------------------------------

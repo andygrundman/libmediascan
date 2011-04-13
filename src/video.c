@@ -55,7 +55,10 @@ video_create_image_from_frame(MediaScanVideo *v, MediaScanResult *r)
   struct SwsContext *swsc = NULL;
   int got_picture;
   int64_t duration_tb = ((double)avf->duration / AV_TIME_BASE) / av_q2d(codecs->vs->time_base);
-  
+  uint8_t *src;
+	int x, y;
+  int ofs = 0;
+
   if ( (avcodec_open(codecs->vc, codec)) < 0 ) {
     LOG_ERROR("Couldn't open video codec %s for thumbnail creation\n", codec->name);
     goto err;
@@ -141,9 +144,8 @@ video_create_image_from_frame(MediaScanVideo *v, MediaScanResult *r)
       // Allocate space for our version of the image
       image_alloc_pixbuf(i, i->width, i->height);
       
-      uint8_t *src = frame_rgb->data[0];
-      int x, y;
-      int ofs = 0;
+      src = frame_rgb->data[0];
+      ofs = 0;
       for (y = 0; y < i->height; y++) {
         for (x = 0; x < i->width * 3; x += 3) {
           i->_pixbuf[ofs++] = COL(src[x], src[x + 1], src[x + 2]);

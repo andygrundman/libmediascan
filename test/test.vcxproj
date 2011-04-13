@@ -39,7 +39,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>C:\mingw\msys\1.0\local\lib;$(SolutionDir)ffmpeg\libavcodec;$(SolutionDir)ffmpeg\libswscale;$(SolutionDir)ffmpeg\libavdevice;$(SolutionDir)ffmpeg\libavfilter;$(SolutionDir)ffmpeg\libavformat;$(SolutionDir)ffmpeg\libavutil;$(SolutionDir)ffmpeg\libpostproc;C:\mingw\lib\gcc\mingw32\4.5.2;C:\mingw\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\mingw\msys\1.0\local\lib;C:\mingw\lib\gcc\mingw32\4.5.2;C:\mingw\lib;D:\workspace\scan\lib;$(LibraryPath)</LibraryPath>
     <TargetName>API_test</TargetName>
     <IntDir>$(ProjectName)$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)$(ProjectName)$(Configuration)\</OutDir>
@@ -54,17 +54,17 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\win32\include;$(ProjectDir)..\include;$(ProjectDir)..\;$(ProjectDir)CUnit\Headers;C:\mingw\msys\1.0\local\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\win32\include;$(ProjectDir)..\include;$(ProjectDir)..\;$(ProjectDir)CUnit\Headers;C:\mingw\msys\1.0\local\include;$(ProjectDir)..\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CallingConvention>Cdecl</CallingConvention>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(ProjectDir)..\win32\debug\libmediascan.lib;libavcodec.a;libavformat.a;libavutil.a;wsock32.lib;vfw32.lib;libcunit.a;libgcc.a;libmingwex.lib;libz.a;libbz2.a;%(AdditionalDependencies)</AdditionalDependencies>
       <HeapReserveSize>1000000</HeapReserveSize>
       <HeapCommitSize>100000</HeapCommitSize>
+      <AdditionalDependencies>$(ProjectDir)..\win32\debug\libmediascan.lib;wsock32.lib;vfw32.lib;libcunit.a;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
       <Command>

@@ -40,6 +40,22 @@ test/*_test
 win32/Debug/*
 win32/testDebug/*
 win32/video_dlna_testDebug/*
+win32/Debug Library/*
+win32/libpng-1.5.2/projects/vstudio/Debug/*
+win32/libpng-1.5.2/projects/vstudio/libpng/Debug/*
+win32/libpng-1.5.2/projects/vstudio/libpng/Debug Library/*
+win32/libpng-1.5.2/projects/vstudio/pngtest/Debug/*
+win32/libpng-1.5.2/projects/vstudio/pngtest/Debug Library/*
+win32/libpng-1.5.2/projects/vstudio/pngtest/Release Library/*
+win32/libpng-1.5.2/projects/vstudio/pngvalid/Debug/*
+win32/libpng-1.5.2/projects/vstudio/pngvalid/Debug Library/*
+win32/libpng-1.5.2/projects/vstudio/pngvalid/Release Library/*
+win32/libpng-1.5.2/projects/vstudio/zlib/Debug Library/*
+win32/libpng-1.5.2/projects/vstudio/zlib/Release Library/*
+win32/libpng-1.5.2/projects/vstudio/zlib/Debug/*
+win32/libpng-1.5.2/projects/vstudio/Debug Library/*
+win32/libpng-1.5.2/projects/vstudio/Release Library/*
+win32/libpng-1.5.2/projects/vstudio/libpng/Release Library/*
 test/Debug/*
 test/testDebug/*
 test/video_dlna_testDebug/*

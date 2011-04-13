@@ -15,14 +15,23 @@ Build Instructions
 
 -- FFMPEG --
 
-Grab the latest version of FFMPEG using the command "git clone git://git.videolan.org/ffmpeg.git ffmpeg"
-Create a file called "myconfig" in the ffmpeg directory containing the following commands: 
-#!/bin/sh
-./configure --extra-cflags="-I/usr/local/include -U__STRICT_ANSI__ -D_MT -mno-cygwin -mms-bitfields" --extra-ldflags="-add-stdcall-alias -L/usr/local/lib" --enable-w32threads --disable-asm --enable-pic --enable-memalign-hack --disable-ffserver --disable-ffplay --target-os=mingw32
-From a MinGW command prompt in the ffmpeg directory execute ./myconfig 
+*Grab the latest version of FFMPEG using the command "git clone git://git.videolan.org/ffmpeg.git ffmpeg"
+*Create a file called "myconfig" in the ffmpeg directory containing the following commands: 
+		#!/bin/sh
+		./configure --extra-cflags="-I/usr/local/include -U__STRICT_ANSI__ -D_MT -mno-cygwin -mms-bitfields" --extra-ldflags="-add-stdcall-alias -L/usr/local/lib" --enable-w32threads --disable-asm --enable-pic --enable-memalign-hack --disable-ffserver --disable-ffplay --target-os=mingw32
+* then open an MSYS shell
+
+cd ffmpeg
+./myconfig 
+make
+make install
+
+-- LIBEXIF --
+http://sourceforge.net/projects/libexif/files/libexif/0.6.20/libexif-0.6.20.zip/download
+Extract
+execute configure
 execute make
 execute make install
-
 
 -- libmediascan --
 
