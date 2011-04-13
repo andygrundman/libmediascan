@@ -58,7 +58,7 @@
     </Link>
     <Lib>
       <AdditionalLibraryDirectories>$(ProjectDir)\..\lib;C:\mingw\msys\1.0\local\lib;C:\mingw\lib\gcc\mingw32\4.5.2;C:\mingw\lib;D:\workspace\scan\test</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(ProjectDir)..\lib\libdb_small51s.lib;$(ProjectDir)..\win32\libpng-1.5.2\projects\vstudio\Debug Library\libpng15.lib;$(ProjectDir)..\win32\libpng-1.5.2\projects\vstudio\Debug Library\zlib.lib;libexif.a;libjpeg.a;libintl.lib;libgif.a;libavcodec.a;libavformat.a;libavutil.a;libswscale.a;libbz2.a;libgcc.a;libmingwex.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectDir)..\lib\libdb_small51s.lib;$(ProjectDir)..\win32\Debug Library\libpng15.lib;$(ProjectDir)..\win32\Debug Library\zlib.lib;libexif.a;libjpeg.a;libintl.lib;libgif.a;libavcodec.a;libavformat.a;libavutil.a;libswscale.a;libbz2.a;libgcc.a;libmingwex.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <PreBuildEvent>
       <Command>
