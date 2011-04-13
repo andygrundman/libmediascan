@@ -57,23 +57,23 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includedir)"
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libmediascan_la_LIBADD =
-am_libmediascan_la_OBJECTS = libmediascan_la-lookup3.lo \
-	libmediascan_la-audio.lo libmediascan_la-buffer.lo \
-	libmediascan_la-mediascan.lo libmediascan_la-mediascan_unix.lo \
-	libmediascan_la-progress.lo libmediascan_la-result.lo \
-	libmediascan_la-error.lo libmediascan_la-video.lo \
-	libmediascan_la-util.lo libmediascan_la-image.lo \
-	libmediascan_la-image_jpeg.lo libmediascan_la-image_png.lo \
-	libmediascan_la-image_bmp.lo libmediascan_la-thumb.lo \
-	libmediascan_la-audio_aac.lo libmediascan_la-audio_ac3.lo \
-	libmediascan_la-audio_amr.lo libmediascan_la-audio_atrac3.lo \
-	libmediascan_la-audio_g726.lo libmediascan_la-audio_lpcm.lo \
-	libmediascan_la-audio_mp1.lo libmediascan_la-audio_mp2.lo \
-	libmediascan_la-audio_mp3.lo libmediascan_la-audio_wma.lo \
-	libmediascan_la-av_mpeg1.lo libmediascan_la-av_mpeg2.lo \
-	libmediascan_la-av_mpeg4_part10.lo \
+am_libmediascan_la_OBJECTS = libmediascan_la-audio.lo \
+	libmediascan_la-buffer.lo libmediascan_la-mediascan.lo \
+	libmediascan_la-mediascan_unix.lo libmediascan_la-progress.lo \
+	libmediascan_la-result.lo libmediascan_la-error.lo \
+	libmediascan_la-video.lo libmediascan_la-util.lo \
+	libmediascan_la-image.lo libmediascan_la-image_jpeg.lo \
+	libmediascan_la-image_png.lo libmediascan_la-image_bmp.lo \
+	libmediascan_la-thumb.lo libmediascan_la-audio_aac.lo \
+	libmediascan_la-audio_ac3.lo libmediascan_la-audio_amr.lo \
+	libmediascan_la-audio_atrac3.lo libmediascan_la-audio_g726.lo \
+	libmediascan_la-audio_lpcm.lo libmediascan_la-audio_mp1.lo \
+	libmediascan_la-audio_mp2.lo libmediascan_la-audio_mp3.lo \
+	libmediascan_la-audio_wma.lo libmediascan_la-av_mpeg1.lo \
+	libmediascan_la-av_mpeg2.lo libmediascan_la-av_mpeg4_part10.lo \
 	libmediascan_la-av_mpeg4_part2.lo libmediascan_la-av_wmv9.lo \
-	libmediascan_la-containers.lo libmediascan_la-profiles.lo
+	libmediascan_la-containers.lo libmediascan_la-profiles.lo \
+	libmediascan_la-lookup3.lo
 libmediascan_la_OBJECTS = $(am_libmediascan_la_OBJECTS)
 libmediascan_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libmediascan_la_CFLAGS) \
@@ -211,12 +211,13 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 lib_LTLIBRARIES = libmediascan.la
-libmediascan_la_SOURCES = lookup3.c audio.c buffer.c mediascan.c mediascan_unix.c progress.c result.c error.c video.c util.c \
+libmediascan_la_SOURCES = audio.c buffer.c mediascan.c mediascan_unix.c progress.c result.c error.c video.c util.c \
   image.c image_jpeg.c image_png.c image_bmp.c thumb.c \
   libdlna/audio_aac.c libdlna/audio_ac3.c libdlna/audio_amr.c libdlna/audio_atrac3.c \
   libdlna/audio_g726.c libdlna/audio_lpcm.c libdlna/audio_mp1.c libdlna/audio_mp2.c libdlna/audio_mp3.c \
   libdlna/audio_wma.c libdlna/av_mpeg1.c libdlna/av_mpeg2.c libdlna/av_mpeg4_part10.c \
-  libdlna/av_mpeg4_part2.c libdlna/av_wmv9.c libdlna/containers.c libdlna/profiles.c
+  libdlna/av_mpeg4_part2.c libdlna/av_wmv9.c libdlna/containers.c libdlna/profiles.c \
+  jenkins/lookup3.c
 
 libmediascan_la_CFLAGS = -I$(top_srcdir)/include
 libmediascan_la_LDFLAGS = -version-info 0:0:0
@@ -348,13 +349,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LTCOMPILE) -c -o $@ $<
-
-libmediascan_la-lookup3.lo: lookup3.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmediascan_la_CFLAGS) $(CFLAGS) -MT libmediascan_la-lookup3.lo -MD -MP -MF $(DEPDIR)/libmediascan_la-lookup3.Tpo -c -o libmediascan_la-lookup3.lo `test -f 'lookup3.c' || echo '$(srcdir)/'`lookup3.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libmediascan_la-lookup3.Tpo $(DEPDIR)/libmediascan_la-lookup3.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='lookup3.c' object='libmediascan_la-lookup3.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmediascan_la_CFLAGS) $(CFLAGS) -c -o libmediascan_la-lookup3.lo `test -f 'lookup3.c' || echo '$(srcdir)/'`lookup3.c
 
 libmediascan_la-audio.lo: audio.c
 @am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmediascan_la_CFLAGS) $(CFLAGS) -MT libmediascan_la-audio.lo -MD -MP -MF $(DEPDIR)/libmediascan_la-audio.Tpo -c -o libmediascan_la-audio.lo `test -f 'audio.c' || echo '$(srcdir)/'`audio.c
@@ -572,6 +566,13 @@ libmediascan_la-profiles.lo: libdlna/profiles.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='libdlna/profiles.c' object='libmediascan_la-profiles.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmediascan_la_CFLAGS) $(CFLAGS) -c -o libmediascan_la-profiles.lo `test -f 'libdlna/profiles.c' || echo '$(srcdir)/'`libdlna/profiles.c
+
+libmediascan_la-lookup3.lo: jenkins/lookup3.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmediascan_la_CFLAGS) $(CFLAGS) -MT libmediascan_la-lookup3.lo -MD -MP -MF $(DEPDIR)/libmediascan_la-lookup3.Tpo -c -o libmediascan_la-lookup3.lo `test -f 'jenkins/lookup3.c' || echo '$(srcdir)/'`jenkins/lookup3.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libmediascan_la-lookup3.Tpo $(DEPDIR)/libmediascan_la-lookup3.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='jenkins/lookup3.c' object='libmediascan_la-lookup3.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmediascan_la_CFLAGS) $(CFLAGS) -c -o libmediascan_la-lookup3.lo `test -f 'jenkins/lookup3.c' || echo '$(srcdir)/'`jenkins/lookup3.c
 
 mostlyclean-libtool:
 	-rm -f *.lo
