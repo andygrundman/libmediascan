@@ -83,14 +83,14 @@ void EndCriticalSection(void *lp) {
 uint32_t HashFile(const char *file, int *mtime, size_t *size) {
   uint32_t hash;
   char fileData[MAX_PATH];
-  
+
 #ifndef WIN32
   struct stat buf;
 #endif
 
   *mtime = 0;
   *size = 0;
-  
+
 #ifdef WIN32
   *mtime = _GetFileTime(file);
   *size = _GetFileSize(file);

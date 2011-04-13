@@ -443,7 +443,7 @@ int result_scan(MediaScanResult *r) {
 
 void result_destroy(MediaScanResult *r) {
   int i;
-  
+
   if (r->error)
     error_destroy(r->error);
 
@@ -468,7 +468,7 @@ void result_destroy(MediaScanResult *r) {
     LOG_MEM("destroy result buffer @ %p\n", r->_buf);
     free(r->_buf);
   }
-  
+
   // free thumbnails
   for (i = 0; i < r->nthumbnails; i++)
     image_destroy(r->_thumbs[i]);
@@ -530,12 +530,11 @@ void ms_dump_result(MediaScanResult *r) {
       LOG_OUTPUT("  Type: Unknown\n");
       break;
   }
-  
+
   for (i = 0; i < r->nthumbnails; i++) {
     MediaScanImage *thumb = r->_thumbs[i];
     Buffer *dbuf = (Buffer *)thumb->_dbuf;
-    LOG_OUTPUT("    Thumbnail:  %d x %d %s (%d bytes)\n", thumb->width,
-               thumb->height, thumb->codec, buffer_len(dbuf));
+    LOG_OUTPUT("    Thumbnail:  %d x %d %s (%d bytes)\n", thumb->width, thumb->height, thumb->codec, buffer_len(dbuf));
 
 #ifdef DUMP_THUMBNAILS
     {

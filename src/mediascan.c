@@ -929,7 +929,7 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type) {
   memset(&key, 0, sizeof(DBT));
   key.data = &hash;
   key.size = sizeof(uint32_t);
-  
+
   if (s->dbp->exists(s->dbp, NULL, &key, 0) != DB_NOTFOUND) {
     LOG_INFO("File hash %X already scanned\n", hash);
     return;
@@ -958,7 +958,7 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type) {
 
   if (result_scan(r)) {
     DBT key, data;
-    
+
     // These were determined by HashFile
     r->mtime = mtime;
     r->size = size;
@@ -1035,6 +1035,6 @@ const uint8_t *ms_result_get_thumbnail(MediaScanResult *r, int index, int *lengt
     *length = buffer_len(buf);
     ret = (uint8_t *)buffer_ptr(buf);
   }
-  
+
   return (const uint8_t *)ret;
 }

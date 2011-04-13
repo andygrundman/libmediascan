@@ -47,7 +47,7 @@ MediaScanProgress *progress_create(void) {
 }                               /* progress_create() */
 
 void progress_start_phase(MediaScanProgress *p, const char *fmt, ...) {
-  char *phase = (char *)malloc((size_t) MAX_PATH);
+  char *phase = (char *)malloc((size_t)MAX_PATH);
 
 #ifndef WIN32
   struct timeval now;
