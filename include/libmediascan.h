@@ -99,8 +99,6 @@ struct _Image {
   int offset;                   // byte offset to start of image
   enum exif_orientation orientation;
 
-  int nthumbnails;
-  struct _Image *thumbnails[MAX_THUMBS];  // XXX refactor to private
   struct _Tag **tags;
 
   // private members
@@ -158,7 +156,8 @@ struct _Result {
 
   uint32_t hash;
 
-  // XXX refactor thumbnails here, since all types have thumbnails
+  // All media types have thumbnails
+  int nthumbnails;
 
   MediaScanAudio *audio;        ///< Audio-specific data, only present if type is TYPE_AUDIO or TYPE_VIDEO.
   MediaScanImage *image;        ///< Image-specific data, only present if type is TYPE_IMAGE.
@@ -169,6 +168,7 @@ struct _Result {
   void *_avf;                   // AVFormatContext instance
   FILE *_fp;                    // opened file if necessary
   void *_buf;                   // buffer if necessary
+  struct _Image *_thumbs[MAX_THUMBS]; // generated thumbs
 };
 typedef struct _Result MediaScanResult;
 

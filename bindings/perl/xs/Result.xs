@@ -89,34 +89,17 @@ CODE:
   RETVAL = newAV();
   
   // XXX refactor, return hashes
-  switch (r->type) {
-    case TYPE_IMAGE:
-      for (i = 0; i < r->image->nthumbnails; i++) {
-        int len;
-        const uint8_t *data = ms_result_get_thumbnail(r, i, &len);
-        if (len) {
-          SV *thumb = newSVpvn(data, len); // XXX is there a way to just use the original pointer and avoid Perl copying data?
-          //SvREADONLY_on(thumb); // Enable this if we can use the original pointer
-          av_push(RETVAL, thumb);
-        }
-      }
-      break;
-    
-    case TYPE_VIDEO:
-      for (i = 0; i < r->video->nthumbnails; i++) {
-        int len;
-        const uint8_t *data = ms_result_get_thumbnail(r, i, &len);
-        if (len) {
-          SV *thumb = newSVpvn(data, len);
-          //SvREADONLY_on(thumb); // Enable this if we can use the original pointer
-          av_push(RETVAL, thumb);
-        }
-      }
-      break;
-    
-    default:
-      break;
+
+  for (i = 0; i < r->nthumbnails; i++) {
+    int len;
+    const uint8_t *data = ms_result_get_thumbnail(r, i, &len);
+    if (len) {
+      SV *thumb = newSVpvn(data, len); // XXX is there a way to just use the original pointer and avoid Perl copying data?
+      //SvREADONLY_on(thumb); // Enable this if we can use the original pointer
+      av_push(RETVAL, thumb);
+    }
   }
+
 }
 OUTPUT:
   RETVAL

@@ -34,8 +34,6 @@ MediaScanImage *image_create(void) {
 }
 
 void image_destroy(MediaScanImage *i) {
-  int x;
-
   // Note: i->path is always a pointer to an existing path from Result, etc
   // and is not freed here.
 
@@ -48,10 +46,6 @@ void image_destroy(MediaScanImage *i) {
     LOG_MEM("destroy image data buf @ %p\n", i->_dbuf);
     free(i->_dbuf);
   }
-
-  // free thumbnails
-  for (x = 0; x < i->nthumbnails; x++)
-    image_destroy(i->thumbnails[x]);
 
   LOG_MEM("destroy MediaScanImage @ %p\n", i);
   free(i);
@@ -111,26 +105,6 @@ int image_read_header(MediaScanImage *i, MediaScanResult *r) {
   }
 
 out:
-  return ret;
-}
-
-void image_add_thumbnail(MediaScanImage *i, MediaScanImage *thumb) {
-  if (i->nthumbnails < MAX_THUMBS)
-    i->thumbnails[i->nthumbnails++] = thumb;
-}
-
-uint8_t *image_get_thumbnail(MediaScanImage *i, int index, int *length) {
-  uint8_t *ret = NULL;
-  if (i->nthumbnails >= index) {
-    MediaScanImage *thumb = i->thumbnails[index];
-    Buffer *buf = (Buffer *)thumb->_dbuf;
-    *length = buffer_len(buf);
-    ret = (uint8_t *)buffer_ptr(buf);
-  }
-  else {
-    *length = 0;
-  }
-
   return ret;
 }
 

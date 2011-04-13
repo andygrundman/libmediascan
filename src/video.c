@@ -176,33 +176,7 @@ out:
   return i;
 }
 
-void video_add_thumbnail(MediaScanVideo *v, MediaScanImage *thumb) {
-  if (v->nthumbnails < MAX_THUMBS)
-    v->thumbnails[v->nthumbnails++] = thumb;
-}
-
-uint8_t *video_get_thumbnail(MediaScanVideo *v, int index, int *length) {
-  uint8_t *ret = NULL;
-  if (v->nthumbnails >= index) {
-    MediaScanImage *thumb = v->thumbnails[index];
-    Buffer *buf = (Buffer *)thumb->_dbuf;
-    *length = buffer_len(buf);
-    ret = (uint8_t *)buffer_ptr(buf);
-  }
-  else {
-    *length = 0;
-  }
-
-  return ret;
-}
-
 void video_destroy(MediaScanVideo *v) {
-  int x;
-
-  // free thumbnails
-  for (x = 0; x < v->nthumbnails; x++)
-    image_destroy(v->thumbnails[x]);
-
   LOG_MEM("destroy MediaScanVideo @ %p\n", v);
   free(v);
 }
