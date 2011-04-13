@@ -93,6 +93,7 @@
     <ClCompile Include="..\src\image_bmp.c" />
     <ClCompile Include="..\src\image_jpeg.c" />
     <ClCompile Include="..\src\image_png.c" />
+    <ClCompile Include="..\src\jenkins\lookup3.c" />
     <ClCompile Include="..\src\libdlna\audio_aac.c" />
     <ClCompile Include="..\src\libdlna\audio_ac3.c" />
     <ClCompile Include="..\src\libdlna\audio_amr.c" />
@@ -111,7 +112,6 @@
     <ClCompile Include="..\src\libdlna\containers.c" />
     <ClCompile Include="..\src\libdlna\profiles.c" />
     <ClCompile Include="..\src\libdlna\upnp_dms.c" />
-    <ClCompile Include="..\src\lookup3.c" />
     <ClCompile Include="..\src\mediascan.c">
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">/D "_CRT_SECURE_NO_WARNINGS" %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>

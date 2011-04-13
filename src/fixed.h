@@ -71,10 +71,13 @@ static inline fixed_t fixed_mul(fixed_t x, fixed_t y) {
   enum {
     fracbits = FRAC_BITS
   };
-
   __asm {
-  mov eax, x imul y shrd eax, edx, fracbits}
-  // eax is returned automatically }
+	mov eax, x 
+	imul y 
+	shrd eax, edx, fracbits
+  }
+  // eax is returned automatically 
+}
 #else // Other non-gcc platform
 static inline fixed_t fixed_mul(fixed_t x, fixed_t y) {
   return (fixed_t)(((int64_t)x * y) >> FRAC_BITS);

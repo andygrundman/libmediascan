@@ -3,6 +3,10 @@
 .libs
 *~
 *.swp
+*.db
+__db.001
+__db.002
+__db.003
 Makefile
 aclocal.m4
 autom4te.cache
