@@ -3,6 +3,9 @@
 /* debug enabled */
 #undef DEBUG
 
+/* Define to 1 if you have the <db.h> header file. */
+#undef HAVE_DB_H
+
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 

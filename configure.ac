@@ -30,6 +30,21 @@ AC_SEARCH_LIBS([sws_scale], [swscale], [], [], [-lswscale])
 # Checks for header files.
 AC_CHECK_HEADERS([fcntl.h stdlib.h string.h unistd.h pthread.h])
 
+# Check BerkeleyDB lib and headers (stolen from memcachedb's configure.ac)
+bdbdir="/usr/local/BerkeleyDB.5.1"
+AC_ARG_WITH(bdb,
+       [  --with-bdb=PATH         Specify path to BerkeleyDB installation ],
+       [
+                if test "x$withval" != "xno" ; then
+                        bdbdir=$withval
+                fi
+       ]
+)
+CFLAGS="-I$bdbdir/include $CFLAGS"
+LDFLAGS="-L$bdbdir/lib $LDFLAGS"
+AC_SEARCH_LIBS([db_create], [db], [] ,[AC_MSG_ERROR(cannot find libdb.so in $bdbdir/lib)])
+AC_CHECK_HEADERS([db.h], [] ,[AC_MSG_ERROR(cannot find db.h in $bdbdir/include)])
+
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_INLINE
 AC_TYPE_INT64_T

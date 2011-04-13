@@ -27,6 +27,7 @@
 
 #include <libmediascan.h>
 #include <libavformat/avformat.h>
+#include <db.h>
 
 #ifdef WIN32
 #include "mediascan_win32.h"
@@ -497,16 +498,17 @@ void ms_add_thumbnail_spec(MediaScan *s, enum thumb_format format, int width, in
   // Must have at least width or height
   if (width > 0 || height > 0) {
     MediaScanThumbSpec *spec = (MediaScanThumbSpec *)calloc(sizeof(MediaScanThumbSpec), 1);
-  spec->format = format;
-  spec->width = width;
-  spec->height = height;
-  spec->keep_aspect = keep_aspect;
+    spec->format = format;
+    spec->width = width;
+    spec->height = height;
+    spec->keep_aspect = keep_aspect;
     spec->bgcolor = bgcolor;
-  spec->jpeg_quality = quality;
-  
+    spec->jpeg_quality = quality;
+
     LOG_DEBUG("ms_add_thumbnail_spec width %d height %d\n", spec->width, spec->height);
-    
-  s->thumbspecs[ s->nthumbspecs++ ] = spec;
+
+    s->thumbspecs[ s->nthumbspecs++ ] = spec;
+  }
 } /* ms_add_thumbnail_spec() */
 
 ///-------------------------------------------------------------------------------------------------

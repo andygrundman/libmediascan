@@ -23,6 +23,14 @@ extern enum log_level Debug;
 #define MAX_PATH 1024
 #endif
 
+#ifndef FALSE
+#define FALSE 0
+#endif
+
+#ifndef TRUE
+#define TRUE 1
+#endif
+
 #define LOG_OUTPUT(...) fprintf(stdout, __VA_ARGS__)
 
 #define LOG_LEVEL(level, ...) if (unlikely(Debug >= level)) fprintf(stderr, __VA_ARGS__)

@@ -9,7 +9,9 @@
 #include <setjmp.h>
 #include <string.h>
 
-#define HAVE_BOOLEAN
+#ifdef WIN32
+# define HAVE_BOOLEAN
+#endif
 #include <jpeglib.h>
 
 

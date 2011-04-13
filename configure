@@ -732,6 +732,7 @@ enable_dependency_tracking
 with_gnu_ld
 with_sysroot
 enable_libtool_lock
+with_bdb
 enable_debug
 '
       ac_precious_vars='build_alias
@@ -1380,6 +1381,7 @@ Optional Packages:
   --with-gnu-ld           assume the C compiler uses GNU ld [default=no]
   --with-sysroot=DIR Search for dependent libraries within DIR
                         (or the compiler's sysroot if not specified).
+  --with-bdb=PATH         Specify path to BerkeleyDB installation
 
 Some influential environment variables:
   CC          C compiler command
@@ -12524,6 +12526,94 @@ if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
 #define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
 _ACEOF
 
+fi
+
+done
+
+
+# Check BerkeleyDB lib and headers (stolen from memcachedb's configure.ac)
+bdbdir="/usr/local/BerkeleyDB.5.1"
+
+# Check whether --with-bdb was given.
+if test "${with_bdb+set}" = set; then :
+  withval=$with_bdb;
+                if test "x$withval" != "xno" ; then
+                        bdbdir=$withval
+                fi
+
+
+fi
+
+CFLAGS="-I$bdbdir/include $CFLAGS"
+LDFLAGS="-L$bdbdir/lib $LDFLAGS"
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing db_create" >&5
+$as_echo_n "checking for library containing db_create... " >&6; }
+if ${ac_cv_search_db_create+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_func_search_save_LIBS=$LIBS
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char db_create ();
+int
+main ()
+{
+return db_create ();
+  ;
+  return 0;
+}
+_ACEOF
+for ac_lib in '' db; do
+  if test -z "$ac_lib"; then
+    ac_res="none required"
+  else
+    ac_res=-l$ac_lib
+    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
+  fi
+  if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_search_db_create=$ac_res
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext
+  if ${ac_cv_search_db_create+:} false; then :
+  break
+fi
+done
+if ${ac_cv_search_db_create+:} false; then :
+
+else
+  ac_cv_search_db_create=no
+fi
+rm conftest.$ac_ext
+LIBS=$ac_func_search_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_db_create" >&5
+$as_echo "$ac_cv_search_db_create" >&6; }
+ac_res=$ac_cv_search_db_create
+if test "$ac_res" != no; then :
+  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
+
+else
+  as_fn_error $? "cannot find libdb.so in $bdbdir/lib" "$LINENO" 5
+fi
+
+for ac_header in db.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "db.h" "ac_cv_header_db_h" "$ac_includes_default"
+if test "x$ac_cv_header_db_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_DB_H 1
+_ACEOF
+
+else
+  as_fn_error $? "cannot find db.h in $bdbdir/include" "$LINENO" 5
 fi
 
 done

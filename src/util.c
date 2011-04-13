@@ -19,6 +19,7 @@
 #include <string.h>
 #include <libmediascan.h>
 
+#include "common.h"
 #include "util.h"
 
 void InitCriticalSection(void *lp)
