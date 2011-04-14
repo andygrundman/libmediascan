@@ -56,7 +56,9 @@ static void my_progress_callback(MediaScan *s, MediaScanProgress *progress, void
 } /* my_progress_callback() */
 
 static void my_result_callback2(MediaScan *s, MediaScanResult *result, void *userdata) {
-  ms_dump_result(result);
+
+	if(!result->mime_type)
+		ms_dump_result(result);
 }
 
 void check_mimetypes() {
@@ -73,7 +75,10 @@ void check_mimetypes() {
 
 #ifdef WIN32
 //  dir = _abspath(bin, "data\\video\\dlna"); // because binary is in .libs dir
-  dir = strdup("G:\\Movies");
+  dir = strdup("G:\\Movies");		// Movies: avi. wmv
+//  dir = strdup("D:\\Music");	// Music: mp3, flac, wma
+//  dir = strdup("F:\\");				// TV Shows: avi, mkv, avi
+//  dir = strdup("D:\\Anime");	// Anime: mkv, avi (subtitles)
 #else
   // Get path to this binary
   bin = _findbin(argv[0]);
