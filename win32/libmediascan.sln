@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libmediascan", "libmediascan.vcxproj", "{A7CBC617-55A0-45C2-BA69-6E04C93F5297}"
 	ProjectSection(ProjectDependencies) = postProject
-		{9A6F6359-5070-2DC7-5611-69EF874E8E06} = {9A6F6359-5070-2DC7-5611-69EF874E8E06}
+		{1C53F773-E63E-D8AA-0A07-3DFCE9D1BD10} = {1C53F773-E63E-D8AA-0A07-3DFCE9D1BD10}
 		{D6973076-9317-4EF2-A0B8-B7A18AC0713E} = {D6973076-9317-4EF2-A0B8-B7A18AC0713E}
 	EndProjectSection
 EndProject
@@ -12,17 +12,17 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test", "..\test\test.vcxpro
 		{A7CBC617-55A0-45C2-BA69-6E04C93F5297} = {A7CBC617-55A0-45C2-BA69-6E04C93F5297}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "video_dlna_test", "..\test\video_dlna_test.vcxproj", "{D2A5CF75-0419-41EE-8D30-1401CD5CB4FF}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "video_dlna_test", "libmediascan.vcxproj", "{D2A5CF75-0419-41EE-8D30-1401CD5CB4FF}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A7CBC617-55A0-45C2-BA69-6E04C93F5297} = {A7CBC617-55A0-45C2-BA69-6E04C93F5297}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libpng", "libpng-1.5.2\projects\vstudio\libpng\libpng.vcxproj", "{D6973076-9317-4EF2-A0B8-B7A18AC0713E}"
 	ProjectSection(ProjectDependencies) = postProject
-		{9A6F6359-5070-2DC7-5611-69EF874E8E06} = {9A6F6359-5070-2DC7-5611-69EF874E8E06}
+		{1C53F773-E63E-D8AA-0A07-3DFCE9D1BD10} = {1C53F773-E63E-D8AA-0A07-3DFCE9D1BD10}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib", "libpng-1.5.2\projects\vstudio\zlib\zlib.vcxproj", "{9A6F6359-5070-2DC7-5611-69EF874E8E06}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib", "libpng-1.5.2\projects\vstudio\zlib\zlib.vcxproj", "{1C53F773-E63E-D8AA-0A07-3DFCE9D1BD10}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -140,30 +140,30 @@ Global
 		{D6973076-9317-4EF2-A0B8-B7A18AC0713E}.Template|Win32.ActiveCfg = Release|Win32
 		{D6973076-9317-4EF2-A0B8-B7A18AC0713E}.Template|Win32.Build.0 = Release|Win32
 		{D6973076-9317-4EF2-A0B8-B7A18AC0713E}.Template|x64.ActiveCfg = Release|Win32
-		{9A6F6359-5070-2DC7-5611-69EF874E8E06}.Debug Lib|Win32.ActiveCfg = Debug Library|Win32
-		{9A6F6359-5070-2DC7-5611-69EF874E8E06}.Debug Lib|Win32.Build.0 = Debug Library|Win32
-		{9A6F6359-5070-2DC7-5611-69EF874E8E06}.Debug Lib|x64.ActiveCfg = Debug Library|Win32
-		{9A6F6359-5070-2DC7-5611-69EF874E8E06}.Debug Library|Win32.ActiveCfg = Debug Library|Win32
-		{9A6F6359-5070-2DC7-5611-69EF874E8E06}.Debug Library|Win32.Build.0 = Debug Library|Win32
-		{9A6F6359-5070-2DC7-5611-69EF874E8E06}.Debug Library|x64.ActiveCfg = Debug Library|Win32
-		{9A6F6359-5070-2DC7-5611-69EF874E8E06}.Debug|Win32.ActiveCfg = Debug Library|Win32
-		{9A6F6359-5070-2DC7-5611-69EF874E8E06}.Debug|Win32.Build.0 = Debug Library|Win32
-		{9A6F6359-5070-2DC7-5611-69EF874E8E06}.Debug|x64.ActiveCfg = Debug|Win32
-		{9A6F6359-5070-2DC7-5611-69EF874E8E06}.Release Lib|Win32.ActiveCfg = Release Library|Win32
-		{9A6F6359-5070-2DC7-5611-69EF874E8E06}.Release Lib|Win32.Build.0 = Release Library|Win32
-		{9A6F6359-5070-2DC7-5611-69EF874E8E06}.Release Lib|x64.ActiveCfg = Release Library|Win32
-		{9A6F6359-5070-2DC7-5611-69EF874E8E06}.Release Library|Win32.ActiveCfg = Release Library|Win32
-		{9A6F6359-5070-2DC7-5611-69EF874E8E06}.Release Library|Win32.Build.0 = Release Library|Win32
-		{9A6F6359-5070-2DC7-5611-69EF874E8E06}.Release Library|x64.ActiveCfg = Release Library|Win32
-		{9A6F6359-5070-2DC7-5611-69EF874E8E06}.Release|Win32.ActiveCfg = Release Library|Win32
-		{9A6F6359-5070-2DC7-5611-69EF874E8E06}.Release|Win32.Build.0 = Release Library|Win32
-		{9A6F6359-5070-2DC7-5611-69EF874E8E06}.Release|x64.ActiveCfg = Release|Win32
-		{9A6F6359-5070-2DC7-5611-69EF874E8E06}.ReleaseNASM|Win32.ActiveCfg = Release|Win32
-		{9A6F6359-5070-2DC7-5611-69EF874E8E06}.ReleaseNASM|Win32.Build.0 = Release|Win32
-		{9A6F6359-5070-2DC7-5611-69EF874E8E06}.ReleaseNASM|x64.ActiveCfg = Release|Win32
-		{9A6F6359-5070-2DC7-5611-69EF874E8E06}.Template|Win32.ActiveCfg = Release|Win32
-		{9A6F6359-5070-2DC7-5611-69EF874E8E06}.Template|Win32.Build.0 = Release|Win32
-		{9A6F6359-5070-2DC7-5611-69EF874E8E06}.Template|x64.ActiveCfg = Release|Win32
+		{1C53F773-E63E-D8AA-0A07-3DFCE9D1BD10}.Debug Lib|Win32.ActiveCfg = Debug Library|Win32
+		{1C53F773-E63E-D8AA-0A07-3DFCE9D1BD10}.Debug Lib|Win32.Build.0 = Debug Library|Win32
+		{1C53F773-E63E-D8AA-0A07-3DFCE9D1BD10}.Debug Lib|x64.ActiveCfg = Debug Library|Win32
+		{1C53F773-E63E-D8AA-0A07-3DFCE9D1BD10}.Debug Library|Win32.ActiveCfg = Debug Library|Win32
+		{1C53F773-E63E-D8AA-0A07-3DFCE9D1BD10}.Debug Library|Win32.Build.0 = Debug Library|Win32
+		{1C53F773-E63E-D8AA-0A07-3DFCE9D1BD10}.Debug Library|x64.ActiveCfg = Debug Library|Win32
+		{1C53F773-E63E-D8AA-0A07-3DFCE9D1BD10}.Debug|Win32.ActiveCfg = Debug Library|Win32
+		{1C53F773-E63E-D8AA-0A07-3DFCE9D1BD10}.Debug|Win32.Build.0 = Debug Library|Win32
+		{1C53F773-E63E-D8AA-0A07-3DFCE9D1BD10}.Debug|x64.ActiveCfg = Debug|Win32
+		{1C53F773-E63E-D8AA-0A07-3DFCE9D1BD10}.Release Lib|Win32.ActiveCfg = Release Library|Win32
+		{1C53F773-E63E-D8AA-0A07-3DFCE9D1BD10}.Release Lib|Win32.Build.0 = Release Library|Win32
+		{1C53F773-E63E-D8AA-0A07-3DFCE9D1BD10}.Release Lib|x64.ActiveCfg = Release Library|Win32
+		{1C53F773-E63E-D8AA-0A07-3DFCE9D1BD10}.Release Library|Win32.ActiveCfg = Release Library|Win32
+		{1C53F773-E63E-D8AA-0A07-3DFCE9D1BD10}.Release Library|Win32.Build.0 = Release Library|Win32
+		{1C53F773-E63E-D8AA-0A07-3DFCE9D1BD10}.Release Library|x64.ActiveCfg = Release Library|Win32
+		{1C53F773-E63E-D8AA-0A07-3DFCE9D1BD10}.Release|Win32.ActiveCfg = Release Library|Win32
+		{1C53F773-E63E-D8AA-0A07-3DFCE9D1BD10}.Release|Win32.Build.0 = Release Library|Win32
+		{1C53F773-E63E-D8AA-0A07-3DFCE9D1BD10}.Release|x64.ActiveCfg = Release|Win32
+		{1C53F773-E63E-D8AA-0A07-3DFCE9D1BD10}.ReleaseNASM|Win32.ActiveCfg = Release|Win32
+		{1C53F773-E63E-D8AA-0A07-3DFCE9D1BD10}.ReleaseNASM|Win32.Build.0 = Release|Win32
+		{1C53F773-E63E-D8AA-0A07-3DFCE9D1BD10}.ReleaseNASM|x64.ActiveCfg = Release|Win32
+		{1C53F773-E63E-D8AA-0A07-3DFCE9D1BD10}.Template|Win32.ActiveCfg = Release|Win32
+		{1C53F773-E63E-D8AA-0A07-3DFCE9D1BD10}.Template|Win32.Build.0 = Release|Win32
+		{1C53F773-E63E-D8AA-0A07-3DFCE9D1BD10}.Template|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
