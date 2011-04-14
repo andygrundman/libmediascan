@@ -14,8 +14,6 @@
 MediaScanImage *image_create(void);
 void image_destroy(MediaScanImage *i);
 int image_read_header(MediaScanImage *i, MediaScanResult *r);
-void image_add_thumbnail(MediaScanImage *i, MediaScanImage *thumb);
-uint8_t *image_get_thumbnail(MediaScanImage *i, int index, int *length);
 int image_load(MediaScanImage *i, MediaScanThumbSpec *spec_hint);
 void image_alloc_pixbuf(MediaScanImage *i, int width, int height);
 void image_unload(MediaScanImage *i);

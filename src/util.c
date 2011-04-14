@@ -8,6 +8,7 @@
 #include "win32/include/win32config.h"
 #else
 #include <pthread.h>
+#include <sys/stat.h>
 #endif
 
 // If we are on MSVC, disable some stupid MSVC warnings
@@ -73,23 +74,36 @@ void EndCriticalSection(void *lp) {
 /// @date 04/09/2011
 ///
 /// @param [in,out] file File to hash
+/// @param [out] mtime Modification time of the file
+/// @param [out] size File size
 ///
-/// @return the file hash
+/// @return 32-bit file hash
 ///-------------------------------------------------------------------------------------------------
 
-uint32_t HashFile(const char *file) {
+uint32_t HashFile(const char *file, int *mtime, size_t *size) {
   uint32_t hash;
   char fileData[MAX_PATH];
 
+#ifndef WIN32
+  struct stat buf;
+#endif
+
+  *mtime = 0;
+  *size = 0;
+
+#ifdef WIN32
+  *mtime = _GetFileTime(file);
+  *size = _GetFileSize(file);
+#else
+  if (!stat(file, &buf)) {
+    *mtime = (int)buf.st_mtime;
+    *size = buf.st_size;
+  }
+#endif
+
   // Generate a hash of the full file path, modified time, and file size
-  hash = 0;
-  hash = hashlittle(file, strlen(file), hash);  // Add path to hash
-
-  _GetFileTime(file, fileData, MAX_PATH);
-  hash = hashlittle(fileData, strlen(fileData), hash);  // Add time to hash
-
-  _GetFileSize(file, fileData, MAX_PATH);
-  hash = hashlittle(fileData, strlen(fileData), hash);  // Add file size to hash
+  sprintf(fileData, "%s%d%ld", file, *mtime, *size);
+  hash = hashlittle(fileData, strlen(fileData), 0);
 
   return hash;
 }                               /* HashFile() */

@@ -43,20 +43,20 @@ void recurse_dir(MediaScan *s, const char *path) {
 
   if (path[0] != '/') {         // XXX Win32
     // Get full path
-    char *buf = (char *)malloc((size_t) PathMax);
+    char *buf = (char *)malloc((size_t)PathMax);
     if (buf == NULL) {
       FATAL("Out of memory for directory scan\n");
       return;
     }
 
-    dir = getcwd(buf, (size_t) PathMax);
+    dir = getcwd(buf, (size_t)PathMax);
     strcat(dir, "/");
     strcat(dir, path);
   }
   else {
 #ifdef USING_TCMALLOC
     // strdup will cause tcmalloc to crash on free
-    dir = (char *)malloc((size_t) PathMax);
+    dir = (char *)malloc((size_t)PathMax);
     strcpy(dir, path);
 #else
     dir = strdup(path);

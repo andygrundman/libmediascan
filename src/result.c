@@ -8,8 +8,6 @@
 #include "win32config.h"
 #endif
 
-#include <sys/stat.h>
-
 // If we are on MSVC, disable some stupid MSVC warnings
 #ifdef _MSC_VER
 #pragma warning( disable: 4996 )
@@ -166,43 +164,6 @@ static int ensure_opened_with_buf(MediaScanResult *r, int min_bytes) {
 }
 
 ///-------------------------------------------------------------------------------------------------
-///  Sets a file metadata.
-///
-/// @author Andy Grundman
-/// @date 03/24/2011
-///
-/// @param [in,out] r If non-null, the.
-///-------------------------------------------------------------------------------------------------
-
-static void set_file_metadata(MediaScanResult *r) {
-  int fd;
-  struct stat buf;
-
-  // XXX Win32 code needed?
-  //_GetFileTime(r->path, fileData, MAX_PATH);
-  //_GetFileSize(r->path, fileData, MAX_PATH);
-
-  if (r->_avf) {
-    // Use ffmpeg API because it already has the file open
-    AVFormatContext *avf = r->_avf;
-    URLContext *h = url_fileno(avf->pb);
-    fd = (intptr_t) h->priv_data;
-  }
-  else {
-    // Open the file if necessary
-    if (!ensure_opened(r))
-      return;
-
-    fd = fileno(r->_fp);
-  }
-
-  if (!fstat(fd, &buf)) {
-    r->size = buf.st_size;
-    r->mtime = (int)buf.st_mtime;
-  }
-}                               /* set_file_metadata() */
-
-///-------------------------------------------------------------------------------------------------
 ///  Scan a video file with libavformat
 ///
 /// @author Andy Grundman
@@ -340,7 +301,7 @@ static int scan_video(MediaScanResult *r) {
       for (x = 0; x < s->nthumbspecs; x++) {
         MediaScanImage *thumb = thumb_create_from_image(i, s->thumbspecs[x]);
         if (thumb)
-          video_add_thumbnail(v, thumb);
+          result_add_thumbnail(r, thumb);
       }
 
       image_destroy(i);
@@ -393,7 +354,7 @@ static int scan_image(MediaScanResult *r) {
     for (x = 0; x < s->nthumbspecs; x++) {
       MediaScanImage *thumb = thumb_create_from_image(i, s->thumbspecs[x]);
       if (thumb)
-        image_add_thumbnail(i, thumb);
+        result_add_thumbnail(r, thumb);
     }
   }
 
@@ -450,19 +411,10 @@ MediaScanResult *result_create(MediaScan *s) {
 ///-------------------------------------------------------------------------------------------------
 
 int result_scan(MediaScanResult *r) {
-  char fileData[MAX_PATH];
-
   if (!r->type || !r->path) {
     r->error = error_create("", MS_ERROR_TYPE_INVALID_PARAMS, "Invalid parameters passed to result_scan()");
     return FALSE;
   }
-
-  // General metadata (mtime/size)
-  set_file_metadata(r);
-
-  // Generate a hash of the full file path, modified time, and file size
-//  sprintf(fileData, "%s%d%lld", r->path, r->mtime, r->size);
-//  r->hash = hashlittle(fileData, strlen(fileData), 0);
 
   switch (r->type) {
     case TYPE_VIDEO:
@@ -490,6 +442,8 @@ int result_scan(MediaScanResult *r) {
 ///-------------------------------------------------------------------------------------------------
 
 void result_destroy(MediaScanResult *r) {
+  int i;
+
   if (r->error)
     error_destroy(r->error);
 
@@ -514,6 +468,10 @@ void result_destroy(MediaScanResult *r) {
     LOG_MEM("destroy result buffer @ %p\n", r->_buf);
     free(r->_buf);
   }
+
+  // free thumbnails
+  for (i = 0; i < r->nthumbnails; i++)
+    image_destroy(r->_thumbs[i]);
 
   LOG_MEM("destroy MediaScanResult @ %p\n", r);
   free(r);
@@ -546,27 +504,6 @@ void ms_dump_result(MediaScanResult *r) {
       LOG_OUTPUT("  Video:        %s\n", r->video->codec);
       LOG_OUTPUT("    Dimensions: %d x %d\n", r->video->width, r->video->height);
       LOG_OUTPUT("    Framerate:  %.2f\n", r->video->fps);
-      for (i = 0; i < r->video->nthumbnails; i++) {
-        MediaScanImage *thumb = r->video->thumbnails[i];
-        Buffer *dbuf = (Buffer *)thumb->_dbuf;
-        LOG_OUTPUT("    Thumbnail:  %d x %d %s (%d bytes)\n", thumb->width,
-                   thumb->height, thumb->codec, buffer_len(dbuf));
-
-#ifdef DUMP_THUMBNAILS
-        {
-          FILE *tfp;
-          char file[MAX_PATH];
-          if (!strcmp("JPEG", thumb->codec))
-            sprintf(file, "video-thumb%d.jpg", i);
-          else
-            sprintf(file, "video-thumb%d.png", i);
-          tfp = fopen(file, "wb");
-          fwrite(buffer_ptr(dbuf), 1, buffer_len(dbuf), tfp);
-          fclose(tfp);
-          LOG_OUTPUT("      Saved to: %s\n", file);
-        }
-#endif
-      }
       if (r->audio) {
         LOG_OUTPUT("  Audio:        %s\n", r->audio->codec);
         LOG_OUTPUT("    Bitrate:    %d bps\n", r->audio->bitrate);
@@ -580,27 +517,6 @@ void ms_dump_result(MediaScanResult *r) {
     case TYPE_IMAGE:
       LOG_OUTPUT("  Image:        %s\n", r->image->codec);
       LOG_OUTPUT("    Dimensions: %d x %d\n", r->image->width, r->image->height);
-      for (i = 0; i < r->image->nthumbnails; i++) {
-        MediaScanImage *thumb = r->image->thumbnails[i];
-        Buffer *dbuf = (Buffer *)thumb->_dbuf;
-        LOG_OUTPUT("    Thumbnail:  %d x %d %s (%d bytes)\n", thumb->width,
-                   thumb->height, thumb->codec, buffer_len(dbuf));
-
-#ifdef DUMP_THUMBNAILS
-        {
-          FILE *tfp;
-          char file[MAX_PATH];
-          if (!strcmp("JPEG", thumb->codec))
-            sprintf(file, "image-thumb%d.jpg", i);
-          else
-            sprintf(file, "image-thumb%d.png", i);
-          tfp = fopen(file, "wb");
-          fwrite(buffer_ptr(dbuf), 1, buffer_len(dbuf), tfp);
-          fclose(tfp);
-          LOG_OUTPUT("      Saved to: %s\n", file);
-        }
-#endif
-      }
       break;
 
     case TYPE_AUDIO:
@@ -613,6 +529,27 @@ void ms_dump_result(MediaScanResult *r) {
     default:
       LOG_OUTPUT("  Type: Unknown\n");
       break;
+  }
+
+  for (i = 0; i < r->nthumbnails; i++) {
+    MediaScanImage *thumb = r->_thumbs[i];
+    Buffer *dbuf = (Buffer *)thumb->_dbuf;
+    LOG_OUTPUT("    Thumbnail:  %d x %d %s (%d bytes)\n", thumb->width, thumb->height, thumb->codec, buffer_len(dbuf));
+
+#ifdef DUMP_THUMBNAILS
+    {
+      FILE *tfp;
+      char file[MAX_PATH];
+      if (!strcmp("JPEG", thumb->codec))
+        sprintf(file, "thumb%d.jpg", i);
+      else
+        sprintf(file, "thumb%d.png", i);
+      tfp = fopen(file, "wb");
+      fwrite(buffer_ptr(dbuf), 1, buffer_len(dbuf), tfp);
+      fclose(tfp);
+      LOG_OUTPUT("      Saved to: %s\n", file);
+    }
+#endif
   }
 }                               /* ms_dump_result() */
 

@@ -100,7 +100,7 @@ typedef void *iconv_t;
 
 iconv_t iconv_open(const char *tocode, const char *fromcode);
 int iconv_close(iconv_t cd);
-size_t iconv(iconv_t cd, const char **inbuf, size_t * inbytesleft, char **outbuf, size_t * outbytesleft);
+size_t iconv(iconv_t cd, const char **inbuf, size_t *inbytesleft, char **outbuf, size_t *outbytesleft);
 
 /* libiconv interface for vim */
 #if defined(MAKE_DLL)
@@ -116,7 +116,7 @@ typedef struct rec_iconv_t rec_iconv_t;
 
 typedef iconv_t(*f_iconv_open) (const char *tocode, const char *fromcode);
 typedef int (*f_iconv_close) (iconv_t cd);
-typedef size_t(*f_iconv) (iconv_t cd, const char **inbuf, size_t * inbytesleft, char **outbuf, size_t * outbytesleft);
+typedef size_t (*f_iconv) (iconv_t cd, const char **inbuf, size_t *inbytesleft, char **outbuf, size_t *outbytesleft);
 typedef int *(*f_errno) (void);
 typedef int (*f_mbtowc) (csconv_t * cv, const uchar * buf, int bufsize, ushort * wbuf, int *wbufsize);
 typedef int (*f_wctomb) (csconv_t * cv, ushort * wbuf, int wbufsize, uchar * buf, int bufsize);
@@ -158,7 +158,7 @@ struct rec_iconv_t {
 
 static int win_iconv_open(rec_iconv_t * cd, const char *tocode, const char *fromcode);
 static int win_iconv_close(iconv_t cd);
-static size_t win_iconv(iconv_t cd, const char **inbuf, size_t * inbytesleft, char **outbuf, size_t * outbytesleft);
+static size_t win_iconv(iconv_t cd, const char **inbuf, size_t *inbytesleft, char **outbuf, size_t *outbytesleft);
 
 static int load_mlang();
 static csconv_t make_csconv(const char *name);
@@ -851,7 +851,7 @@ int iconv_close(iconv_t _cd) {
   return r;
 }
 
-size_t iconv(iconv_t _cd, const char **inbuf, size_t * inbytesleft, char **outbuf, size_t * outbytesleft) {
+size_t iconv(iconv_t _cd, const char **inbuf, size_t *inbytesleft, char **outbuf, size_t *outbytesleft) {
   rec_iconv_t *cd = (rec_iconv_t *) _cd;
   size_t r = cd->iconv(cd->cd, inbuf, inbytesleft, outbuf, outbytesleft);
   errno = *(cd->_errno());
@@ -874,7 +874,7 @@ static int win_iconv_close(iconv_t cd) {
   return 0;
 }
 
-static size_t win_iconv(iconv_t _cd, const char **inbuf, size_t * inbytesleft, char **outbuf, size_t * outbytesleft) {
+static size_t win_iconv(iconv_t _cd, const char **inbuf, size_t *inbytesleft, char **outbuf, size_t *outbytesleft) {
   rec_iconv_t *cd = (rec_iconv_t *) _cd;
   ushort wbuf[MB_CHAR_MAX];     /* enough room for one character */
   int insize;
@@ -889,7 +889,7 @@ static size_t win_iconv(iconv_t _cd, const char **inbuf, size_t * inbytesleft, c
     if (outbuf != NULL && *outbuf != NULL && cd->to.flush != NULL) {
       outsize = cd->to.flush(&cd->to, (uchar *) * outbuf, *outbytesleft);
       if (outsize == -1)
-        return (size_t) (-1);
+        return (size_t)(-1);
       *outbuf += outsize;
       *outbytesleft -= outsize;
     }
@@ -907,7 +907,7 @@ static size_t win_iconv(iconv_t _cd, const char **inbuf, size_t * inbytesleft, c
 
     insize = cd->from.mbtowc(&cd->from, (const uchar *)*inbuf, *inbytesleft, wbuf, &wsize);
     if (insize == -1)
-      return (size_t) (-1);
+      return (size_t)(-1);
 
     if (is_unicode(cd->from.codepage)
         && !(cd->from.mode & UNICODE_MODE_BOM_DONE)) {
@@ -946,7 +946,7 @@ static size_t win_iconv(iconv_t _cd, const char **inbuf, size_t * inbytesleft, c
     outsize = cd->to.wctomb(&cd->to, wbuf, wsize, (uchar *) * outbuf, *outbytesleft);
     if (outsize == -1) {
       cd->from.mode = mode;
-      return (size_t) (-1);
+      return (size_t)(-1);
     }
 
     *inbuf += insize;
@@ -1866,7 +1866,7 @@ int main(int argc, char **argv) {
     outbytesleft = sizeof(outbuf);
     r = iconv(cd, &pin, &inbytesleft, &pout, &outbytesleft);
     fwrite(outbuf, 1, sizeof(outbuf) - outbytesleft, stdout);
-    if (r == (size_t) (-1) && errno != EINVAL && errno != E2BIG) {
+    if (r == (size_t)(-1) && errno != EINVAL && errno != E2BIG) {
       perror("conversion error");
       return 1;
     }
@@ -1877,7 +1877,7 @@ int main(int argc, char **argv) {
   outbytesleft = sizeof(outbuf);
   r = iconv(cd, NULL, NULL, &pout, &outbytesleft);
   fwrite(outbuf, 1, sizeof(outbuf) - outbytesleft, stdout);
-  if (r == (size_t) (-1)) {
+  if (r == (size_t)(-1)) {
     perror("conversion error");
     return 1;
   }

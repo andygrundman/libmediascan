@@ -68,19 +68,28 @@ int _should_scan(MediaScan *s, const char *path);
 bool is_absolute_path(const char *path);
 
 ///-------------------------------------------------------------------------------------------------
-///  Recursively walk a directory struction using Win32 style directory commands
+/// Recursively walk a directory struction.
 ///
 /// @author Henry Bennett
 /// @date 03/15/2011
 ///
-/// @param [in,out] s    If non-null, the.
-/// @param path        Full pathname of the file.
-/// @param [in,out] curdir If non-null, the curdir.
-///
-/// ### remarks .
+/// @param [in,out] s Scan instance.
+/// @param path Full pathname of the directory.
 ///-------------------------------------------------------------------------------------------------
 
 void recurse_dir(MediaScan *s, const char *path);
+
+///-------------------------------------------------------------------------------------------------
+/// Add a thumbnail to the internal list of result thumbnails. Up to MAX_THUMBS (8) can be added.
+///
+/// @author Andy Grundman
+/// @date 04/13/2001
+///
+/// @param r Result instance.
+/// @param thumb Image instance containing generated thumbnail.
+///-------------------------------------------------------------------------------------------------
+
+void result_add_thumbnail(MediaScanResult *r, MediaScanImage *thumb);
 
 #ifdef WIN32
 
@@ -106,6 +115,6 @@ DWORD WINAPI WatchDirectory(LPVOID inData);
 
 void RefreshDirectory(MediaScan *s, LPTSTR lpDir);
 
-#endif
+#endif // WIN32
 
-#endif
+#endif // MEDIASCAN_H

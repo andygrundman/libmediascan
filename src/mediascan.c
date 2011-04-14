@@ -35,13 +35,12 @@
 
 
 #include "common.h"
+#include "buffer.h"
 #include "queue.h"
 #include "progress.h"
 #include "result.h"
 #include "error.h"
 #include "mediascan.h"
-#include "image.h"
-#include "video.h"
 #include "util.h"
 
 // If we are on MSVC, disable some stupid MSVC warnings
@@ -905,6 +904,8 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type) {
   MediaScanResult *r = NULL;
   int ret;
   uint32_t hash;
+  int mtime;
+  size_t size;
   DBT key;
 
   if (s == NULL) {
@@ -922,13 +923,12 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type) {
   LOG_INFO("Scanning file %s\n", full_path);
 
   // Check if the file has been recently scanned
-  hash = HashFile(full_path);
+  hash = HashFile(full_path, &mtime, &size);
 
   // Zero out the DBTs before using them.
   memset(&key, 0, sizeof(DBT));
   key.data = &hash;
   key.size = sizeof(uint32_t);
-
 
   if (s->dbp->exists(s->dbp, NULL, &key, 0) != DB_NOTFOUND) {
     LOG_INFO("File hash %X already scanned\n", hash);
@@ -959,8 +959,10 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type) {
   if (result_scan(r)) {
     DBT key, data;
 
-    r->hash = HashFile(full_path);
-
+    // These were determined by HashFile
+    r->mtime = mtime;
+    r->size = size;
+    r->hash = hash;
 
     // Zero out the DBTs before using them.
     memset(&key, 0, sizeof(DBT));
@@ -969,7 +971,7 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type) {
     key.data = &r->hash;
     key.size = sizeof(uint32_t);
 
-    data.data = full_path;
+    data.data = (char *)full_path;
     data.size = strlen(full_path) + 1;
 
     ret = s->dbp->put(s->dbp, NULL, &key, &data, DB_NOOVERWRITE);
@@ -1017,23 +1019,21 @@ bool is_absolute_path(const char *path) {
   return FALSE;
 }                               /* is_absolute_path() */
 
+void result_add_thumbnail(MediaScanResult *r, MediaScanImage *thumb) {
+  if (r->nthumbnails < MAX_THUMBS)
+    r->_thumbs[r->nthumbnails++] = thumb;
+}
+
 const uint8_t *ms_result_get_thumbnail(MediaScanResult *r, int index, int *length) {
   uint8_t *ret = NULL;
   *length = 0;
 
   // XXX refactor, thumbnails should be stored in result
-  switch (r->type) {
-    case TYPE_VIDEO:
-      ret = video_get_thumbnail(r->video, index, length);
-      break;
-
-    case TYPE_IMAGE:
-      ret = image_get_thumbnail(r->image, index, length);
-      break;
-
-    case TYPE_AUDIO:
-      // XXX
-      break;
+  if (r->nthumbnails >= index) {
+    MediaScanImage *thumb = r->_thumbs[index];
+    Buffer *buf = (Buffer *)thumb->_dbuf;
+    *length = buffer_len(buf);
+    ret = (uint8_t *)buffer_ptr(buf);
   }
 
   return (const uint8_t *)ret;
