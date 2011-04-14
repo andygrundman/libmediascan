@@ -86,14 +86,20 @@ uint32_t HashFile(const char *file, int *mtime, size_t *size) {
 
 #ifndef WIN32
   struct stat buf;
+#else
+	BOOL fOk;
+  WIN32_FILE_ATTRIBUTE_DATA fileInfo;
+  DWORD dwRet;
 #endif
 
   *mtime = 0;
   *size = 0;
 
 #ifdef WIN32
-  *mtime = _GetFileTime(file);
-  *size = _GetFileSize(file);
+  fOk = GetFileAttributesEx(file, GetFileExInfoStandard, (void *)&fileInfo);
+
+  *mtime = fileInfo.ftLastWriteTime.dwLowDateTime;
+  *size = fileInfo.nFileSizeLow;
 #else
   if (!stat(file, &buf)) {
     *mtime = (int)buf.st_mtime;
