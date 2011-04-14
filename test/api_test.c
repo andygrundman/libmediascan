@@ -55,6 +55,50 @@ static void my_progress_callback(MediaScan *s, MediaScanProgress *progress, void
   }
 } /* my_progress_callback() */
 
+static void my_result_callback2(MediaScan *s, MediaScanResult *result, void *userdata) {
+  ms_dump_result(result);
+}
+
+void check_mimetypes() {
+	long start_count = 0,
+		end_count = 0;
+	#ifndef WIN32
+  char *bin = NULL;
+#endif
+
+  char *dir = NULL;
+  MediaScan *s = NULL;
+
+	start_count = GetTickCount();
+
+#ifdef WIN32
+//  dir = _abspath(bin, "data\\video\\dlna"); // because binary is in .libs dir
+  dir = strdup("G:\\Movies");
+#else
+  // Get path to this binary
+  bin = _findbin(argv[0]);
+  dir = _abspath(bin, "../data/video/dlna"); // because binary is in .libs dir
+#endif
+  
+  s = ms_create();
+  ms_add_path(s, dir);
+  ms_set_result_callback(s, my_result_callback2);
+  ms_set_error_callback(s, my_error_callback);
+  ms_scan(s);    
+  ms_destroy(s);
+  
+  free(dir);
+
+#ifndef WIN32
+  free(bin);
+#endif
+
+	end_count = GetTickCount();
+
+	printf("------------------------------------------------------\nTotal MS %d\n", end_count - start_count);
+
+}
+
 ///-------------------------------------------------------------------------------------------------
 ///  Main entry-point for this application.
 ///
@@ -131,7 +175,11 @@ int main(int argc, char *argv[])
   */
  
   //ms_set_log_level(ERR);
-  run_unit_tests();
+  //run_unit_tests();
+  // 
+  check_mimetypes();
+
+
 
   return exit_status();
 } /* main() */

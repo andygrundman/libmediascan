@@ -27,8 +27,6 @@
 
 #ifdef _MSC_VER
 
-
-
 int strcasecmp(const char *string1, const char *string2 )
 {
 	return _stricmp(string1, string2);
@@ -345,6 +343,48 @@ static void test_DLNA_files(char *file, ExpectedResultType *expected)
 
     ms_destroy(s);
 } /* test_DLNA_files() */
+
+static void test_DLNA_audio_files(char *file, ExpectedResultType *expected)
+{
+	MediaScan *s = NULL;
+	char full_file[MAX_PATH];
+	
+	#ifdef WIN32
+	strcpy(full_file, "data\\audio\\dlna_individual\\");
+	#else
+	strcpy(full_file, "data/audio/dlna_individual/");
+	#endif
+	strcat(full_file, file);
+
+	s = ms_create();
+    ms_set_result_callback(s, my_result_callback2);
+    ms_set_error_callback(s, my_error_callback);
+    
+	// Scan the file
+	result_called = FALSE;
+	memset( &result, 0, sizeof(MediaScanResult));
+	ms_scan_file(s, full_file, TYPE_UNKNOWN);
+
+	// Check the result
+	ok(result_called == TRUE, "%s scanned", file);
+
+	// Video part of the check
+	ok(result.type == expected->type, "type is audio ok");
+	is(result.mime_type, expected->mime_type, "MIME type %s", expected->mime_type);
+  is(result.dlna_profile, expected->dlna_profile, "DLNA profile ok");
+
+	if(result.audio != NULL) {
+	// Audio part of the check
+	is(result.audio->codec, expected->audio_codec, "audio codec %s ok", expected->audio_codec);
+	ok(result.audio->bitrate == expected->audio_bitrate, "audio bitrate %d ok", expected->audio_bitrate);
+	ok(result.audio->samplerate == expected->audio_samplerate, "audio samplerate %d ok", expected->audio_samplerate);
+	ok(result.audio->channels == expected->audio_channels, "audio channels %d ok", expected->audio_channels);
+	}
+
+	printf("------------------------------------------------------\n");
+
+    ms_destroy(s);
+} /* test_DLNA_audio_files() */
 
 void test_MPEG_PS_NTSC()
 {
@@ -2546,6 +2586,28 @@ void test_MPEG_TS_SD_KO_ISO()
 	test_DLNA_files("O-MP2TS_SK_I-13a.mpg", &expected);
 } /* test_MPEG_TS_SD_KO_ISO() */
 
+void test_DLNA_mp3s()
+{
+	ExpectedResultType expected;
+
+	memset( &expected, 0, sizeof(MediaScanResult) );
+	expected.type = TYPE_AUDIO;
+	strcpy(expected.mime_type, "video/mpeg");
+	strcpy(expected.dlna_profile, "MPEG_TS_SD_KO_ISO");
+
+	//expected.video_width = 704;
+	//expected.video_height = 480; 
+	//strcpy(expected.video_fps, "24");
+
+	// Audio part of the check
+	strcpy(expected.audio_codec, "aac");
+	expected.audio_bitrate = 96000;
+	expected.audio_samplerate = 44100;
+	expected.audio_channels = 2;
+  
+	test_DLNA_audio_files("O-AAC_ADTS_320-stereo-44.1kHz-96k.adts", &expected);
+}
+
 void test_DLNA_scanning(char *argv[])
 {
 #ifndef WIN32
@@ -2586,7 +2648,7 @@ main(int argc, char *argv[])
   ExpectedResultType expected;
 
   plan(TEST_COUNT);
-    
+  /*  
   test_DLNA_scanning(argv);
 
 // Test US profiles
@@ -2612,9 +2674,11 @@ main(int argc, char *argv[])
 // Test MPEG
   test_MPEG_PS_PAL();
   test_MPEG_PS_NTSC();
-
-
+	
   test_DLNA_large_files();
+	*/
+// Test MP3
+	test_DLNA_mp3s();
   
   return exit_status();
 } /* main() */
