@@ -167,7 +167,7 @@ void thread_signal(int spipe[2]) {
   DWORD dummy;
 
   LOG_DEBUG("thread_signal -> %d\n", spipe[1]);
-  WriteFile(S_TO_HANDLE(spipe[1]), (LPCVOID) & dummy, 1, &dummy, 0);
+  WriteFile(S_TO_HANDLE(spipe[1]), (LPCVOID)&dummy, 1, &dummy, 0);
 #endif
 }
 
