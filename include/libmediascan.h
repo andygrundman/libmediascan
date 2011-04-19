@@ -407,13 +407,21 @@ void ms_async_process(MediaScan *s);
 void ms_dump_result(MediaScanResult *r);
 
 /**
+ * Get thumbnail for a given result.
+ * @param r MediaScanResult instance.
+ * @param index 0-based index of the thumbnail to return. Check r->nthumbnails for the total number.
+ * @return A MediaScanImage instance for the thumbnail.
+ */
+MediaScanImage *ms_result_get_thumbnail(MediaScanResult *r, int index);
+
+/**
  * Get thumbnail data for a given result.
  * @param r MediaScanResult instance.
  * @param index 0-based index of the thumbnail to return. Check r->nthumbnails for the total number.
  * @param *length (OUT) Returns the length of the thumbnail data.
  * @return A pointer to the raw JPEG or PNG thumbnail data.
  */
-const uint8_t *ms_result_get_thumbnail(MediaScanResult *r, int index, int *length);
+const uint8_t *ms_result_get_thumbnail_data(MediaScanResult *r, int index, uint32_t *length);
 
 ///-------------------------------------------------------------------------------------------------
 ///  Watch a directory in the background.

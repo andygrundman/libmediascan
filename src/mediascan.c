@@ -1136,11 +1136,20 @@ void result_add_thumbnail(MediaScanResult *r, MediaScanImage *thumb) {
     r->_thumbs[r->nthumbnails++] = thumb;
 }
 
-const uint8_t *ms_result_get_thumbnail(MediaScanResult *r, int index, int *length) {
+MediaScanImage *ms_result_get_thumbnail(MediaScanResult *r, int index) {
+  MediaScanImage *thumb = NULL;
+
+  if (r->nthumbnails >= index) {
+    thumb = r->_thumbs[index];
+  }
+
+  return thumb;
+}
+
+const uint8_t *ms_result_get_thumbnail_data(MediaScanResult *r, int index, uint32_t *length) {
   uint8_t *ret = NULL;
   *length = 0;
 
-  // XXX refactor, thumbnails should be stored in result
   if (r->nthumbnails >= index) {
     MediaScanImage *thumb = r->_thumbs[index];
     Buffer *buf = (Buffer *)thumb->_dbuf;

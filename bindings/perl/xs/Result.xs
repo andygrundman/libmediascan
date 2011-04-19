@@ -87,16 +87,20 @@ CODE:
 {
   int i;
   RETVAL = newAV();
-  
-  // XXX refactor, return hashes
 
   for (i = 0; i < r->nthumbnails; i++) {
-    int len;
-    const uint8_t *data = ms_result_get_thumbnail(r, i, &len);
+    MediaScanImage *thumb = ms_result_get_thumbnail(r, i);
+    uint32_t len;
+    const uint8_t *data = ms_result_get_thumbnail_data(r, i, &len);
     if (len) {
-      SV *thumb = newSVpvn(data, len); // XXX is there a way to just use the original pointer and avoid Perl copying data?
-      //SvREADONLY_on(thumb); // Enable this if we can use the original pointer
-      av_push(RETVAL, thumb);
+      HV *thumbhv = newHV();
+
+      my_hv_store(thumbhv, "codec", newSVpv(thumb->codec, 0));
+      my_hv_store(thumbhv, "width", newSVuv(thumb->width));
+      my_hv_store(thumbhv, "height", newSVuv(thumb->height));
+      my_hv_store(thumbhv, "data", newSVpvn(data, len));
+
+      av_push(RETVAL, newRV_noinc((SV *)thumbhv));
     }
   }
 }

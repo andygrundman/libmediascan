@@ -14,20 +14,23 @@ my $c = 1;
 
     #my $s = Media::Scan->new( [ _f('video') ], {
     my $s = Media::Scan->new( [ '/Users/andy/Music/Slim/DLNATestContent' ], {
-        loglevel => 5,
+        loglevel => 0,
         ignore => [],
         async => 1,
         thumbnails => [
             { width => 200 },
         ],
         on_result => sub {
-          my $r = shift;
-          #warn "Result: " . dump($r->as_hash) . "\n";
-          open my $fh, '>', 'thumb' . $c . '.jpg';
-          print $fh $r->thumbnails->[0];
-          close $fh;
-          warn "Wrote thumb${c}.jpg\n";
-          $c++;
+            my $r = shift;
+            #warn "Result: " . dump($r->as_hash) . "\n";
+            for my $thumb ( @{ $r->thumbnails } ) {
+                my $ext = $thumb->{codec} eq 'JPEG' ? 'jpg' : 'png';
+                warn "Wrote " . $thumb->{width} . "x" . $thumb->{height} . " thumb${c}.${ext}\n";
+                open my $fh, '>', 'thumb' . $c . ".${ext}";
+                print $fh $thumb->{data};
+                close $fh;
+                $c++;
+            }
         },
         on_error => sub {
           my $e = shift;
@@ -35,7 +38,7 @@ my $c = 1;
         },
         on_progress => sub {
           my $p = shift;
-          warn "Progress: " . dump($p->as_hash);
+          warn "Progress: " . $p->done . " / " . $p->total . ' (' . $p->cur_item . ") ETA " . $p->eta . "\n";
         },
         on_finish => sub {
             warn "Finished\n";
