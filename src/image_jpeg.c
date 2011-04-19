@@ -514,11 +514,11 @@ void image_jpeg_compress(MediaScanImage *i, MediaScanThumbSpec *spec) {
   jpeg_start_compress(&cinfo, TRUE);
 
 #ifdef JCS_EXTENSIONS
-  data = (JSAMPROW *) malloc(i->height);
+  data = (JSAMPROW *)malloc(i->height * sizeof(JSAMPROW));
   LOG_MEM("new JPEG data row @ %p\n", data);
 
   for (x = 0; x < i->height; x++)
-    data[x] = (JSAMPROW) & i->_pixbuf[x * i->width];
+    data[x] = (JSAMPROW)&i->_pixbuf[x * i->width];
 
   while (cinfo.next_scanline < cinfo.image_height) {
     jpeg_write_scanlines(&cinfo, &data[cinfo.next_scanline], cinfo.image_height - cinfo.next_scanline);

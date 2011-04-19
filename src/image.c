@@ -29,12 +29,12 @@ MediaScanImage *image_create(void) {
   LOG_MEM("new MediaScanImage @ %p\n", i);
 
   i->orientation = ORIENTATION_NORMAL;
-	
-	i->_bmp = NULL;
-	i->_png = NULL;
-	i->_jpeg = NULL;
-	i->_pixbuf = NULL;
-	i->_dbuf = NULL;
+
+  i->_bmp = NULL;
+  i->_png = NULL;
+  i->_jpeg = NULL;
+  i->_pixbuf = NULL;
+  i->_dbuf = NULL;
 
   return i;
 }

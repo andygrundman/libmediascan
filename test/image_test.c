@@ -37,12 +37,12 @@ int main(int argc, char *argv[])
   char *dir;
 
   plan(TEST_COUNT);  
-  ms_set_log_level(MEMORY);
+  ms_set_log_level(INFO);
 
   // Get path to this binary
   bin = _findbin(argv[0]);
   //dir = _abspath(bin, "../data"); // because binary is in .libs dir
-  dir = "/Users/andy/QA/DHGMedia";
+  dir = "/Users/andy/QA/DLNATestContent";
 
   // Scan all image files
   {
@@ -50,8 +50,6 @@ int main(int argc, char *argv[])
     ms_add_path(s, dir);    
     ms_add_ignore_extension(s, "AUDIO");
     ms_add_ignore_extension(s, "VIDEO");
-    ms_add_ignore_extension(s, "jpg");
-    ms_add_ignore_extension(s, "png");
     ms_add_thumbnail_spec(s, THUMB_AUTO, 300, 0, 1, 0, 0);
     ms_set_result_callback(s, my_result_callback);
     ms_set_error_callback(s, my_error_callback);

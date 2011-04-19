@@ -438,10 +438,10 @@ static int scan_image(MediaScanResult *r) {
     goto out;
   }
 
-	// Guess a mime type based on the file extension
-	if(!r->mime_type) {
-		r->mime_type = find_mime_type(r->path);
-	}
+  // Guess a mime type based on the file extension
+  if (!r->mime_type) {
+    r->mime_type = find_mime_type(r->path);
+  }
 
   // Save original image dimensions as thumbnail creation may alter it (e.g. for JPEG scaling)
   w = i->width;
