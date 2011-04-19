@@ -5,12 +5,6 @@
 
 int match_file_extension(const char *filename, const char *extensions);
 
-
-void InitCriticalSection(void *lp);
-void CleanupCriticalSection(void *lp);
-void StartCriticalSection(void *lp);
-void EndCriticalSection(void *lp);
-
 #ifdef WIN32
 int _GetFileSize(const char *fileName, char *lpszString, long dwSize);
 int _GetFileTime(const char *fileName, char *lpszString, long dwSize);
@@ -23,6 +17,6 @@ void hex_dump(void *data, int size);
 
 
 // In LIBDLNA profiles.c
-int match_file_extension (const char *filename, const char *extensions);
+int match_file_extension(const char *filename, const char *extensions);
 
 #endif

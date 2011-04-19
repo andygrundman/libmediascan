@@ -135,6 +135,29 @@ _on_progress(MediaScan *s, MediaScanProgress *progress, void *userdata)
   }
 }
 
+static void
+_on_finish(MediaScan *s, void *userdata)
+{
+  HV *selfh = (HV *)userdata;
+  SV *callback = NULL;
+
+  if (!my_hv_exists(selfh, "on_finish"))
+    return;
+
+  callback = *(my_hv_fetch(selfh, "on_finish"));
+
+  {
+    dSP;
+    call_sv(callback, G_VOID | G_DISCARD | G_EVAL);
+
+    SPAGAIN;
+    if (SvTRUE(ERRSV)) {
+      warn("Error in on_finish callback (ignored): %s", SvPV_nolen(ERRSV));
+      POPs;
+    }
+  }
+}
+
 MODULE = Media::Scan		PACKAGE = Media::Scan		
 
 void
@@ -249,16 +272,34 @@ CODE:
   ms_set_result_callback(s, _on_result);
   ms_set_error_callback(s, _on_error);
   ms_set_progress_callback(s, _on_progress);
+  ms_set_finish_callback(s, _on_finish);
   
   ms_set_userdata(s, (void *)selfh);
   
   ms_scan(s);
 }
 
+int
+async_fd(MediaScan *s)
+CODE:
+{
+  RETVAL = ms_async_fd(s);
+}
+OUTPUT:
+  RETVAL
+
+void
+async_process(MediaScan *s)
+CODE:
+{
+  ms_async_process(s);
+}
+
 void
 DESTROY(MediaScan *s)
 CODE:
 {
+  warn("Perl DESTROY\n");
   ms_destroy(s);
 }
 

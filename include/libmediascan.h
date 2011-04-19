@@ -16,10 +16,7 @@
 #ifdef WIN32
 #include <Windows.h>
 #include <wchar.h>
-#endif
-
-
-#ifdef __GNUC__
+#else
 #include <pthread.h>
 #endif
 
@@ -62,6 +59,13 @@ enum exif_orientation {
   ORIENTATION_270_CCW
 };
 
+enum event_type {
+  EVENT_TYPE_RESULT = 1,
+  EVENT_TYPE_PROGRESS,
+  EVENT_TYPE_ERROR,
+  EVENT_TYPE_FINISH
+};
+
 enum log_level {
   ERR = 1,
   WARN = 2,
@@ -69,6 +73,23 @@ enum log_level {
   DEBUG = 4,
   MEMORY = 9
 };
+
+struct _Thread {
+  int respipe[2];               // pipe for worker thread to signal mail thread
+  int reqpipe[2];               // pipe for main thread to signal worker thread
+  void *event_queue;            // TAILQ for events
+
+#ifndef WIN32
+  pthread_t tid;
+  pthread_mutex_t mutex;
+#else
+  DWORD dwThreadId;
+  HANDLE ghSignalEvent;
+  HANDLE hThread;
+  CRITICAL_SECTION CriticalSection;
+#endif
+};
+typedef struct _Thread MediaScanThread;
 
 struct _Tag {
   const char *type;
@@ -136,14 +157,14 @@ typedef struct _Video MediaScanVideo;
 struct _Error {
   enum media_error error_code;
   int averror;                  ///< Optional error code from ffmpeg
-  const char *path;
-  const char *error_string;
+  char *path;
+  char *error_string;
 };
 typedef struct _Error MediaScanError;
 
 struct _Result {
   enum media_type type;
-  const char *path;
+  char *path;
   enum scan_flags flags;
   MediaScanError *error;
 
@@ -174,7 +195,7 @@ typedef struct _Result MediaScanResult;
 
 struct _Progress {
   char *phase;                  ///< Discovering, Scanning, etc
-  const char *cur_item;         ///< most recently scanned item, NULL on last callback when done
+  char *cur_item;               ///< most recently scanned item, NULL on last callback when done
   int interval;
   int total;
   int done;
@@ -182,6 +203,7 @@ struct _Progress {
   int rate;                     ///< rate in items/second
 
   // private
+  int _is_copy;
   long _start_ts;
   long _last_update_ts;
 };
@@ -210,13 +232,14 @@ struct _Scan {
   int nthumbspecs;
   MediaScanThumbSpec *thumbspecs[MAX_THUMBS];
   int async;
-  int async_fd;
 
   MediaScanProgress *progress;
+  MediaScanThread *thread;
 
   void (*on_result) (struct _Scan *, MediaScanResult *, void *);
   void (*on_error) (struct _Scan *, MediaScanError *, void *);
   void (*on_progress) (struct _Scan *, MediaScanProgress *, void *);
+  void (*on_finish) (struct _Scan *, void *);
   void (*on_background) (struct _Scan *, MediaScanResult *, void *);
   void *userdata;
 
@@ -225,16 +248,6 @@ struct _Scan {
   // private
   void *_dirq;                  // simple queue of all directories found
   void *_dlna;                  // libdlna instance
-
-  // win32 background scanning threads
-#ifdef WIN32
-  DWORD dwThreadId;
-  HANDLE ghSignalEvent;
-  HANDLE hThread;
-  CRITICAL_SECTION CriticalSection;
-#else
-  pthread_mutex_t CriticalSection;
-#endif
 };
 
 typedef struct _Scan MediaScan;
@@ -242,6 +255,7 @@ typedef struct _Scan MediaScan;
 typedef void (*ResultCallback) (MediaScan *, MediaScanResult *, void *);
 typedef void (*ErrorCallback) (MediaScan *, MediaScanError *, void *);
 typedef void (*ProgressCallback) (MediaScan *, MediaScanProgress *, void *);
+typedef void (*FinishCallback) (MediaScan *, void *);
 typedef void (*FolderChangeCallback) (MediaScan *, MediaScanResult *, void *);
 
 ///< libmediascan's errno
@@ -334,8 +348,9 @@ void ms_set_result_callback(MediaScan *s, ResultCallback callback);
 void ms_set_error_callback(MediaScan *s, ErrorCallback callback);
 
 /**
- * Set a callback that will be called during the scan with progress details.
- * This callback is optional.
+ * Set a callback that will be called at regular intervals during the scan
+ * with progress details. This callback is optional. See ms_set_progress_interval
+ * to adjust the callback interval.
  */
 void ms_set_progress_callback(MediaScan *s, ProgressCallback callback);
 
@@ -344,6 +359,12 @@ void ms_set_progress_callback(MediaScan *s, ProgressCallback callback);
  * called more often than this value. This interval defaults to 1 second.
  */
 void ms_set_progress_interval(MediaScan *s, int seconds);
+
+/**
+ * Set a callback that will be called when the scanning has finished.
+ * This callback is optional.
+ */
+void ms_set_finish_callback(MediaScan *s, FinishCallback callback);
 
 /**
  * Set an optional user pointer to be passed to all callbacks.
@@ -386,13 +407,21 @@ void ms_async_process(MediaScan *s);
 void ms_dump_result(MediaScanResult *r);
 
 /**
+ * Get thumbnail for a given result.
+ * @param r MediaScanResult instance.
+ * @param index 0-based index of the thumbnail to return. Check r->nthumbnails for the total number.
+ * @return A MediaScanImage instance for the thumbnail.
+ */
+MediaScanImage *ms_result_get_thumbnail(MediaScanResult *r, int index);
+
+/**
  * Get thumbnail data for a given result.
  * @param r MediaScanResult instance.
  * @param index 0-based index of the thumbnail to return. Check r->nthumbnails for the total number.
  * @param *length (OUT) Returns the length of the thumbnail data.
  * @return A pointer to the raw JPEG or PNG thumbnail data.
  */
-const uint8_t *ms_result_get_thumbnail(MediaScanResult *r, int index, int *length);
+const uint8_t *ms_result_get_thumbnail_data(MediaScanResult *r, int index, uint32_t *length);
 
 ///-------------------------------------------------------------------------------------------------
 ///  Watch a directory in the background.

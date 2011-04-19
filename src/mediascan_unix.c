@@ -135,7 +135,7 @@ void recurse_dir(MediaScan *s, const char *path) {
   // Send progress update
   if (s->on_progress)
     if (progress_update(s->progress, dir))
-      s->on_progress(s, s->progress, s->userdata);
+      send_progress(s);
 
   // process subdirs
   while (!SIMPLEQ_EMPTY(subdirq)) {
@@ -146,7 +146,6 @@ void recurse_dir(MediaScan *s, const char *path) {
   }
 
   free(subdirq);
-  //free(tmp_full_path);
 
 out:
   free(dir);

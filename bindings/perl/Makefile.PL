@@ -5,10 +5,11 @@ use File::Spec::Functions;
 use Getopt::Long;
 
 my (@INC, @LIBPATH, @LIBS);
-my ($FFMPEG, $LMS, $EXIF, $JPEG, $PNG, $GIF, $MYEXTLIB);
+my ($FFMPEG, $LMS, $EXIF, $JPEG, $PNG, $GIF, $BDB, $MYEXTLIB);
 
 my ($help, $ffmpeg_inc, $ffmpeg_lib, $lms_inc, $lms_lib, $exif_inc, $exif_lib);
 my ($jpeg_inc, $jpeg_lib, $png_inc, $png_lib, $gif_inc, $gif_lib, $gif_lib_name);
+my ($bdb_inc, $bdb_lib);
 my $static;
 
 my $DEFINES = '-O2';
@@ -29,6 +30,8 @@ my $result = GetOptions(
     "with-png-libs=s"        => \$png_lib,
     "with-gif-includes=s"    => \$gif_inc,
     "with-gif-libs=s"        => \$gif_lib,
+    "with-bdb-includes=s"    => \$bdb_inc,
+    "with-bdb-libs=s"        => \$bdb_lib,
     "with-static"            => \$static,
 );
 
@@ -51,6 +54,8 @@ Options:
     --with-png-libs           Path to directory containing libpng
     --with-gif-includes       Path to directory containing gif_lib.h
     --with-gif-libs           Path to directory containing libgif
+    --with-bdb-includes       Path to directory containing BerkeleyDB's db.dh
+    --with-bdb-libs           Path to directory containing libdb
     --with-static             Statically link the module with all libraries
 
 END
@@ -285,6 +290,38 @@ for my $incdir ( $gif_inc, @check ) {
 
 if ( !$GIF ) {
     die "libgif not found, please install it and try again. Checked for gif_lib.h in: " . join(", ", $gif_inc, @check) . "\n";
+}
+
+# Look for bdb
+for my $incdir ( $bdb_inc, '/usr/local/BerkeleyDB.5.1/include', @check ) {
+    if ( $incdir && -e catfile($incdir, 'db.h') ) {
+        $BDB = 1;
+        $bdb_inc = $incdir;
+
+        push @INC, '-I' . $bdb_inc;
+        if ($bdb_lib) {
+            push @LIBPATH, '-L' . $bdb_lib;
+        }
+
+        if ($static) {
+            if ($bdb_lib) {
+                $MYEXTLIB .= $bdb_lib . '/' . 'libdb$(LIB_EXT) ';
+            }
+            else {
+                $MYEXTLIB .= $bdb_inc . '/../lib/libdb$(LIB_EXT) ';
+            }
+        }
+        else {
+            push @LIBS, '-ldb';
+        }
+
+        print "Using BerkeleyDB libdb from $bdb_inc\n";
+        last;
+    }
+}
+
+if ( !$BDB ) {
+    die "BerkeleyDB not found, please install it and try again. Checked for db.h in: " . join(", ", $bdb_inc, @check) . "\n";
 }
 
 if ( $^O =~ /Win32/i ) {

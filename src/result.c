@@ -43,6 +43,7 @@
 
 const char CODEC_MP1[] = "mp1";
 
+// *INDENT-OFF*
 static type_ext audio_types[] = {
 /*
   {"mp4", {"mp4", "m4a", "m4b", "m4p", "m4v", "m4r", "k3g", "skm", "3gp", "3g2", "mov", 0}},
@@ -151,7 +152,7 @@ static const struct {
 
   { NULL, 0 }
 };
-
+// *INDENT-ON*
 
 ///-------------------------------------------------------------------------------------------------
 ///  Try to find a matching DLNA profile, this is OK if it fails
@@ -243,15 +244,14 @@ static int ensure_opened_with_buf(MediaScanResult *r, int min_bytes) {
 
 static const char *find_mime_type(const char *path) {
 
-	int i = 0;
+  int i = 0;
 
   for (i = 0; mime_extension_mapping[i].extensions; i++)
-    if (match_file_extension(path, mime_extension_mapping[i].extensions))
-    {
-			return mime_extension_mapping[i].mime_type;
+    if (match_file_extension(path, mime_extension_mapping[i].extensions)) {
+      return mime_extension_mapping[i].mime_type;
     }
 
-	return NULL;
+  return NULL;
 }
 
 ///-------------------------------------------------------------------------------------------------
@@ -322,16 +322,17 @@ static int scan_video(MediaScanResult *r) {
     // send the result through the audio path
     LOG_WARN("XXX Scanning audio file with video path\n");
     ret = 0;
+    av_close_input_file(avf);
     goto out;
   }
 
   scan_dlna_profile(r, codecs);
 
-	// If scanning for a DLNA profile did not find a mimetype 
-	// then guess one based on the file extension
-	if(!r->mime_type) {
-		r->mime_type = find_mime_type(r->path);
-	}
+  // If scanning for a DLNA profile did not find a mimetype
+  // then guess one based on the file extension
+  if (!r->mime_type) {
+    r->mime_type = find_mime_type(r->path);
+  }
 
 
   r->bitrate = avf->bit_rate;
@@ -547,6 +548,9 @@ int result_scan(MediaScanResult *r) {
 void result_destroy(MediaScanResult *r) {
   int i;
 
+  if (r->path)
+    free(r->path);
+
   if (r->error)
     error_destroy(r->error);
 
@@ -636,17 +640,20 @@ void ms_dump_result(MediaScanResult *r) {
 
   for (i = 0; i < r->nthumbnails; i++) {
     MediaScanImage *thumb = r->_thumbs[i];
+    if (!thumb->_dbuf)
+      continue;
     Buffer *dbuf = (Buffer *)thumb->_dbuf;
     LOG_OUTPUT("    Thumbnail:  %d x %d %s (%d bytes)\n", thumb->width, thumb->height, thumb->codec, buffer_len(dbuf));
 
 #ifdef DUMP_THUMBNAILS
     {
+      static int tcount = 1;
       FILE *tfp;
       char file[MAX_PATH];
       if (!strcmp("JPEG", thumb->codec))
-        sprintf(file, "thumb%d.jpg", i);
+        sprintf(file, "thumb%d.jpg", tcount++);
       else
-        sprintf(file, "thumb%d.png", i);
+        sprintf(file, "thumb%d.png", tcount++);
       tfp = fopen(file, "wb");
       fwrite(buffer_ptr(dbuf), 1, buffer_len(dbuf), tfp);
       fclose(tfp);

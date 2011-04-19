@@ -11,7 +11,7 @@
 #include <libmediascan.h>
 #include "common.h"
 
-MediaScanError *error_create(const char *path, enum media_error error_code, const char *error_string) {
+MediaScanError *error_create(const char *tmp_full_path, enum media_error error_code, const char *tmp_error_string) {
   MediaScanError *e = (MediaScanError *)calloc(sizeof(MediaScanError), 1);
   if (e == NULL) {
     FATAL("Out of memory for new MediaScanError object\n");
@@ -22,8 +22,8 @@ MediaScanError *error_create(const char *path, enum media_error error_code, cons
 
   e->error_code = error_code;
   e->averror = 0;
-  e->path = path;
-  e->error_string = error_string;
+  e->path = strdup(tmp_full_path);
+  e->error_string = strdup(tmp_error_string);
 
   return e;
 }
@@ -31,5 +31,7 @@ MediaScanError *error_create(const char *path, enum media_error error_code, cons
 void error_destroy(MediaScanError *e) {
   LOG_MEM("destroy MediaScanError @ %p\n", e);
 
+  free(e->error_string);
+  free(e->path);
   free(e);
 }

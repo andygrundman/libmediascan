@@ -83,13 +83,47 @@ void recurse_dir(MediaScan *s, const char *path);
 /// Add a thumbnail to the internal list of result thumbnails. Up to MAX_THUMBS (8) can be added.
 ///
 /// @author Andy Grundman
-/// @date 04/13/2001
+/// @date 04/13/2011
 ///
 /// @param r Result instance.
 /// @param thumb Image instance containing generated thumbnail.
 ///-------------------------------------------------------------------------------------------------
 
 void result_add_thumbnail(MediaScanResult *r, MediaScanImage *thumb);
+
+///-------------------------------------------------------------------------------------------------
+/// Send a progress callback, or notify about it if async.
+///
+/// @author Andy Grundman
+/// @date 04/14/2011
+///
+/// @param s Scan instance.
+///-------------------------------------------------------------------------------------------------
+void send_progress(MediaScan *s);
+
+///-------------------------------------------------------------------------------------------------
+/// Send an error callback, or notify about it if async.
+///
+/// @author Andy Grundman
+/// @date 04/18/2011
+///
+/// @param s Scan instance.
+/// @param e Error instance.
+///-------------------------------------------------------------------------------------------------
+void send_error(MediaScan *s, MediaScanError *e);
+
+///-------------------------------------------------------------------------------------------------
+/// Send a result callback, or notify about it if async.
+///
+/// @author Andy Grundman
+/// @date 04/18/2011
+///
+/// @param s Scan instance.
+/// @param e Result instance.
+///-------------------------------------------------------------------------------------------------
+void send_result(MediaScan *s, MediaScanResult *r);
+
+void send_finish(MediaScan *s);
 
 #ifdef WIN32
 

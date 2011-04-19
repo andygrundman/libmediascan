@@ -41,6 +41,7 @@
 #include "result.h"
 #include "error.h"
 #include "mediascan.h"
+#include "thread.h"
 #include "util.h"
 
 // If we are on MSVC, disable some stupid MSVC warnings
@@ -74,7 +75,8 @@ DB_ENV *myEnv;                  /* Env structure handle */
  
  Image support
  -------------
- TODO
+ Reading: JPEG, PNG, GIF, BMP
+ Thumbnail creation: JPEG, PNG
 */
 
 // File extensions to look for (leading/trailing comma are required)
@@ -326,7 +328,7 @@ MediaScan *ms_create(void) {
   /* open the database */
   ret = s->dbp->open(s->dbp,    /* DB structure pointer */
                      NULL,      /* Transaction pointer */
-                     "my_db.db",  /* On-disk file that holds the database. */
+                     "libmediascan.db", /* On-disk file that holds the database. */
                      NULL,      /* Optional logical database name */
                      DB_BTREE,  /* Database access method */
                      flags,     /* Open flags */
@@ -350,9 +352,6 @@ MediaScan *ms_create(void) {
   s->_dlna = (void *)dlna;
   dlna_register_all_media_profiles(dlna);
 
-  InitCriticalSection(&s->CriticalSection);
-
-
   return s;
 }                               /* ms_create() */
 
@@ -369,6 +368,9 @@ MediaScan *ms_create(void) {
 
 void ms_destroy(MediaScan *s) {
   int i;
+
+  if (s->thread)
+    thread_destroy(s->thread);
 
   for (i = 0; i < s->npaths; i++) {
     free(s->paths[i]);
@@ -389,12 +391,11 @@ void ms_destroy(MediaScan *s) {
 
   ms_clear_watch(s);
 
-  CleanupCriticalSection(&s->CriticalSection);
-
   /* When we're done with the database, close it. */
   if (s->dbp != NULL)
     s->dbp->close(s->dbp, 0);
 
+  LOG_MEM("destroy MediaScan %p\n", s);
   free(s);
 }                               /* ms_destroy() */
 
@@ -634,6 +635,20 @@ void ms_set_progress_interval(MediaScan *s, int seconds) {
 }                               /* ms_set_progress_interval() */
 
 ///-------------------------------------------------------------------------------------------------
+/// Set a callback that will be called when the scan has finished. This callback
+/// is optional.
+///-------------------------------------------------------------------------------------------------
+
+void ms_set_finish_callback(MediaScan *s, FinishCallback callback) {
+  if (s == NULL) {
+    ms_errno = MSENO_NULLSCANOBJ;
+    LOG_ERROR("MediaScan = NULL, aborting\n");
+    return;
+  }
+  s->on_finish = callback;
+}
+
+///-------------------------------------------------------------------------------------------------
 ///  Set userdata.
 ///
 /// @author Andy Grundman
@@ -646,6 +661,46 @@ void ms_set_progress_interval(MediaScan *s, int seconds) {
 void ms_set_userdata(MediaScan *s, void *data) {
   s->userdata = data;
 }                               /* ms_set_userdata() */
+
+int ms_async_fd(MediaScan *s) {
+  return s->thread ? thread_get_result_fd(s->thread) : 0;
+}
+
+void ms_async_process(MediaScan *s) {
+  if (s->thread) {
+    enum event_type type;
+    void *data;
+
+    thread_signal_read(s->thread->respipe);
+
+    // Pull events from the thread's queue, events contain their type
+    // and a data pointer (Result/Error/Progress) for that callback
+    while (type = thread_get_next_event(s->thread, &data)) {
+      LOG_DEBUG("Got thread event, type %d @ %p\n", type, data);
+      switch (type) {
+        case EVENT_TYPE_RESULT:
+          s->on_result(s, (MediaScanResult *)data, s->userdata);
+          result_destroy((MediaScanResult *)data);
+          break;
+
+        case EVENT_TYPE_PROGRESS:
+          s->on_progress(s, (MediaScanProgress *)data, s->userdata);
+          progress_destroy((MediaScanProgress *)data);  // freeing a copy of progress
+          break;
+
+        case EVENT_TYPE_ERROR:
+          s->on_error(s, (MediaScanError *)data, s->userdata);
+          error_destroy((MediaScanError *)data);
+          // XXX also need to destroy active result somehow
+          break;
+
+        case EVENT_TYPE_FINISH:
+          s->on_finish(s, s->userdata);
+          break;
+      }
+    }
+  }
+}
 
 ///-------------------------------------------------------------------------------------------------
 ///  Watch a directory in the background.
@@ -791,42 +846,63 @@ int _should_scan(MediaScan *s, const char *path) {
   return TYPE_UNKNOWN;
 }                               /* _should_scan() */
 
-///-------------------------------------------------------------------------------------------------
-///  Begin a recursive scan of all paths previously provided to ms_add_path(). If async mode
-///   is enabled, this call will return immediately. You must obtain the file descriptor using
-///   ms_async_fd and this must be checked using an event loop or select(). When the fd becomes
-///   readable you must call ms_async_process to trigger any necessary callbacks.
-///
-/// @author Andy Grundman
-/// @date 03/15/2011
-///
-/// @param [in,out] s If non-null, the.
-///
-/// ### remarks .
-///-------------------------------------------------------------------------------------------------
-void ms_scan(MediaScan *s) {
+// Callback or notify about progress being updated
+void send_progress(MediaScan *s) {
+  if (s->thread) {
+    // Progress data is always changing, so we make a copy of it to send to other thread
+    MediaScanProgress *pcopy = progress_copy(s->progress);
+    thread_queue_event(s->thread, EVENT_TYPE_PROGRESS, (void *)pcopy);
+  }
+  else {
+    // Call progress callback directly
+    s->on_progress(s, s->progress, s->userdata);
+  }
+}
+
+// Callback or notify about an error
+void send_error(MediaScan *s, MediaScanError *e) {
+  if (s->thread) {
+    thread_queue_event(s->thread, EVENT_TYPE_ERROR, (void *)e);
+  }
+  else {
+    // Call progress callback directly
+    s->on_error(s, e, s->userdata);
+    error_destroy(e);
+  }
+}
+
+// Callback or notify about a result
+void send_result(MediaScan *s, MediaScanResult *r) {
+  if (s->thread) {
+    thread_queue_event(s->thread, EVENT_TYPE_RESULT, (void *)r);
+  }
+  else {
+    // Call progress callback directly
+    s->on_result(s, r, s->userdata);
+    result_destroy(r);
+  }
+}
+
+// Callback or notify about scan being finished
+void send_finish(MediaScan *s) {
+  if (s->thread) {
+    thread_queue_event(s->thread, EVENT_TYPE_FINISH, NULL);
+  }
+  else {
+    // Call finish callback directly
+    s->on_finish(s, s->userdata);
+  }
+}
+
+// Called by ms_scan either in a thread or synchronously
+static void *do_scan(void *userdata) {
+  MediaScan *s = (MediaScan *)userdata;
   int i;
   struct dirq *dir_head = (struct dirq *)s->_dirq;
   struct dirq_entry *dir_entry = NULL;
   struct fileq *file_head = NULL;
   struct fileq_entry *file_entry = NULL;
-
   char tmp_full_path[MAX_PATH];
-
-  StartCriticalSection(&s->CriticalSection);
-
-  if (s->on_result == NULL) {
-    LOG_ERROR("Result callback not set, aborting scan\n");
-
-    EndCriticalSection(&s->CriticalSection);
-
-    return;
-  }
-
-  if (s->async) {
-    LOG_ERROR("async mode not yet supported\n");
-    // XXX TODO
-  }
 
   // Build a list of all directories and paths
   // We do this first so we can present an accurate scan eta later
@@ -861,8 +937,9 @@ void ms_scan(MediaScan *s) {
       // Send progress update if necessary
       if (s->on_progress) {
         s->progress->done++;
+
         if (progress_update(s->progress, tmp_full_path))
-          s->on_progress(s, s->progress, s->userdata);
+          send_progress(s);
       }
 
       SIMPLEQ_REMOVE_HEAD(file_head, entries);
@@ -879,11 +956,49 @@ void ms_scan(MediaScan *s) {
   // Send final progress callback
   if (s->on_progress) {
     s->progress->cur_item = NULL;
-    s->on_progress(s, s->progress, s->userdata);
+    send_progress(s);
   }
 
-  EndCriticalSection(&s->CriticalSection);
+  LOG_DEBUG("Finished scanning\n");
 
+  if (s->on_finish)
+    send_finish(s);
+
+  return NULL;
+}
+
+///-------------------------------------------------------------------------------------------------
+///  Begin a recursive scan of all paths previously provided to ms_add_path(). If async mode
+///   is enabled, this call will return immediately. You must obtain the file descriptor using
+///   ms_async_fd and this must be checked using an event loop or select(). When the fd becomes
+///   readable you must call ms_async_process to trigger any necessary callbacks.
+///
+/// @author Andy Grundman
+/// @date 03/15/2011
+///
+/// @param [in,out] s If non-null, the.
+///
+/// ### remarks .
+///-------------------------------------------------------------------------------------------------
+void ms_scan(MediaScan *s) {
+  if (s->on_result == NULL) {
+    LOG_ERROR("Result callback not set, aborting scan\n");
+    goto out;
+  }
+
+  if (s->async) {
+    s->thread = thread_create(do_scan, (void *)s);
+    if (!s->thread) {
+      LOG_ERROR("Unable to start async thread\n");
+      goto out;
+    }
+  }
+  else {
+    do_scan(s);
+  }
+
+out:
+  return;
 }                               /* ms_scan() */
 
 ///-------------------------------------------------------------------------------------------------
@@ -899,7 +1014,7 @@ void ms_scan(MediaScan *s) {
 ///
 /// ### remarks .
 ///-------------------------------------------------------------------------------------------------
-void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type) {
+void ms_scan_file(MediaScan *s, const char *tmp_full_path, enum media_type type) {
   MediaScanError *e = NULL;
   MediaScanResult *r = NULL;
   int ret;
@@ -920,10 +1035,10 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type) {
     return;
   }
 
-  LOG_INFO("Scanning file %s\n", full_path);
+  LOG_INFO("Scanning file %s\n", tmp_full_path);
 
   // Check if the file has been recently scanned
-  hash = HashFile(full_path, &mtime, &size);
+  hash = HashFile(tmp_full_path, &mtime, &size);
 
   // Zero out the DBTs before using them.
   memset(&key, 0, sizeof(DBT));
@@ -937,13 +1052,12 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type) {
 
   if (type == TYPE_UNKNOWN) {
     // auto-detect type
-    type = _should_scan(s, full_path);
+    type = _should_scan(s, tmp_full_path);
     if (!type) {
       if (s->on_error) {
         ms_errno = MSENO_SCANERROR;
-        e = error_create(full_path, MS_ERROR_TYPE_UNKNOWN, "Unrecognized file extension");
-        s->on_error(s, e, s->userdata);
-        error_destroy(e);
+        e = error_create(tmp_full_path, MS_ERROR_TYPE_UNKNOWN, "Unrecognized file extension");
+        send_error(s, e);
         return;
       }
     }
@@ -954,7 +1068,7 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type) {
     return;
 
   r->type = type;
-  r->path = full_path;
+  r->path = strdup(tmp_full_path);
 
   if (result_scan(r)) {
     DBT key, data;
@@ -971,21 +1085,19 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type) {
     key.data = &r->hash;
     key.size = sizeof(uint32_t);
 
-    data.data = (char *)full_path;
-    data.size = strlen(full_path) + 1;
+    data.data = (char *)tmp_full_path;
+    data.size = strlen(tmp_full_path) + 1;
 
     ret = s->dbp->put(s->dbp, NULL, &key, &data, DB_NOOVERWRITE);
     if (ret == DB_KEYEXIST) {
       s->dbp->err(s->dbp, ret, "Put failed because key %X already exists", r->hash);
     }
 
-    s->on_result(s, r, s->userdata);
+    send_result(s, r);
   }
   else if (s->on_error && r->error) {
-    s->on_error(s, r->error, s->userdata);
+    send_error(s, r->error);
   }
-
-  result_destroy(r);
 }                               /* ms_scan_file() */
 
 ///-------------------------------------------------------------------------------------------------
@@ -1024,11 +1136,20 @@ void result_add_thumbnail(MediaScanResult *r, MediaScanImage *thumb) {
     r->_thumbs[r->nthumbnails++] = thumb;
 }
 
-const uint8_t *ms_result_get_thumbnail(MediaScanResult *r, int index, int *length) {
+MediaScanImage *ms_result_get_thumbnail(MediaScanResult *r, int index) {
+  MediaScanImage *thumb = NULL;
+
+  if (r->nthumbnails >= index) {
+    thumb = r->_thumbs[index];
+  }
+
+  return thumb;
+}
+
+const uint8_t *ms_result_get_thumbnail_data(MediaScanResult *r, int index, uint32_t *length) {
   uint8_t *ret = NULL;
   *length = 0;
 
-  // XXX refactor, thumbnails should be stored in result
   if (r->nthumbnails >= index) {
     MediaScanImage *thumb = r->_thumbs[index];
     Buffer *buf = (Buffer *)thumb->_dbuf;

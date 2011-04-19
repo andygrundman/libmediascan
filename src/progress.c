@@ -13,7 +13,7 @@
 
 #include <stdarg.h>
 #include <stdlib.h>
-
+#include <string.h>
 
 #include <libmediascan.h>
 #include "common.h"
@@ -46,6 +46,24 @@ MediaScanProgress *progress_create(void) {
   return p;
 }                               /* progress_create() */
 
+// Copy a progress instance. Pass the copy to progress_destroy
+// when done.
+MediaScanProgress *progress_copy(MediaScanProgress *p) {
+  MediaScanProgress *pcopy = malloc(sizeof(MediaScanProgress));
+  memcpy(pcopy, p, sizeof(MediaScanProgress));
+
+  pcopy->_is_copy = 1;
+
+  if (p->phase)
+    pcopy->phase = strdup(p->phase);
+  if (p->cur_item)
+    pcopy->cur_item = strdup(p->cur_item);
+
+  LOG_MEM("copy MediaScanProgress @ %p -> %p\n", p, pcopy);
+
+  return pcopy;
+}
+
 void progress_start_phase(MediaScanProgress *p, const char *fmt, ...) {
   char *phase = (char *)malloc((size_t)MAX_PATH);
 
@@ -73,7 +91,7 @@ void progress_start_phase(MediaScanProgress *p, const char *fmt, ...) {
 }                               /* progress_start_phase() */
 
 // Returns 1 if progress was updated and callback should be called
-int progress_update(MediaScanProgress *p, const char *cur_item) {
+int progress_update(MediaScanProgress *p, const char *tmp_cur_item) {
   long time;
 
 #ifdef WIN32
@@ -85,8 +103,7 @@ int progress_update(MediaScanProgress *p, const char *cur_item) {
   time = now.tv_sec;
 #endif
 
-  LOG_DEBUG("progress_update %s\n", cur_item);
-
+  LOG_DEBUG("progress_update %s\n", tmp_cur_item);
 
   if (time - p->_last_update_ts >= p->interval) {
     int elapsed = time - p->_start_ts;
@@ -97,7 +114,9 @@ int progress_update(MediaScanProgress *p, const char *cur_item) {
         p->eta = (int)(((p->total - p->done) / p->rate) + 0.5);
     }
 
-    p->cur_item = cur_item;
+    if (p->cur_item)
+      free(p->cur_item);
+    p->cur_item = strdup(tmp_cur_item);
     p->_last_update_ts = time;
 
     return 1;
@@ -120,6 +139,12 @@ int progress_update(MediaScanProgress *p, const char *cur_item) {
 void progress_destroy(MediaScanProgress *p) {
   if (p->phase)
     free(p->phase);
+
+  if (p->_is_copy) {
+    // Additional free if the instance was copied from another one
+    if (p->cur_item)
+      free(p->cur_item);
+  }
 
   LOG_MEM("destroy MediaScanProgress @ %p\n", p);
   free(p);

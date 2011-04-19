@@ -33,32 +33,50 @@ static inline float fixed_to_float(fixed_t x) {
 # if defined(__arm__)
 static inline fixed_t fixed_mul(fixed_t x, fixed_t y) {
   fixed_t __hi, __lo, __result;
-  __asm__ __volatile__("smull %0, %1, %3, %4\n\t"
-                       "movs %0, %0, lsr %5\n\t" "adc %2, %0, %1, lsl %6":"=&r"(__lo), "=&r"(__hi), "=r"(__result)
-                       :"%r"(x), "r"(y), "M"(FRAC_BITS), "M"(32 - (FRAC_BITS))
-                       :"cc");
+  // *INDENT-OFF*
+  __asm__ __volatile__(
+    "smull %0, %1, %3, %4\n\t"
+    "movs %0, %0, lsr %5\n\t"
+    "adc %2, %0, %1, lsl %6"
+    :"=&r"(__lo), "=&r"(__hi), "=r"(__result)
+    :"%r"(x), "r"(y), "M"(FRAC_BITS), "M"(32 - (FRAC_BITS))
+    :"cc"
+  );
+  // *INDENT-ON*
   return __result;
 }
 # elif defined(__i386__) || defined(__x86_64__)
 // This improves fixed-point performance about 15-20% on x86
 static inline fixed_t fixed_mul(fixed_t x, fixed_t y) {
   fixed_t __hi, __lo;
-  __asm__ __volatile__("imull %3\n" "shrdl %4, %1, %0":"=a"(__lo), "=d"(__hi)
-                       :"%a"(x), "rm"(y), "I"(FRAC_BITS)
-                       :"cc");
+  // *INDENT-OFF*
+  __asm__ __volatile__(
+    "imull %3\n"
+    "shrdl %4, %1, %0"
+    :"=a"(__lo), "=d"(__hi)
+    :"%a"(x), "rm"(y), "I"(FRAC_BITS)
+    :"cc"
+  );
+  // *INDENT-ON*
   return __lo;
 }
 # elif defined(PADRE)           // Sparc ReadyNAS
 static inline fixed_t fixed_mul(fixed_t x, fixed_t y) {
   fixed_t __hi, __lo, __result;
-  __asm__ __volatile__(" nop\n"
-                       " nop\n"
-                       " smul %3, %4, %0\n"
-                       " mov %%y, %1\n"
-                       " srl %0, %5, %0\n"
-                       " sll %1, %6, %1\n" " add %0, %1, %2\n":"=&r"(__lo), "=&r"(__hi), "=r"(__result)
-                       :"%r"(x), "r"(y), "M"(FRAC_BITS), "M"(32 - (FRAC_BITS))
-                       :"cc");
+  // *INDENT-OFF*
+  __asm__ __volatile__(
+    " nop\n"
+    " nop\n"
+    " smul %3, %4, %0\n"
+    " mov %%y, %1\n"
+    " srl %0, %5, %0\n"
+    " sll %1, %6, %1\n"
+    " add %0, %1, %2\n"
+    :"=&r"(__lo), "=&r"(__hi), "=r"(__result)
+    :"%r"(x), "r"(y), "M"(FRAC_BITS), "M"(32 - (FRAC_BITS))
+    :"cc"
+  );
+  // *INDENT-ON*
   return __result;
 }
 # else // Other gcc platform
@@ -71,11 +89,13 @@ static inline fixed_t fixed_mul(fixed_t x, fixed_t y) {
   enum {
     fracbits = FRAC_BITS
   };
+  // *INDENT-OFF*
   __asm {
-	mov eax, x 
-	imul y 
+	mov eax, x
+	imul y
 	shrd eax, edx, fracbits
   }
+  // *INDENT-ON*
   // eax is returned automatically 
 }
 #else // Other non-gcc platform

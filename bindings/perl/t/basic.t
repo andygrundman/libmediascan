@@ -10,9 +10,10 @@ use Media::Scan;
 my $c = 1;
 {
     #my $s = Media::Scan->new( [ _f('video') ], {
-    my $s = Media::Scan->new( [ '/Users/andy/Music/Slim/DLNATestContent' ], {
+    my $s = Media::Scan->new( [ '/Users/andy/Music/Slim/DLNATestContent/Certification Content/Image/JPEG_MED' ], {
         #loglevel => 5,
         ignore => [],
+        async => 0,
         thumbnails => [
             { width => 200 },
         ],
