@@ -24,8 +24,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -58,7 +58,7 @@
     </Link>
     <Lib>
       <AdditionalLibraryDirectories>$(ProjectDir)\..\lib;C:\mingw\msys\1.0\local\lib;C:\mingw\lib\gcc\mingw32\4.5.2;C:\mingw\lib;D:\workspace\scan\test</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(ProjectDir)..\lib\libdb_small51s.lib;$(ProjectDir)..\win32\libpng-1.5.2\projects\vstudio\Debug Library\libpng15.lib;$(ProjectDir)..\win32\libpng-1.5.2\projects\vstudio\Debug Library\zlib.lib;libexif.a;libjpeg.a;libintl.lib;libgif.a;libavcodec.a;libavformat.a;libavutil.a;libswscale.a;libbz2.a;libgcc.a;libmingwex.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectDir)..\lib\libdb_small51s.lib;$(ProjectDir)..\win32\Debug Library\libpng15.lib;$(ProjectDir)..\win32\Debug Library\zlib.lib;libexif.a;libjpeg.a;libintl.lib;libgif.a;libavcodec.a;libavformat.a;libavutil.a;libswscale.a;libbz2.a;libgcc.a;libmingwex.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <PreBuildEvent>
       <Command>
@@ -72,10 +72,17 @@
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <Optimization>MaxSpeed</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <Optimization>MinSpace</Optimization>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)..;$(SolutionDir)..\include;$(SolutionDir)include;$(ProjectDir)zlib-1.2.5;$(ProjectDir)libpng-1.5.2;C:\mingw\msys\1.0\local\include;$(SolutionDir)..\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
+      <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -83,6 +90,11 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <Lib>
+      <AdditionalDependencies>$(ProjectDir)..\lib\libdb_small51s.lib;$(ProjectDir)..\win32\Debug Library\libpng15.lib;$(ProjectDir)..\win32\Debug Library\zlib.lib;libexif.a;libjpeg.a;libintl.lib;libgif.a;libavcodec.a;libavformat.a;libavutil.a;libswscale.a;libbz2.a;libgcc.a;libmingwex.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)\..\lib;C:\mingw\msys\1.0\local\lib;C:\mingw\lib\gcc\mingw32\4.5.2;C:\mingw\lib;D:\workspace\scan\test</AdditionalLibraryDirectories>
+      <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\src\audio.c" />
@@ -91,8 +103,10 @@
     <ClCompile Include="..\src\folder_mon_win32.c" />
     <ClCompile Include="..\src\image.c" />
     <ClCompile Include="..\src\image_bmp.c" />
+    <ClCompile Include="..\src\image_gif.c" />
     <ClCompile Include="..\src\image_jpeg.c" />
     <ClCompile Include="..\src\image_png.c" />
+    <ClCompile Include="..\src\jenkins\lookup3.c" />
     <ClCompile Include="..\src\libdlna\audio_aac.c" />
     <ClCompile Include="..\src\libdlna\audio_ac3.c" />
     <ClCompile Include="..\src\libdlna\audio_amr.c" />
@@ -111,7 +125,6 @@
     <ClCompile Include="..\src\libdlna\containers.c" />
     <ClCompile Include="..\src\libdlna\profiles.c" />
     <ClCompile Include="..\src\libdlna\upnp_dms.c" />
-    <ClCompile Include="..\src\lookup3.c" />
     <ClCompile Include="..\src\mediascan.c">
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">/D "_CRT_SECURE_NO_WARNINGS" %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>

@@ -15,4 +15,8 @@ uint32_t HashFile(const char *file, int *mtime, size_t *size);
 int TouchFile(const char *fileName);
 void hex_dump(void *data, int size);
 
+
+// In LIBDLNA profiles.c
+int match_file_extension (const char *filename, const char *extensions);
+
 #endif

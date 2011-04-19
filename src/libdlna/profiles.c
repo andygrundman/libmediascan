@@ -243,7 +243,7 @@ av_profile_get_codecs (AVFormatContext *ctx)
   return codecs;
 }
 
-static int
+int
 match_file_extension (const char *filename, const char *extensions)
 {
   const char *ext, *p;

@@ -75,6 +75,68 @@ static type_handler audio_handlers[] = {
   {NULL, 0}
 };
 
+// MIME type extension mappings
+static const struct {
+  const char *extensions;
+  const char *mime_type;
+} mime_extension_mapping[] = {
+//There is no IETF endorsed MIME type for Matroska files. But you can use the ones we have defined on our web server :
+//    * .mka : Matroska audio audio/x-matroska
+//    * .mkv : Matroska video video/x-matroska
+//    * .mk3d : Matroska 3D video video/x-matroska-3d
+	{ "mka",											"audio/x-matroska" },
+	{ "mkv",											"video/x-matroska" },
+
+// http://wiki.xiph.org/MIME_Types_and_File_Extensions
+// The following MIME types are now officially registered with IANA and specified with the IETF as RFC 5334
+// http://tools.ietf.org/html/rfc5215
+	{ "flac",											"audio/flac" },
+	{ "oga,ogg,spx",							"audio/ogg" },
+	{ "ogv",											"video/ogg" },
+
+// http://tools.ietf.org/html/rfc2046
+  { "mpg,mpeg,mp1,mp2,mlv,mpv", "video/mpeg" },
+  { "mp3,mla,m2a,mpa",          "audio/mpeg" },
+
+// http://support.microsoft.com/kb/288102
+  { "asf,asx",									"video/x-ms-asf" },
+  { "wma",											"audio/x-ms-wma" },
+  { "wax",											"audio/x-ms-wax" },
+  { "wmv",											"video/x-ms-wmv" },
+  { "wvx",											"video/x-ms-wvx" },
+  { "wm",												"video/x-ms-wm" },
+  { "wmx",											"video/x-ms-wmx" },
+
+// http://tools.ietf.org/html/rfc3003
+  { "mp3,mpa",									"audio/mpeg" },
+
+// http://tools.ietf.org/html/rfc2361
+  { "wav",											"audio/vnd.wave" },
+	
+// http://real.custhelp.com/cgi-bin/real.cfg/php/enduser/std_adp.php?p_faqid=2559&p_created=&p_sid=uz4Tpoti&p_lva=1085179956&p_sp=2559&p_li=cF9zcmNoPTEmcF9zb3J0X2J5PSZwX2dyaWRzb3J0PSZwX3Jvd19jbnQ9MSZwX3Byb2RzPTMsMTEmcF9jYXRzPSZwX3B2PTIuMTEmcF9jdj0mcF9zZWFyY2hfdHlwZT1hbnN3ZXJzLmFfaWQmcF9wYWdlPTEmcF9zZWFyY2hfdGV4dD0yNTU5cF9zcmNoPTEmcF9zb3J0X2J5PSZwX2dyaWRzb3J0PSZwX3Jvd19jbnQ9MyZwX3Byb2RzPTMsMTEmcF9jYXRzPSZwX3B2PTIuMTEmcF9jdj0mcF9zZWFyY2hfdHlwZT1hbnN3ZXJzLnNlYXJjaF9ubCZwX3BhZ2U9MSZwX3NlYXJjaF90ZXh0PU1JTUU*&p_prod_lvl1=3&p_prod_lvl2=11&tabName=tab0&p_topview=1
+  { "ra,ram",										"audio/vnd.rn-realaudio" },
+
+// http://en.wikipedia.org/wiki/WebM
+  { "webm",											"audio/webm" },
+
+// http://www.iana.org/assignments/media-types/video/quicktime
+  { "qt",												"video/quicktime" },
+
+// http://tools.ietf.org/html/rfc4337
+  { "mp4,m4p,m4b,m4r,m4v",			"video/mp4" },
+  { "m4a",											"audio/mp4" },
+
+// http://tools.ietf.org/html/rfc2361
+// Note: This one is kind of complicated as there are many different kinds of AVI formats. 
+// Instead of just specifying video/vnd.avi and trying to figure out the codec, we are just
+// going to specify video/avi, which isn't really what is specified by IETF but is much
+// more straightforward. Other options would be: video/msvideo, video/x-msvideo
+  { "avi",											"video/avi"    },
+
+  { NULL, 0 }
+};
+
+
 ///-------------------------------------------------------------------------------------------------
 ///  Try to find a matching DLNA profile, this is OK if it fails
 ///
@@ -163,6 +225,19 @@ static int ensure_opened_with_buf(MediaScanResult *r, int min_bytes) {
   return 1;
 }
 
+static const char *find_mime_type(const char *path) {
+
+	int i = 0;
+
+  for (i = 0; mime_extension_mapping[i].extensions; i++)
+    if (match_file_extension(path, mime_extension_mapping[i].extensions))
+    {
+			return mime_extension_mapping[i].mime_type;
+    }
+
+	return NULL;
+}
+
 ///-------------------------------------------------------------------------------------------------
 ///  Scan a video file with libavformat
 ///
@@ -235,6 +310,13 @@ static int scan_video(MediaScanResult *r) {
   }
 
   scan_dlna_profile(r, codecs);
+
+	// If scanning for a DLNA profile did not find a mimetype 
+	// then guess one based on the file extension
+	if(!r->mime_type) {
+		r->mime_type = find_mime_type(r->path);
+	}
+
 
   r->bitrate = avf->bit_rate;
   r->duration_ms = (int)(avf->duration / 1000);
