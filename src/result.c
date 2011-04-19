@@ -43,6 +43,7 @@
 
 const char CODEC_MP1[] = "mp1";
 
+// *INDENT-OFF*
 static type_ext audio_types[] = {
 /*
   {"mp4", {"mp4", "m4a", "m4b", "m4p", "m4v", "m4r", "k3g", "skm", "3gp", "3g2", "mov", 0}},
@@ -135,7 +136,7 @@ static const struct {
 
   { NULL, 0 }
 };
-
+// *INDENT-ON*
 
 ///-------------------------------------------------------------------------------------------------
 ///  Try to find a matching DLNA profile, this is OK if it fails
@@ -227,15 +228,14 @@ static int ensure_opened_with_buf(MediaScanResult *r, int min_bytes) {
 
 static const char *find_mime_type(const char *path) {
 
-	int i = 0;
+  int i = 0;
 
   for (i = 0; mime_extension_mapping[i].extensions; i++)
-    if (match_file_extension(path, mime_extension_mapping[i].extensions))
-    {
-			return mime_extension_mapping[i].mime_type;
+    if (match_file_extension(path, mime_extension_mapping[i].extensions)) {
+      return mime_extension_mapping[i].mime_type;
     }
 
-	return NULL;
+  return NULL;
 }
 
 ///-------------------------------------------------------------------------------------------------
@@ -311,11 +311,11 @@ static int scan_video(MediaScanResult *r) {
 
   scan_dlna_profile(r, codecs);
 
-	// If scanning for a DLNA profile did not find a mimetype 
-	// then guess one based on the file extension
-	if(!r->mime_type) {
-		r->mime_type = find_mime_type(r->path);
-	}
+  // If scanning for a DLNA profile did not find a mimetype
+  // then guess one based on the file extension
+  if (!r->mime_type) {
+    r->mime_type = find_mime_type(r->path);
+  }
 
 
   r->bitrate = avf->bit_rate;

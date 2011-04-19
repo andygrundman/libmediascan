@@ -43,7 +43,7 @@ uint32_t HashFile(const char *file, int *mtime, size_t *size) {
 #ifndef WIN32
   struct stat buf;
 #else
-	BOOL fOk;
+  BOOL fOk;
   WIN32_FILE_ATTRIBUTE_DATA fileInfo;
   DWORD dwRet;
 #endif
