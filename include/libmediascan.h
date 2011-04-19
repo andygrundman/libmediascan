@@ -16,10 +16,7 @@
 #ifdef WIN32
 #include <Windows.h>
 #include <wchar.h>
-#endif
-
-
-#ifdef __GNUC__
+#else
 #include <pthread.h>
 #endif
 
@@ -62,6 +59,12 @@ enum exif_orientation {
   ORIENTATION_270_CCW
 };
 
+enum event_type {
+  EVENT_TYPE_RESULT = 1,
+  EVENT_TYPE_PROGRESS,
+  EVENT_TYPE_ERROR
+};
+
 enum log_level {
   ERR = 1,
   WARN = 2,
@@ -69,6 +72,23 @@ enum log_level {
   DEBUG = 4,
   MEMORY = 9
 };
+
+struct _Thread {
+  int respipe[2];               // pipe for worker thread to signal mail thread
+  int reqpipe[2];               // pipe for main thread to signal worker thread
+  void *event_queue;            // TAILQ for events
+
+#ifndef WIN32
+  pthread_t tid;
+  pthread_mutex_t mutex;
+#else
+  DWORD dwThreadId;
+  HANDLE ghSignalEvent;
+  HANDLE hThread;
+  CRITICAL_SECTION CriticalSection;
+#endif
+};
+typedef struct _Thread MediaScanThread;
 
 struct _Tag {
   const char *type;
@@ -136,14 +156,14 @@ typedef struct _Video MediaScanVideo;
 struct _Error {
   enum media_error error_code;
   int averror;                  ///< Optional error code from ffmpeg
-  const char *path;
-  const char *error_string;
+  char *path;
+  char *error_string;
 };
 typedef struct _Error MediaScanError;
 
 struct _Result {
   enum media_type type;
-  const char *path;
+  char *path;
   enum scan_flags flags;
   MediaScanError *error;
 
@@ -174,7 +194,7 @@ typedef struct _Result MediaScanResult;
 
 struct _Progress {
   char *phase;                  ///< Discovering, Scanning, etc
-  const char *cur_item;         ///< most recently scanned item, NULL on last callback when done
+  char *cur_item;               ///< most recently scanned item, NULL on last callback when done
   int interval;
   int total;
   int done;
@@ -182,6 +202,7 @@ struct _Progress {
   int rate;                     ///< rate in items/second
 
   // private
+  int _is_copy;
   long _start_ts;
   long _last_update_ts;
 };
@@ -210,9 +231,9 @@ struct _Scan {
   int nthumbspecs;
   MediaScanThumbSpec *thumbspecs[MAX_THUMBS];
   int async;
-  int async_fd;
 
   MediaScanProgress *progress;
+  MediaScanThread *thread;
 
   void (*on_result) (struct _Scan *, MediaScanResult *, void *);
   void (*on_error) (struct _Scan *, MediaScanError *, void *);
@@ -225,16 +246,6 @@ struct _Scan {
   // private
   void *_dirq;                  // simple queue of all directories found
   void *_dlna;                  // libdlna instance
-
-  // win32 background scanning threads
-#ifdef WIN32
-  DWORD dwThreadId;
-  HANDLE ghSignalEvent;
-  HANDLE hThread;
-  CRITICAL_SECTION CriticalSection;
-#else
-  pthread_mutex_t CriticalSection;
-#endif
 };
 
 typedef struct _Scan MediaScan;

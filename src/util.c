@@ -23,50 +23,6 @@
 #include "common.h"
 #include "util.h"
 
-void InitCriticalSection(void *lp) {
-#ifdef WIN32
-  if (!InitializeCriticalSectionAndSpinCount((LPCRITICAL_SECTION) lp, 0x00000400))
-    return;
-#else
-  pthread_mutex_init((pthread_mutex_t *) lp, NULL);
-#endif
-}
-
-void CleanupCriticalSection(void *lp) {
-
-#ifdef WIN32
-
-  DeleteCriticalSection((LPCRITICAL_SECTION) lp);
-
-#endif
-
-}
-
-void StartCriticalSection(void *lp) {
-#ifdef WIN32
-
-  EnterCriticalSection((LPCRITICAL_SECTION) lp);
-
-#else // POSIX
-
-  pthread_mutex_lock((pthread_mutex_t *) lp);
-
-#endif
-
-}
-
-void EndCriticalSection(void *lp) {
-#ifdef WIN32
-
-  LeaveCriticalSection((LPCRITICAL_SECTION) lp);
-
-#else // POSIX
-
-  pthread_mutex_unlock((pthread_mutex_t *) lp);
-
-#endif
-}
-
 ///-------------------------------------------------------------------------------------------------
 ///  Calculate a hash for a file
 ///

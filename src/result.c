@@ -444,6 +444,9 @@ int result_scan(MediaScanResult *r) {
 void result_destroy(MediaScanResult *r) {
   int i;
 
+  if (r->path)
+    free(r->path);
+
   if (r->error)
     error_destroy(r->error);
 

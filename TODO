@@ -8,3 +8,5 @@ Symlink/Mac alias/Win32 shortcut handling
 Needs to support scanning playlist files
 
 Add CUnit to be built as a dependency when running make check
+
+Review thread safety for Progress/Error/Result instances
