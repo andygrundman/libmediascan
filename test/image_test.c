@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
   // Get path to this binary
   bin = _findbin(argv[0]);
   //dir = _abspath(bin, "../data"); // because binary is in .libs dir
-  dir = "/Users/andy/Music/Slim/DLNATestContent/Additional Content/Image";
+  dir = "/Users/andy/QA/DHGMedia";
 
   // Scan all image files
   {

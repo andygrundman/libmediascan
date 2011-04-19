@@ -10,7 +10,7 @@ use Media::Scan;
 my $c = 1;
 {
     #my $s = Media::Scan->new( [ _f('video') ], {
-    my $s = Media::Scan->new( [ '/Users/andy/Music/Slim/DLNATestContent/Certification Content/Image/JPEG_MED' ], {
+    my $s = Media::Scan->new( [ '/Users/andy/QA/DHGMedia' ], {
         #loglevel => 5,
         ignore => [],
         async => 0,

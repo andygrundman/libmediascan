@@ -13,7 +13,7 @@ my $c = 1;
     my $cv = AnyEvent->condvar;
 
     #my $s = Media::Scan->new( [ _f('video') ], {
-    my $s = Media::Scan->new( [ '/Users/andy/Music/Slim/DLNATestContent' ], {
+    my $s = Media::Scan->new( [ '/Users/andy/QA/DLNATestContent/Additional Content' ], {
         loglevel => 0,
         ignore => [],
         async => 1,
