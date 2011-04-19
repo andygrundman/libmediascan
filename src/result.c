@@ -618,17 +618,20 @@ void ms_dump_result(MediaScanResult *r) {
 
   for (i = 0; i < r->nthumbnails; i++) {
     MediaScanImage *thumb = r->_thumbs[i];
+    if (!thumb->_dbuf)
+      continue;
     Buffer *dbuf = (Buffer *)thumb->_dbuf;
     LOG_OUTPUT("    Thumbnail:  %d x %d %s (%d bytes)\n", thumb->width, thumb->height, thumb->codec, buffer_len(dbuf));
 
 #ifdef DUMP_THUMBNAILS
     {
+      static int tcount = 1;
       FILE *tfp;
       char file[MAX_PATH];
       if (!strcmp("JPEG", thumb->codec))
-        sprintf(file, "thumb%d.jpg", i);
+        sprintf(file, "thumb%d.jpg", tcount++);
       else
-        sprintf(file, "thumb%d.png", i);
+        sprintf(file, "thumb%d.png", tcount++);
       tfp = fopen(file, "wb");
       fwrite(buffer_ptr(dbuf), 1, buffer_len(dbuf), tfp);
       fclose(tfp);
