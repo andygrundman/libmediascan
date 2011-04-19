@@ -1,11 +1,7 @@
 
-#include <stdlib.h>
-
-
 #include <libmediascan.h>
-
 #include <libexif/exif-data.h>
-
+#include <stdlib.h>
 #include <setjmp.h>
 #include <string.h>
 
@@ -24,10 +20,6 @@
 #include "libdlna/profiles.h"
 
 #define DEFAULT_JPEG_QUALITY 90
-
-#ifdef WIN32
-#define warn printf
-#endif
 
 // Forward declarations
 static void parse_exif_ifd(ExifContent * content, void *data);
@@ -272,7 +264,7 @@ static void libjpeg_output_message(j_common_ptr cinfo) {
   /* Create the message */
   (*cinfo->err->format_message) (cinfo, buffer);
 
-  warn("libjpeg error: %s (%s)\n", buffer, Filename);
+  LOG_WARN("libjpeg error: %s (%s)\n", buffer, Filename);
 }
 
 int image_jpeg_read_header(MediaScanImage *i, MediaScanResult *r) {
@@ -315,12 +307,12 @@ int image_jpeg_read_header(MediaScanImage *i, MediaScanResult *r) {
   i->width = j->cinfo->image_width;
   i->height = j->cinfo->image_height;
   i->channels = j->cinfo->num_components;
+  r->mime_type = MIME_IMAGE_JPEG;
 
   // Match with DLNA profile
   for (x = 0; jpeg_profiles_mapping[x].profile; x++) {
     if (i->width <= jpeg_profiles_mapping[x].max_width && i->height <= jpeg_profiles_mapping[x].max_height) {
       r->dlna_profile = jpeg_profiles_mapping[x].profile->id;
-      r->mime_type = jpeg_profiles_mapping[x].profile->mime;
       break;
     }
   }
