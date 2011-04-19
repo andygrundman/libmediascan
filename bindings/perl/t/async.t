@@ -2,6 +2,7 @@ use strict;
 
 use Test::More tests => 1;
 
+use AnyEvent;
 use Data::Dump qw(dump);
 use File::Spec::Functions;
 use FindBin ();
@@ -9,11 +10,13 @@ use Media::Scan;
 
 my $c = 1;
 {
+    my $cv = AnyEvent->condvar;
+
     #my $s = Media::Scan->new( [ _f('video') ], {
-    my $s = Media::Scan->new( [ '/Users/andy/Music/Slim/DLNATestContent/Certification Content/Image/JPEG_MED' ], {
-        #loglevel => 5,
+    my $s = Media::Scan->new( [ '/Users/andy/Music/Slim/DLNATestContent' ], {
+        loglevel => 5,
         ignore => [],
-        async => 0,
+        async => 1,
         thumbnails => [
             { width => 200 },
         ],
@@ -34,7 +37,21 @@ my $c = 1;
           my $p = shift;
           warn "Progress: " . dump($p->as_hash);
         },
+        on_finish => sub {
+            warn "Finished\n";
+            $cv->send;
+        },
     } );
+
+    my $w = AnyEvent->io(
+        fh   => $s->async_fd,
+        poll => 'r',
+        cb   => sub {
+            $s->async_process;
+        },
+    );
+
+    $cv->recv;
 }
 
 sub _f {

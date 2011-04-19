@@ -99,7 +99,6 @@ CODE:
       av_push(RETVAL, thumb);
     }
   }
-
 }
 OUTPUT:
   RETVAL

@@ -306,6 +306,7 @@ static int scan_video(MediaScanResult *r) {
     // send the result through the audio path
     LOG_WARN("XXX Scanning audio file with video path\n");
     ret = 0;
+    av_close_input_file(avf);
     goto out;
   }
 

@@ -123,6 +123,8 @@ void send_error(MediaScan *s, MediaScanError *e);
 ///-------------------------------------------------------------------------------------------------
 void send_result(MediaScan *s, MediaScanResult *r);
 
+void send_finish(MediaScan *s);
+
 #ifdef WIN32
 
 ///-------------------------------------------------------------------------------------------------

@@ -328,7 +328,7 @@ MediaScan *ms_create(void) {
   /* open the database */
   ret = s->dbp->open(s->dbp,    /* DB structure pointer */
                      NULL,      /* Transaction pointer */
-                     "my_db.db",  /* On-disk file that holds the database. */
+                     "libmediascan.db", /* On-disk file that holds the database. */
                      NULL,      /* Optional logical database name */
                      DB_BTREE,  /* Database access method */
                      flags,     /* Open flags */
@@ -635,6 +635,20 @@ void ms_set_progress_interval(MediaScan *s, int seconds) {
 }                               /* ms_set_progress_interval() */
 
 ///-------------------------------------------------------------------------------------------------
+/// Set a callback that will be called when the scan has finished. This callback
+/// is optional.
+///-------------------------------------------------------------------------------------------------
+
+void ms_set_finish_callback(MediaScan *s, FinishCallback callback) {
+  if (s == NULL) {
+    ms_errno = MSENO_NULLSCANOBJ;
+    LOG_ERROR("MediaScan = NULL, aborting\n");
+    return;
+  }
+  s->on_finish = callback;
+}
+
+///-------------------------------------------------------------------------------------------------
 ///  Set userdata.
 ///
 /// @author Andy Grundman
@@ -677,6 +691,11 @@ void ms_async_process(MediaScan *s) {
         case EVENT_TYPE_ERROR:
           s->on_error(s, (MediaScanError *)data, s->userdata);
           error_destroy((MediaScanError *)data);
+          // XXX also need to destroy active result somehow
+          break;
+
+        case EVENT_TYPE_FINISH:
+          s->on_finish(s, s->userdata);
           break;
       }
     }
@@ -864,6 +883,17 @@ void send_result(MediaScan *s, MediaScanResult *r) {
   }
 }
 
+// Callback or notify about scan being finished
+void send_finish(MediaScan *s) {
+  if (s->thread) {
+    thread_queue_event(s->thread, EVENT_TYPE_FINISH, NULL);
+  }
+  else {
+    // Call finish callback directly
+    s->on_finish(s, s->userdata);
+  }
+}
+
 // Called by ms_scan either in a thread or synchronously
 static void *do_scan(void *userdata) {
   MediaScan *s = (MediaScan *)userdata;
@@ -930,6 +960,9 @@ static void *do_scan(void *userdata) {
   }
 
   LOG_DEBUG("Finished scanning\n");
+
+  if (s->on_finish)
+    send_finish(s);
 
   return NULL;
 }

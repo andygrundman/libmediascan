@@ -62,7 +62,8 @@ enum exif_orientation {
 enum event_type {
   EVENT_TYPE_RESULT = 1,
   EVENT_TYPE_PROGRESS,
-  EVENT_TYPE_ERROR
+  EVENT_TYPE_ERROR,
+  EVENT_TYPE_FINISH
 };
 
 enum log_level {
@@ -238,6 +239,7 @@ struct _Scan {
   void (*on_result) (struct _Scan *, MediaScanResult *, void *);
   void (*on_error) (struct _Scan *, MediaScanError *, void *);
   void (*on_progress) (struct _Scan *, MediaScanProgress *, void *);
+  void (*on_finish) (struct _Scan *, void *);
   void (*on_background) (struct _Scan *, MediaScanResult *, void *);
   void *userdata;
 
@@ -253,6 +255,7 @@ typedef struct _Scan MediaScan;
 typedef void (*ResultCallback) (MediaScan *, MediaScanResult *, void *);
 typedef void (*ErrorCallback) (MediaScan *, MediaScanError *, void *);
 typedef void (*ProgressCallback) (MediaScan *, MediaScanProgress *, void *);
+typedef void (*FinishCallback) (MediaScan *, void *);
 typedef void (*FolderChangeCallback) (MediaScan *, MediaScanResult *, void *);
 
 ///< libmediascan's errno
@@ -345,8 +348,9 @@ void ms_set_result_callback(MediaScan *s, ResultCallback callback);
 void ms_set_error_callback(MediaScan *s, ErrorCallback callback);
 
 /**
- * Set a callback that will be called during the scan with progress details.
- * This callback is optional.
+ * Set a callback that will be called at regular intervals during the scan
+ * with progress details. This callback is optional. See ms_set_progress_interval
+ * to adjust the callback interval.
  */
 void ms_set_progress_callback(MediaScan *s, ProgressCallback callback);
 
@@ -355,6 +359,12 @@ void ms_set_progress_callback(MediaScan *s, ProgressCallback callback);
  * called more often than this value. This interval defaults to 1 second.
  */
 void ms_set_progress_interval(MediaScan *s, int seconds);
+
+/**
+ * Set a callback that will be called when the scanning has finished.
+ * This callback is optional.
+ */
+void ms_set_finish_callback(MediaScan *s, FinishCallback callback);
 
 /**
  * Set an optional user pointer to be passed to all callbacks.
