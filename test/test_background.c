@@ -20,8 +20,6 @@
 #include "../src/mediascan.h"
 #include "Cunit/CUnit/Headers/Basic.h"
 
-static FILE* temp_file = NULL;
-
 #ifndef MAX_PATH
 #define MAX_PATH 1024
 #endif
@@ -120,54 +118,6 @@ int deletefile(char *source)
 }
 #endif
 
-///-------------------------------------------------------------------------------------------------
-///  ------------------------------------------------------------------------------------------
-/// 	  The suite initialization function. Opens the temporary file used by the tests. Returns
-/// 	  zero on success, non-zero otherwise.
-///
-/// @author Henry Bennett
-/// @date 03/16/2011
-///
-/// @return .
-///-------------------------------------------------------------------------------------------------
-
-static int init_suite(void)
-{
-	temp_file = fopen("./temp2.txt", "w+");
-
-   if ( temp_file == NULL) {
-      return -1;
-   }
-   else {
-      return 0;
-   }
-}
-
-///-------------------------------------------------------------------------------------------------
-///  ------------------------------------------------------------------------------------------
-/// 	  The suite cleanup function. Closes the temporary file used by the tests. Returns zero
-/// 	  on success, non-zero otherwise.
-///
-/// @author Henry Bennett
-/// @date 03/16/2011
-///
-/// @return .
-///-------------------------------------------------------------------------------------------------
-
-static int clean_suite(void)
-{
-
-   if (0 != fclose(temp_file)) {
-      return -1;
-   }
-   else {
-      temp_file = NULL;
-      return 0;
-   }
-
-
-}
-
 static int result_called = FALSE;
 static MediaScanResult result;
 
@@ -230,7 +180,7 @@ void test_background_api(void)	{
 
 	CU_ASSERT_FATAL(s != NULL);
 
-	// Do some set for the test
+	// Do some setup for the test
 	CU_ASSERT( _mkdir(test_path) != -1 );
 	result_called = FALSE;
 	
@@ -280,7 +230,7 @@ int setupbackground_tests() {
 
 
    /* add a suite to the registry */
-   pSuite = CU_add_suite("Background Scanning", init_suite, clean_suite);
+   pSuite = CU_add_suite("Background Scanning", NULL, NULL);
    if (NULL == pSuite) {
       CU_cleanup_registry();
       return CU_get_error();

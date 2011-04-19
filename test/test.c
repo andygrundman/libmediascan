@@ -19,11 +19,9 @@
 #define MAX_PATH 1024
 #endif
 
-/* Pointer to the file used by the tests. */
-static FILE* temp_file = NULL;
-
-
 int setupbackground_tests();
+int setup_thumbnail_tests();
+
 
 #ifdef _MSC_VER
 
@@ -40,51 +38,6 @@ int strncasecmp(const char *string1, const char *string2, size_t count )
 
 #endif
 
-///-------------------------------------------------------------------------------------------------
-///  ------------------------------------------------------------------------------------------
-/// 	  The suite initialization function. Opens the temporary file used by the tests. Returns
-/// 	  zero on success, non-zero otherwise.
-///
-/// @author Henry Bennett
-/// @date 03/16/2011
-///
-/// @return .
-///-------------------------------------------------------------------------------------------------
-
-int init_suite1(void)
-{
-	temp_file = fopen("./temp.txt", "w+");
-
-   if ( temp_file == NULL) {
-      return -1;
-   }
-   else {
-      return 0;
-   }
-}
-
-///-------------------------------------------------------------------------------------------------
-///  ------------------------------------------------------------------------------------------
-/// 	  The suite cleanup function. Closes the temporary file used by the tests. Returns zero
-/// 	  on success, non-zero otherwise.
-///
-/// @author Henry Bennett
-/// @date 03/16/2011
-///
-/// @return .
-///-------------------------------------------------------------------------------------------------
-
-int clean_suite1(void)
-{
-
-   if (0 != fclose(temp_file)) {
-      return -1;
-   }
-   else {
-      temp_file = NULL;
-      return 0;
-   }
-}
 
 static int result_called = FALSE;
 static MediaScanResult result;
@@ -622,7 +575,7 @@ int run_unit_tests()
       return CU_get_error();
 
    /* add a suite to the registry */
-   pSuite = CU_add_suite("File Scanning", init_suite1, clean_suite1);
+   pSuite = CU_add_suite("File Scanning", NULL, NULL);
    if (NULL == pSuite) {
       CU_cleanup_registry();
       return CU_get_error();
@@ -649,12 +602,16 @@ int run_unit_tests()
       CU_cleanup_registry();
       return CU_get_error();
    }
-
+	 
    setupbackground_tests();
 
+	 setup_thumbnail_tests();
+
    /* Run all tests using the CUnit Basic interface */
-   CU_basic_set_mode(CU_BRM_VERBOSE);
+   CU_basic_set_mode(CU_BRM_NORMAL);
    CU_basic_run_tests();
+//	CU_automated_run_tests();
+
    CU_cleanup_registry();
    return CU_get_error();
 } /* run_unit_tests() */

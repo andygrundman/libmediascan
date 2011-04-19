@@ -133,6 +133,22 @@ static const struct {
 // more straightforward. Other options would be: video/msvideo, video/x-msvideo
   { "avi",											"video/avi"    },
 
+	// http://tools.ietf.org/html/rfc2045
+  { "gif",											"image/gif"    },
+
+	// http://tools.ietf.org/html/rfc2045
+  { "jpg,jpeg",									"image/jpeg"    },
+
+	// http://tools.ietf.org/html/rfc2083
+  { "png",											"image/png"    },
+
+	// http://tools.ietf.org/html/rfc3302
+  { "tiff,tif",									"image/tiff"   },
+
+	// No offical ruling for this mimetype however this is the unoffical one per
+	// http://en.wikipedia.org/wiki/BMP_file_format
+  { "bmp",											"image/x-ms-bmp"   },
+
   { NULL, 0 }
 };
 
@@ -420,6 +436,11 @@ static int scan_image(MediaScanResult *r) {
     ret = 0;
     goto out;
   }
+
+	// Guess a mime type based on the file extension
+	if(!r->mime_type) {
+		r->mime_type = find_mime_type(r->path);
+	}
 
   // Save original image dimensions as thumbnail creation may alter it (e.g. for JPEG scaling)
   w = i->width;

@@ -179,10 +179,10 @@ int main(int argc, char *argv[])
   free(bin);
   */
  
-  //ms_set_log_level(ERR);
-  //run_unit_tests();
+  ms_set_log_level(INFO);
+  run_unit_tests();
   // 
-  check_mimetypes();
+  //check_mimetypes();
 
 
 
