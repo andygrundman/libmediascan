@@ -76,6 +76,39 @@ if ( $^O =~ /Win32/i ) {
     $static = 1;
 }
 
+# Look for libmediascan
+for my $incdir ( $lms_inc, @check ) {
+    if ( $incdir && -e catfile($incdir, 'libmediascan.h') ) {
+        $LMS = 1;
+        $lms_inc = $incdir;
+
+        push @INC, '-I' . $lms_inc;
+        if ($lms_lib) {
+            push @LIBPATH, '-L' . $lms_lib;
+        }
+
+        if ($static) {
+            if ($lms_lib) {
+                $MYEXTLIB .= $lms_lib . '/' . 'libmediascan$(LIB_EXT) ';
+            }
+            else {
+                $MYEXTLIB .= $lms_inc . '/../lib/libmediascan$(LIB_EXT) ';
+            }
+        }
+        else {
+            push @LIBS, '-lmediascan';
+        }
+
+        print "Using libmediascan from $lms_inc\n";
+        last;
+    }
+}
+
+if ( !$LMS ) {
+    # XXX make a CPAN module version that includes lms as a subdir?
+    die "libmediascan not found, please install it and try again. Checked for libmediascan.h in: " . join(", ", $lms_inc, @check) . "\n";
+}
+
 # Look for ffmpeg
 for my $incdir ( $ffmpeg_inc, @check ) {
     if ( $incdir && -e catfile($incdir, 'libavformat', 'avformat.h') ) {
@@ -91,20 +124,20 @@ for my $incdir ( $ffmpeg_inc, @check ) {
             if ($ffmpeg_lib) {
                 $MYEXTLIB .= $ffmpeg_lib . '/' . 'libavformat$(LIB_EXT) ';
                 $MYEXTLIB .= $ffmpeg_lib . '/' . 'libavcodec$(LIB_EXT) ';
-                $MYEXTLIB .= $ffmpeg_lib . '/' . 'libavutil$(LIB_EXT) ';
                 $MYEXTLIB .= $ffmpeg_lib . '/' . 'libswscale$(LIB_EXT) ';
+                $MYEXTLIB .= $ffmpeg_lib . '/' . 'libavutil$(LIB_EXT) ';
             }
             else {
                 $MYEXTLIB .= $ffmpeg_inc . '/../lib/libavformat$(LIB_EXT) ';
                 $MYEXTLIB .= $ffmpeg_inc . '/../lib/libavcodec$(LIB_EXT) ';
-                $MYEXTLIB .= $ffmpeg_inc . '/../lib/libavutil$(LIB_EXT) ';
                 $MYEXTLIB .= $ffmpeg_inc . '/../lib/libswscale$(LIB_EXT) ';
+                $MYEXTLIB .= $ffmpeg_inc . '/../lib/libavutil$(LIB_EXT) ';
             }
             
-            push @LIBS, '-lz -lbz2';
+            push @LIBS, '-lm -lbz2 -lz';
         }
         else {
-            push @LIBS, '-lavformat -lavcodec -lavutil -lswscale -lz -lbz2';
+            push @LIBS, '-lavformat -lavcodec -lm -lbz2 -lz -lswscale -lavutil';
         }
         
         print "Using ffmpeg from $ffmpeg_inc\n";
@@ -114,39 +147,6 @@ for my $incdir ( $ffmpeg_inc, @check ) {
 
 if ( !$FFMPEG ) {
     die "FFmpeg not found, please install it and try again. Checked for libavformat/avformat.h in: " . join(", ", $ffmpeg_inc, @check) . "\n";
-}
-
-# Look for libmediascan
-for my $incdir ( $lms_inc, @check ) {
-    if ( $incdir && -e catfile($incdir, 'libmediascan.h') ) {
-        $LMS = 1;
-        $lms_inc = $incdir;
-        
-        push @INC, '-I' . $lms_inc;
-        if ($lms_lib) {
-            push @LIBPATH, '-L' . $lms_lib;
-        }
-        
-        if ($static) {
-            if ($lms_lib) {
-                $MYEXTLIB .= $lms_lib . '/' . 'libmediascan$(LIB_EXT) ';
-            }
-            else {
-                $MYEXTLIB .= $lms_inc . '/../lib/libmediascan$(LIB_EXT) ';
-            }
-        }
-        else {
-            push @LIBS, '-lmediascan';
-        }
-        
-        print "Using libmediascan from $lms_inc\n";
-        last;
-    }
-}
-
-if ( !$LMS ) {
-    # XXX make a CPAN module version that includes lms as a subdir?
-    die "libmediascan not found, please install it and try again. Checked for libmediascan.h in: " . join(", ", $lms_inc, @check) . "\n";
 }
 
 # Look for libexif

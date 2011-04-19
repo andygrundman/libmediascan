@@ -9,7 +9,7 @@ static int rcount = 0;
 static int done = 0;
 
 static void my_result_callback(MediaScan *s, MediaScanResult *result, void *userdata) {
-  ms_dump_result(result);
+  //ms_dump_result(result);
   rcount++;
 }
 
@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
   char *dir;
 
   plan(TEST_COUNT);  
-  ms_set_log_level(INFO);
+  ms_set_log_level(WARN);
 
   // Get path to this binary
   bin = _findbin(argv[0]);
