@@ -36,23 +36,6 @@ cd libexif-0.6.20
 make
 make install
 
--- LIBJPEG --
-* Grab version 8a of the JPEG library using the URL"http://www.ijg.org/files/jpegsr8a.zip"
-* Extract 
-* then open an MSYS shell
-
-cd jpeg-8a
-./configure
-
-Edit jconfig.h as follows
-#undef HAVE_UNSIGNED_CHAR -> #define HAVE_UNSIGNED_CHAR
-#undef HAVE_UNSIGNED_SHORT -> #define HAVE_UNSIGNED_SHORT
-#undef CHAR_IS_UNSIGNED -> #define CHAR_IS_UNSIGNED
-
-make
-make install
-
-
 -- LIBGIF --
 * Grab the latest version of the GIF library using the URL"http://sourceforge.net/projects/giflib/files/giflib%204.x/giflib-4.1.6/giflib-4.1.6.tar.bz2/download?use_mirror=softlayer"
 * Extract 
