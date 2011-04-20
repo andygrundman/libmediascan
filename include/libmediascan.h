@@ -9,6 +9,7 @@
 
 #include <db.h>
 
+#include <unistd.h>
 #include <stdio.h>
 #include <stdint.h>
 
@@ -16,7 +17,6 @@
 #include <Windows.h>
 #include <wchar.h>
 #else
-#include <unistd.h>
 #include <pthread.h>
 #endif
 
