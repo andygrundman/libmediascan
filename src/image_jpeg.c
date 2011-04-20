@@ -464,7 +464,7 @@ int image_jpeg_load(MediaScanImage *i, MediaScanThumbSpec *spec_hint) {
 
 // Compress the data from i->_pixbuf to i->data.
 // Uses libjpeg-turbo if available (JCS_EXTENSIONS) for better performance
-void image_jpeg_compress(MediaScanImage *i, MediaScanThumbSpec *spec) {
+int image_jpeg_compress(MediaScanImage *i, MediaScanThumbSpec *spec) {
   struct jpeg_compress_struct cinfo;
   struct jpeg_error_mgr jerr;
   struct buf_dst_mgr dst;
@@ -480,7 +480,7 @@ void image_jpeg_compress(MediaScanImage *i, MediaScanThumbSpec *spec) {
 
   if (!i->_pixbuf_size) {
     LOG_WARN("JPEG compression requires pixbuf data\n");
-    return;
+    return 0;
   }
 
   if (!quality)
@@ -500,7 +500,7 @@ void image_jpeg_compress(MediaScanImage *i, MediaScanThumbSpec *spec) {
       LOG_MEM("destroy JPEG data row @ %p\n", data);
       free((void *)data);
     }
-    return;
+    return 0;
   }
 
 #ifdef JCS_EXTENSIONS
@@ -552,6 +552,8 @@ void image_jpeg_compress(MediaScanImage *i, MediaScanThumbSpec *spec) {
 
   // Attach compressed buffer to image
   i->_dbuf = (void *)dst.dbuf;
+
+  return 1;
 }
 
 void image_jpeg_destroy(MediaScanImage *i) {

@@ -100,7 +100,7 @@ static int buffer_compact(Buffer *buffer) {
    * data to the beginning.
    */
   if (buffer->offset * 1.0 / buffer->alloc >= BUFFER_COMPACT_PERCENT) {
-    LOG_DEBUG("Buffer compacting (%d -> %d)\n", buffer->offset + buffer_len(buffer), buffer_len(buffer));
+    //LOG_DEBUG("Buffer compacting (%d -> %d)\n", buffer->offset + buffer_len(buffer), buffer_len(buffer));
     memmove(buffer->buf, buffer->buf + buffer->offset, (int)(buffer->end - buffer->offset));
     buffer->end -= buffer->offset;
     buffer->offset = 0;
@@ -149,7 +149,7 @@ restart:
 
   if (newlen > BUFFER_MAX_LEN)
     FATAL("buffer_append_space: alloc %u too large (max %u)", newlen, BUFFER_MAX_LEN);
-  LOG_DEBUG("Buffer extended to %d\n", newlen);
+  //LOG_DEBUG("Buffer extended to %d\n", newlen);
   buffer->buf = (unsigned char *)realloc(buffer->buf, newlen);
   buffer->alloc = newlen;
   goto restart;

@@ -1152,9 +1152,11 @@ const uint8_t *ms_result_get_thumbnail_data(MediaScanResult *r, int index, uint3
 
   if (r->nthumbnails >= index) {
     MediaScanImage *thumb = r->_thumbs[index];
-    Buffer *buf = (Buffer *)thumb->_dbuf;
-    *length = buffer_len(buf);
-    ret = (uint8_t *)buffer_ptr(buf);
+    if (thumb->_dbuf) {
+      Buffer *buf = (Buffer *)thumb->_dbuf;
+      *length = buffer_len(buf);
+      ret = (uint8_t *)buffer_ptr(buf);
+    }
   }
 
   return (const uint8_t *)ret;

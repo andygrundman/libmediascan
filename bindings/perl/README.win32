@@ -8,6 +8,10 @@ Building Media::Scan on Win32
 
 * Build and install FFmpeg using MinGW. See libmediascan/win32/win32_build_instructions.txt
 
+* Build and install libexif using MinGW. See libmediascan/win32/win32_build_instructions.txt
+
+* Build and install giflib using MinGW. See libmediascan/win32/win32_build_instructions.txt
+
 * Build libmediascan using Visual Studio. See libmediascan/win32/win32_build_instructions.txt
 
 * Copy FFmpeg headers to win32/include:
@@ -17,6 +21,10 @@ Building Media::Scan on Win32
   C:\MinGW\msys\1.0\local\lib\libav*.a -> win32/lib
   
 * Rename libav*.a to libav*.lib
+
+* Copy libexif headers to win32/include, and lib to win32/lib.
+
+* Copy giflib header to win32/include, and lib to win32/lib.
 
 * Copy libmediascan header to win32/include:
   ..\..\include\libmediascan.h -> win32/include

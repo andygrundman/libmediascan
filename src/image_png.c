@@ -305,7 +305,7 @@ static void image_png_flush_buf(png_structp png_ptr) {
   // Nothing
 }
 
-void image_png_compress(MediaScanImage *i, MediaScanThumbSpec *spec) {
+int image_png_compress(MediaScanImage *i, MediaScanThumbSpec *spec) {
   int j, x, y;
   int color_space = PNG_COLOR_TYPE_RGB_ALPHA;
   volatile unsigned char *ptr = NULL;
@@ -315,7 +315,7 @@ void image_png_compress(MediaScanImage *i, MediaScanThumbSpec *spec) {
 
   if (!i->_pixbuf_size) {
     LOG_WARN("PNG compression requires pixbuf data\n");
-    return;
+    return 0;
   }
 
   png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
@@ -339,7 +339,7 @@ void image_png_compress(MediaScanImage *i, MediaScanThumbSpec *spec) {
   if (setjmp(png_jmpbuf(png_ptr))) {
     if (ptr != NULL)
       free((void *)ptr);
-    return;
+    return 0;
   }
 
   // Match output color space with input file
@@ -393,6 +393,8 @@ void image_png_compress(MediaScanImage *i, MediaScanThumbSpec *spec) {
   png_write_end(png_ptr, info_ptr);
 
   png_destroy_write_struct(&png_ptr, &info_ptr);
+
+  return 1;
 }
 
 void image_png_destroy(MediaScanImage *i) {

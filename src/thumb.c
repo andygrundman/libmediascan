@@ -75,12 +75,14 @@ MediaScanImage *thumb_create_from_image(MediaScanImage *i, MediaScanThumbSpec *s
   switch (spec->format) {
     case THUMB_JPEG:
       thumb->codec = "JPEG";
-      image_jpeg_compress(thumb, spec);
+      if (!image_jpeg_compress(thumb, spec))
+        goto err;
       break;
 
     case THUMB_PNG:
       thumb->codec = "PNG";
-      image_png_compress(thumb, spec);
+      if (!image_png_compress(thumb, spec))
+        goto err;
       break;
   }
 
