@@ -479,7 +479,8 @@ int image_jpeg_compress(MediaScanImage *i, MediaScanThumbSpec *spec) {
 #endif
 
   if (!i->_pixbuf_size) {
-    LOG_WARN("JPEG compression requires pixbuf data\n");
+    LOG_WARN("JPEG compression requires pixbuf data (%s)\n", i->path);
+    exit(-1);
     return 0;
   }
 

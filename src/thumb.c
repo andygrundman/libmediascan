@@ -118,6 +118,7 @@ int thumb_resize(MediaScanImage *src, MediaScanImage *dst, MediaScanThumbSpec *s
   // Special case for equal size without resizing
   if (src->width == dst->width && src->height == dst->height) {
     dst->_pixbuf = src->_pixbuf;
+    dst->_pixbuf_size = src->_pixbuf_size;
     dst->_pixbuf_is_copy = 1;
     goto out;
   }

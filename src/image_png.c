@@ -314,7 +314,7 @@ int image_png_compress(MediaScanImage *i, MediaScanThumbSpec *spec) {
   Buffer *buf;
 
   if (!i->_pixbuf_size) {
-    LOG_WARN("PNG compression requires pixbuf data\n");
+    LOG_WARN("PNG compression requires pixbuf data (%s)\n", i->path);
     return 0;
   }
 

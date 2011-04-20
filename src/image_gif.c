@@ -121,7 +121,8 @@ int image_gif_load(MediaScanImage *i) {
         }
 
         // Allocate storage for decompressed image
-        image_alloc_pixbuf(i, i->width, i->height);
+        if (!i->_pixbuf_size)
+          image_alloc_pixbuf(i, i->width, i->height);
 
         line = (GifPixelType *) malloc(i->width * sizeof(GifPixelType));
         LOG_MEM("new GIF line buffer @ %p\n", line);
