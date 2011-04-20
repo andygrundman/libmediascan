@@ -8,8 +8,6 @@ Portrait thumb sizes not correctly set (too tall)
 
 Review thread safety for Progress/Error/Result instances
 
-Some result data not cleaned up properly during async scan when errors occur
-
 Keep track of memory diagnostics, add a memory limit feature like Image::Scale
 
 valgrind testing
