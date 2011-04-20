@@ -81,6 +81,7 @@ int image_gif_load(MediaScanImage *i) {
   int trans_index = 0;          // transparent index if any
   ColorMapObject *ColorMap;
   GifColorType *ColorMapEntry;
+  int ret = 1;
 
   GIFData *g = (GIFData *)i->_gif;
 
@@ -93,8 +94,7 @@ int image_gif_load(MediaScanImage *i) {
     if (DGifGetRecordType(g->gif, &RecordType) == GIF_ERROR) {
       PrintGifError();
       LOG_ERROR("Unable to read GIF file (%s)\n", i->path);
-      image_gif_destroy(i);
-      return 0;
+      goto err;
     }
 
     switch (RecordType) {
@@ -102,8 +102,7 @@ int image_gif_load(MediaScanImage *i) {
         if (DGifGetImageDesc(g->gif) == GIF_ERROR) {
           PrintGifError();
           LOG_ERROR("Unable to read GIF file (%s)\n", i->path);
-          image_gif_destroy(i);
-          return 0;
+          goto err;
         }
 
         sp = &g->gif->SavedImages[g->gif->ImageCount - 1];
@@ -116,8 +115,7 @@ int image_gif_load(MediaScanImage *i) {
 
         if (ColorMap == NULL) {
           LOG_ERROR("Image::Scale GIF image has no colormap (%s)\n", i->path);
-          image_gif_destroy(i);
-          return 0;
+          goto err;
         }
 
         // Allocate storage for decompressed image
@@ -135,8 +133,7 @@ int image_gif_load(MediaScanImage *i) {
               if (DGifGetLine(g->gif, line, 0) != GIF_OK) {
                 PrintGifError();
                 LOG_ERROR("Unable to read GIF file (%s)\n", i->path);
-                image_gif_destroy(i);
-                return 0;
+                goto err;
               }
 
               for (y = 0; y < i->width; y++) {
@@ -154,8 +151,7 @@ int image_gif_load(MediaScanImage *i) {
             if (DGifGetLine(g->gif, line, 0) != GIF_OK) {
               PrintGifError();
               LOG_ERROR("Unable to read GIF file (%s)\n", i->path);
-              image_gif_destroy(i);
-              return 0;
+              goto err;
             }
 
             for (y = 0; y < i->width; y++) {
@@ -174,8 +170,7 @@ int image_gif_load(MediaScanImage *i) {
         if (DGifGetExtension(g->gif, &temp_save.Function, &ExtData) == GIF_ERROR) {
           PrintGifError();
           LOG_ERROR("Image::Scale unable to read GIF file (%s)\n", i->path);
-          image_gif_destroy(i);
-          return 0;
+          goto err;
         }
 
         if (temp_save.Function == 0xF9) { // transparency info
@@ -192,15 +187,13 @@ int image_gif_load(MediaScanImage *i) {
           if (AddExtensionBlock(&temp_save, ExtData[0], &ExtData[1]) == GIF_ERROR) {
             PrintGifError();
             LOG_ERROR("Unable to read GIF file (%s)\n", i->path);
-            image_gif_destroy(i);
-            return 0;
+            goto err;
           }
 
           if (DGifGetExtensionNext(g->gif, &ExtData) == GIF_ERROR) {
             PrintGifError();
             LOG_ERROR("Unable to read GIF file (%s)\n", i->path);
-            image_gif_destroy(i);
-            return 0;
+            goto err;
           }
 
           temp_save.Function = 0;
@@ -213,7 +206,17 @@ int image_gif_load(MediaScanImage *i) {
     }
   } while (RecordType != TERMINATE_RECORD_TYPE);
 
-  return 1;
+  goto out;
+
+err:
+  image_gif_destroy(i);
+  ret = 0;
+
+out:
+  if (temp_save.ExtensionBlocks)
+    FreeExtension(&temp_save);
+
+  return ret;
 }
 
 void image_gif_destroy(MediaScanImage *i) {

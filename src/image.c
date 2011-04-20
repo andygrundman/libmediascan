@@ -172,6 +172,9 @@ void image_unload(MediaScanImage *i) {
   if (i->_bmp)
     image_bmp_destroy(i);
 
+  if (i->_gif)
+    image_gif_destroy(i);
+
   if (i->_pixbuf_size && !i->_pixbuf_is_copy) {
     LOG_MEM("destroy pixbuf @ %p of size %d bytes\n", i->_pixbuf, i->_pixbuf_size);
 
