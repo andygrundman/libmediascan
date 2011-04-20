@@ -719,13 +719,13 @@ void ms_watch_directory(MediaScan *s, const char *path, FolderChangeCallback cal
   // This folder monitoring code is only valid for Win32
 #ifdef WIN32
 
-  s->ghSignalEvent = CreateEvent(NULL,  // default security attributes
+  s->thread->ghSignalEvent = CreateEvent(NULL,  // default security attributes
                                  TRUE,  // manual-reset event
                                  FALSE, // initial state is nonsignaled
                                  "StopEvent"  // "StopEvent" name
     );
 
-  if (s->ghSignalEvent == NULL) {
+  if (s->thread->ghSignalEvent == NULL) {
     ms_errno = MSENO_THREADERROR;
     LOG_ERROR("Can't create event\n");
     return;
@@ -737,14 +737,14 @@ void ms_watch_directory(MediaScan *s, const char *path, FolderChangeCallback cal
   thread_data->lpDir = (char *)path;
   thread_data->s = s;
 
-  s->hThread = CreateThread(NULL, // default security attributes
+  s->thread->hThread = CreateThread(NULL, // default security attributes
                             0,  // use default stack size  
                             WatchDirectory, // WatchDirectory thread
                             (void *)thread_data,  // (void*)thread_data_type
                             0,  // use default creation flags 
-                            &s->dwThreadId);  // returns the thread identifier 
+                            &s->thread->dwThreadId);  // returns the thread identifier 
 
-  if (s->hThread == NULL) {
+  if (s->thread->hThread == NULL) {
     ms_errno = MSENO_THREADERROR;
     LOG_ERROR("Can't create watch thread\n");
     return;
@@ -764,13 +764,13 @@ void ms_watch_directory(MediaScan *s, const char *path, FolderChangeCallback cal
 void ms_clear_watch(MediaScan *s) {
 // This folder monitoring code is only valid for Win32
 #ifdef WIN32
-  SetEvent(s->ghSignalEvent);
+  SetEvent(s->thread->ghSignalEvent);
 
   // Wait until all threads have terminated.
-  WaitForSingleObject(s->hThread, INFINITE);
+  WaitForSingleObject(s->thread->hThread, INFINITE);
 
-  CloseHandle(s->hThread);
-  CloseHandle(s->ghSignalEvent);
+  CloseHandle(s->thread->hThread);
+  CloseHandle(s->thread->ghSignalEvent);
 #endif
 
 }                               /* ms_clear_watch() */
