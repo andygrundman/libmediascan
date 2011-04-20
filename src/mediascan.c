@@ -691,7 +691,6 @@ void ms_async_process(MediaScan *s) {
         case EVENT_TYPE_ERROR:
           s->on_error(s, (MediaScanError *)data, s->userdata);
           error_destroy((MediaScanError *)data);
-          // XXX also need to destroy active result somehow
           break;
 
         case EVENT_TYPE_FINISH:
@@ -1095,8 +1094,14 @@ void ms_scan_file(MediaScan *s, const char *tmp_full_path, enum media_type type)
 
     send_result(s, r);
   }
-  else if (s->on_error && r->error) {
-    send_error(s, r->error);
+  else {
+    if (s->on_error && r->error) {
+      // Copy the error, because the original will be cleaned up by result_destroy below
+      MediaScanError *ecopy = error_copy(r->error);
+      send_error(s, ecopy);
+    }
+
+    result_destroy(r);
   }
 }                               /* ms_scan_file() */
 

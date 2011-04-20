@@ -168,7 +168,7 @@ static void scan_dlna_profile(MediaScanResult *r, av_codecs_t *codecs) {
   dlna_registered_profile_t *p;
   dlna_profile_t *profile = NULL;
   dlna_container_type_t st;
-  AVFormatContext *avf = (AVFormatContext *) r->_avf;
+  AVFormatContext *avf = (AVFormatContext *)r->_avf;
   dlna_t *dlna = (dlna_t *)((MediaScan *)r->_scan)->_dlna;
 
   st = stream_get_container(avf);
@@ -299,19 +299,19 @@ static int scan_video(MediaScanResult *r) {
     goto out;
   }
 
+  r->_avf = (void *)avf;
+
   if ((AVError = av_find_stream_info(avf)) < 0) {
     r->error = error_create(r->path, MS_ERROR_READ, "[libavformat] Unable to find stream info");
     r->error->averror = AVError;
     ret = 0;
-    av_close_input_file(avf);
     goto out;
   }
-
-  r->_avf = (void *)avf;
 
   // Use libdlna's handy codecs struct
   codecs = av_profile_get_codecs(avf);
   if (!codecs) {
+    r->error = error_create(r->path, MS_ERROR_READ, "Unable to determine audio/video codecs");
     ret = 0;
     goto out;
   }
@@ -320,9 +320,9 @@ static int scan_video(MediaScanResult *r) {
     // XXX some extensions (e.g. mp4) can be either video or audio,
     // if after checking we don't find a video stream, we need to
     // send the result through the audio path
-    LOG_WARN("XXX Scanning audio file with video path\n");
+    r->error =
+      error_create(r->path, MS_ERROR_READ, "Skipping audio file passed to scan_video. (This will be fixed later.)");
     ret = 0;
-    av_close_input_file(avf);
     goto out;
   }
 

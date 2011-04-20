@@ -28,6 +28,20 @@ MediaScanError *error_create(const char *tmp_full_path, enum media_error error_c
   return e;
 }
 
+// Copy an error instance. Pass the copy to error_destroy
+// when done.
+MediaScanError *error_copy(MediaScanError *e) {
+  MediaScanError *ecopy = malloc(sizeof(MediaScanError));
+  memcpy(ecopy, e, sizeof(MediaScanError));
+
+  ecopy->path = strdup(e->path);
+  ecopy->error_string = strdup(e->error_string);
+
+  LOG_MEM("copy MediaScanError @ %p -> %p\n", e, ecopy);
+
+  return ecopy;
+}
+
 void error_destroy(MediaScanError *e) {
   LOG_MEM("destroy MediaScanError @ %p\n", e);
 
