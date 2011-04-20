@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
   // Get path to this binary
   bin = _findbin(argv[0]);
   //dir = _abspath(bin, "../data"); // because binary is in .libs dir
-  dir = "/Users/andy/QA/DHGMedia";
+  dir = "/Users/andy/QA/DHGMedia/Pictures/BMP";
 
   // Scan all image files
   {
@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
     ms_set_error_callback(s, my_error_callback);
     ms_set_progress_callback(s, my_progress_callback);
     ms_set_finish_callback(s, my_finish_callback);
-    ms_set_async(s, 1);
+    //ms_set_async(s, 1);
     ms_scan(s);
 
     // XXX Watch fd instead

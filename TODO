@@ -13,3 +13,5 @@ Some result data not cleaned up properly during async scan when errors occur
 Keep track of memory diagnostics, add a memory limit feature like Image::Scale
 
 valgrind testing
+
+Ability to set location for db file(s)

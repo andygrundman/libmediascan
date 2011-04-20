@@ -955,7 +955,7 @@ static void *do_scan(void *userdata) {
 
   // Send final progress callback
   if (s->on_progress) {
-    s->progress->cur_item = NULL;
+    progress_update(s->progress, NULL);
     send_progress(s);
   }
 

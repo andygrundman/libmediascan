@@ -204,7 +204,6 @@ struct _Progress {
   int rate;                     ///< rate in items/second
 
   // private
-  int _is_copy;
   long _start_ts;
   long _last_update_ts;
 };
