@@ -90,12 +90,16 @@ MediaScanImage *video_create_image_from_frame(MediaScanVideo *v, MediaScanResult
     }
 
     // Skip frame if it's not from the video stream
-    if (packet.stream_index != codecs->vsid)
+    if (packet.stream_index != codecs->vsid) {
+      av_free_packet(&packet);
       continue;
+    }
 
     // Skip non-key-frames
-    if (!(packet.flags & PKT_FLAG_KEY))
+    if (!(packet.flags & AV_PKT_FLAG_KEY)) {
+      av_free_packet(&packet);
       continue;
+    }
 
     LOG_DEBUG
       ("Using video packet: pos %lld size %d, stream_index %d, duration %d\n",

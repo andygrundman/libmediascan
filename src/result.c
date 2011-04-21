@@ -639,7 +639,7 @@ void ms_dump_result(MediaScanResult *r) {
   }
 
   for (i = 0; i < r->nthumbnails; i++) {
-	Buffer *dbuf;
+    Buffer *dbuf;
     MediaScanImage *thumb = r->_thumbs[i];
     if (!thumb->_dbuf)
       continue;

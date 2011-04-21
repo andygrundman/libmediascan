@@ -719,9 +719,9 @@ void ms_watch_directory(MediaScan *s, const char *path, FolderChangeCallback cal
 #ifdef WIN32
 
   s->thread->ghSignalEvent = CreateEvent(NULL,  // default security attributes
-                                 TRUE,  // manual-reset event
-                                 FALSE, // initial state is nonsignaled
-                                 "StopEvent"  // "StopEvent" name
+                                         TRUE,  // manual-reset event
+                                         FALSE, // initial state is nonsignaled
+                                         "StopEvent"  // "StopEvent" name
     );
 
   if (s->thread->ghSignalEvent == NULL) {
@@ -737,11 +737,11 @@ void ms_watch_directory(MediaScan *s, const char *path, FolderChangeCallback cal
   thread_data->s = s;
 
   s->thread->hThread = CreateThread(NULL, // default security attributes
-                            0,  // use default stack size  
-                            WatchDirectory, // WatchDirectory thread
-                            (void *)thread_data,  // (void*)thread_data_type
-                            0,  // use default creation flags 
-                            &s->thread->dwThreadId);  // returns the thread identifier 
+                                    0,  // use default stack size
+                                    WatchDirectory, // WatchDirectory thread
+                                    (void *)thread_data,  // (void*)thread_data_type
+                                    0,  // use default creation flags
+                                    &s->thread->dwThreadId);  // returns the thread identifier
 
   if (s->thread->hThread == NULL) {
     ms_errno = MSENO_THREADERROR;
