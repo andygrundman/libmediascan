@@ -69,7 +69,7 @@ static void image_png_warning(png_structp png_ptr, png_const_charp warning_msg) 
 static void image_png_read_buf(png_structp png_ptr, png_bytep data, png_size_t len) {
   PNGData *p = (PNGData *)png_get_io_ptr(png_ptr);
 
-  LOG_DEBUG("PNG read_buf wants %ld bytes, %d in buffer\n", len, buffer_len(p->buf));
+  //LOG_DEBUG("PNG read_buf wants %ld bytes, %d in buffer\n", len, buffer_len(p->buf));
 
   if (!buffer_check_load(p->buf, p->fp, len, BUF_SIZE))
     goto eof;
@@ -118,6 +118,7 @@ int image_png_read_header(MediaScanImage *i, MediaScanResult *r) {
   i->height = png_get_image_height(p->png_ptr, p->info_ptr);
   i->channels = png_get_channels(p->png_ptr, p->info_ptr);
   i->has_alpha = 1;
+  r->mime_type = MIME_IMAGE_PNG;
 
   // Match with DLNA profile
   // DLNA does not support interlaced images
@@ -125,7 +126,6 @@ int image_png_read_header(MediaScanImage *i, MediaScanResult *r) {
     for (x = 0; png_profiles_mapping[x].profile; x++) {
       if (i->width <= png_profiles_mapping[x].max_width && i->height <= png_profiles_mapping[x].max_height) {
         r->dlna_profile = png_profiles_mapping[x].profile->id;
-        r->mime_type = png_profiles_mapping[x].profile->mime;
         break;
       }
     }
@@ -298,14 +298,14 @@ static void image_png_write_buf(png_structp png_ptr, png_bytep data, png_size_t 
   // Copy buffer
   buffer_append(buf, data, len);
 
-  LOG_DEBUG("image_png_write_buf wrote %ld bytes\n", len);
+  //LOG_DEBUG("image_png_write_buf wrote %ld bytes\n", len);
 }
 
 static void image_png_flush_buf(png_structp png_ptr) {
   // Nothing
 }
 
-void image_png_compress(MediaScanImage *i, MediaScanThumbSpec *spec) {
+int image_png_compress(MediaScanImage *i, MediaScanThumbSpec *spec) {
   int j, x, y;
   int color_space = PNG_COLOR_TYPE_RGB_ALPHA;
   volatile unsigned char *ptr = NULL;
@@ -314,8 +314,8 @@ void image_png_compress(MediaScanImage *i, MediaScanThumbSpec *spec) {
   Buffer *buf;
 
   if (!i->_pixbuf_size) {
-    LOG_WARN("PNG compression requires pixbuf data\n");
-    return;
+    LOG_WARN("PNG compression requires pixbuf data (%s)\n", i->path);
+    return 0;
   }
 
   png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
@@ -339,7 +339,7 @@ void image_png_compress(MediaScanImage *i, MediaScanThumbSpec *spec) {
   if (setjmp(png_jmpbuf(png_ptr))) {
     if (ptr != NULL)
       free((void *)ptr);
-    return;
+    return 0;
   }
 
   // Match output color space with input file
@@ -393,6 +393,8 @@ void image_png_compress(MediaScanImage *i, MediaScanThumbSpec *spec) {
   png_write_end(png_ptr, info_ptr);
 
   png_destroy_write_struct(&png_ptr, &info_ptr);
+
+  return 1;
 }
 
 void image_png_destroy(MediaScanImage *i) {

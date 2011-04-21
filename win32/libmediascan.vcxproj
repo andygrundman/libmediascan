@@ -58,7 +58,7 @@
     </Link>
     <Lib>
       <AdditionalLibraryDirectories>$(ProjectDir)\..\lib;C:\mingw\msys\1.0\local\lib;C:\mingw\lib\gcc\mingw32\4.5.2;C:\mingw\lib;D:\workspace\scan\test</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(ProjectDir)..\lib\libdb_small51s.lib;$(ProjectDir)..\win32\Debug Library\libpng15.lib;$(ProjectDir)..\win32\Debug Library\zlib.lib;$(ProjectDir)..\win32\jpeg-8a\Release\jpeg.lib;libexif.a;libintl.lib;libgif.a;libavcodec.a;libavformat.a;libavutil.a;libswscale.a;libbz2.a;libgcc.a;libmingwex.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectDir)Debug Library\libpng15.lib;$(ProjectDir)Debug Library\zlib.lib;$(ProjectDir)Release\jpeg.lib;$(ProjectDir)giflib-4.1.6\windows\.\Debug\libungif.lib;libgcc.a;libmingwex.lib;libavcodec.a;libavformat.a;libavutil.a;libswscale.a;libexif.a;libintl.lib;$(ProjectDir)..\lib\libdb_small51s.lib;libbz2.a;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <PreBuildEvent>
       <Command>
@@ -91,7 +91,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>$(ProjectDir)..\lib\libdb_small51s.lib;$(ProjectDir)..\win32\Debug Library\libpng15.lib;$(ProjectDir)..\win32\Debug Library\zlib.lib;libexif.a;libjpeg.a;libintl.lib;libgif.a;libavcodec.a;libavformat.a;libavutil.a;libswscale.a;libbz2.a;libgcc.a;libmingwex.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectDir)..\win32\Release\jpeg.lib;$(ProjectDir)..\win32\Release Library\libpng15.lib;$(ProjectDir)..\win32\Release Library\zlib.lib;libgcc.a;libmingwex.lib;libavcodec.a;libavformat.a;libavutil.a;libswscale.a;$(ProjectDir)..\lib\libdb_small51s.lib;libgif.a;libintl.lib;libexif.a;libbz2.a;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)\..\lib;C:\mingw\msys\1.0\local\lib;C:\mingw\lib\gcc\mingw32\4.5.2;C:\mingw\lib;D:\workspace\scan\test</AdditionalLibraryDirectories>
       <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
     </Lib>
@@ -131,6 +131,7 @@
     <ClCompile Include="..\src\mediascan_win32.c" />
     <ClCompile Include="..\src\progress.c" />
     <ClCompile Include="..\src\result.c" />
+    <ClCompile Include="..\src\thread.c" />
     <ClCompile Include="..\src\thumb.c" />
     <ClCompile Include="..\src\util.c" />
     <ClCompile Include="..\src\video.c" />

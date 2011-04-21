@@ -15,7 +15,7 @@
 #include "error.h"
 #include "image_jpeg.h"
 #include "image_png.h"
-//#include "image_gif.h"
+#include "image_gif.h"
 #include "image_bmp.h"
 
 MediaScanImage *image_create(void) {
@@ -29,12 +29,12 @@ MediaScanImage *image_create(void) {
   LOG_MEM("new MediaScanImage @ %p\n", i);
 
   i->orientation = ORIENTATION_NORMAL;
-	
-	i->_bmp = NULL;
-	i->_png = NULL;
-	i->_jpeg = NULL;
-	i->_pixbuf = NULL;
-	i->_dbuf = NULL;
+
+  i->_bmp = NULL;
+  i->_png = NULL;
+  i->_jpeg = NULL;
+  i->_pixbuf = NULL;
+  i->_dbuf = NULL;
 
   return i;
 }
@@ -84,16 +84,15 @@ int image_read_header(MediaScanImage *i, MediaScanResult *r) {
         }
       }
       break;
-//    case 'G':
-//      if (bptr[1] == 'I' && bptr[2] == 'F' && bptr[3] == '8'
-//        && (bptr[4] == '7' || bptr[4] == '9') && bptr[5] == 'a') {
-//          i->codec = "GIF";
-//          if ( !image_gif_read_header(i, r) ) {
-//            ret = 0;
-//            goto out;
-//          }
-//      }
-//      break;
+    case 'G':
+      if (bptr[1] == 'I' && bptr[2] == 'F' && bptr[3] == '8' && (bptr[4] == '7' || bptr[4] == '9') && bptr[5] == 'a') {
+        i->codec = "GIF";
+        if (!image_gif_read_header(i, r, bptr[4] == '9')) { // Flag when file is GIF89, for DLNA
+          ret = 0;
+          goto out;
+        }
+      }
+      break;
     case 'B':
       if (bptr[1] == 'M') {
         i->codec = "BMP";
@@ -135,12 +134,12 @@ int image_load(MediaScanImage *i, MediaScanThumbSpec *spec_hint) {
       goto out;
     }
   }
-//  else if (!strcmp("GIF", i->codec)) {
-//    if ( !image_gif_load(i) ) {
-//      ret = 0;
-//      goto out;
-//    }
-//  }
+  else if (!strcmp("GIF", i->codec)) {
+    if (!image_gif_load(i)) {
+      ret = 0;
+      goto out;
+    }
+  }
   else if (!strcmp("BMP", i->codec)) {
     if (!image_bmp_load(i)) {
       ret = 0;
@@ -173,7 +172,7 @@ void image_unload(MediaScanImage *i) {
   if (i->_bmp)
     image_bmp_destroy(i);
 
-  if (i->_pixbuf_size) {
+  if (i->_pixbuf_size && !i->_pixbuf_is_copy) {
     LOG_MEM("destroy pixbuf @ %p of size %d bytes\n", i->_pixbuf, i->_pixbuf_size);
 
     free(i->_pixbuf);

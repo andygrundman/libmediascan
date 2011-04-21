@@ -1,11 +1,7 @@
 
-#include <stdlib.h>
-
-
 #include <libmediascan.h>
-
 #include <libexif/exif-data.h>
-
+#include <stdlib.h>
 #include <setjmp.h>
 #include <string.h>
 
@@ -24,10 +20,6 @@
 #include "libdlna/profiles.h"
 
 #define DEFAULT_JPEG_QUALITY 90
-
-#ifdef WIN32
-#define warn printf
-#endif
 
 // Forward declarations
 static void parse_exif_ifd(ExifContent * content, void *data);
@@ -272,7 +264,7 @@ static void libjpeg_output_message(j_common_ptr cinfo) {
   /* Create the message */
   (*cinfo->err->format_message) (cinfo, buffer);
 
-  warn("libjpeg error: %s (%s)\n", buffer, Filename);
+  LOG_WARN("libjpeg error: %s (%s)\n", buffer, Filename);
 }
 
 int image_jpeg_read_header(MediaScanImage *i, MediaScanResult *r) {
@@ -315,12 +307,12 @@ int image_jpeg_read_header(MediaScanImage *i, MediaScanResult *r) {
   i->width = j->cinfo->image_width;
   i->height = j->cinfo->image_height;
   i->channels = j->cinfo->num_components;
+  r->mime_type = MIME_IMAGE_JPEG;
 
   // Match with DLNA profile
   for (x = 0; jpeg_profiles_mapping[x].profile; x++) {
     if (i->width <= jpeg_profiles_mapping[x].max_width && i->height <= jpeg_profiles_mapping[x].max_height) {
       r->dlna_profile = jpeg_profiles_mapping[x].profile->id;
-      r->mime_type = jpeg_profiles_mapping[x].profile->mime;
       break;
     }
   }
@@ -472,7 +464,7 @@ int image_jpeg_load(MediaScanImage *i, MediaScanThumbSpec *spec_hint) {
 
 // Compress the data from i->_pixbuf to i->data.
 // Uses libjpeg-turbo if available (JCS_EXTENSIONS) for better performance
-void image_jpeg_compress(MediaScanImage *i, MediaScanThumbSpec *spec) {
+int image_jpeg_compress(MediaScanImage *i, MediaScanThumbSpec *spec) {
   struct jpeg_compress_struct cinfo;
   struct jpeg_error_mgr jerr;
   struct buf_dst_mgr dst;
@@ -487,8 +479,9 @@ void image_jpeg_compress(MediaScanImage *i, MediaScanThumbSpec *spec) {
 #endif
 
   if (!i->_pixbuf_size) {
-    LOG_WARN("JPEG compression requires pixbuf data\n");
-    return;
+    LOG_WARN("JPEG compression requires pixbuf data (%s)\n", i->path);
+    exit(-1);
+    return 0;
   }
 
   if (!quality)
@@ -508,7 +501,7 @@ void image_jpeg_compress(MediaScanImage *i, MediaScanThumbSpec *spec) {
       LOG_MEM("destroy JPEG data row @ %p\n", data);
       free((void *)data);
     }
-    return;
+    return 0;
   }
 
 #ifdef JCS_EXTENSIONS
@@ -522,11 +515,11 @@ void image_jpeg_compress(MediaScanImage *i, MediaScanThumbSpec *spec) {
   jpeg_start_compress(&cinfo, TRUE);
 
 #ifdef JCS_EXTENSIONS
-  data = (JSAMPROW *) malloc(i->height);
+  data = (JSAMPROW *)malloc(i->height * sizeof(JSAMPROW));
   LOG_MEM("new JPEG data row @ %p\n", data);
 
   for (x = 0; x < i->height; x++)
-    data[x] = (JSAMPROW) & i->_pixbuf[x * i->width];
+    data[x] = (JSAMPROW)&i->_pixbuf[x * i->width];
 
   while (cinfo.next_scanline < cinfo.image_height) {
     jpeg_write_scanlines(&cinfo, &data[cinfo.next_scanline], cinfo.image_height - cinfo.next_scanline);
@@ -560,6 +553,8 @@ void image_jpeg_compress(MediaScanImage *i, MediaScanThumbSpec *spec) {
 
   // Attach compressed buffer to image
   i->_dbuf = (void *)dst.dbuf;
+
+  return 1;
 }
 
 void image_jpeg_destroy(MediaScanImage *i) {

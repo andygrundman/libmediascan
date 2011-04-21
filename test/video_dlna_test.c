@@ -2648,8 +2648,8 @@ main(int argc, char *argv[])
   ExpectedResultType expected;
 
   plan(TEST_COUNT);
-  /*  
-  test_DLNA_scanning(argv);
+   
+ // test_DLNA_scanning(argv);
 
 // Test US profiles
   test_MPEG_TS_SD_NA();
@@ -2676,9 +2676,9 @@ main(int argc, char *argv[])
   test_MPEG_PS_NTSC();
 	
   test_DLNA_large_files();
-	*/
+	
 // Test MP3
-	test_DLNA_mp3s();
+//	test_DLNA_mp3s();
   
   return exit_status();
 } /* main() */

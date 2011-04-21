@@ -70,7 +70,7 @@ DWORD WINAPI WatchDirectory(thread_data_type * thread_data) {
   // there is shutdown code at the bottom of this function.
   while (ThreadRunning) {
     // Set up the events are going to wait for
-    HANDLE event_list[2] = { oOverlap.hEvent, s->ghSignalEvent };
+    HANDLE event_list[2] = { oOverlap.hEvent, s->thread->ghSignalEvent };
 
     LOG_LEVEL(1, "\nWaiting for notification...\n");
 
@@ -116,9 +116,9 @@ DWORD WINAPI WatchDirectory(thread_data_type * thread_data) {
           strcat(full_path, buf);
           printf("Found File Changed: %s\n", full_path);
 
-          StartCriticalSection(&s->CriticalSection);
+          //StartCriticalSection(&s->thread->CriticalSection);
           ms_scan_file(s, full_path, TYPE_UNKNOWN);
-          EndCriticalSection(&s->CriticalSection);
+          //EndCriticalSection(&s->thread->CriticalSection);
 
           if (0 == pRecord->NextEntryOffset)
             break;

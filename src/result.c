@@ -438,10 +438,10 @@ static int scan_image(MediaScanResult *r) {
     goto out;
   }
 
-	// Guess a mime type based on the file extension
-	if(!r->mime_type) {
-		r->mime_type = find_mime_type(r->path);
-	}
+  // Guess a mime type based on the file extension
+  if (!r->mime_type) {
+    r->mime_type = find_mime_type(r->path);
+  }
 
   // Save original image dimensions as thumbnail creation may alter it (e.g. for JPEG scaling)
   w = i->width;
@@ -639,10 +639,11 @@ void ms_dump_result(MediaScanResult *r) {
   }
 
   for (i = 0; i < r->nthumbnails; i++) {
+	Buffer *dbuf;
     MediaScanImage *thumb = r->_thumbs[i];
     if (!thumb->_dbuf)
       continue;
-    Buffer *dbuf = (Buffer *)thumb->_dbuf;
+    dbuf = (Buffer *)thumb->_dbuf;
     LOG_OUTPUT("    Thumbnail:  %d x %d %s (%d bytes)\n", thumb->width, thumb->height, thumb->codec, buffer_len(dbuf));
 
 #ifdef DUMP_THUMBNAILS

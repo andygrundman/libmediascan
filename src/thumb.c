@@ -75,12 +75,14 @@ MediaScanImage *thumb_create_from_image(MediaScanImage *i, MediaScanThumbSpec *s
   switch (spec->format) {
     case THUMB_JPEG:
       thumb->codec = "JPEG";
-      image_jpeg_compress(thumb, spec);
+      if (!image_jpeg_compress(thumb, spec))
+        goto err;
       break;
 
     case THUMB_PNG:
       thumb->codec = "PNG";
-      image_png_compress(thumb, spec);
+      if (!image_png_compress(thumb, spec))
+        goto err;
       break;
   }
 
@@ -116,6 +118,7 @@ int thumb_resize(MediaScanImage *src, MediaScanImage *dst, MediaScanThumbSpec *s
   // Special case for equal size without resizing
   if (src->width == dst->width && src->height == dst->height) {
     dst->_pixbuf = src->_pixbuf;
+    dst->_pixbuf_size = src->_pixbuf_size;
     dst->_pixbuf_is_copy = 1;
     goto out;
   }

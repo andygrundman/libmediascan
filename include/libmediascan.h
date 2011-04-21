@@ -130,6 +130,7 @@ struct _Image {
   void *_jpeg;                  // JPEG-specific internal data
   void *_png;                   // PNG-specific internal data
   void *_bmp;                   // BMP-specific internal data
+  void *_gif;                   // GIF-specific internal data
 };
 typedef struct _Image MediaScanImage;
 
