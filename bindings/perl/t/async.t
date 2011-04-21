@@ -14,9 +14,10 @@ my $c = 1;
 
     #my $s = Media::Scan->new( [ _f('video') ], {
     my $s = Media::Scan->new( [ '/Users/andy/QA/DLNATestContent/Additional Content' ], {
-        loglevel => 0,
+        loglevel => 9,
         ignore => [],
         async => 1,
+        cachedir => '/tmp/libmediascan',
         thumbnails => [
             { width => 200 },
         ],
