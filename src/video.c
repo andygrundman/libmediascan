@@ -27,6 +27,14 @@
 #include "util.h"
 #include "libdlna/profiles.h"
 
+static void print_averror(int err) {
+  char errbuf[128];
+  const char *errbuf_ptr = errbuf;
+
+  if (av_strerror(err, errbuf, sizeof(errbuf)) < 0)
+    errbuf_ptr = strerror(AVUNERROR(err));
+  fprintf(stderr, "%s\n", errbuf_ptr);
+}
 
 MediaScanVideo *video_create(void) {
   MediaScanVideo *v = (MediaScanVideo *)calloc(sizeof(MediaScanVideo), 1);
@@ -42,11 +50,10 @@ MediaScanVideo *video_create(void) {
 
 MediaScanImage *video_create_image_from_frame(MediaScanVideo *v, MediaScanResult *r) {
   MediaScanImage *i = image_create();
-  AVFormatContext *avf = (AVFormatContext *) r->_avf;
+  AVFormatContext *avf = (AVFormatContext *)r->_avf;
   av_codecs_t *codecs = (av_codecs_t *)v->_codecs;
-  AVCodec *codec = (AVCodec *) v->_avc;
+  AVCodec *codec = (AVCodec *)v->_avc;
   AVFrame *frame = NULL;
-  AVFrame *frame_rgb = NULL;
   AVPacket packet;
   struct SwsContext *swsc = NULL;
   int got_picture;
@@ -85,30 +92,37 @@ MediaScanImage *video_create_image_from_frame(MediaScanVideo *v, MediaScanResult
   av_seek_frame(avf, codecs->vsid, (int)((double)duration_tb * 0.1), 0);
 
   for (;;) {
-    if ((av_read_frame(avf, &packet)) < 0) {
-      LOG_ERROR("Couldn't read video frame\n");
+    int ret;
+    if ((ret = av_read_frame(avf, &packet)) < 0) {
+      LOG_ERROR("Couldn't read video frame (%s): ", v->path);
+      print_averror(ret);
       goto err;
     }
 
     // Skip frame if it's not from the video stream
-    if (packet.stream_index != codecs->vsid)
+    if (packet.stream_index != codecs->vsid) {
+      av_free_packet(&packet);
       continue;
+    }
 
     // Skip non-key-frames
-    if (!(packet.flags & PKT_FLAG_KEY))
+    if (!(packet.flags & AV_PKT_FLAG_KEY)) {
+      av_free_packet(&packet);
       continue;
+    }
 
-    LOG_DEBUG
-      ("Using video packet: pos %lld size %d, stream_index %d, duration %d\n",
-       packet.pos, packet.size, packet.stream_index, packet.duration);
+    LOG_DEBUG("Using video packet: pos %lld size %d, stream_index %d, duration %d\n",
+              packet.pos, packet.size, packet.stream_index, packet.duration);
 
-    if ((avcodec_decode_video2(codecs->vc, frame, &got_picture, &packet)) < 0) {
-      LOG_ERROR("Error decoding video frame\n");
+    if ((ret = avcodec_decode_video2(codecs->vc, frame, &got_picture, &packet)) < 0) {
+      LOG_ERROR("Error decoding video frame (%s):", v->path);
+      print_averror(ret);
       goto err;
     }
 
     if (got_picture) {
       int rgb_bufsize;
+      AVFrame *frame_rgb = NULL;
       uint8_t *rgb_buffer = NULL;
 
       // use swscale to convert from source format to RGBA in our buffer with no resizing
@@ -132,9 +146,12 @@ MediaScanImage *video_create_image_from_frame(MediaScanVideo *v, MediaScanResult
       rgb_buffer = av_malloc(rgb_bufsize);
       if (!rgb_buffer) {
         LOG_ERROR("Couldn't allocate an RGB video buffer\n");
+        av_free(frame_rgb);
         goto err;
       }
-      avpicture_fill((AVPicture *) frame_rgb, rgb_buffer, PIX_FMT_RGB24, i->width, i->height);
+      LOG_MEM("new rgb_buffer of size %d @ %p\n", rgb_bufsize, rgb_buffer);
+
+      avpicture_fill((AVPicture *)frame_rgb, rgb_buffer, PIX_FMT_RGB24, i->width, i->height);
 
       // Convert image to RGB24
       sws_scale(swsc, frame->data, frame->linesize, 0, i->height, frame_rgb->data, frame_rgb->linesize);
@@ -152,7 +169,10 @@ MediaScanImage *video_create_image_from_frame(MediaScanVideo *v, MediaScanResult
       }
 
       // Free the frame
+      LOG_MEM("destroy rgb_buffer @ %p\n", rgb_buffer);
       av_free(rgb_buffer);
+
+      av_free(frame_rgb);
 
       // Done!
       goto out;
@@ -168,8 +188,6 @@ out:
   av_free_packet(&packet);
   if (frame)
     av_free(frame);
-  if (frame_rgb)
-    av_free(frame_rgb);
 
   avcodec_close(codecs->vc);
 

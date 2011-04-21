@@ -52,8 +52,6 @@ MediaScanProgress *progress_copy(MediaScanProgress *p) {
   MediaScanProgress *pcopy = malloc(sizeof(MediaScanProgress));
   memcpy(pcopy, p, sizeof(MediaScanProgress));
 
-  pcopy->_is_copy = 1;
-
   if (p->phase)
     pcopy->phase = strdup(p->phase);
   if (p->cur_item)
@@ -105,6 +103,10 @@ int progress_update(MediaScanProgress *p, const char *tmp_cur_item) {
 
   LOG_DEBUG("progress_update %s\n", tmp_cur_item);
 
+  // Final progress update is NULL
+  if (tmp_cur_item == NULL)
+    return 1;
+
   if (time - p->_last_update_ts >= p->interval) {
     int elapsed = time - p->_start_ts;
 
@@ -140,11 +142,8 @@ void progress_destroy(MediaScanProgress *p) {
   if (p->phase)
     free(p->phase);
 
-  if (p->_is_copy) {
-    // Additional free if the instance was copied from another one
-    if (p->cur_item)
-      free(p->cur_item);
-  }
+  if (p->cur_item)
+    free(p->cur_item);
 
   LOG_MEM("destroy MediaScanProgress @ %p\n", p);
   free(p);

@@ -199,9 +199,6 @@ static void register_formats(void) {
 ///-------------------------------------------------------------------------------------------------
 
 static void _init(void) {
-  u_int32_t env_flags;          /* env open flags */
-  int ret;                      /* function return value */
-
   if (Initialized)
     return;
 
@@ -212,28 +209,6 @@ static void _init(void) {
 #endif
   Initialized = 1;
   ms_errno = 0;
-
-  // Create an environment object and initialize it for error reporting. 
-  ret = db_env_create(&myEnv, 0);
-  if (ret != 0) {
-    fprintf(stderr, "Error creating env handle: %s\n", db_strerror(ret));
-    return;
-  }
-
-  // Open the environment.
-  env_flags = DB_CREATE |       // If the environment does not exist, create it.
-    DB_INIT_MPOOL;              // Initialize the in-memory cache.
-
-  ret = myEnv->open(myEnv,      // DB_ENV ptr
-                    ".",        // env home directory
-                    env_flags,  // Open flags 
-                    0);         // File mode (default)
-
-  if (ret != 0) {
-    fprintf(stderr, "Environment open failed: %s", db_strerror(ret));
-    return;
-  }
-
 }                               /* _init() */
 
 ///-------------------------------------------------------------------------------------------------
@@ -286,7 +261,6 @@ void ms_set_log_level(enum log_level level) {
 ///-------------------------------------------------------------------------------------------------
 
 MediaScan *ms_create(void) {
-  u_int32_t flags;              /* database open flags */
   int ret;                      /* function return value */
 
   MediaScan *s = NULL;
@@ -302,45 +276,6 @@ MediaScan *ms_create(void) {
   }
 
   s->progress = progress_create();
-
-  s->on_result = NULL;
-  s->on_error = NULL;
-  s->on_progress = NULL;
-  s->userdata = NULL;
-
-  /* Initialize the structure. This
-   * database is not opened in an environment, 
-   * so the environment pointer is NULL. */
-  ret = db_create(&s->dbp, myEnv, 0);
-  if (ret != 0) {
-    ms_errno = MSENO_DBERROR;
-    FATAL("Database creation failure\n");
-
-    progress_destroy(s->progress);
-
-    return NULL;
-  }
-
-  /* Database open flags */
-  flags = DB_CREATE | DB_TRUNCATE;  /* If the database does not exist, 
-                                     * create it.*/
-
-  /* open the database */
-  ret = s->dbp->open(s->dbp,    /* DB structure pointer */
-                     NULL,      /* Transaction pointer */
-                     "libmediascan.db", /* On-disk file that holds the database. */
-                     NULL,      /* Optional logical database name */
-                     DB_BTREE,  /* Database access method */
-                     flags,     /* Open flags */
-                     0);        /* File mode (using defaults) */
-  if (ret != 0) {
-    ms_errno = MSENO_DBERROR;
-    FATAL("Database creation failure\n");
-
-    progress_destroy(s->progress);
-
-    return NULL;
-  }
 
   // List of all dirs found
   s->_dirq = malloc(sizeof(struct dirq));
@@ -388,6 +323,9 @@ void ms_destroy(MediaScan *s) {
 
   free(s->_dirq);
   free(s->_dlna);
+
+  if (s->cachedir)
+    free(s->cachedir);
 
   ms_clear_watch(s);
 
@@ -537,6 +475,10 @@ void ms_set_async(MediaScan *s, int enabled) {
 
   s->async = enabled ? 1 : 0;
 }                               /* ms_set_async() */
+
+void ms_set_cachedir(MediaScan *s, const char *path) {
+  s->cachedir = strdup(path);
+}
 
 ///-------------------------------------------------------------------------------------------------
 ///  Set a callback that will be called for every scanned file. This callback is required or a
@@ -691,7 +633,6 @@ void ms_async_process(MediaScan *s) {
         case EVENT_TYPE_ERROR:
           s->on_error(s, (MediaScanError *)data, s->userdata);
           error_destroy((MediaScanError *)data);
-          // XXX also need to destroy active result somehow
           break;
 
         case EVENT_TYPE_FINISH:
@@ -720,9 +661,9 @@ void ms_watch_directory(MediaScan *s, const char *path, FolderChangeCallback cal
 #ifdef WIN32
 
   s->thread->ghSignalEvent = CreateEvent(NULL,  // default security attributes
-                                 TRUE,  // manual-reset event
-                                 FALSE, // initial state is nonsignaled
-                                 "StopEvent"  // "StopEvent" name
+                                         TRUE,  // manual-reset event
+                                         FALSE, // initial state is nonsignaled
+                                         "StopEvent"  // "StopEvent" name
     );
 
   if (s->thread->ghSignalEvent == NULL) {
@@ -738,11 +679,11 @@ void ms_watch_directory(MediaScan *s, const char *path, FolderChangeCallback cal
   thread_data->s = s;
 
   s->thread->hThread = CreateThread(NULL, // default security attributes
-                            0,  // use default stack size  
-                            WatchDirectory, // WatchDirectory thread
-                            (void *)thread_data,  // (void*)thread_data_type
-                            0,  // use default creation flags 
-                            &s->thread->dwThreadId);  // returns the thread identifier 
+                                    0,  // use default stack size
+                                    WatchDirectory, // WatchDirectory thread
+                                    (void *)thread_data,  // (void*)thread_data_type
+                                    0,  // use default creation flags
+                                    &s->thread->dwThreadId);  // returns the thread identifier
 
   if (s->thread->hThread == NULL) {
     ms_errno = MSENO_THREADERROR;
@@ -894,6 +835,63 @@ void send_finish(MediaScan *s) {
   }
 }
 
+static int init_bdb(MediaScan *s) {
+  uint32_t env_flags = DB_CREATE | DB_INIT_MPOOL;
+  uint32_t flags = DB_CREATE | DB_TRUNCATE;
+  int ret;
+  char dbpath[MAX_PATH];
+
+  if (s->dbp)
+    return 1;
+
+  // Create an environment object and initialize it for error reporting.
+  ret = db_env_create(&myEnv, 0);
+  if (ret != 0) {
+    LOG_ERROR("Error creating database env handle: %s\n", db_strerror(ret));
+    return 0;
+  }
+
+  // Open the environment.
+  ret = myEnv->open(myEnv,      // DB_ENV ptr
+                    s->cachedir ? s->cachedir : ".",  // env home directory
+                    env_flags,  // Open flags
+                    0);         // File mode (default)
+
+  if (ret != 0) {
+    LOG_ERROR("Environment open failed: %s\n", db_strerror(ret));
+    return 0;
+  }
+
+  /* Initialize the structure. This
+   * database is not opened in an environment,
+   * so the environment pointer is NULL. */
+  ret = db_create(&s->dbp, myEnv, 0);
+  if (ret != 0) {
+    ms_errno = MSENO_DBERROR;
+    s->dbp = NULL;
+    LOG_ERROR("Database creation failed: %s", db_strerror(ret));
+    return 0;
+  }
+
+  /* open the database */
+  sprintf(dbpath, "%s/libmediascan.db", s->cachedir ? s->cachedir : ".");
+  ret = s->dbp->open(s->dbp,    /* DB structure pointer */
+                     NULL,      /* Transaction pointer */
+                     dbpath,    /* On-disk file that holds the database. */
+                     NULL,      /* Optional logical database name */
+                     DB_BTREE,  /* Database access method */
+                     flags,     /* Open flags */
+                     0);        /* File mode (using defaults) */
+  if (ret != 0) {
+    ms_errno = MSENO_DBERROR;
+    s->dbp = NULL;
+    LOG_ERROR("Database open failed: %s\n", db_strerror(ret));
+    return 0;
+  }
+
+  return 1;
+}
+
 // Called by ms_scan either in a thread or synchronously
 static void *do_scan(void *userdata) {
   MediaScan *s = (MediaScan *)userdata;
@@ -903,6 +901,13 @@ static void *do_scan(void *userdata) {
   struct fileq *file_head = NULL;
   struct fileq_entry *file_entry = NULL;
   char tmp_full_path[MAX_PATH];
+
+  // Initialize the cache database
+  if (!init_bdb(s)) {
+    MediaScanError *e = error_create("", MS_ERROR_CACHE, "Unable to initialize libmediascan cache");
+    send_error(s, e);
+    goto out;
+  }
 
   // Build a list of all directories and paths
   // We do this first so we can present an accurate scan eta later
@@ -955,12 +960,13 @@ static void *do_scan(void *userdata) {
 
   // Send final progress callback
   if (s->on_progress) {
-    s->progress->cur_item = NULL;
+    progress_update(s->progress, NULL);
     send_progress(s);
   }
 
   LOG_DEBUG("Finished scanning\n");
 
+out:
   if (s->on_finish)
     send_finish(s);
 
@@ -1095,8 +1101,14 @@ void ms_scan_file(MediaScan *s, const char *tmp_full_path, enum media_type type)
 
     send_result(s, r);
   }
-  else if (s->on_error && r->error) {
-    send_error(s, r->error);
+  else {
+    if (s->on_error && r->error) {
+      // Copy the error, because the original will be cleaned up by result_destroy below
+      MediaScanError *ecopy = error_copy(r->error);
+      send_error(s, ecopy);
+    }
+
+    result_destroy(r);
   }
 }                               /* ms_scan_file() */
 

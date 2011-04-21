@@ -28,7 +28,8 @@ enum media_error {
   MS_ERROR_TYPE_UNKNOWN = -1,
   MS_ERROR_TYPE_INVALID_PARAMS = -2,
   MS_ERROR_FILE = -3,
-  MS_ERROR_READ = -4
+  MS_ERROR_READ = -4,
+  MS_ERROR_CACHE = -5
 };
 
 enum media_type {
@@ -204,7 +205,6 @@ struct _Progress {
   int rate;                     ///< rate in items/second
 
   // private
-  int _is_copy;
   long _start_ts;
   long _last_update_ts;
 };
@@ -233,6 +233,7 @@ struct _Scan {
   int nthumbspecs;
   MediaScanThumbSpec *thumbspecs[MAX_THUMBS];
   int async;
+  char *cachedir;
 
   MediaScanProgress *progress;
   MediaScanThread *thread;
@@ -335,6 +336,12 @@ void ms_add_thumbnail_spec(MediaScan *s, enum thumb_format format, int width,
  * scanning, pass a true value to this function.
  */
 void ms_set_async(MediaScan *s, int enabled);
+
+/**
+ * Specify a directory to be used for cache files. If not specified the current directory will
+ * be used, which is probably not what you want.
+ */
+void ms_set_cachedir(MediaScan *s, const char *path);
 
 /**
  * Set a callback that will be called for every scanned file.

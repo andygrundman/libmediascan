@@ -83,14 +83,14 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\win32\include;$(ProjectDir)..\include;$(ProjectDir)..\;$(ProjectDir)CUnit\Headers;C:\mingw\msys\1.0\local\include;$(ProjectDir)..\lib;$(ProjectDir)..\win32\libpng-1.5.2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\win32\include;$(ProjectDir)..\include;$(ProjectDir)..\;$(ProjectDir)CUnit\Headers;C:\mingw\msys\1.0\local\include;$(ProjectDir)..\lib;$(ProjectDir)..\win32\libpng-1.5.2;$(ProjectDir)..\win32\jpeg-8a;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(ProjectDir)..\win32\debug\libmediascan.lib;wsock32.lib;libcunit.a;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectDir)..\win32\Release\libmediascan.lib;wsock32.lib;libcunit.a;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

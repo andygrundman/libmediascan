@@ -268,6 +268,13 @@ CODE:
   async = SvIV(*(my_hv_fetch(selfh, "async")));
   ms_set_async(s, async ? 1 : 0);
   
+  // Set cachedir
+  if (my_hv_exists(selfh, "cachedir")) {
+    SV **cachedir = my_hv_fetch(selfh, "cachedir");
+    if (cachedir != NULL && SvPOK(*cachedir))
+      ms_set_cachedir(s, SvPVX(*cachedir));
+  }
+
   // Set callbacks
   ms_set_result_callback(s, _on_result);
   ms_set_error_callback(s, _on_error);
