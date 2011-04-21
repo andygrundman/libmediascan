@@ -12,5 +12,3 @@ Keep track of memory diagnostics, add a memory limit feature like Image::Scale
 
 valgrind testing
 * memleak in recurse_dir
-
-Ability to set location for db file(s)
