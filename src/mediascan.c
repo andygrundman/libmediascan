@@ -199,6 +199,9 @@ static void register_formats(void) {
 ///-------------------------------------------------------------------------------------------------
 
 static void _init(void) {
+	u_int32_t env_flags; /* env open flags */
+  int ret; /* function return value */
+
   if (Initialized)
     return;
 
@@ -209,6 +212,28 @@ static void _init(void) {
 #endif
   Initialized = 1;
   ms_errno = 0;
+
+
+	  // Create an environment object and initialize it for error reporting.
+  ret = db_env_create(&myEnv, 0);
+  if (ret != 0) {
+    fprintf(stderr, "Error creating env handle: %s\n", db_strerror(ret));
+    return;
+  }
+
+  // Open the environment.
+  env_flags = DB_CREATE | // If the environment does not exist, create it.
+    DB_INIT_MPOOL; // Initialize the in-memory cache.
+
+  ret = myEnv->open(myEnv, // DB_ENV ptr
+                    ".", // env home directory
+                    env_flags, // Open flags
+                    0); // File mode (default)
+
+  if (ret != 0) {
+    fprintf(stderr, "Environment open failed: %s", db_strerror(ret));
+    return;
+  }
 }                               /* _init() */
 
 ///-------------------------------------------------------------------------------------------------
@@ -262,6 +287,7 @@ void ms_set_log_level(enum log_level level) {
 
 MediaScan *ms_create(void) {
   int ret;                      /* function return value */
+  u_int32_t flags;							/* database open flags */
 
   MediaScan *s = NULL;
   dlna_t *dlna = NULL;
@@ -276,6 +302,40 @@ MediaScan *ms_create(void) {
   }
 
   s->progress = progress_create();
+
+	  /* Initialize the structure. This
+* database is not opened in an environment,
+* so the environment pointer is NULL. */
+  ret = db_create(&s->dbp, myEnv, 0);
+  if (ret != 0) {
+    ms_errno = MSENO_DBERROR;
+    FATAL("Database creation failure\n");
+
+    progress_destroy(s->progress);
+
+    return NULL;
+  }
+
+  /* Database open flags */
+  flags = DB_CREATE | DB_TRUNCATE; /* If the database does not exist,
+* create it.*/
+
+  /* open the database */
+  ret = s->dbp->open(s->dbp, /* DB structure pointer */
+                     NULL, /* Transaction pointer */
+                     "libmediascan.db", /* On-disk file that holds the database. */
+                     NULL, /* Optional logical database name */
+                     DB_BTREE, /* Database access method */
+                     flags, /* Open flags */
+                     0); /* File mode (using defaults) */
+  if (ret != 0) {
+    ms_errno = MSENO_DBERROR;
+    FATAL("Database creation failure\n");
+
+    progress_destroy(s->progress);
+
+    return NULL;
+  }
 
   // List of all dirs found
   s->_dirq = malloc(sizeof(struct dirq));
