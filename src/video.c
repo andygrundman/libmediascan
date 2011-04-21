@@ -27,6 +27,14 @@
 #include "util.h"
 #include "libdlna/profiles.h"
 
+static void print_averror(int err) {
+  char errbuf[128];
+  const char *errbuf_ptr = errbuf;
+
+  if (av_strerror(err, errbuf, sizeof(errbuf)) < 0)
+    errbuf_ptr = strerror(AVUNERROR(err));
+  fprintf(stderr, "%s\n", errbuf_ptr);
+}
 
 MediaScanVideo *video_create(void) {
   MediaScanVideo *v = (MediaScanVideo *)calloc(sizeof(MediaScanVideo), 1);
@@ -84,8 +92,10 @@ MediaScanImage *video_create_image_from_frame(MediaScanVideo *v, MediaScanResult
   av_seek_frame(avf, codecs->vsid, (int)((double)duration_tb * 0.1), 0);
 
   for (;;) {
-    if ((av_read_frame(avf, &packet)) < 0) {
-      LOG_ERROR("Couldn't read video frame (%s)\n", v->path);
+    int ret;
+    if ((ret = av_read_frame(avf, &packet)) < 0) {
+      LOG_ERROR("Couldn't read video frame (%s): ", v->path);
+      print_averror(ret);
       goto err;
     }
 
@@ -101,12 +111,12 @@ MediaScanImage *video_create_image_from_frame(MediaScanVideo *v, MediaScanResult
       continue;
     }
 
-    LOG_DEBUG
-      ("Using video packet: pos %lld size %d, stream_index %d, duration %d\n",
-       packet.pos, packet.size, packet.stream_index, packet.duration);
+    LOG_DEBUG("Using video packet: pos %lld size %d, stream_index %d, duration %d\n",
+              packet.pos, packet.size, packet.stream_index, packet.duration);
 
-    if ((avcodec_decode_video2(codecs->vc, frame, &got_picture, &packet)) < 0) {
-      LOG_ERROR("Error decoding video frame (%s)\n", v->path);
+    if ((ret = avcodec_decode_video2(codecs->vc, frame, &got_picture, &packet)) < 0) {
+      LOG_ERROR("Error decoding video frame (%s):", v->path);
+      print_averror(ret);
       goto err;
     }
 
