@@ -306,7 +306,6 @@ void
 DESTROY(MediaScan *s)
 CODE:
 {
-  warn("Perl DESTROY\n");
   ms_destroy(s);
 }
 

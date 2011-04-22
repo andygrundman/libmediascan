@@ -12,3 +12,13 @@ Keep track of memory diagnostics, add a memory limit feature like Image::Scale
 
 valgrind testing
 * memleak in recurse_dir
+
+on_finish gets passed some stats about the scan:
+* total number of new files
+* total number of changed files
+* total number of deleted files?
+* time taken
+* scanned items per second
+* list of files with errors and error info?
+
+Result should include a flag for indicating if the file is new, has changed, or was deleted
