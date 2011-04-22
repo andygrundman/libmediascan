@@ -51,6 +51,7 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <TreatWarningAsError>false</TreatWarningAsError>
+      <StructMemberAlignment>8Bytes</StructMemberAlignment>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -91,7 +92,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>$(ProjectDir)..\win32\Release\jpeg.lib;$(ProjectDir)..\win32\Release Library\libpng15.lib;$(ProjectDir)..\win32\Release Library\zlib.lib;libgcc.a;libmingwex.lib;libavcodec.a;libavformat.a;libavutil.a;libswscale.a;$(ProjectDir)..\lib\libdb_small51s.lib;libintl.lib;libexif.a;libgif.a;libbz2.a;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libgcc.a;libmingwex.lib;$(ProjectDir)Debug Library\libpng15.lib;$(ProjectDir)Debug Library\zlib.lib;$(ProjectDir)Release\jpeg.lib;$(ProjectDir)giflib-4.1.6\windows\.\Debug\libungif.lib;libavcodec.a;libavformat.a;libavutil.a;libswscale.a;libexif.a;libintl.lib;$(ProjectDir)..\lib\libdb_small51s.lib;libbz2.a;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)\..\lib;C:\mingw\msys\1.0\local\lib;C:\mingw\lib\gcc\mingw32\4.5.2;C:\mingw\lib;D:\workspace\scan\test</AdditionalLibraryDirectories>
       <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
     </Lib>

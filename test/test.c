@@ -603,7 +603,7 @@ int run_unit_tests()
       return CU_get_error();
    }
 	 
-   setupbackground_tests();
+   //setupbackground_tests();
 
 	 setup_thumbnail_tests();
 

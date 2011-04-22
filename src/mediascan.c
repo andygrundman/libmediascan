@@ -1050,7 +1050,9 @@ void ms_scan_file(MediaScan *s, const char *tmp_full_path, enum media_type type)
   key.data = &hash;
   key.size = sizeof(uint32_t);
 
-  if (s->dbp->exists(s->dbp, NULL, &key, 0) != DB_NOTFOUND) {
+	// s->dbp will be null if this function is called directly, if not check if this file is 
+	// already scanned.
+  if (s->dbp != NULL && s->dbp->exists(s->dbp, NULL, &key, 0) != DB_NOTFOUND) {
     LOG_INFO("File hash %X already scanned\n", hash);
     return;
   }
@@ -1093,11 +1095,12 @@ void ms_scan_file(MediaScan *s, const char *tmp_full_path, enum media_type type)
     data.data = (char *)tmp_full_path;
     data.size = strlen(tmp_full_path) + 1;
 
-    ret = s->dbp->put(s->dbp, NULL, &key, &data, DB_NOOVERWRITE);
-    if (ret == DB_KEYEXIST) {
-      s->dbp->err(s->dbp, ret, "Put failed because key %X already exists", r->hash);
-    }
-
+		if(s->dbp != NULL) {
+			ret = s->dbp->put(s->dbp, NULL, &key, &data, DB_NOOVERWRITE);
+			if (ret == DB_KEYEXIST) {
+				s->dbp->err(s->dbp, ret, "Put failed because key %X already exists", r->hash);
+			}
+		}
     send_result(s, r);
   }
   else {

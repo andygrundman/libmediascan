@@ -70,7 +70,6 @@ MediaScanImage *thumb_create_from_image(MediaScanImage *i, MediaScanThumbSpec *s
     else
       spec->format = THUMB_JPEG;
   }
-
   // Compress pixbuf data into thumb->data
   switch (spec->format) {
     case THUMB_JPEG:
