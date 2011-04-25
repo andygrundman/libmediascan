@@ -580,6 +580,8 @@ int run_unit_tests()
       CU_cleanup_registry();
       return CU_get_error();
    }
+
+#ifdef SUPER
 //		ms_set_log_level(DEBUG);
 //     av_log_set_level(AV_LOG_DEBUG);
    /* add the tests to the ms_scan suite */
@@ -602,10 +604,11 @@ int run_unit_tests()
       CU_cleanup_registry();
       return CU_get_error();
    }
+#endif
 	 
-   //setupbackground_tests();
+   setupbackground_tests();
 
-	 setup_thumbnail_tests();
+//	 setup_thumbnail_tests();
 
    /* Run all tests using the CUnit Basic interface */
    CU_basic_set_mode(CU_BRM_NORMAL);

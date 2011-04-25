@@ -273,6 +273,8 @@ MediaScan *ms_create(void) {
     return NULL;
   }
 
+	s->thread = NULL;
+	s->dbp = NULL;
   s->progress = progress_create();
 
   // List of all dirs found
@@ -325,8 +327,7 @@ void ms_destroy(MediaScan *s) {
   if (s->cachedir)
     free(s->cachedir);
 
-  // XXX
-  //ms_clear_watch(s);
+//  ms_clear_watch(s);
 
   /* When we're done with the database, close it. */
   if (s->dbp != NULL)
@@ -656,6 +657,13 @@ void ms_watch_directory(MediaScan *s, const char *path, FolderChangeCallback cal
 
   s->on_background = callback;
 
+  s->thread = thread_create((void(*)())(WatchDirectory), (void *)s);
+  if (!s->thread) {
+      LOG_ERROR("Unable to start async thread\n");
+      return;
+    }
+
+
   // This folder monitoring code is only valid for Win32
 #ifdef WIN32
 
@@ -704,13 +712,17 @@ void ms_watch_directory(MediaScan *s, const char *path, FolderChangeCallback cal
 void ms_clear_watch(MediaScan *s) {
 // This folder monitoring code is only valid for Win32
 #ifdef WIN32
-  SetEvent(s->thread->ghSignalEvent);
+	if(s->thread != NULL)
+	{
+		SetEvent(s->thread->ghSignalEvent);
 
-  // Wait until all threads have terminated.
-  WaitForSingleObject(s->thread->hThread, INFINITE);
+		// Wait until all threads have terminated.
+		WaitForSingleObject(s->thread->hThread, INFINITE);
 
-  CloseHandle(s->thread->hThread);
-  CloseHandle(s->thread->ghSignalEvent);
+		CloseHandle(s->thread->hThread);
+		CloseHandle(s->thread->ghSignalEvent);
+	}
+
 #endif
 
 }                               /* ms_clear_watch() */

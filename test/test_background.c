@@ -208,7 +208,12 @@ void test_background_api(void)	{
 
 	CU_ASSERT( CopyFile(src, dest, FALSE) == TRUE );
 	Sleep(1000); // Sleep 1 second
+	CU_ASSERT( result_called == FALSE );
+
+	// Now process the callbacks
+	ms_async_process(s);
 	CU_ASSERT( result_called == TRUE );
+
 
 	ms_destroy(s);
 

@@ -204,6 +204,19 @@ void thread_stop(MediaScanThread *t) {
     close(t->reqpipe[0]);
     close(t->reqpipe[1]);
   }
+#else
+	if(t != NULL)
+	{
+		SetEvent(t->ghSignalEvent);
+
+		// Wait until all threads have terminated.
+		WaitForSingleObject(t->hThread, INFINITE);
+
+		CloseHandle(t->hThread);
+		CloseHandle(t->ghSignalEvent);
+	}
+
+
 #endif
 }
 
