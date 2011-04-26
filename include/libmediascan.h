@@ -242,7 +242,6 @@ struct _Scan {
   void (*on_error) (struct _Scan *, MediaScanError *, void *);
   void (*on_progress) (struct _Scan *, MediaScanProgress *, void *);
   void (*on_finish) (struct _Scan *, void *);
-  void (*on_background) (struct _Scan *, MediaScanResult *, void *);
   void *userdata;
 
   DB *dbp;                      /* DB structure handle */

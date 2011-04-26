@@ -94,9 +94,9 @@ static void my_error_callback(MediaScan *s, MediaScanError *error, void *userdat
 
 void test_ms_scan(void){
 	#ifdef WIN32
-	char dir[MAX_PATH] = "data\\video\\dlna";
+	const char dir[MAX_PATH] = "data\\video\\dlna";
 	#else
-	char dir[MAX_PATH] = "data/video/dlna";
+	const char dir[MAX_PATH] = "data/video/dlna";
 	#endif
 	
 	MediaScan *s = ms_create();

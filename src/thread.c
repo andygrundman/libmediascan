@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "mediascan.h"
 #include "common.h"
 #include "error.h"
 #include "thread.h"
@@ -24,10 +25,9 @@ struct equeue_entry {
 };
 TAILQ_HEAD(equeue, equeue_entry);
 
-MediaScanThread *thread_create(void *(*func) (void *), void *userdata) {
-  int err;
+MediaScanThread *thread_create(void *(*func) (void *), thread_data_type * thread_data) {
 
-  MediaScanThread *t = (MediaScanThread *)calloc(sizeof(MediaScanThread), 1);
+	MediaScanThread *t = (MediaScanThread *)calloc(sizeof(MediaScanThread), 1);
   if (t == NULL) {
     LOG_ERROR("Out of memory for new MediaScanThread object\n");
     goto fail;
@@ -58,7 +58,7 @@ MediaScanThread *thread_create(void *(*func) (void *), void *userdata) {
   }
 
   // Launch thread
-  err = pthread_create(&t->tid, NULL, func, userdata);
+  err = pthread_create(&t->tid, NULL, func, thread_data->s);
   if (err != 0) {
     LOG_ERROR("Unable to create thread (%s)\n", strerror(err));
     goto fail;
@@ -67,13 +67,41 @@ MediaScanThread *thread_create(void *(*func) (void *), void *userdata) {
   LOG_DEBUG("Thread %x started\n", t->tid);
 #else
 
+	  t->ghSignalEvent = CreateEvent(NULL,  // default security attributes
+                                         TRUE,  // manual-reset event
+                                         FALSE, // initial state is nonsignaled
+                                         "StopEvent"  // "StopEvent" name
+    );
+
+  if (t->ghSignalEvent == NULL) {
+    ms_errno = MSENO_THREADERROR;
+    LOG_ERROR("Can't create event\n");
+    goto fail;
+  }
+
+//  thread_data = (thread_data_type *) HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(thread_data_type));
+
+
+//  thread_data->lpDir = NULL; //(char *)path;
+//  thread_data->s = thread_data;
+
+  t->hThread = CreateThread(NULL, // default security attributes
+                                    0,  // use default stack size
+                                    (LPTHREAD_START_ROUTINE)func, // WatchDirectory thread
+                                    (void *)thread_data,  // (void*)thread_data_type
+                                    0,  // use default creation flags
+                                    &t->dwThreadId);  // returns the thread identifier
+
+  if (t->hThread == NULL) {
+    ms_errno = MSENO_THREADERROR;
+    LOG_ERROR("Can't create watch thread\n");
+    goto fail;
+  }
+
   if (!InitializeCriticalSectionAndSpinCount(&t->CriticalSection, 0x00000400)) {
     LOG_ERROR("Unable to initialize critical section\n");
     goto fail;
   }
-
-  // XXX setup pipes, launch thread
-  // See schmorp.h for some hints on using sockets as pipes
 
 #endif
 

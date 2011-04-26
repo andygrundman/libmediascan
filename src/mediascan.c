@@ -43,6 +43,7 @@
 #include "mediascan.h"
 #include "thread.h"
 #include "util.h"
+#include "database.h"
 
 // If we are on MSVC, disable some stupid MSVC warnings
 #ifdef _MSC_VER
@@ -57,7 +58,7 @@ enum log_level Debug = ERR;
 static int Initialized = 0;
 int ms_errno = 0;
 long PathMax = MAX_PATH;
-DB_ENV *myEnv;                  /* Env structure handle */
+
 
 /*
  Video support
@@ -326,8 +327,6 @@ void ms_destroy(MediaScan *s) {
 
   if (s->cachedir)
     free(s->cachedir);
-
-//  ms_clear_watch(s);
 
   /* When we're done with the database, close it. */
   if (s->dbp != NULL)
@@ -653,53 +652,20 @@ void ms_async_process(MediaScan *s) {
 /// @param callback Callback with the changes
 ///-------------------------------------------------------------------------------------------------
 void ms_watch_directory(MediaScan *s, const char *path, FolderChangeCallback callback) {
-  thread_data_type *thread_data;
+	thread_data_type *thread_data;
+	
+	s->on_result = callback;
 
-  s->on_background = callback;
+	thread_data = (thread_data_type *) HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(thread_data_type));
+	thread_data->s = s;
+	thread_data->lpDir = path;
 
-  s->thread = thread_create((void(*)())(WatchDirectory), (void *)s);
+
+  s->thread = thread_create((void(*)())(WatchDirectory), thread_data);
   if (!s->thread) {
       LOG_ERROR("Unable to start async thread\n");
       return;
     }
-
-
-  // This folder monitoring code is only valid for Win32
-#ifdef WIN32
-
-  s->thread->ghSignalEvent = CreateEvent(NULL,  // default security attributes
-                                         TRUE,  // manual-reset event
-                                         FALSE, // initial state is nonsignaled
-                                         "StopEvent"  // "StopEvent" name
-    );
-
-  if (s->thread->ghSignalEvent == NULL) {
-    ms_errno = MSENO_THREADERROR;
-    LOG_ERROR("Can't create event\n");
-    return;
-  }
-
-  thread_data = (thread_data_type *) HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(thread_data_type));
-
-
-  thread_data->lpDir = (char *)path;
-  thread_data->s = s;
-
-  s->thread->hThread = CreateThread(NULL, // default security attributes
-                                    0,  // use default stack size
-                                    WatchDirectory, // WatchDirectory thread
-                                    (void *)thread_data,  // (void*)thread_data_type
-                                    0,  // use default creation flags
-                                    &s->thread->dwThreadId);  // returns the thread identifier
-
-  if (s->thread->hThread == NULL) {
-    ms_errno = MSENO_THREADERROR;
-    LOG_ERROR("Can't create watch thread\n");
-    return;
-  }
-
-#endif
-
 }                               /* ms_watch_directory() */
 
 ///-------------------------------------------------------------------------------------------------
@@ -817,7 +783,7 @@ void send_error(MediaScan *s, MediaScanError *e) {
     thread_queue_event(s->thread, EVENT_TYPE_ERROR, (void *)e);
   }
   else {
-    // Call progress callback directly
+    // Call error callback directly
     s->on_error(s, e, s->userdata);
     error_destroy(e);
   }
@@ -846,66 +812,10 @@ void send_finish(MediaScan *s) {
   }
 }
 
-static int init_bdb(MediaScan *s) {
-  uint32_t env_flags = DB_CREATE | DB_INIT_MPOOL;
-  uint32_t flags = DB_CREATE | DB_TRUNCATE;
-  int ret;
-  char dbpath[MAX_PATH];
-
-  if (s->dbp)
-    return 1;
-
-  // Create an environment object and initialize it for error reporting.
-  ret = db_env_create(&myEnv, 0);
-  if (ret != 0) {
-    LOG_ERROR("Error creating database env handle: %s\n", db_strerror(ret));
-    return 0;
-  }
-
-  // Open the environment.
-  ret = myEnv->open(myEnv,      // DB_ENV ptr
-                    s->cachedir ? s->cachedir : ".",  // env home directory
-                    env_flags,  // Open flags
-                    0);         // File mode (default)
-
-  if (ret != 0) {
-    LOG_ERROR("Environment open failed: %s\n", db_strerror(ret));
-    return 0;
-  }
-
-  /* Initialize the structure. This
-   * database is not opened in an environment,
-   * so the environment pointer is NULL. */
-  ret = db_create(&s->dbp, myEnv, 0);
-  if (ret != 0) {
-    ms_errno = MSENO_DBERROR;
-    s->dbp = NULL;
-    LOG_ERROR("Database creation failed: %s", db_strerror(ret));
-    return 0;
-  }
-
-  /* open the database */
-  sprintf(dbpath, "%s/libmediascan.db", s->cachedir ? s->cachedir : ".");
-  ret = s->dbp->open(s->dbp,    /* DB structure pointer */
-                     NULL,      /* Transaction pointer */
-                     dbpath,    /* On-disk file that holds the database. */
-                     NULL,      /* Optional logical database name */
-                     DB_BTREE,  /* Database access method */
-                     flags,     /* Open flags */
-                     0);        /* File mode (using defaults) */
-  if (ret != 0) {
-    ms_errno = MSENO_DBERROR;
-    s->dbp = NULL;
-    LOG_ERROR("Database open failed: %s\n", db_strerror(ret));
-    return 0;
-  }
-
-  return 1;
-}
 
 // Called by ms_scan either in a thread or synchronously
 static void *do_scan(void *userdata) {
-  MediaScan *s = (MediaScan *)userdata;
+  MediaScan *s = ((thread_data_type*)userdata)->s;
   int i;
   struct dirq *dir_head = (struct dirq *)s->_dirq;
   struct dirq_entry *dir_entry = NULL;
@@ -919,6 +829,12 @@ static void *do_scan(void *userdata) {
     send_error(s, e);
     goto out;
   }
+
+	if(s->progress == NULL)	{
+    MediaScanError *e = error_create("", MS_ERROR_TYPE_INVALID_PARAMS, "Progress object not created");
+    send_error(s, e);
+    goto out;
+	}
 
   // Build a list of all directories and paths
   // We do this first so we can present an accurate scan eta later
@@ -998,20 +914,35 @@ out:
 /// ### remarks .
 ///-------------------------------------------------------------------------------------------------
 void ms_scan(MediaScan *s) {
+
   if (s->on_result == NULL) {
     LOG_ERROR("Result callback not set, aborting scan\n");
     goto out;
   }
 
   if (s->async) {
-    s->thread = thread_create(do_scan, (void *)s);
+		thread_data_type *thread_data;
+#ifdef WIN32
+		thread_data = (thread_data_type *) HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(thread_data_type));
+#else
+		// Is this how you can pass pointers between threads on a POSIX system?
+		// This will need to be freed somehow otherwise we will have a memory leak
+		thread_data = malloc(sizeof(thread_data_type));
+#endif
+		thread_data->lpDir = NULL;
+		thread_data->s = s;
+
+    s->thread = thread_create(do_scan, thread_data);
     if (!s->thread) {
       LOG_ERROR("Unable to start async thread\n");
       goto out;
     }
   }
   else {
-    do_scan(s);
+		thread_data_type thread_data;
+		thread_data.s = s;
+		thread_data.lpDir = NULL;
+    do_scan(&s);
   }
 
 out:

@@ -100,6 +100,7 @@
   <ItemGroup>
     <ClCompile Include="..\src\audio.c" />
     <ClCompile Include="..\src\buffer.c" />
+    <ClCompile Include="..\src\database.c" />
     <ClCompile Include="..\src\error.c" />
     <ClCompile Include="..\src\folder_mon_win32.c" />
     <ClCompile Include="..\src\image.c" />
@@ -142,6 +143,7 @@
   <ItemGroup>
     <ClInclude Include="..\include\libmediascan.h" />
     <ClInclude Include="..\src\audio.h" />
+    <ClInclude Include="..\src\common.h" />
     <ClInclude Include="..\src\mediascan.h" />
     <ClInclude Include="..\src\progress.h" />
     <ClInclude Include="..\src\queue.h" />

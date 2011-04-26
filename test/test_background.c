@@ -18,6 +18,7 @@
 #include <libmediascan.h>
 
 #include "../src/mediascan.h"
+#include "../src/database.h"
 #include "Cunit/CUnit/Headers/Basic.h"
 
 #ifndef MAX_PATH
@@ -223,6 +224,75 @@ void test_background_api(void)	{
 
 } /* test_background_api() */
 
+void test_async_api(void)	{
+
+  long time1, time2;
+
+	#ifdef WIN32
+	const char dir[MAX_PATH] = "data\\video\\dlna";
+	#else
+	const char dir[MAX_PATH] = "data/video/dlna";
+  struct timeval now;
+	#endif
+
+	MediaScan *s = ms_create();
+
+	CU_ASSERT(s->npaths == 0);
+	ms_add_path(s, dir);
+	CU_ASSERT(s->npaths == 1);
+
+	CU_ASSERT( s->async == FALSE );
+	ms_set_async(s, FALSE);
+	CU_ASSERT( s->async == FALSE );
+
+	CU_ASSERT(s->on_result == NULL);
+	ms_set_result_callback(s, my_result_callback);
+	CU_ASSERT(s->on_result == my_result_callback);
+
+	CU_ASSERT(s->on_error == NULL);
+	ms_set_error_callback(s, my_error_callback); 
+	CU_ASSERT(s->on_error == my_error_callback);
+
+	ms_scan(s);
+	CU_ASSERT( result_called == TRUE );
+
+	result_called = FALSE;
+	reset_bdb(s);
+
+
+	CU_ASSERT( s->async == FALSE );
+	ms_set_async(s, TRUE);
+	CU_ASSERT( s->async == TRUE );
+
+#ifdef WIN32
+  time1 = GetTickCount();
+#else
+  gettimeofday(&now, NULL);
+  time1 = then.tv_sec;
+#endif
+
+	ms_scan(s);
+	CU_ASSERT( result_called == FALSE );
+
+#ifdef WIN32
+  time2 = GetTickCount();
+#else
+  gettimeofday(&now, NULL);
+  time2 = then.tv_sec;
+#endif
+
+	// Verify that the function returns almost immediately
+	CU_ASSERT( time2 - time1 < 2 );
+
+	Sleep(1000); // Sleep 1 second
+
+	// Now process the callbacks
+	ms_async_process(s);
+	CU_ASSERT( result_called == TRUE );
+
+	ms_destroy(s);
+}
+
 ///-------------------------------------------------------------------------------------------------
 ///  Setup background tests.
 ///
@@ -243,7 +313,8 @@ int setupbackground_tests() {
 
    /* add the tests to the background scanning suite */
    if (
-	   NULL == CU_add_test(pSuite, "Test background scanning API", test_background_api)
+//	   NULL == CU_add_test(pSuite, "Test background scanning API", test_background_api) ||
+	   NULL == CU_add_test(pSuite, "Test Async scanning API", test_async_api)
 	   )
    {
       CU_cleanup_registry();
