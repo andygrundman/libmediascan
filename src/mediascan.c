@@ -274,6 +274,8 @@ MediaScan *ms_create(void) {
     return NULL;
   }
 
+  LOG_MEM("new MediaScan @ %p\n", s);
+
   s->flags = MS_USE_EXTENSION | MS_FULL_SCAN;
 
   s->thread = NULL;
@@ -334,7 +336,7 @@ void ms_destroy(MediaScan *s) {
   if (s->dbp != NULL)
     s->dbp->close(s->dbp, 0);
 
-  LOG_MEM("destroy MediaScan %p\n", s);
+  LOG_MEM("destroy MediaScan @ %p\n", s);
   free(s);
 }                               /* ms_destroy() */
 
@@ -904,6 +906,11 @@ out:
   if (s->on_finish)
     send_finish(s);
 
+  if (s->async) {
+    LOG_MEM("destroy thread_data @ %p\n", userdata);
+    free(userdata);
+  }
+
   return NULL;
 }
 
@@ -929,13 +936,16 @@ void ms_scan(MediaScan *s) {
 
   if (s->async) {
     thread_data_type *thread_data;
+
 #ifdef WIN32
     thread_data = (thread_data_type *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(thread_data_type));
 #else
     // Is this how you can pass pointers between threads on a POSIX system?
     // This will need to be freed somehow otherwise we will have a memory leak
-    thread_data = malloc(sizeof(thread_data_type));
+    thread_data = (thread_data_type *)calloc(sizeof(thread_data_type), 1);
+    LOG_MEM("new thread_data @ %p\n", thread_data);
 #endif
+
     thread_data->lpDir = NULL;
     thread_data->s = s;
 

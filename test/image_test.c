@@ -50,6 +50,7 @@ int main(int argc, char *argv[])
     ms_add_path(s, dir);    
     ms_add_ignore_extension(s, "AUDIO");
     //ms_add_ignore_extension(s, "IMAGE");
+    ms_add_ignore_extension(s, "VIDEO");
     ms_add_thumbnail_spec(s, THUMB_AUTO, 300, 0, 1, 0, 0);
     ms_set_result_callback(s, my_result_callback);
     ms_set_error_callback(s, my_error_callback);
@@ -60,9 +61,9 @@ int main(int argc, char *argv[])
     ms_scan(s);
 
     // XXX Watch fd instead
-    //do {
-    //  ms_async_process(s);
-    //} while (!done);
+    do {
+      ms_async_process(s);
+    } while (!done);
 
     ms_destroy(s);
   }

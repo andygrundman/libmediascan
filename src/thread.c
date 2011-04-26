@@ -58,7 +58,7 @@ MediaScanThread *thread_create(void *(*func) (void *), thread_data_type *thread_
   }
 
   // Launch thread
-  err = pthread_create(&t->tid, NULL, func, thread_data->s);
+  err = pthread_create(&t->tid, NULL, func, (void *)thread_data);
   if (err != 0) {
     LOG_ERROR("Unable to create thread (%s)\n", strerror(err));
     goto fail;
