@@ -40,7 +40,10 @@ enum media_type {
 };
 
 enum scan_flags {
-  USE_EXTENSION = 1             //< Use a file's extension to determine file format (default)
+  MS_USE_EXTENSION = 1,
+  MS_FULL_SCAN = 1 << 1,
+  MS_RESCAN = 1 << 2,
+  MS_INCLUDE_DELETED = 1 << 3
 };
 
 enum thumb_format {
@@ -167,8 +170,11 @@ typedef struct _Error MediaScanError;
 struct _Result {
   enum media_type type;
   char *path;
-  enum scan_flags flags;
+  int flags;
   MediaScanError *error;
+  int deleted;                  ///< Set if scan flag MS_INCLUDE_DELETED was used and this result is for a deleted file.
+  /// NOTE: Only the type and path data will be set for deleted files.
+  int changed;                  ///< Set if scan flag MS_RESCAN was used and this result is for a changed file.
 
   const char *mime_type;
   const char *dlna_profile;
@@ -234,6 +240,7 @@ struct _Scan {
   MediaScanThumbSpec *thumbspecs[MAX_THUMBS];
   int async;
   char *cachedir;
+  int flags;
 
   MediaScanProgress *progress;
   MediaScanThread *thread;
@@ -341,6 +348,26 @@ void ms_set_async(MediaScan *s, int enabled);
  * be used, which is probably not what you want.
  */
 void ms_set_cachedir(MediaScan *s, const char *path);
+
+/**
+ * Set one or more flags ORed together to alter the behavior of the scan. If ms_set_flags
+ * is not called before ms_scan, a default set of flags is used. The default set is:
+ * MS_USE_EXTENSION | MS_FULL_SCAN
+ *
+ * @param flags Available flags are:
+ * MS_USE_EXTENSION - Use a file's extension to determine file format. If unset, the scanner
+ *   will try to detect a file's type by looking at the actual data. This method is also slower.
+ * MS_FULL_SCAN - Scan all files found that are not specified in the ignore list.
+ * MS_RESCAN - Perform a fast rescan by only scanning files that are new, or have changed their
+ *   size and/or modification timestamp since the last scan was run. If the database from a prior
+ *   scan is not available (libmediascan.db), the scan is the same as a full scan. The result for a changed
+ *   file will have r->changed set.
+ * MS_INCLUDE_DELETED - It is often useful to know that a file has been deleted. With this flag,
+ *   a file that was previously scanned but has since been deleted will be reported to the result_callback
+ *   and the r->deleted value will be set. NOTE: Only r->type, r->path, and r->deleted are valid for deleted
+ *   results. Also note that this cannot distinguish files that were simply renamed or moved.
+ */
+void ms_set_flags(MediaScan *s, int flags);
 
 /**
  * Set a callback that will be called for every scanned file.

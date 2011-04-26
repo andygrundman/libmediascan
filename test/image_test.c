@@ -9,7 +9,7 @@ static int rcount = 0;
 static int done = 0;
 
 static void my_result_callback(MediaScan *s, MediaScanResult *result, void *userdata) {
-  ms_dump_result(result);
+  //ms_dump_result(result);
   rcount++;
 }
 
@@ -37,12 +37,12 @@ int main(int argc, char *argv[])
   char *dir;
 
   plan(TEST_COUNT);  
-  ms_set_log_level(WARN);
+  ms_set_log_level(MEMORY);
 
   // Get path to this binary
   bin = _findbin(argv[0]);
   //dir = _abspath(bin, "../data"); // because binary is in .libs dir
-  dir = "/Users/andy/QA/Crashes";
+  dir = "/Volumes/WD500";
 
   // Scan all image files
   {
@@ -56,13 +56,13 @@ int main(int argc, char *argv[])
     ms_set_progress_callback(s, my_progress_callback);
     ms_set_finish_callback(s, my_finish_callback);
     ms_set_async(s, 1);
-    ms_set_cachedir(s, "/tmp/libmediascan");
+    //ms_set_cachedir(s, "/tmp/libmediascan");
     ms_scan(s);
 
     // XXX Watch fd instead
-    do {
-      ms_async_process(s);
-    } while (!done);
+    //do {
+    //  ms_async_process(s);
+    //} while (!done);
 
     ms_destroy(s);
   }

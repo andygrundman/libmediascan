@@ -17,7 +17,7 @@
 /// @param thread_data_type Structure containing the MediaScan pointer and the directory to scan
 ///-------------------------------------------------------------------------------------------------
 
-DWORD WINAPI WatchDirectory(thread_data_type * thread_data) {
+DWORD WINAPI WatchDirectory(thread_data_type *thread_data) {
   // Copy thread inputs to local variables
   MediaScan *s = thread_data->s;
   LPTSTR lpDir = thread_data->lpDir;
@@ -116,9 +116,9 @@ DWORD WINAPI WatchDirectory(thread_data_type * thread_data) {
           strcat(full_path, buf);
           printf("Found File Changed: %s\n", full_path);
 
-					thread_lock(s->thread);
+          thread_lock(s->thread);
           ms_scan_file(s, full_path, TYPE_UNKNOWN);
-					thread_unlock(s->thread);
+          thread_unlock(s->thread);
 
           if (0 == pRecord->NextEntryOffset)
             break;

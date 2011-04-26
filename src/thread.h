@@ -1,7 +1,7 @@
 #ifndef _THREAD_H
 #define _THREAD_H
 
-MediaScanThread *thread_create(void *(*func) (void *), thread_data_type * thread_data);
+MediaScanThread *thread_create(void *(*func) (void *), thread_data_type *thread_data);
 int thread_get_result_fd(MediaScanThread *t);
 void thread_queue_event(MediaScanThread *t, enum event_type type, void *data);
 enum event_type thread_get_next_event(MediaScanThread *t, void **data_out);

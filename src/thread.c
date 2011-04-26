@@ -25,9 +25,9 @@ struct equeue_entry {
 };
 TAILQ_HEAD(equeue, equeue_entry);
 
-MediaScanThread *thread_create(void *(*func) (void *), thread_data_type * thread_data) {
-
-	MediaScanThread *t = (MediaScanThread *)calloc(sizeof(MediaScanThread), 1);
+MediaScanThread *thread_create(void *(*func) (void *), thread_data_type *thread_data) {
+  int err;
+  MediaScanThread *t = (MediaScanThread *)calloc(sizeof(MediaScanThread), 1);
   if (t == NULL) {
     LOG_ERROR("Out of memory for new MediaScanThread object\n");
     goto fail;
@@ -67,10 +67,10 @@ MediaScanThread *thread_create(void *(*func) (void *), thread_data_type * thread
   LOG_DEBUG("Thread %x started\n", t->tid);
 #else
 
-	  t->ghSignalEvent = CreateEvent(NULL,  // default security attributes
-                                         TRUE,  // manual-reset event
-                                         FALSE, // initial state is nonsignaled
-                                         "StopEvent"  // "StopEvent" name
+  t->ghSignalEvent = CreateEvent(NULL,  // default security attributes
+                                 TRUE,  // manual-reset event
+                                 FALSE, // initial state is nonsignaled
+                                 "StopEvent"  // "StopEvent" name
     );
 
   if (t->ghSignalEvent == NULL) {
@@ -86,11 +86,11 @@ MediaScanThread *thread_create(void *(*func) (void *), thread_data_type * thread
 //  thread_data->s = thread_data;
 
   t->hThread = CreateThread(NULL, // default security attributes
-                                    0,  // use default stack size
-                                    (LPTHREAD_START_ROUTINE)func, // WatchDirectory thread
-                                    (void *)thread_data,  // (void*)thread_data_type
-                                    0,  // use default creation flags
-                                    &t->dwThreadId);  // returns the thread identifier
+                            0,  // use default stack size
+                            (LPTHREAD_START_ROUTINE) func,  // WatchDirectory thread
+                            (void *)thread_data,  // (void*)thread_data_type
+                            0,  // use default creation flags
+                            &t->dwThreadId);  // returns the thread identifier
 
   if (t->hThread == NULL) {
     ms_errno = MSENO_THREADERROR;
@@ -102,6 +102,8 @@ MediaScanThread *thread_create(void *(*func) (void *), thread_data_type * thread
     LOG_ERROR("Unable to initialize critical section\n");
     goto fail;
   }
+
+  LOG_DEBUG("Win32 thread %x started\n", t->dwThreadId);
 
 #endif
 
@@ -220,6 +222,7 @@ void thread_stop(MediaScanThread *t) {
     LOG_DEBUG("Signalling thread %x to stop\n", t->tid);
 
     // Signal thread to stop with a dummy byte
+    // XXX Worker thread needs to check for this
     thread_signal(t->reqpipe);
 
     pthread_join(t->tid, NULL);
@@ -233,16 +236,15 @@ void thread_stop(MediaScanThread *t) {
     close(t->reqpipe[1]);
   }
 #else
-	if(t != NULL)
-	{
-		SetEvent(t->ghSignalEvent);
+  if (t != NULL) {
+    SetEvent(t->ghSignalEvent);
 
-		// Wait until all threads have terminated.
-		WaitForSingleObject(t->hThread, INFINITE);
+    // Wait until all threads have terminated.
+    WaitForSingleObject(t->hThread, INFINITE);
 
-		CloseHandle(t->hThread);
-		CloseHandle(t->ghSignalEvent);
-	}
+    CloseHandle(t->hThread);
+    CloseHandle(t->ghSignalEvent);
+  }
 
 
 #endif

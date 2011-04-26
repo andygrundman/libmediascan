@@ -32,9 +32,9 @@
 DB_ENV *myEnv;                  /* Env structure handle */
 
 void reset_bdb(MediaScan *s) {
-	u_int32_t records;
+  u_int32_t records;
 
-	s->dbp->truncate(s->dbp, NULL, &records, 0);
+  s->dbp->truncate(s->dbp, NULL, &records, 0);
 
   LOG_INFO("Database cleared. %d records deleted\n", records);
 }

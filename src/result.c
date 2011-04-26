@@ -177,7 +177,7 @@ static void scan_dlna_profile(MediaScanResult *r, av_codecs_t *codecs) {
   while (p) {
     dlna_profile_t *prof = NULL;
 
-    if (r->flags & USE_EXTENSION) {
+    if (r->flags & MS_USE_EXTENSION) {
       if (p->extensions) {
         /* check for valid file extension */
         if (!match_file_extension(r->path, p->extensions)) {
@@ -276,7 +276,7 @@ static int scan_video(MediaScanResult *r) {
   int AVError = 0;
   int ret = 1;
 
-  if (r->flags & USE_EXTENSION) {
+  if (r->flags & MS_USE_EXTENSION) {
     // Set AVInputFormat based on file extension to avoid guessing
     while ((iformat = av_iformat_next(iformat))) {
       if (av_match_ext(r->path, iformat->name))
@@ -492,7 +492,7 @@ MediaScanResult *result_create(MediaScan *s) {
   LOG_MEM("new MediaScanResult @ %p\n", r);
 
   r->type = TYPE_UNKNOWN;
-  r->flags = USE_EXTENSION;
+  r->flags = s->flags;
 
   r->_scan = s;
   r->_avf = NULL;

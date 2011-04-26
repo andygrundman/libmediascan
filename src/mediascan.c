@@ -274,8 +274,10 @@ MediaScan *ms_create(void) {
     return NULL;
   }
 
-	s->thread = NULL;
-	s->dbp = NULL;
+  s->flags = MS_USE_EXTENSION | MS_FULL_SCAN;
+
+  s->thread = NULL;
+  s->dbp = NULL;
   s->progress = progress_create();
 
   // List of all dirs found
@@ -479,6 +481,10 @@ void ms_set_cachedir(MediaScan *s, const char *path) {
   s->cachedir = strdup(path);
 }
 
+void ms_set_flags(MediaScan *s, int flags) {
+  s->flags = flags;
+}
+
 ///-------------------------------------------------------------------------------------------------
 ///  Set a callback that will be called for every scanned file. This callback is required or a
 ///   scan cannot be started.
@@ -642,6 +648,7 @@ void ms_async_process(MediaScan *s) {
   }
 }
 
+#ifdef WIN32
 ///-------------------------------------------------------------------------------------------------
 ///  Watch a directory in the background.
 ///
@@ -652,21 +659,22 @@ void ms_async_process(MediaScan *s) {
 /// @param callback Callback with the changes
 ///-------------------------------------------------------------------------------------------------
 void ms_watch_directory(MediaScan *s, const char *path, FolderChangeCallback callback) {
-	thread_data_type *thread_data;
-	
-	s->on_result = callback;
+  thread_data_type *thread_data;
 
-	thread_data = (thread_data_type *) HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(thread_data_type));
-	thread_data->s = s;
-	thread_data->lpDir = path;
+  s->on_result = callback;
+
+  thread_data = (thread_data_type *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(thread_data_type));
+  thread_data->s = s;
+  thread_data->lpDir = path;
 
 
-  s->thread = thread_create((void(*)())(WatchDirectory), thread_data);
+  s->thread = thread_create((void (*)())(WatchDirectory), thread_data);
   if (!s->thread) {
-      LOG_ERROR("Unable to start async thread\n");
-      return;
-    }
+    LOG_ERROR("Unable to start async thread\n");
+    return;
+  }
 }                               /* ms_watch_directory() */
+#endif
 
 ///-------------------------------------------------------------------------------------------------
 ///  Clear watch list
@@ -678,16 +686,15 @@ void ms_watch_directory(MediaScan *s, const char *path, FolderChangeCallback cal
 void ms_clear_watch(MediaScan *s) {
 // This folder monitoring code is only valid for Win32
 #ifdef WIN32
-	if(s->thread != NULL)
-	{
-		SetEvent(s->thread->ghSignalEvent);
+  if (s->thread != NULL) {
+    SetEvent(s->thread->ghSignalEvent);
 
-		// Wait until all threads have terminated.
-		WaitForSingleObject(s->thread->hThread, INFINITE);
+    // Wait until all threads have terminated.
+    WaitForSingleObject(s->thread->hThread, INFINITE);
 
-		CloseHandle(s->thread->hThread);
-		CloseHandle(s->thread->ghSignalEvent);
-	}
+    CloseHandle(s->thread->hThread);
+    CloseHandle(s->thread->ghSignalEvent);
+  }
 
 #endif
 
@@ -815,7 +822,7 @@ void send_finish(MediaScan *s) {
 
 // Called by ms_scan either in a thread or synchronously
 static void *do_scan(void *userdata) {
-  MediaScan *s = ((thread_data_type*)userdata)->s;
+  MediaScan *s = ((thread_data_type *)userdata)->s;
   int i;
   struct dirq *dir_head = (struct dirq *)s->_dirq;
   struct dirq_entry *dir_entry = NULL;
@@ -830,11 +837,11 @@ static void *do_scan(void *userdata) {
     goto out;
   }
 
-	if(s->progress == NULL)	{
+  if (s->progress == NULL) {
     MediaScanError *e = error_create("", MS_ERROR_TYPE_INVALID_PARAMS, "Progress object not created");
     send_error(s, e);
     goto out;
-	}
+  }
 
   // Build a list of all directories and paths
   // We do this first so we can present an accurate scan eta later
@@ -921,16 +928,16 @@ void ms_scan(MediaScan *s) {
   }
 
   if (s->async) {
-		thread_data_type *thread_data;
+    thread_data_type *thread_data;
 #ifdef WIN32
-		thread_data = (thread_data_type *) HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(thread_data_type));
+    thread_data = (thread_data_type *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(thread_data_type));
 #else
-		// Is this how you can pass pointers between threads on a POSIX system?
-		// This will need to be freed somehow otherwise we will have a memory leak
-		thread_data = malloc(sizeof(thread_data_type));
+    // Is this how you can pass pointers between threads on a POSIX system?
+    // This will need to be freed somehow otherwise we will have a memory leak
+    thread_data = malloc(sizeof(thread_data_type));
 #endif
-		thread_data->lpDir = NULL;
-		thread_data->s = s;
+    thread_data->lpDir = NULL;
+    thread_data->s = s;
 
     s->thread = thread_create(do_scan, thread_data);
     if (!s->thread) {
@@ -939,10 +946,10 @@ void ms_scan(MediaScan *s) {
     }
   }
   else {
-		thread_data_type thread_data;
-		thread_data.s = s;
-		thread_data.lpDir = NULL;
-    do_scan(&s);
+    thread_data_type thread_data;
+    thread_data.s = s;
+    thread_data.lpDir = NULL;
+    do_scan(&thread_data);
   }
 
 out:
@@ -993,8 +1000,8 @@ void ms_scan_file(MediaScan *s, const char *tmp_full_path, enum media_type type)
   key.data = &hash;
   key.size = sizeof(uint32_t);
 
-	// s->dbp will be null if this function is called directly, if not check if this file is 
-	// already scanned.
+  // s->dbp will be null if this function is called directly, if not check if this file is
+  // already scanned.
   if (s->dbp != NULL && s->dbp->exists(s->dbp, NULL, &key, 0) != DB_NOTFOUND) {
     LOG_INFO("File hash %X already scanned\n", hash);
     return;
@@ -1038,12 +1045,12 @@ void ms_scan_file(MediaScan *s, const char *tmp_full_path, enum media_type type)
     data.data = (char *)tmp_full_path;
     data.size = strlen(tmp_full_path) + 1;
 
-		if(s->dbp != NULL) {
-			ret = s->dbp->put(s->dbp, NULL, &key, &data, DB_NOOVERWRITE);
-			if (ret == DB_KEYEXIST) {
-				s->dbp->err(s->dbp, ret, "Put failed because key %X already exists", r->hash);
-			}
-		}
+    if (s->dbp != NULL) {
+      ret = s->dbp->put(s->dbp, NULL, &key, &data, DB_NOOVERWRITE);
+      if (ret == DB_KEYEXIST) {
+        s->dbp->err(s->dbp, ret, "Put failed because key %X already exists", r->hash);
+      }
+    }
     send_result(s, r);
   }
   else {
