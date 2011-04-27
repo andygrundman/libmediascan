@@ -1,0 +1,72 @@
+Win32 Build Instructions
+----------------------------------------------------------------------
+
+Prerequisits
+Microsoft Visual Studio 2010 or Microsoft Visual C++ 2010
+MinGW - http://www.mingw.org/ http://sourceforge.net/projects/mingw/files/Automated%20MinGW%20Installer/mingw-get-inst/mingw-get-inst-20110316/mingw-get-inst-20110316.exe/download
+Git - http://git-scm.com/
+
+Patch Instruction for Mingw32
+
+http://fate.arrozcru.org/mingw32/patches/
+
+
+Build Instructions
+
+-- FFMPEG --
+
+*Grab the latest version of FFMPEG using the command "git clone git://git.videolan.org/ffmpeg.git ffmpeg"
+*Create a file called "myconfig" in the ffmpeg directory containing the following commands: 
+		#!/bin/sh
+		./configure --extra-cflags="-I/usr/local/include -U__STRICT_ANSI__ -D_MT -mno-cygwin -mms-bitfields" --extra-ldflags="-add-stdcall-alias -L/usr/local/lib" --enable-w32threads --disable-asm --enable-pic --enable-memalign-hack --disable-ffserver --disable-ffplay --target-os=mingw32
+* then open an MSYS shell
+
+cd ffmpeg
+./myconfig 
+make
+make install
+
+-- LIBEXIF --
+* Grab version 8a of the JPEG library using the URL "http://sourceforge.net/projects/libexif/files/libexif/0.6.20/libexif-0.6.20.zip/download"
+* Extract 
+* then open an MSYS shell
+
+cd libexif-0.6.20
+./configure
+make
+make install
+
+-- LIBGIF --
+* Grab the latest version of the GIF library using the URL"http://sourceforge.net/projects/giflib/files/giflib%204.x/giflib-4.1.6/giflib-4.1.6.tar.bz2/download?use_mirror=softlayer"
+* Extract 
+* then open an MSYS shell
+
+cd giflib-4.1.6
+./configure
+make
+make install
+
+-- libmediascan --
+
+Grab the latest version of libmediascan using the command "git clone git://github.com/andygrundman/libmediascan.git scan"
+
+
+	-- CUnit --
+
+	From the scan/test/CUnit directory execute ./configure
+	execute make
+	execute make install
+	
+From the MinGW command prompt in the MinGW/bin directory
+execute mingw-get install libz
+execute mingw-get install libarchive
+
+Open libmediascan.sln in Visual Studio 2010
+From the Menu select Build -> Build Solution
+
+The Win32 library should now be generated
+
+
+
+
+

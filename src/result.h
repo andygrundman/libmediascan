@@ -9,11 +9,11 @@ typedef struct {
 
 // Handler functions for each file type
 typedef struct {
-  char*	type;
-  int (*scan)(MediaScan s);
+  char *type;
+  int (*scan) (MediaScan s);
 } type_handler;
 
-MediaScanResult * result_create(void);
+MediaScanResult *result_create(MediaScan *s);
 
 /**
  * Fill out the MediaScanResult struct by performing any necessary scan

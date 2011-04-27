@@ -15,7 +15,7 @@
  */
 
 #ifdef WIN32
-#include "win32/include/config.h"
+#include "win32/include/win32config.h"
 #endif
 
 #include <ctype.h>
@@ -23,6 +23,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "common.h"
 #include "buffer.h"
@@ -36,10 +37,9 @@
 
 /* Initializes the buffer structure. */
 
-void
-buffer_init(Buffer *buffer, uint32_t len)
-{
-  if (!len) len = BUFFER_ALLOCSZ;
+void buffer_init(Buffer *buffer, uint32_t len) {
+  if (!len)
+    len = BUFFER_ALLOCSZ;
 
   buffer->alloc = 0;
   buffer->buf = (unsigned char *)malloc(len);
@@ -49,14 +49,12 @@ buffer_init(Buffer *buffer, uint32_t len)
   buffer->cache = 0;
   buffer->ncached = 0;
 
-  LOG_DEBUG("Buffer allocated with %d bytes\n", len);
+  LOG_MEM("new Buffer @ %p with %d bytes\n", buffer->buf, len);
 }
 
 /* Allows easy reuse of a buffer, will init or clear buffer if it already exists */
 
-void
-buffer_init_or_clear(Buffer *buffer, uint32_t len)
-{
+void buffer_init_or_clear(Buffer *buffer, uint32_t len) {
   if (!buffer->alloc) {
     buffer_init(buffer, len);
   }
@@ -67,11 +65,9 @@ buffer_init_or_clear(Buffer *buffer, uint32_t len)
 
 /* Frees any memory used for the buffer. */
 
-void
-buffer_free(Buffer *buffer)
-{
+void buffer_free(Buffer *buffer) {
   if (buffer->alloc > 0) {
-    LOG_DEBUG("Buffer high water mark: %d\n", buffer->alloc);
+    LOG_MEM("destroy Buffer @ %p, high water mark: %d\n", buffer->buf, buffer->alloc);
     memset(buffer->buf, 0, buffer->alloc);
     buffer->alloc = 0;
     free(buffer->buf);
@@ -83,9 +79,7 @@ buffer_free(Buffer *buffer)
  * zero the memory.
  */
 
-void
-buffer_clear(Buffer *buffer)
-{
+void buffer_clear(Buffer *buffer) {
   buffer->offset = 0;
   buffer->end = 0;
   buffer->cache = 0;
@@ -94,23 +88,19 @@ buffer_clear(Buffer *buffer)
 
 /* Appends data to the buffer, expanding it if necessary. */
 
-void
-buffer_append(Buffer *buffer, const void *data, uint32_t len)
-{
+void buffer_append(Buffer *buffer, const void *data, uint32_t len) {
   void *p;
   p = buffer_append_space(buffer, len);
   memcpy(p, data, len);
 }
 
-static int
-buffer_compact(Buffer *buffer)
-{
+static int buffer_compact(Buffer *buffer) {
   /*
    * If the buffer is at least BUFFER_COMPACT_PERCENT empty, move the
    * data to the beginning.
    */
-  if (buffer->offset * 1.0 / buffer->alloc >= BUFFER_COMPACT_PERCENT ) {
-    LOG_DEBUG("Buffer compacting (%d -> %d)\n", buffer->offset + buffer_len(buffer), buffer_len(buffer));
+  if (buffer->offset * 1.0 / buffer->alloc >= BUFFER_COMPACT_PERCENT) {
+    //LOG_DEBUG("Buffer compacting (%d -> %d)\n", buffer->offset + buffer_len(buffer), buffer_len(buffer));
     memmove(buffer->buf, buffer->buf + buffer->offset, (int)(buffer->end - buffer->offset));
     buffer->end -= buffer->offset;
     buffer->offset = 0;
@@ -126,9 +116,7 @@ buffer_compact(Buffer *buffer)
  * to the allocated region.
  */
 
-void *
-buffer_append_space(Buffer *buffer, uint32_t len)
-{
+void *buffer_append_space(Buffer *buffer, uint32_t len) {
   uint32_t newlen;
   void *p;
 
@@ -158,11 +146,10 @@ restart:
     newlen = (buffer->alloc + len) * 2;
   else
     newlen = buffer->alloc + len + 4096;
-  
+
   if (newlen > BUFFER_MAX_LEN)
-    FATAL("buffer_append_space: alloc %u too large (max %u)",
-        newlen, BUFFER_MAX_LEN);
-  LOG_DEBUG("Buffer extended to %d\n", newlen);
+    FATAL("buffer_append_space: alloc %u too large (max %u)", newlen, BUFFER_MAX_LEN);
+  //LOG_DEBUG("Buffer extended to %d\n", newlen);
   buffer->buf = (unsigned char *)realloc(buffer->buf, newlen);
   buffer->alloc = newlen;
   goto restart;
@@ -173,14 +160,12 @@ restart:
  * Check whether an allocation of 'len' will fit in the buffer
  * This must follow the same math as buffer_append_space
  */
-int
-buffer_check_alloc(Buffer *buffer, uint32_t len)
-{
+int buffer_check_alloc(Buffer *buffer, uint32_t len) {
   if (buffer->offset == buffer->end) {
     buffer->offset = 0;
     buffer->end = 0;
   }
- restart:
+restart:
   if (buffer->end + len < buffer->alloc)
     return (1);
   if (buffer_compact(buffer))
@@ -192,17 +177,13 @@ buffer_check_alloc(Buffer *buffer, uint32_t len)
 
 /* Returns the number of bytes of data in the buffer. */
 
-uint32_t
-buffer_len(Buffer *buffer)
-{
+uint32_t buffer_len(Buffer *buffer) {
   return buffer->end - buffer->offset;
 }
 
 /* Gets data from the beginning of the buffer. */
 
-int
-buffer_get_ret(Buffer *buffer, void *buf, uint32_t len)
-{
+int buffer_get_ret(Buffer *buffer, void *buf, uint32_t len) {
   if (len > buffer->end - buffer->offset) {
     LOG_WARN("buffer_get_ret: trying to get more bytes %d than in buffer %d", len, buffer->end - buffer->offset);
     return (-1);
@@ -213,18 +194,14 @@ buffer_get_ret(Buffer *buffer, void *buf, uint32_t len)
   return (0);
 }
 
-void
-buffer_get(Buffer *buffer, void *buf, uint32_t len)
-{
+void buffer_get(Buffer *buffer, void *buf, uint32_t len) {
   if (buffer_get_ret(buffer, buf, len) == -1)
     FATAL("buffer_get: buffer error");
 }
 
 /* Consumes the given number of bytes from the beginning of the buffer. */
 
-int
-buffer_consume_ret(Buffer *buffer, uint32_t bytes)
-{
+int buffer_consume_ret(Buffer *buffer, uint32_t bytes) {
   if (bytes > buffer->end - buffer->offset) {
     LOG_WARN("buffer_consume_ret: trying to get more bytes %d than in buffer %d", bytes, buffer->end - buffer->offset);
     return (-1);
@@ -234,18 +211,14 @@ buffer_consume_ret(Buffer *buffer, uint32_t bytes)
   return (0);
 }
 
-void
-buffer_consume(Buffer *buffer, uint32_t bytes)
-{
+void buffer_consume(Buffer *buffer, uint32_t bytes) {
   if (buffer_consume_ret(buffer, bytes) == -1)
     FATAL("buffer_consume: buffer error");
 }
 
 /* Consumes the given number of bytes from the end of the buffer. */
 
-int
-buffer_consume_end_ret(Buffer *buffer, uint32_t bytes)
-{
+int buffer_consume_end_ret(Buffer *buffer, uint32_t bytes) {
   if (bytes > buffer->end - buffer->offset)
     return (-1);
 
@@ -253,57 +226,51 @@ buffer_consume_end_ret(Buffer *buffer, uint32_t bytes)
   return (0);
 }
 
-void
-buffer_consume_end(Buffer *buffer, uint32_t bytes)
-{
+void buffer_consume_end(Buffer *buffer, uint32_t bytes) {
   if (buffer_consume_end_ret(buffer, bytes) == -1)
     FATAL("buffer_consume_end: trying to get more bytes %d than in buffer %d", bytes, buffer->end - buffer->offset);
 }
 
 /* Returns a pointer to the first used byte in the buffer. */
 
-void *
-buffer_ptr(Buffer *buffer)
-{
+void *buffer_ptr(Buffer *buffer) {
   return buffer->buf + buffer->offset;
 }
 
 // Dumps the contents of the buffer to stderr.
 // Based on: http://sws.dett.de/mini/hexdump-c/
-void
-buffer_dump(Buffer *buffer, uint32_t size)
-{
+void buffer_dump(Buffer *buffer, uint32_t size) {
   unsigned char *data = buffer->buf;
   unsigned char c;
   int i = 1;
   int n;
-  char bytestr[4] = {0};
-  char hexstr[ 16*3 + 5] = {0};
-  char charstr[16*1 + 5] = {0};
-  
+  char bytestr[4] = { 0 };
+  char hexstr[16 * 3 + 5] = { 0 };
+  char charstr[16 * 1 + 5] = { 0 };
+
 #ifndef DEBUG
   return;
 #endif
-  
+
   if (!size) {
     size = buffer->end - buffer->offset;
   }
-  
+
   for (n = buffer->offset; n < buffer->offset + size; n++) {
     c = data[n];
 
     /* store hex str (for left side) */
     snprintf(bytestr, sizeof(bytestr), "%02x ", c);
-    strncat(hexstr, bytestr, sizeof(hexstr)-strlen(hexstr)-1);
+    strncat(hexstr, bytestr, sizeof(hexstr) - strlen(hexstr) - 1);
 
     /* store char str (for right side) */
     if (isalnum(c) == 0) {
       c = '.';
     }
     snprintf(bytestr, sizeof(bytestr), "%c", c);
-    strncat(charstr, bytestr, sizeof(charstr)-strlen(charstr)-1);
+    strncat(charstr, bytestr, sizeof(charstr) - strlen(charstr) - 1);
 
-    if (i % 16 == 0) { 
+    if (i % 16 == 0) {
       /* line completed */
       LOG_DEBUG("%-50.50s  %s\n", hexstr, charstr);
       hexstr[0] = 0;
@@ -323,9 +290,7 @@ buffer_dump(Buffer *buffer, uint32_t size)
 /*
  * Returns a character from the buffer (0 - 255).
  */
-int
-buffer_get_char_ret(char *ret, Buffer *buffer)
-{
+int buffer_get_char_ret(char *ret, Buffer *buffer) {
   if (buffer_get_ret(buffer, ret, 1) == -1) {
     LOG_WARN("buffer_get_char_ret: buffer_get_ret failed");
     return (-1);
@@ -334,23 +299,19 @@ buffer_get_char_ret(char *ret, Buffer *buffer)
   return (0);
 }
 
-int
-buffer_get_char(Buffer *buffer)
-{
+int buffer_get_char(Buffer *buffer) {
   char ch;
 
   if (buffer_get_char_ret(&ch, buffer) == -1)
     FATAL("buffer_get_char: buffer error");
-  return (unsigned char) ch;
+  return (unsigned char)ch;
 }
 
-uint32_t
-get_u32le(const void *vp)
-{
+uint32_t get_u32le(const void *vp) {
   const unsigned char *p = (const unsigned char *)vp;
   uint32_t v;
 
-  v  = (uint32_t)p[3] << 24;
+  v = (uint32_t)p[3] << 24;
   v |= (uint32_t)p[2] << 16;
   v |= (uint32_t)p[1] << 8;
   v |= (uint32_t)p[0];
@@ -358,20 +319,16 @@ get_u32le(const void *vp)
   return (v);
 }
 
-int
-buffer_get_int_le_ret(uint32_t *ret, Buffer *buffer)
-{
+int buffer_get_int_le_ret(uint32_t *ret, Buffer *buffer) {
   unsigned char buf[4];
 
-  if (buffer_get_ret(buffer, (char *) buf, 4) == -1)
+  if (buffer_get_ret(buffer, (char *)buf, 4) == -1)
     return (-1);
   *ret = get_u32le(buf);
   return (0);
 }
 
-uint32_t
-buffer_get_int_le(Buffer *buffer)
-{
+uint32_t buffer_get_int_le(Buffer *buffer) {
   uint32_t ret;
 
   if (buffer_get_int_le_ret(&ret, buffer) == -1)
@@ -380,13 +337,11 @@ buffer_get_int_le(Buffer *buffer)
   return (ret);
 }
 
-uint32_t
-get_u32(const void *vp)
-{
+uint32_t get_u32(const void *vp) {
   const unsigned char *p = (const unsigned char *)vp;
   uint32_t v;
 
-  v  = (uint32_t)p[0] << 24;
+  v = (uint32_t)p[0] << 24;
   v |= (uint32_t)p[1] << 16;
   v |= (uint32_t)p[2] << 8;
   v |= (uint32_t)p[3];
@@ -394,20 +349,16 @@ get_u32(const void *vp)
   return (v);
 }
 
-int
-buffer_get_int_ret(uint32_t *ret, Buffer *buffer)
-{
+int buffer_get_int_ret(uint32_t *ret, Buffer *buffer) {
   unsigned char buf[4];
 
-  if (buffer_get_ret(buffer, (char *) buf, 4) == -1)
+  if (buffer_get_ret(buffer, (char *)buf, 4) == -1)
     return (-1);
   *ret = get_u32(buf);
   return (0);
 }
 
-uint32_t
-buffer_get_int(Buffer *buffer)
-{
+uint32_t buffer_get_int(Buffer *buffer) {
   uint32_t ret;
 
   if (buffer_get_int_ret(&ret, buffer) == -1)
@@ -416,33 +367,27 @@ buffer_get_int(Buffer *buffer)
   return (ret);
 }
 
-uint32_t
-get_u24(const void *vp)
-{
+uint32_t get_u24(const void *vp) {
   const unsigned char *p = (const unsigned char *)vp;
   uint32_t v;
 
-  v  = (uint32_t)p[0] << 16;
+  v = (uint32_t)p[0] << 16;
   v |= (uint32_t)p[1] << 8;
   v |= (uint32_t)p[2];
 
   return (v);
 }
 
-int
-buffer_get_int24_ret(uint32_t *ret, Buffer *buffer)
-{
+int buffer_get_int24_ret(uint32_t *ret, Buffer *buffer) {
   unsigned char buf[3];
 
-  if (buffer_get_ret(buffer, (char *) buf, 3) == -1)
+  if (buffer_get_ret(buffer, (char *)buf, 3) == -1)
     return (-1);
   *ret = get_u24(buf);
   return (0);
 }
 
-uint32_t
-buffer_get_int24(Buffer *buffer)
-{
+uint32_t buffer_get_int24(Buffer *buffer) {
   uint32_t ret;
 
   if (buffer_get_int24_ret(&ret, buffer) == -1)
@@ -451,33 +396,27 @@ buffer_get_int24(Buffer *buffer)
   return (ret);
 }
 
-uint32_t
-get_u24le(const void *vp)
-{
+uint32_t get_u24le(const void *vp) {
   const unsigned char *p = (const unsigned char *)vp;
   uint32_t v;
 
-  v  = (uint32_t)p[2] << 16;
+  v = (uint32_t)p[2] << 16;
   v |= (uint32_t)p[1] << 8;
   v |= (uint32_t)p[0];
 
   return (v);
 }
 
-int
-buffer_get_int24_le_ret(uint32_t *ret, Buffer *buffer)
-{
+int buffer_get_int24_le_ret(uint32_t *ret, Buffer *buffer) {
   unsigned char buf[3];
 
-  if (buffer_get_ret(buffer, (char *) buf, 3) == -1)
+  if (buffer_get_ret(buffer, (char *)buf, 3) == -1)
     return (-1);
   *ret = get_u24le(buf);
   return (0);
 }
 
-uint32_t
-buffer_get_int24_le(Buffer *buffer)
-{
+uint32_t buffer_get_int24_le(Buffer *buffer) {
   uint32_t ret;
 
   if (buffer_get_int24_le_ret(&ret, buffer) == -1)
@@ -486,13 +425,11 @@ buffer_get_int24_le(Buffer *buffer)
   return (ret);
 }
 
-uint64_t
-get_u64le(const void *vp)
-{
+uint64_t get_u64le(const void *vp) {
   const unsigned char *p = (const unsigned char *)vp;
   uint64_t v;
 
-  v  = (uint64_t)p[7] << 56;
+  v = (uint64_t)p[7] << 56;
   v |= (uint64_t)p[6] << 48;
   v |= (uint64_t)p[5] << 40;
   v |= (uint64_t)p[4] << 32;
@@ -504,20 +441,16 @@ get_u64le(const void *vp)
   return (v);
 }
 
-int
-buffer_get_int64_le_ret(uint64_t *ret, Buffer *buffer)
-{
+int buffer_get_int64_le_ret(uint64_t *ret, Buffer *buffer) {
   unsigned char buf[8];
 
-  if (buffer_get_ret(buffer, (char *) buf, 8) == -1)
+  if (buffer_get_ret(buffer, (char *)buf, 8) == -1)
     return (-1);
   *ret = get_u64le(buf);
   return (0);
 }
 
-uint64_t
-buffer_get_int64_le(Buffer *buffer)
-{
+uint64_t buffer_get_int64_le(Buffer *buffer) {
   uint64_t ret;
 
   if (buffer_get_int64_le_ret(&ret, buffer) == -1)
@@ -526,13 +459,11 @@ buffer_get_int64_le(Buffer *buffer)
   return (ret);
 }
 
-uint64_t
-get_u64(const void *vp)
-{
+uint64_t get_u64(const void *vp) {
   const unsigned char *p = (const unsigned char *)vp;
   uint64_t v;
 
-  v  = (uint64_t)p[0] << 56;
+  v = (uint64_t)p[0] << 56;
   v |= (uint64_t)p[1] << 48;
   v |= (uint64_t)p[2] << 40;
   v |= (uint64_t)p[3] << 32;
@@ -544,20 +475,16 @@ get_u64(const void *vp)
   return (v);
 }
 
-int
-buffer_get_int64_ret(uint64_t *ret, Buffer *buffer)
-{
+int buffer_get_int64_ret(uint64_t *ret, Buffer *buffer) {
   unsigned char buf[8];
 
-  if (buffer_get_ret(buffer, (char *) buf, 8) == -1)
+  if (buffer_get_ret(buffer, (char *)buf, 8) == -1)
     return (-1);
   *ret = get_u64(buf);
   return (0);
 }
 
-uint64_t
-buffer_get_int64(Buffer *buffer)
-{
+uint64_t buffer_get_int64(Buffer *buffer) {
   uint64_t ret;
 
   if (buffer_get_int64_ret(&ret, buffer) == -1)
@@ -566,32 +493,26 @@ buffer_get_int64(Buffer *buffer)
   return (ret);
 }
 
-uint16_t
-get_u16le(const void *vp)
-{
+uint16_t get_u16le(const void *vp) {
   const unsigned char *p = (const unsigned char *)vp;
   uint16_t v;
 
-  v  = (uint16_t)p[1] << 8;
+  v = (uint16_t)p[1] << 8;
   v |= (uint16_t)p[0];
 
   return (v);
 }
 
-int
-buffer_get_short_le_ret(uint16_t *ret, Buffer *buffer)
-{
+int buffer_get_short_le_ret(uint16_t *ret, Buffer *buffer) {
   unsigned char buf[2];
 
-  if (buffer_get_ret(buffer, (char *) buf, 2) == -1)
+  if (buffer_get_ret(buffer, (char *)buf, 2) == -1)
     return (-1);
   *ret = get_u16le(buf);
   return (0);
 }
 
-uint16_t
-buffer_get_short_le(Buffer *buffer)
-{
+uint16_t buffer_get_short_le(Buffer *buffer) {
   uint16_t ret;
 
   if (buffer_get_short_le_ret(&ret, buffer) == -1)
@@ -600,32 +521,26 @@ buffer_get_short_le(Buffer *buffer)
   return (ret);
 }
 
-uint16_t
-get_u16(const void *vp)
-{
+uint16_t get_u16(const void *vp) {
   const unsigned char *p = (const unsigned char *)vp;
   uint16_t v;
 
-  v  = (uint16_t)p[0] << 8;
+  v = (uint16_t)p[0] << 8;
   v |= (uint16_t)p[1];
 
   return (v);
 }
 
-int
-buffer_get_short_ret(uint16_t *ret, Buffer *buffer)
-{
+int buffer_get_short_ret(uint16_t *ret, Buffer *buffer) {
   unsigned char buf[2];
 
-  if (buffer_get_ret(buffer, (char *) buf, 2) == -1)
+  if (buffer_get_ret(buffer, (char *)buf, 2) == -1)
     return (-1);
   *ret = get_u16(buf);
   return (0);
 }
 
-uint16_t
-buffer_get_short(Buffer *buffer)
-{
+uint16_t buffer_get_short(Buffer *buffer) {
   uint16_t ret;
 
   if (buffer_get_short_ret(&ret, buffer) == -1)
@@ -637,9 +552,7 @@ buffer_get_short(Buffer *buffer)
 /*
  * Stores a character in the buffer.
  */
-void
-buffer_put_char(Buffer *buffer, int value)
-{
+void buffer_put_char(Buffer *buffer, int value) {
   char ch = value;
 
   buffer_append(buffer, &ch, 1);
@@ -647,33 +560,32 @@ buffer_put_char(Buffer *buffer, int value)
 
 // Read a null-terminated UTF-8 string
 // Caller must manage utf8 buffer (init/free)
-uint32_t
-buffer_get_utf8(Buffer *buffer, Buffer *utf8, uint32_t len_hint)
-{
+uint32_t buffer_get_utf8(Buffer *buffer, Buffer *utf8, uint32_t len_hint) {
   int i = 0;
   unsigned char *bptr = buffer_ptr(buffer);
-  
-  if (!len_hint) return 0;
-  
+
+  if (!len_hint)
+    return 0;
+
   for (i = 0; i < len_hint; i++) {
     uint8_t c = bptr[i];
-    
+
     buffer_put_char(utf8, c);
-    
+
     if (c == 0) {
       i++;
       break;
     }
   }
-  
+
   // Consume string + null
   buffer_consume(buffer, i);
-  
+
   // Add null if one wasn't provided
-  if ( (utf8->buf + utf8->end - 1)[0] != 0 ) {
+  if ((utf8->buf + utf8->end - 1)[0] != 0) {
     buffer_put_char(utf8, 0);
   }
-  
+
   return i;
 }
 
@@ -681,25 +593,24 @@ buffer_get_utf8(Buffer *buffer, Buffer *utf8, uint32_t len_hint)
 // len_hint is the length of the latin1 string, utf8 may end up being larger
 // or possibly less if we hit a null.
 // Caller must manage utf8 buffer (init/free)
-uint32_t
-buffer_get_latin1_as_utf8(Buffer *buffer, Buffer *utf8, uint32_t len_hint)
-{
+uint32_t buffer_get_latin1_as_utf8(Buffer *buffer, Buffer *utf8, uint32_t len_hint) {
   int i = 0;
   unsigned char *bptr = buffer_ptr(buffer);
   uint8_t is_utf8;
-  
-  if (!len_hint) return 0;
-  
+
+  if (!len_hint)
+    return 0;
+
   // We may get a valid UTF-8 string in here from ID3v1 or
   // elsewhere, if so we don't want to translate from ISO-8859-1
-  
+
   // XXX is_utf8_string is a perlapi function, need a C version
   //is_utf8 = is_utf8_string(bptr, len_hint);
   is_utf8 = 0;
-  
+
   for (i = 0; i < len_hint; i++) {
     uint8_t c = bptr[i];
-    
+
     if (is_utf8) {
       buffer_put_char(utf8, c);
     }
@@ -717,35 +628,34 @@ buffer_get_latin1_as_utf8(Buffer *buffer, Buffer *utf8, uint32_t len_hint)
         buffer_put_char(utf8, c - 64);
       }
     }
-    
+
     if (c == 0) {
       i++;
       break;
     }
   }
-  
+
   // Consume string + null
   buffer_consume(buffer, i);
-  
+
   // Add null if one wasn't provided
-  if ( (utf8->buf + utf8->end - 1)[0] != 0 ) {
+  if ((utf8->buf + utf8->end - 1)[0] != 0) {
     buffer_put_char(utf8, 0);
   }
-  
+
   return i;
 }
 
 // Read a null-terminated UTF-16 string, converting to UTF-8 in the supplied buffer
 // Caller must manage utf8 buffer (init/free)
 // XXX supports U+0000 ~ U+FFFF only.
-uint32_t
-buffer_get_utf16_as_utf8(Buffer *buffer, Buffer *utf8, uint32_t len, uint8_t byteorder)
-{
+uint32_t buffer_get_utf16_as_utf8(Buffer *buffer, Buffer *utf8, uint32_t len, uint8_t byteorder) {
   int i = 0;
   uint16_t wc = 0;
-  
-  if (!len) return 0;
-  
+
+  if (!len)
+    return 0;
+
   for (i = 0; i < len; i += 2) {
     // Check that we are not reading past the end of the buffer
     if (len - i >= 2) {
@@ -760,58 +670,52 @@ buffer_get_utf16_as_utf8(Buffer *buffer, Buffer *utf8, uint32_t len, uint8_t byt
     }
 
     if (wc < 0x80) {
-      buffer_put_char(utf8, wc & 0xff);      
+      buffer_put_char(utf8, wc & 0xff);
     }
     else if (wc < 0x800) {
-      buffer_put_char(utf8, 0xc0 | (wc>>6));
+      buffer_put_char(utf8, 0xc0 | (wc >> 6));
       buffer_put_char(utf8, 0x80 | (wc & 0x3f));
     }
     else {
-      buffer_put_char(utf8, 0xe0 | (wc>>12));
-      buffer_put_char(utf8, 0x80 | ((wc>>6) & 0x3f));
+      buffer_put_char(utf8, 0xe0 | (wc >> 12));
+      buffer_put_char(utf8, 0x80 | ((wc >> 6) & 0x3f));
       buffer_put_char(utf8, 0x80 | (wc & 0x3f));
     }
-    
+
     if (wc == 0) {
       i += 2;
       break;
     }
   }
-  
+
   // Add null if one wasn't provided
-  if ( (utf8->buf + utf8->end - 1)[0] != 0 ) {
+  if ((utf8->buf + utf8->end - 1)[0] != 0) {
     buffer_put_char(utf8, 0);
   }
-  
+
   return i;
 }
 
 #ifdef HAS_GUID
-void
-buffer_get_guid(Buffer *buffer, GUID *g)
-{
+void buffer_get_guid(Buffer *buffer, GUID *g) {
   g->Data1 = buffer_get_int_le(buffer);
   g->Data2 = buffer_get_short_le(buffer);
   g->Data3 = buffer_get_short_le(buffer);
-  
+
   buffer_get(buffer, g->Data4, 8);
 }
 #endif
 
-int
-buffer_get_float32_le_ret(float *ret, Buffer *buffer)
-{
+int buffer_get_float32_le_ret(float *ret, Buffer *buffer) {
   unsigned char buf[4];
 
-  if (buffer_get_ret(buffer, (char *) buf, 4) == -1)
+  if (buffer_get_ret(buffer, (char *)buf, 4) == -1)
     return (-1);
   *ret = get_f32le(buf);
   return (0);
 }
 
-float
-buffer_get_float32_le(Buffer *buffer)
-{
+float buffer_get_float32_le(Buffer *buffer) {
   float ret;
 
   if (buffer_get_float32_le_ret(&ret, buffer) == -1)
@@ -821,30 +725,28 @@ buffer_get_float32_le(Buffer *buffer)
 }
 
 // From libsndfile
-float
-get_f32le(const void *vp)
-{
+float get_f32le(const void *vp) {
   const unsigned char *p = (const unsigned char *)vp;
   float v;
   int exponent, mantissa, negative;
-  
+
   negative = p[3] & 0x80;
   exponent = ((p[3] & 0x7F) << 1) | ((p[2] & 0x80) ? 1 : 0);
   mantissa = ((p[2] & 0x7F) << 16) | (p[1] << 8) | (p[0]);
-  
-  if ( !(exponent || mantissa) ) {
+
+  if (!(exponent || mantissa)) {
     return 0.0;
   }
-  
+
   mantissa |= 0x800000;
   exponent = exponent ? exponent - 127 : 0;
-  
+
   v = mantissa ? ((float)mantissa) / ((float)0x800000) : 0.0;
-  
+
   if (negative) {
     v *= -1;
   }
-  
+
   if (exponent > 0) {
     v *= pow(2.0, exponent);
   }
@@ -855,20 +757,16 @@ get_f32le(const void *vp)
   return (v);
 }
 
-int
-buffer_get_float32_ret(float *ret, Buffer *buffer)
-{
+int buffer_get_float32_ret(float *ret, Buffer *buffer) {
   unsigned char buf[4];
 
-  if (buffer_get_ret(buffer, (char *) buf, 4) == -1)
+  if (buffer_get_ret(buffer, (char *)buf, 4) == -1)
     return (-1);
   *ret = get_f32(buf);
   return (0);
 }
 
-float
-buffer_get_float32(Buffer *buffer)
-{
+float buffer_get_float32(Buffer *buffer) {
   float ret;
 
   if (buffer_get_float32_ret(&ret, buffer) == -1)
@@ -878,30 +776,28 @@ buffer_get_float32(Buffer *buffer)
 }
 
 // From libsndfile
-float
-get_f32(const void *vp)
-{
+float get_f32(const void *vp) {
   const unsigned char *p = (const unsigned char *)vp;
   float v;
   int exponent, mantissa, negative;
-  
+
   negative = p[0] & 0x80;
   exponent = ((p[0] & 0x7F) << 1) | ((p[1] & 0x80) ? 1 : 0);
   mantissa = ((p[1] & 0x7F) << 16) | (p[2] << 8) | (p[3]);
-  
-  if ( !(exponent || mantissa) ) {
+
+  if (!(exponent || mantissa)) {
     return 0.0;
   }
-  
+
   mantissa |= 0x800000;
   exponent = exponent ? exponent - 127 : 0;
-  
+
   v = mantissa ? ((float)mantissa) / ((float)0x800000) : 0.0;
-  
+
   if (negative) {
     v *= -1;
   }
-  
+
   if (exponent > 0) {
     v *= pow(2.0, exponent);
   }
@@ -914,39 +810,37 @@ get_f32(const void *vp)
 
 // http://www.onicos.com/staff/iz/formats/aiff.html
 // http://www.onicos.com/staff/iz/formats/ieee.c
-double
-buffer_get_ieee_float(Buffer *buffer)
-{
+double buffer_get_ieee_float(Buffer *buffer) {
   double f;
   int expon;
   unsigned long hiMant, loMant;
-  
+
   unsigned char *bptr = buffer_ptr(buffer);
-  
-  expon  = ((bptr[0] & 0x7F) << 8) | (bptr[1] & 0xFF);
+
+  expon = ((bptr[0] & 0x7F) << 8) | (bptr[1] & 0xFF);
   hiMant = ((unsigned long)(bptr[2] & 0xFF) << 24)
-      |    ((unsigned long)(bptr[3] & 0xFF) << 16)
-      |    ((unsigned long)(bptr[4] & 0xFF) << 8)
-      |    ((unsigned long)(bptr[5] & 0xFF));
+    | ((unsigned long)(bptr[3] & 0xFF) << 16)
+    | ((unsigned long)(bptr[4] & 0xFF) << 8)
+    | ((unsigned long)(bptr[5] & 0xFF));
   loMant = ((unsigned long)(bptr[6] & 0xFF) << 24)
-      |    ((unsigned long)(bptr[7] & 0xFF) << 16)
-      |    ((unsigned long)(bptr[8] & 0xFF) << 8)
-      |    ((unsigned long)(bptr[9] & 0xFF));
+    | ((unsigned long)(bptr[7] & 0xFF) << 16)
+    | ((unsigned long)(bptr[8] & 0xFF) << 8)
+    | ((unsigned long)(bptr[9] & 0xFF));
 
   if (expon == 0 && hiMant == 0 && loMant == 0) {
     f = 0;
   }
   else {
-    if (expon == 0x7FFF) {    /* Infinity or NaN */
+    if (expon == 0x7FFF) {      /* Infinity or NaN */
       f = HUGE_VAL;
     }
     else {
       expon -= 16383;
-      f  = ldexp(UnsignedToFloat(hiMant), expon-=31);
-      f += ldexp(UnsignedToFloat(loMant), expon-=32);
+      f = ldexp(UnsignedToFloat(hiMant), expon -= 31);
+      f += ldexp(UnsignedToFloat(loMant), expon -= 32);
     }
   }
-  
+
   buffer_consume(buffer, 10);
 
   if (bptr[0] & 0x80)
@@ -955,33 +849,27 @@ buffer_get_ieee_float(Buffer *buffer)
     return f;
 }
 
-void
-put_u16(void *vp, uint16_t v)
-{
+void put_u16(void *vp, uint16_t v) {
   unsigned char *p = (unsigned char *)vp;
-  
-	p[0] = (unsigned char)(v >> 8) & 0xff;
-	p[1] = (unsigned char)v & 0xff;
+
+  p[0] = (unsigned char)(v >> 8) & 0xff;
+  p[1] = (unsigned char)v & 0xff;
 }
 
-void
-put_u32(void *vp, uint32_t v)
-{
-	unsigned char *p = (unsigned char *)vp;
+void put_u32(void *vp, uint32_t v) {
+  unsigned char *p = (unsigned char *)vp;
 
-	p[0] = (unsigned char)(v >> 24) & 0xff;
-	p[1] = (unsigned char)(v >> 16) & 0xff;
-	p[2] = (unsigned char)(v >> 8) & 0xff;
-	p[3] = (unsigned char)v & 0xff;
+  p[0] = (unsigned char)(v >> 24) & 0xff;
+  p[1] = (unsigned char)(v >> 16) & 0xff;
+  p[2] = (unsigned char)(v >> 8) & 0xff;
+  p[3] = (unsigned char)v & 0xff;
 }
 
-void
-buffer_put_int(Buffer *buffer, unsigned int value)
-{
-	char buf[4];
+void buffer_put_int(Buffer *buffer, unsigned int value) {
+  char buf[4];
 
-	put_u32(buf, value);
-	buffer_append(buffer, buf, 4);
+  put_u32(buf, value);
+  buffer_append(buffer, buf, 4);
 }
 
 // Warnings:
@@ -992,80 +880,79 @@ const uint32_t CacheMask[33] = {
   0x0, 0x1, 0x3, 0x7, 0xf, 0x1f, 0x3f, 0x7f,
   0xff, 0x1ff, 0x3ff, 0x7ff, 0xfff, 0x1fff, 0x3fff, 0x7fff,
   0xffff, 0x1ffff, 0x3ffff, 0x7ffff, 0xfffff, 0x1fffff, 0x3fffff, 0x7fffff,
-  0xffffff, 0x1ffffff, 0x3ffffff, 0x7ffffff, 0xfffffff, 0x1fffffff, 0x3fffffff, 0x7fffffff,
+  0xffffff, 0x1ffffff, 0x3ffffff, 0x7ffffff, 0xfffffff, 0x1fffffff,
+  0x3fffffff, 0x7fffffff,
   0xffffffff
 };
 
-uint32_t
-buffer_get_bits(Buffer *buffer, uint32_t bits)
-{
+uint32_t buffer_get_bits(Buffer *buffer, uint32_t bits) {
   uint32_t mask = CacheMask[bits];
-  
+
   //LOG_DEBUG("get_bits(%d), in cache %d\n", bits, buffer->ncached);
-  
+
   while (buffer->ncached < bits) {
     // Need to read more data
-     
+
     //LOG_DEBUG("reading: ");
     //buffer_dump(buffer, 1);
-    
+
     buffer->cache = (buffer->cache << 8) | buffer_get_char(buffer);
     buffer->ncached += 8;
   }
-  
+
   buffer->ncached -= bits;
-  
+
   //LOG_DEBUG("cache %x, ncached %d\n", buffer->cache, buffer->ncached);
   //LOG_DEBUG("return %x\n", (buffer->cache >> buffer->ncached) & mask);
-  
+
   return (buffer->cache >> buffer->ncached) & mask;
 }
 
-uint32_t
-buffer_get_syncsafe(Buffer *buffer, uint8_t bytes)
-{
+uint32_t buffer_get_syncsafe(Buffer *buffer, uint8_t bytes) {
   uint32_t value = 0;
   unsigned char *bptr = buffer_ptr(buffer);
 
   switch (bytes) {
-  case 5: value = (value << 4) | (*bptr++ & 0x0f);
-  case 4: value = (value << 7) | (*bptr++ & 0x7f);
-          value = (value << 7) | (*bptr++ & 0x7f);
-          value = (value << 7) | (*bptr++ & 0x7f);
-          value = (value << 7) | (*bptr++ & 0x7f);
+    case 5:
+      value = (value << 4) | (*bptr++ & 0x0f);
+    case 4:
+      value = (value << 7) | (*bptr++ & 0x7f);
+      value = (value << 7) | (*bptr++ & 0x7f);
+      value = (value << 7) | (*bptr++ & 0x7f);
+      value = (value << 7) | (*bptr++ & 0x7f);
   }
-  
+
   buffer_consume(buffer, bytes);
 
   return value;
 }
 
-int
-buffer_check_load(Buffer *buf, FILE *fp, int min_wanted, int max_wanted)
-{
+int buffer_check_load(Buffer *buf, FILE *fp, int min_wanted, int max_wanted) {
   int ret = 1;
-  
+
   // Do we have enough data?
-  if ( buffer_len(buf) < min_wanted ) {
+  if (buffer_len(buf) < min_wanted) {
     // Read more data
     uint32_t read;
     uint32_t actual_wanted;
     unsigned char *tmp;
-    
+
     if (min_wanted > max_wanted) {
       max_wanted = min_wanted;
     }
-    
+
     // Adjust actual amount to read by the amount we already have in the buffer
     actual_wanted = max_wanted - buffer_len(buf);
 
     tmp = (unsigned char *)malloc(actual_wanted);
-    
-    LOG_DEBUG("Buffering from file @ %ld (min_wanted %d, max_wanted %d, adjusted to %d)\n",
-      ftell(fp), min_wanted, max_wanted, actual_wanted
-    );
 
-    if ( (read = fread(tmp, 1, actual_wanted, fp)) <= 0 ) {
+    /*
+       LOG_DEBUG("Buffering from file @ %ld (min_wanted %d, max_wanted %d, adjusted to %d)\n",
+       ftell(fp), min_wanted, max_wanted, actual_wanted
+       );
+     */
+
+    if ((read = fread(tmp, 1, actual_wanted, fp)) <= 0) {
       if (ferror(fp)) {
         LOG_ERROR("Error reading: %s (wanted %d)\n", strerror(errno), actual_wanted);
       }
@@ -1080,15 +967,15 @@ buffer_check_load(Buffer *buf, FILE *fp, int min_wanted, int max_wanted)
     buffer_append(buf, tmp, read);
 
     // Make sure we got enough
-    if ( buffer_len(buf) < min_wanted ) {
+    if (buffer_len(buf) < min_wanted) {
       LOG_ERROR("Error: Unable to read at least %d bytes from file (only read %d).\n", min_wanted, read);
       ret = 0;
       goto out;
     }
 
-    LOG_DEBUG("Buffered %d bytes, new pos %ld\n", read, ftell(fp));
+    //LOG_DEBUG("Buffered %d bytes, new pos %ld\n", read, ftell(fp));
 
-out:
+  out:
     free(tmp);
   }
 

@@ -7,27 +7,36 @@ use File::Spec::Functions;
 use FindBin ();
 use Media::Scan;
 
+my $c = 1;
 {
-    my $s = Media::Scan->new( [ '/Users/andy/dev' ], {
-        #loglevel => 9,
-        ignore => [ qw(wav png) ],
-        on_file => sub {
-          my $result = shift;
-          warn dump($result);
+    #my $s = Media::Scan->new( [ _f('video') ], {
+    my $s = Media::Scan->new( [ '/Users/andy/QA/DHGMedia' ], {
+        #loglevel => 5,
+        ignore => [],
+        async => 0,
+        thumbnails => [
+            { width => 200 },
+        ],
+        on_result => sub {
+          my $r = shift;
+          #warn "Result: " . dump($r->as_hash) . "\n";
+          open my $fh, '>', 'thumb' . $c . '.jpg';
+          print $fh $r->thumbnails->[0];
+          close $fh;
+          warn "Wrote thumb${c}.jpg\n";
+          $c++;
         },
         on_error => sub {
-          my $error = shift;
-          warn dump($error);
+          my $e = shift;
+          warn "Error: " . dump($e->as_hash);
         },
-        progress => sub {
+        on_progress => sub {
           my $p = shift;
-          warn dump($p);
+          warn "Progress: " . dump($p->as_hash);
         },
     } );
-    
-    warn dump($s);
 }
 
 sub _f {
-    return catfile( $FindBin::Bin, 'data', shift );
+    return catfile( $FindBin::Bin, '..', '..', '..', 'test', 'data', shift );
 }

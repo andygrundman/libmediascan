@@ -1,0 +1,159 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{A7CBC617-55A0-45C2-BA69-6E04C93F5297}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>libmediascan</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)..;$(SolutionDir)..\include;$(SolutionDir)include;$(ProjectDir)zlib-1.2.5;$(ProjectDir)libpng-1.5.2;C:\mingw\msys\1.0\local\include;$(SolutionDir)..\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <CallingConvention>Cdecl</CallingConvention>
+      <CompileAs>CompileAsC</CompileAs>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <StructMemberAlignment>8Bytes</StructMemberAlignment>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Lib>
+      <AdditionalLibraryDirectories>$(ProjectDir)\..\lib;C:\mingw\msys\1.0\local\lib;C:\mingw\lib\gcc\mingw32\4.5.2;C:\mingw\lib;D:\workspace\scan\test</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libgcc.a;libmingwex.lib;$(ProjectDir)Debug\libpng15.lib;$(ProjectDir)Debug\zlib.lib;$(ProjectDir)Debug\jpeg.lib;$(ProjectDir)giflib-4.1.6\windows\.\Debug\libungif.lib;libavcodec.a;libavformat.a;libavutil.a;libswscale.a;libexif.a;libintl.lib;$(ProjectDir)..\lib\libdb_small51s.lib;libbz2.a;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+      <Message>
+      </Message>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MinSpace</Optimization>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)..;$(SolutionDir)..\include;$(SolutionDir)include;$(ProjectDir)zlib-1.2.5;$(ProjectDir)libpng-1.5.2;$(ProjectDir)jpeg-8a;C:\mingw\msys\1.0\local\include;$(SolutionDir)..\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
+      <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>libgcc.a;libmingwex.lib;$(ProjectDir)Release\libpng15.lib;$(ProjectDir)Release\zlib.lib;$(ProjectDir)Release\jpeg.lib;$(ProjectDir)giflib-4.1.6\windows\Release\libungif.lib;libavcodec.a;libavformat.a;libavutil.a;libswscale.a;libexif.a;libintl.lib;$(ProjectDir)..\lib\libdb_small51s.lib;libbz2.a;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)\..\lib;C:\mingw\msys\1.0\local\lib;C:\mingw\lib\gcc\mingw32\4.5.2;C:\mingw\lib;D:\workspace\scan\test</AdditionalLibraryDirectories>
+      <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\audio.c" />
+    <ClCompile Include="..\src\buffer.c" />
+    <ClCompile Include="..\src\database.c" />
+    <ClCompile Include="..\src\error.c" />
+    <ClCompile Include="..\src\folder_mon_win32.c" />
+    <ClCompile Include="..\src\image.c" />
+    <ClCompile Include="..\src\image_bmp.c" />
+    <ClCompile Include="..\src\image_gif.c" />
+    <ClCompile Include="..\src\image_jpeg.c" />
+    <ClCompile Include="..\src\image_png.c" />
+    <ClCompile Include="..\src\jenkins\lookup3.c" />
+    <ClCompile Include="..\src\libdlna\audio_aac.c" />
+    <ClCompile Include="..\src\libdlna\audio_ac3.c" />
+    <ClCompile Include="..\src\libdlna\audio_amr.c" />
+    <ClCompile Include="..\src\libdlna\audio_atrac3.c" />
+    <ClCompile Include="..\src\libdlna\audio_g726.c" />
+    <ClCompile Include="..\src\libdlna\audio_lpcm.c" />
+    <ClCompile Include="..\src\libdlna\audio_mp1.c" />
+    <ClCompile Include="..\src\libdlna\audio_mp2.c" />
+    <ClCompile Include="..\src\libdlna\audio_mp3.c" />
+    <ClCompile Include="..\src\libdlna\audio_wma.c" />
+    <ClCompile Include="..\src\libdlna\av_mpeg1.c" />
+    <ClCompile Include="..\src\libdlna\av_mpeg2.c" />
+    <ClCompile Include="..\src\libdlna\av_mpeg4_part10.c" />
+    <ClCompile Include="..\src\libdlna\av_mpeg4_part2.c" />
+    <ClCompile Include="..\src\libdlna\av_wmv9.c" />
+    <ClCompile Include="..\src\libdlna\containers.c" />
+    <ClCompile Include="..\src\libdlna\profiles.c" />
+    <ClCompile Include="..\src\libdlna\upnp_dms.c" />
+    <ClCompile Include="..\src\mediascan.c">
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">/D "_CRT_SECURE_NO_WARNINGS" %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <ClCompile Include="..\src\mediascan_win32.c" />
+    <ClCompile Include="..\src\progress.c" />
+    <ClCompile Include="..\src\result.c" />
+    <ClCompile Include="..\src\thread.c" />
+    <ClCompile Include="..\src\thumb.c" />
+    <ClCompile Include="..\src\util.c" />
+    <ClCompile Include="..\src\video.c" />
+    <ClCompile Include="..\src\win32_port.c" />
+    <ClCompile Include="..\src\win_iconv.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\libmediascan.h" />
+    <ClInclude Include="..\src\audio.h" />
+    <ClInclude Include="..\src\common.h" />
+    <ClInclude Include="..\src\mediascan.h" />
+    <ClInclude Include="..\src\progress.h" />
+    <ClInclude Include="..\src\queue.h" />
+    <ClInclude Include="..\src\result.h" />
+    <ClInclude Include="..\src\util.h" />
+    <ClInclude Include="..\src\video.h" />
+    <ClInclude Include="..\src\wav.h" />
+    <ClInclude Include="include\win32config.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

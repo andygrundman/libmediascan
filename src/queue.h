@@ -95,15 +95,17 @@
 struct name {								\
 	struct type *slh_first;	/* first element */			\
 }
- 
+
 #define	SLIST_HEAD_INITIALIZER(head)					\
 	{ NULL }
- 
+
+
+#undef SLIST_ENTRY
 #define SLIST_ENTRY(type)						\
 struct {								\
 	struct type *sle_next;	/* next element */			\
 }
- 
+
 /*
  * Singly-linked List access methods.
  */
@@ -524,4 +526,4 @@ struct {								\
 	_Q_INVALIDATE((elm)->field.cqe_next);				\
 } while (0)
 
-#endif	/* !_SYS_QUEUE_H_ */
+#endif /* !_SYS_QUEUE_H_ */

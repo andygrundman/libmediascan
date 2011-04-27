@@ -13,48 +13,46 @@ static void _parse_wav_peak(ScanData s, Buffer *buf, uint32_t chunk_size, uint8_
 static void _parse_aiff(ScanData s, Buffer *buf);
 static void _parse_aiff_comm(ScanData s, Buffer *buf, uint32_t chunk_size);
 
-int
-wav_scan(ScanData s)
-{
+int wav_scan(ScanData s) {
   int ret = 1;
   Buffer buf;
   uint32_t chunk_size;
-  
+
   buffer_init(&buf, BLOCK_SIZE);
-  
-  if ( !buffer_check_load(&buf, s->fp, 12, BLOCK_SIZE) ) {
+
+  if (!buffer_check_load(&buf, s->fp, 12, BLOCK_SIZE)) {
     ret = 0;
     goto out;
   }
-  
-  if ( !strncmp( (char *)buffer_ptr(&buf), "RIFF", 4 ) ) {
+
+  if (!strncmp((char *)buffer_ptr(&buf), "RIFF", 4)) {
     // We've got a RIFF file
     buffer_consume(&buf, 4);
-  
+
     chunk_size = buffer_get_int_le(&buf);
-    
+
     // Check format
-    if ( strncmp( (char *)buffer_ptr(&buf), "WAVE", 4 ) ) {
+    if (strncmp((char *)buffer_ptr(&buf), "WAVE", 4)) {
       LOG_ERROR("Invalid WAV file: missing WAVE header: %s\n", s->path);
       ret = 0;
       goto out;
     }
-    
+
     buffer_consume(&buf, 4);
-    
+
     _parse_wav(s, &buf);
   }
-  else if ( !strncmp( (char *)buffer_ptr(&buf), "FORM", 4 ) ) {
+  else if (!strncmp((char *)buffer_ptr(&buf), "FORM", 4)) {
     // We've got an AIFF file
     char *bptr;
-    
+
     buffer_consume(&buf, 4);
-    
+
     chunk_size = buffer_get_int(&buf);
-    
+
     // Check format
     bptr = buffer_ptr(&buf);
-    if ( bptr[0] == 'A' && bptr[1] == 'I' && bptr[2] == 'F' && (bptr[3] == 'F' || bptr[3] == 'C') ) {
+    if (bptr[0] == 'A' && bptr[1] == 'I' && bptr[2] == 'F' && (bptr[3] == 'F' || bptr[3] == 'C')) {
       buffer_consume(&buf, 4);
 
       //_parse_aiff(s, &buf);
@@ -70,86 +68,82 @@ wav_scan(ScanData s)
     ret = 0;
     goto out;
   }
-  
+
 out:
   buffer_free(&buf);
-  
+
   return ret;
 }
 
 
-static void
-_parse_wav(ScanData s, Buffer *buf)
-{
+static void _parse_wav(ScanData s, Buffer *buf) {
   uint32_t offset = 12;
-  
+
   s->type_name = "wav";
   mediascan_add_StreamData(s, 1);
-  
-  while ( offset < s->size - 8 ) {
+
+  while (offset < s->size - 8) {
     char chunk_id[5];
     uint32_t chunk_size;
-    
+
     // Verify we have at least 8 bytes
-    if ( !buffer_check_load(buf, s->fp, 8, BLOCK_SIZE) ) {
+    if (!buffer_check_load(buf, s->fp, 8, BLOCK_SIZE)) {
       return;
     }
-    
-    strncpy( chunk_id, (char *)buffer_ptr(buf), 4 );
+
+    strncpy(chunk_id, (char *)buffer_ptr(buf), 4);
     chunk_id[4] = '\0';
     buffer_consume(buf, 4);
-    
+
     chunk_size = buffer_get_int_le(buf);
-    
+
     // Adjust for padding
-    if ( chunk_size % 2 ) {
+    if (chunk_size % 2) {
       chunk_size++;
     }
-    
+
     offset += 8;
-    
+
     LOG_DEBUG("%s size %d\n", chunk_id, chunk_size);
-    
+
     // Seek past data, everything else we parse
     // XXX: Are there other large chunks we should ignore?
-    if ( !strcmp( chunk_id, "data" ) ) {      
+    if (!strcmp(chunk_id, "data")) {
       s->audio_offset = offset;
-      s->audio_size   = chunk_size;
-      
+      s->audio_size = chunk_size;
+
       // Calculate duration, unless we already know it (i.e. from 'fact')
-      if ( !s->duration_ms ) {
+      if (!s->duration_ms) {
         if (s->bitrate) {
           s->duration_ms = (chunk_size / (s->bitrate / 8.)) * 1000;
         }
       }
-      
+
       // sanity check size, this is inside the data chunk code
       // to support setting audio_offset even when the data size is wrong
       if (chunk_size > s->size - offset) {
         LOG_DEBUG("data size > file_size, skipping\n");
         return;
       }
-      
+
       // Seek past data if there are more chunks after it
-      if ( s->size > offset + chunk_size ) {
+      if (s->size > offset + chunk_size) {
         fseek(s->fp, offset + chunk_size, SEEK_SET);
       }
-      
+
       buffer_clear(buf);
     }
-    else if ( !strcmp( chunk_id, "id3 " ) || !strcmp( chunk_id, "ID3 " ) || !strcmp( chunk_id, "ID32" ) ) {
+    else if (!strcmp(chunk_id, "id3 ") || !strcmp(chunk_id, "ID3 ")
+             || !strcmp(chunk_id, "ID32")) {
       // Read header to verify version
       unsigned char *bptr = buffer_ptr(buf);
-      
-      if (
-        (bptr[0] == 'I' && bptr[1] == 'D' && bptr[2] == '3') &&
-        bptr[3] < 0xff && bptr[4] < 0xff &&
-        bptr[6] < 0x80 && bptr[7] < 0x80 && bptr[8] < 0x80 && bptr[9] < 0x80
-      ) {        
+
+      if ((bptr[0] == 'I' && bptr[1] == 'D' && bptr[2] == '3') &&
+          bptr[3] < 0xff && bptr[4] < 0xff && bptr[6] < 0x80 && bptr[7] < 0x80 && bptr[8] < 0x80 && bptr[9] < 0x80) {
         // Start parsing ID3 from offset
         //parse_id3(infile, file, info, tags, offset, file_size);
       }
-      
+
       // Seek past ID3 and clear buffer
       fseek(s->fp, offset + chunk_size, SEEK_SET);
       buffer_clear(buf);
@@ -160,25 +154,25 @@ _parse_wav(ScanData s, Buffer *buf)
         LOG_DEBUG("chunk_size > file_size, skipping\n");
         return;
       }
-      
+
       // Make sure we have enough data
-      if ( !buffer_check_load(buf, s->fp, chunk_size, BLOCK_SIZE) ) {
+      if (!buffer_check_load(buf, s->fp, chunk_size, BLOCK_SIZE)) {
         return;
       }
-      
-      if ( !strcmp( chunk_id, "fmt " ) ) {
+
+      if (!strcmp(chunk_id, "fmt ")) {
         _parse_wav_fmt(s, buf, chunk_size);
       }
-      else if ( !strcmp( chunk_id, "LIST" ) ) {
+      else if (!strcmp(chunk_id, "LIST")) {
         //_parse_wav_list(buf, chunk_size, tags);
       }
-      else if ( !strcmp( chunk_id, "PEAK" ) ) {
+      else if (!strcmp(chunk_id, "PEAK")) {
         _parse_wav_peak(s, buf, chunk_size, 0);
       }
-      else if ( !strcmp( chunk_id, "fact" ) ) {
+      else if (!strcmp(chunk_id, "fact")) {
         // A 4-byte fact chunk in a non-PCM wav is the number of samples
         // Use it to calculate duration
-        if ( chunk_size == 4 ) {
+        if (chunk_size == 4) {
           uint32_t num_samples = buffer_get_int_le(buf);
           if (s->streams[0].samplerate) {
             s->duration_ms = (num_samples * 1000) / s->streams[0].samplerate;
@@ -190,42 +184,39 @@ _parse_wav(ScanData s, Buffer *buf)
         }
       }
       else {
-        if ( 
-             !strcmp(chunk_id, "SAUR") // Wavosour data chunk
-          || !strcmp(chunk_id, "otom") // Wavosaur?
-          || !strcmp(chunk_id, "PAD ") // Padding
-        ) {
+        if (!strcmp(chunk_id, "SAUR") // Wavosour data chunk
+            || !strcmp(chunk_id, "otom")  // Wavosaur?
+            || !strcmp(chunk_id, "PAD ")  // Padding
+          ) {
           // Known chunks to skip
         }
         else {
           // Warn about unknown chunks so we can investigate them
           LOG_DEBUG("Unhandled WAV chunk %s size %d (skipped)\n", chunk_id, chunk_size);
         }
-        
+
         buffer_consume(buf, chunk_size);
       }
     }
-    
+
     offset += chunk_size;
   }
 }
 
-static void
-_parse_wav_fmt(ScanData s, Buffer *buf, uint32_t chunk_size)
-{
+static void _parse_wav_fmt(ScanData s, Buffer *buf, uint32_t chunk_size) {
   uint16_t format = buffer_get_short_le(buf);
-  
+
   //my_hv_store( info, "format", newSVuv(format) );
-  
-  s->streams[0].channels    = buffer_get_short_le(buf);
-  s->streams[0].samplerate  = buffer_get_int_le(buf);
-  s->streams[0].bitrate     = s->bitrate = buffer_get_int_le(buf) * 8;
+
+  s->streams[0].channels = buffer_get_short_le(buf);
+  s->streams[0].samplerate = buffer_get_int_le(buf);
+  s->streams[0].bitrate = s->bitrate = buffer_get_int_le(buf) * 8;
   s->streams[0].block_align = buffer_get_short_le(buf);
-  s->streams[0].bit_depth   = buffer_get_short_le(buf);
-  
-  if ( chunk_size > 16 ) {
+  s->streams[0].bit_depth = buffer_get_short_le(buf);
+
+  if (chunk_size > 16) {
     uint16_t extra_len = buffer_get_short_le(buf);
-    
+
     // Bug 14462, a WAV file with only an 18-byte fmt chunk should ignore extra_len bytes
     if (extra_len && chunk_size > 18) {
       LOG_DEBUG(" skipping extra_len bytes in fmt: %d\n", extra_len);
@@ -304,30 +295,28 @@ _parse_wav_list(ScanData s, Buffer *buf, uint32_t chunk_size)
 }
 */
 
-static void
-_parse_wav_peak(ScanData s, Buffer *buf, uint32_t chunk_size, uint8_t big_endian)
-{
-  uint16_t channels  = 0;
+static void _parse_wav_peak(ScanData s, Buffer *buf, uint32_t chunk_size, uint8_t big_endian) {
+  uint16_t channels = 0;
   AV *peaklist = newAV();
-  
-  SV **entry = my_hv_fetch( info, "channels" );
-  if ( entry != NULL ) {
+
+  SV **entry = my_hv_fetch(info, "channels");
+  if (entry != NULL) {
     channels = SvIV(*entry);
   }
-  
+
   // Skip version/timestamp
   buffer_consume(buf, 8);
-  
-  while ( channels-- ) {
+
+  while (channels--) {
     HV *peak = newHV();
-    
-    my_hv_store( peak, "value", newSVnv( big_endian ? buffer_get_float32(buf) : buffer_get_float32_le(buf) ) );
-    my_hv_store( peak, "position", newSVuv( big_endian ? buffer_get_int(buf) : buffer_get_int_le(buf) ) );
-    
-    av_push( peaklist, newRV_noinc( (SV *)peak) );
+
+    my_hv_store(peak, "value", newSVnv(big_endian ? buffer_get_float32(buf) : buffer_get_float32_le(buf)));
+    my_hv_store(peak, "position", newSVuv(big_endian ? buffer_get_int(buf) : buffer_get_int_le(buf)));
+
+    av_push(peaklist, newRV_noinc((SV *) peak));
   }
-  
-  my_hv_store( info, "peak", newRV_noinc( (SV *)peaklist ) );
+
+  my_hv_store(info, "peak", newRV_noinc((SV *) peaklist));
 }
 
 /*

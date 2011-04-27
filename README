@@ -1,15 +1,24 @@
-libmediascan is an evolution of the work done on the Perl module Audio::Scan,
-which can be found at http://search.cpan.org/dist/Audio-Scan
-
-NOTE: Currently the code is very early and does not yet do anything useful!
+libmediascan is an evolution of the work done on the Perl modules Audio::Scan
+and Image::Scale:
+  http://search.cpan.org/dist/Audio-Scan
+  http://search.cpan.org/dist/Image-Scale
 
 The basic goals of libmediascan are:
 * Extend the high-quality audio metadata scanners in Audio::Scan to video
   and image files.
-* Deliver a standalone C library that will be useful to non-Perl projects.
+* Determine DLNA profile information during scanning by including code from
+  libdlna.
+* Generate audio, video, and image thumbnails at scan-time.
+* Support OS-specific change notification methods on OSX, Linux, and Windows
+  for background directory watching.
+* Develop a comprehensive test suite.
+* Deliver a standalone C library that may be useful to non-Perl projects.
+* Include Perl bindings with the library, other bindings if any contributors are
+  interested.
 
 Longer-term plans:
-* Explore asynchronous media scanning using threads.
-* Support OS-specific change notification methods.
+* Explore asynchronous scanning using threads.
 
-This library depends on FFmpeg to handle video metadata.
+The library depends on FFmpeg to handle video files, libjpeg/libpng/libgif for
+image and thumbnail support, and libexif for JPEG tags.
+

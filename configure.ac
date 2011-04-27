@@ -17,13 +17,34 @@ AM_PROG_CC_C_O
 
 # Checks for libraries.
 AC_SEARCH_LIBS([pthread_create], [pthread])
-AC_SEARCH_LIBS([avformat_version], [avformat], [], [], [-lavcore -lavcodec -lavutil -lz])
+AC_SEARCH_LIBS([zlibVersion], [z])
+AC_SEARCH_LIBS([BZ2_bzDecompressInit], [bz2])
+AC_SEARCH_LIBS([jpeg_read_header], [jpeg], [], [], [-ljpeg])
+AC_SEARCH_LIBS([png_create_read_struct], [png], [], [], [-lpng])
+AC_SEARCH_LIBS([DGifOpen], [gif], [], [], [-lgif])
+AC_SEARCH_LIBS([exif_loader_new], [exif], [], [], [-lexif])
 AC_SEARCH_LIBS([av_freep], [avutil], [], [], [-lz])
-AC_SEARCH_LIBS([av_destruct_packet], [avcodec])
-AC_SEARCH_LIBS([av_image_copy_plane], [avcore])
+AC_SEARCH_LIBS([avcodec_version], [avcodec], [], [], [-lavutil -lz])
+AC_SEARCH_LIBS([avformat_version], [avformat], [], [], [-lavcodec -lavutil -lz -lbz2])
+AC_SEARCH_LIBS([sws_scale], [swscale], [], [], [-lswscale])
 
 # Checks for header files.
 AC_CHECK_HEADERS([fcntl.h stdlib.h string.h unistd.h pthread.h])
+
+# Check BerkeleyDB lib and headers (stolen from memcachedb's configure.ac)
+bdbdir="/usr/local/BerkeleyDB.5.1"
+AC_ARG_WITH(bdb,
+       [  --with-bdb=PATH         Specify path to BerkeleyDB installation ],
+       [
+                if test "x$withval" != "xno" ; then
+                        bdbdir=$withval
+                fi
+       ]
+)
+CFLAGS="-I$bdbdir/include $CFLAGS"
+LDFLAGS="-L$bdbdir/lib $LDFLAGS"
+AC_SEARCH_LIBS([db_create], [db], [] ,[AC_MSG_ERROR(cannot find libdb.so in $bdbdir/lib)])
+AC_CHECK_HEADERS([db.h], [] ,[AC_MSG_ERROR(cannot find db.h in $bdbdir/include)])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_INLINE

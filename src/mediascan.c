@@ -1,36 +1,64 @@
-#include <ctype.h>
-#include <dirent.h>
-#include <stdlib.h>
-#include <sys/time.h>
+///-------------------------------------------------------------------------------------------------
+// file:  libmediascan\src\mediascan.c
+//
+// summary: mediascan class
+///-------------------------------------------------------------------------------------------------
 
-#include <libavformat/avformat.h>
+#ifdef _DEBUG
+#define CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+#else
+#include <stdlib.h>
+#endif
+
+
+#include <ctype.h>
+
+#ifndef WIN32
+#include <dirent.h>
+#include <sys/time.h>
+#include <unistd.h>
+#else
+#include <time.h>
+#include <Winsock2.h>
+#include <direct.h>
+#endif
 
 #include <libmediascan.h>
+#include <libavformat/avformat.h>
+#include <db.h>
+
+#ifdef WIN32
+#include "mediascan_win32.h"
+#endif
+
+
 #include "common.h"
+#include "buffer.h"
 #include "queue.h"
 #include "progress.h"
 #include "result.h"
 #include "error.h"
+#include "mediascan.h"
+#include "thread.h"
+#include "util.h"
+#include "database.h"
+
+// If we are on MSVC, disable some stupid MSVC warnings
+#ifdef _MSC_VER
+#pragma warning( disable: 4996 )
+#endif
+
+// DLNA support
+#include "libdlna/dlna_internals.h"
 
 // Global log level flag
-enum log_level Debug = ERROR;
-
+enum log_level Debug = ERR;
 static int Initialized = 0;
-static long PathMax = 0;
+int ms_errno = 0;
+long PathMax = MAX_PATH;
 
-// File/dir queue struct definitions
-struct fileq_entry {
-  char *file;
-  SIMPLEQ_ENTRY(fileq_entry) entries;
-};
-SIMPLEQ_HEAD(fileq, fileq_entry);
-
-struct dirq_entry {
-  char *dir;
-  struct fileq *files;
-  SIMPLEQ_ENTRY(dirq_entry) entries;
-};
-SIMPLEQ_HEAD(dirq, dirq_entry);
 
 /*
  Video support
@@ -48,534 +76,1069 @@ SIMPLEQ_HEAD(dirq, dirq_entry);
  
  Image support
  -------------
- TODO
+ Reading: JPEG, PNG, GIF, BMP
+ Thumbnail creation: JPEG, PNG
 */
 
 // File extensions to look for (leading/trailing comma are required)
 static const char *AudioExts = ",aif,aiff,wav,";
-static const char *VideoExts = ",asf,avi,divx,flv,m2t,m4v,mkv,mov,mpg,mpeg,mp4,m2p,m2t,mts,m2ts,ts,vob,webm,wmv,xvid,3gp,3g2,3gp2,3gpp,";
+static const char *VideoExts =
+  ",asf,avi,divx,flv,hdmov,m1v,m2p,m2t,m2ts,m2v,m4v,mkv,mov,mpg,mpeg,mpe,mp2p,mp2t,mp4,mts,pes,ps,ts,vob,webm,wmv,xvid,3gp,3g2,3gp2,3gpp,";
 static const char *ImageExts = ",jpg,png,gif,bmp,jpeg,";
 
 #define REGISTER_DECODER(X,x) { \
-          extern AVCodec x##_decoder; \
-          avcodec_register(&x##_decoder); }
-#define REGISTER_PARSER(X,x) { \
-          extern AVCodecParser x##_parser; \
-          av_register_codec_parser(&x##_parser); }
+          extern AVCodec ff_##x##_decoder; \
+		  avcodec_register(&ff_##x##_decoder); }
 
-static void
-register_codecs(void)
-{
+#define REGISTER_PARSER(X,x) { \
+          extern AVCodecParser ff_##x##_parser; \
+		  av_register_codec_parser(&ff_##x##_parser); }
+
+///-------------------------------------------------------------------------------------------------
+///  Register codecs to be used with ffmpeg.
+///
+/// @author Andy Grundman
+/// @date 03/15/2011
+///
+/// ### remarks .
+///-------------------------------------------------------------------------------------------------
+
+static void register_codecs(void) {
   // Video codecs
-  REGISTER_DECODER (H264, h264);
-  REGISTER_DECODER (MPEG1VIDEO, mpeg1video);
-  REGISTER_DECODER (MPEG2VIDEO, mpeg2video);
-  REGISTER_DECODER (MPEG4, mpeg4);
-  REGISTER_DECODER (MSMPEG4V1, msmpeg4v1);
-  REGISTER_DECODER (MSMPEG4V2, msmpeg4v2);
-  REGISTER_DECODER (MSMPEG4V3, msmpeg4v3);
-  REGISTER_DECODER (VP6F, vp6f);
-  REGISTER_DECODER (VP8, vp8);
-  REGISTER_DECODER (WMV1, wmv1);
-  REGISTER_DECODER (WMV2, wmv2);
-  REGISTER_DECODER (WMV3, wmv3);
-  
+  REGISTER_DECODER(H263, h263);
+  REGISTER_DECODER(H264, h264);
+  REGISTER_DECODER(MPEG1VIDEO, mpeg1video);
+  REGISTER_DECODER(MPEG2VIDEO, mpeg2video);
+  REGISTER_DECODER(MPEG4, mpeg4);
+  REGISTER_DECODER(MSMPEG4V1, msmpeg4v1);
+  REGISTER_DECODER(MSMPEG4V2, msmpeg4v2);
+  REGISTER_DECODER(MSMPEG4V3, msmpeg4v3);
+  REGISTER_DECODER(VP6, vp6);
+  REGISTER_DECODER(VP6F, vp6f);
+  REGISTER_DECODER(VP8, vp8);
+  REGISTER_DECODER(WMV1, wmv1);
+  REGISTER_DECODER(WMV2, wmv2);
+  REGISTER_DECODER(WMV3, wmv3);
+
+
   // Audio codecs, needed to get details of audio tracks in videos
-  REGISTER_DECODER (AAC, aac);
-  REGISTER_DECODER (AC3, ac3);
-  REGISTER_DECODER (DCA, dca); // DTS
-  REGISTER_DECODER (MP3, mp3);
-  REGISTER_DECODER (MP2, mp2);
-  REGISTER_DECODER (VORBIS, vorbis);
-  REGISTER_DECODER (WMAPRO, wmapro);
-  REGISTER_DECODER (WMAV1, wmav1);
-  REGISTER_DECODER (WMAV2, wmav2);
-  REGISTER_DECODER (WMAVOICE, wmavoice);
-  
+  REGISTER_DECODER(AAC, aac);
+  REGISTER_DECODER(AC3, ac3);
+  REGISTER_DECODER(DCA, dca);   // DTS
+  REGISTER_DECODER(MP2, mp2);
+  REGISTER_DECODER(MP3, mp3);
+  REGISTER_DECODER(VORBIS, vorbis);
+  REGISTER_DECODER(WMAPRO, wmapro);
+  REGISTER_DECODER(WMAV1, wmav1);
+  REGISTER_DECODER(WMAV2, wmav2);
+  REGISTER_DECODER(WMAVOICE, wmavoice);
+
+  // Not sure which PCM codecs we need
+  REGISTER_DECODER(PCM_DVD, pcm_dvd);
+  REGISTER_DECODER(PCM_S16BE, pcm_s16be);
+  REGISTER_DECODER(PCM_S16LE, pcm_s16le);
+  REGISTER_DECODER(PCM_S24BE, pcm_s24be);
+  REGISTER_DECODER(PCM_S24LE, pcm_s24le);
+
   // Subtitles
-  REGISTER_DECODER (ASS, ass);
-  REGISTER_DECODER (DVBSUB, dvbsub);
-  REGISTER_DECODER (DVDSUB, dvdsub);
-  REGISTER_DECODER (PGSSUB, pgssub);
-  REGISTER_DECODER (XSUB, xsub);
-  
+  REGISTER_DECODER(ASS, ass);
+  REGISTER_DECODER(DVBSUB, dvbsub);
+  REGISTER_DECODER(DVDSUB, dvdsub);
+  REGISTER_DECODER(PGSSUB, pgssub);
+  REGISTER_DECODER(XSUB, xsub);
+
   // Parsers 
-  REGISTER_PARSER (AAC, aac);
-  REGISTER_PARSER (AC3, ac3);
-  REGISTER_PARSER (DCA, dca); // DTS
-  REGISTER_PARSER (H264, h264);
-  REGISTER_PARSER (MPEG4VIDEO, mpeg4video);
-  REGISTER_PARSER (MPEGAUDIO, mpegaudio);
-  REGISTER_PARSER (MPEGVIDEO, mpegvideo);
-}
+  REGISTER_PARSER(AAC, aac);
+  REGISTER_PARSER(AC3, ac3);
+  REGISTER_PARSER(DCA, dca);    // DTS
+  REGISTER_PARSER(H263, h263);
+  REGISTER_PARSER(H264, h264);
+  REGISTER_PARSER(MPEG4VIDEO, mpeg4video);
+  REGISTER_PARSER(MPEGAUDIO, mpegaudio);
+  REGISTER_PARSER(MPEGVIDEO, mpegvideo);
+}                               /* register_codecs() */
 
 #define REGISTER_DEMUXER(X,x) { \
-    extern AVInputFormat x##_demuxer; \
-    av_register_input_format(&x##_demuxer); }
+    extern AVInputFormat ff_##x##_demuxer; \
+	av_register_input_format(&ff_##x##_demuxer); }
 #define REGISTER_PROTOCOL(X,x) { \
-    extern URLProtocol x##_protocol; \
-    av_register_protocol2(&x##_protocol, sizeof(x##_protocol)); }
+    extern URLProtocol ff_##x##_protocol; \
+    av_register_protocol2(&ff_##x##_protocol, sizeof(ff_##x##_protocol)); }
 
-static void
-register_formats(void)
-{
+///-------------------------------------------------------------------------------------------------
+///  Registers the formats for FFmpeg.
+///
+/// @author Andy Grundman
+/// @date 03/15/2011
+///
+/// ### remarks .
+///-------------------------------------------------------------------------------------------------
+
+static void register_formats(void) {
   // demuxers
-  REGISTER_DEMUXER (ASF, asf);
-  REGISTER_DEMUXER (AVI, avi);
-  REGISTER_DEMUXER (FLV, flv);
-  REGISTER_DEMUXER (H264, h264);
-  REGISTER_DEMUXER (MATROSKA, matroska);
-  REGISTER_DEMUXER (MOV, mov);
-  REGISTER_DEMUXER (MPEGPS, mpegps);             // VOB files
-  REGISTER_DEMUXER (MPEGVIDEO, mpegvideo);
-  
-  // protocols
-  REGISTER_PROTOCOL (FILE, file);
-}
+  REGISTER_DEMUXER(ASF, asf);
+  REGISTER_DEMUXER(AVI, avi);
+  REGISTER_DEMUXER(FLV, flv);
+  REGISTER_DEMUXER(H264, h264);
+  REGISTER_DEMUXER(MATROSKA, matroska);
+  REGISTER_DEMUXER(MOV, mov);
+  REGISTER_DEMUXER(MPEGPS, mpegps); // VOB files
+  REGISTER_DEMUXER(MPEGTS, mpegts);
+  REGISTER_DEMUXER(MPEGVIDEO, mpegvideo);
 
-static void
-_init(void)
-{
+  // protocols
+  REGISTER_PROTOCOL(FILE, file);
+}                               /* register_formats() */
+
+///-------------------------------------------------------------------------------------------------
+///  Initialises ffmpeg.
+///
+/// @author Andy Grundman
+/// @date 03/15/2011
+///
+/// ### remarks .
+///-------------------------------------------------------------------------------------------------
+
+static void _init(void) {
   if (Initialized)
     return;
-  
+
   register_codecs();
   register_formats();
-  //av_register_all();
-  
-  PathMax = pathconf(".", _PC_PATH_MAX); // 1024
-  
+#ifndef WIN32
+  unix_init();
+#endif
   Initialized = 1;
-}
+  ms_errno = 0;
+}                               /* _init() */
 
-void
-ms_set_log_level(enum log_level level)
-{
+///-------------------------------------------------------------------------------------------------
+///  Set the logging level.
+///
+/// @author Andy Grundman
+/// @date 03/15/2011
+///
+/// @param level The level.
+///
+/// ### remarks .
+///-------------------------------------------------------------------------------------------------
+
+void ms_set_log_level(enum log_level level) {
+  int av_level = AV_LOG_PANIC;
+
   Debug = level;
-}
 
-MediaScan *
-ms_create(void)
-{
+  // Set the corresponding ffmpeg log level
+  switch (level) {
+    case ERR:
+      av_level = AV_LOG_ERROR;
+      break;
+    case INFO:
+      av_level = AV_LOG_INFO;
+      break;
+    case MEMORY:
+      av_level = AV_LOG_VERBOSE;
+      break;
+    case WARN:
+      av_level = AV_LOG_WARNING;
+      break;
+    case DEBUG:
+    default:
+      break;
+  }
+
+  av_log_set_level(av_level);
+}                               /* ms_set_log_level() */
+
+///-------------------------------------------------------------------------------------------------
+///  Allocate a new MediaScan object.
+///
+/// @author Andy Grundman
+/// @date 03/15/2011
+///
+/// @return null if it fails, else.
+///
+/// ### remarks .
+///-------------------------------------------------------------------------------------------------
+
+MediaScan *ms_create(void) {
+  MediaScan *s = NULL;
+  dlna_t *dlna = NULL;
+
   _init();
-  
-  MediaScan *s = (MediaScan *)calloc(sizeof(MediaScan), 1);
+
+  s = (MediaScan *)calloc(sizeof(MediaScan), 1);
   if (s == NULL) {
-    LOG_ERROR("Out of memory for new MediaScan object\n");
+    ms_errno = MSENO_MEMERROR;
+    FATAL("Out of memory for new MediaScan object\n");
     return NULL;
   }
-  
-  s->npaths = 0;
-  s->paths[0] = NULL;
-  s->nignore_exts = 0;
-  s->ignore_exts[0] = NULL;
-  s->async = 0;
-  s->async_fd = 0;
-  
+
+  LOG_MEM("new MediaScan @ %p\n", s);
+
+  s->flags = MS_USE_EXTENSION | MS_FULL_SCAN;
+
+  s->thread = NULL;
+  s->dbp = NULL;
   s->progress = progress_create();
-  s->progress_interval = 1;
-  
-  s->on_result = NULL;
-  s->on_error = NULL;
-  s->on_progress = NULL;
-  
+
   // List of all dirs found
   s->_dirq = malloc(sizeof(struct dirq));
   SIMPLEQ_INIT((struct dirq *)s->_dirq);
-  
+
+  // We can't use libdlna's init function because it loads everything in ffmpeg
+  dlna = (dlna_t *)calloc(sizeof(dlna_t), 1);
+  dlna->inited = 1;
+  s->_dlna = (void *)dlna;
+  dlna_register_all_media_profiles(dlna);
+
   return s;
-}
+}                               /* ms_create() */
 
-void
-ms_destroy(MediaScan *s)
-{
+///-------------------------------------------------------------------------------------------------
+///  Destroy the given MediaScan object. If a scan is currently in progress it will be aborted.
+///
+/// @author Andy Grundman
+/// @date 03/15/2011
+///
+/// @param [in,out] s If non-null, the.
+///
+/// ### remarks .
+///-------------------------------------------------------------------------------------------------
+
+void ms_destroy(MediaScan *s) {
   int i;
-  
+
+  if (s->thread)
+    thread_destroy(s->thread);
+
   for (i = 0; i < s->npaths; i++) {
-    free( s->paths[i] );
+    free(s->paths[i]);
   }
-  
+
   for (i = 0; i < s->nignore_exts; i++) {
-    free( s->ignore_exts[i] );
+    free(s->ignore_exts[i]);
   }
-  
-  // Free everything in our list of dirs/files
-  struct dirq *head = (struct dirq *)s->_dirq;
-  struct dirq_entry *entry;
-  struct fileq *file_head;
-  struct fileq_entry *file_entry;
-  while (!SIMPLEQ_EMPTY(head)) {
-    entry = SIMPLEQ_FIRST(head);
-    
-    if (entry->files != NULL) {
-      file_head = entry->files;
-      while (!SIMPLEQ_EMPTY(file_head)) {
-        file_entry = SIMPLEQ_FIRST(file_head);
-        free(file_entry->file);
-        SIMPLEQ_REMOVE_HEAD(file_head, entries);
-        free(file_entry);
-      }
-      free(entry->files);
-    }
-    
-    SIMPLEQ_REMOVE_HEAD(head, entries);
-    free(entry->dir);
-    free(entry);
+
+  for (i = 0; i < s->nthumbspecs; i++) {
+    free(s->thumbspecs[i]);
   }
-  
-  free(s->_dirq);
-  
+
   progress_destroy(s->progress);
-  
+
+  free(s->_dirq);
+  free(s->_dlna);
+
+  if (s->cachedir)
+    free(s->cachedir);
+
+  /* When we're done with the database, close it. */
+  if (s->dbp != NULL)
+    s->dbp->close(s->dbp, 0);
+
+  LOG_MEM("destroy MediaScan @ %p\n", s);
   free(s);
-}
+}                               /* ms_destroy() */
 
-void
-ms_add_path(MediaScan *s, const char *path)
-{
+///-------------------------------------------------------------------------------------------------
+///  Add a path to be scanned. Up to 128 paths may be added before beginning the scan.
+///
+/// @author Andy Grundman
+/// @date 03/15/2011
+///
+/// @param [in,out] s If non-null, the.
+/// @param path     Full pathname of the file.
+///
+/// ### remarks .
+///-------------------------------------------------------------------------------------------------
+
+void ms_add_path(MediaScan *s, const char *path) {
+  int len = 0;
+  char *tmp = NULL;
+
+  if (s == NULL) {
+    ms_errno = MSENO_NULLSCANOBJ;
+    FATAL("MediaScan = NULL, aborting scan\n");
+    return;
+  }
+
   if (s->npaths == MAX_PATHS) {
-    LOG_ERROR("Path limit reached (%d)\n", MAX_PATHS);
+    FATAL("Path limit reached (%d)\n", MAX_PATHS);
     return;
   }
-  
-  int len = strlen(path) + 1;
-  char *tmp = malloc(len);
+
+  len = strlen(path) + 1;
+  tmp = malloc(len);
   if (tmp == NULL) {
-    LOG_ERROR("Out of memory for adding path\n");
+    FATAL("Out of memory for adding path\n");
     return;
   }
-  
+
   strncpy(tmp, path, len);
-  
-  s->paths[ s->npaths++ ] = tmp;
-}
 
-void
-ms_add_ignore_extension(MediaScan *s, const char *extension)
-{
+  s->paths[s->npaths++] = tmp;
+}                               /* ms_add_path() */
+
+///-------------------------------------------------------------------------------------------------
+///  Add a file extension to ignore all files with this extension.
+///
+/// @author Andy Grundman
+/// @date 03/15/2011
+///
+/// @param [in,out] s If non-null, the.
+/// @param extension
+/// 3 special all-caps extensions may be provided: AUDIO - ignore all audio-
+/// related extensions. IMAGE - ignore all image-related extensions. VIDEO -
+/// ignore all video-related extensions.
+///
+/// ### remarks .
+///-------------------------------------------------------------------------------------------------
+
+void ms_add_ignore_extension(MediaScan *s, const char *extension) {
+  int len = 0;
+  char *tmp = NULL;
+
+  if (s == NULL) {
+    ms_errno = MSENO_NULLSCANOBJ;
+    FATAL("MediaScan = NULL, aborting scan\n");
+    return;
+  }
+
   if (s->nignore_exts == MAX_IGNORE_EXTS) {
-    LOG_ERROR("Ignore extension limit reached (%d)\n", MAX_IGNORE_EXTS);
+    FATAL("Ignore extension limit reached (%d)\n", MAX_IGNORE_EXTS);
     return;
   }
-  
-  int len = strlen(extension) + 1;
-  char *tmp = malloc(len);
+
+  len = strlen(extension) + 1;
+  tmp = malloc(len);
   if (tmp == NULL) {
-    LOG_ERROR("Out of memory for ignore extension\n");
+    FATAL("Out of memory for ignore extension\n");
     return;
   }
-  
+
   strncpy(tmp, extension, len);
-  
-  s->ignore_exts[ s->nignore_exts++ ] = tmp;
-}
+
+  s->ignore_exts[s->nignore_exts++] = tmp;
+}                               /* ms_add_ignore_extension() */
+
+///-------------------------------------------------------------------------------------------------
+///  Add thumbnail spec.
+///
+/// @author Andy Grundman
+/// @date 04/11/2011
+///
+/// @param [in,out] s  If non-null, the.
+/// @param format      Describes the format to use.
+/// @param width       The width.
+/// @param height      The height.
+/// @param keep_aspect The keep aspect.
+/// @param bgcolor     The bgcolor.
+/// @param quality     The quality.
+///-------------------------------------------------------------------------------------------------
 
 void
-ms_set_async(MediaScan *s, int enabled)
-{
+ms_add_thumbnail_spec(MediaScan *s, enum thumb_format format, int width,
+                      int height, int keep_aspect, uint32_t bgcolor, int quality) {
+  // Must have at least width or height
+  if (width > 0 || height > 0) {
+    MediaScanThumbSpec *spec = (MediaScanThumbSpec *)calloc(sizeof(MediaScanThumbSpec), 1);
+    spec->format = format;
+    spec->width = width;
+    spec->height = height;
+    spec->keep_aspect = keep_aspect;
+    spec->bgcolor = bgcolor;
+    spec->jpeg_quality = quality;
+
+    LOG_DEBUG("ms_add_thumbnail_spec width %d height %d\n", spec->width, spec->height);
+
+    s->thumbspecs[s->nthumbspecs++] = spec;
+  }
+}                               /* ms_add_thumbnail_spec() */
+
+///-------------------------------------------------------------------------------------------------
+///  By default, scans are synchronous. This means the call to ms_scan will not return until
+///   the scan is finished. To enable background asynchronous scanning, pass a true value to
+///   this function.
+///
+/// @author Andy Grundman
+/// @date 03/15/2011
+///
+/// @param [in,out] s If non-null, the.
+/// @param enabled    The enabled.
+///
+/// ### remarks .
+///-------------------------------------------------------------------------------------------------
+
+void ms_set_async(MediaScan *s, int enabled) {
+  if (s == NULL) {
+    ms_errno = MSENO_NULLSCANOBJ;
+    LOG_ERROR("MediaScan = NULL, aborting\n");
+    return;
+  }
+
   s->async = enabled ? 1 : 0;
+}                               /* ms_set_async() */
+
+void ms_set_cachedir(MediaScan *s, const char *path) {
+  s->cachedir = strdup(path);
 }
 
-void
-ms_set_result_callback(MediaScan *s, ResultCallback callback)
-{
+void ms_set_flags(MediaScan *s, int flags) {
+  s->flags = flags;
+}
+
+///-------------------------------------------------------------------------------------------------
+///  Set a callback that will be called for every scanned file. This callback is required or a
+///   scan cannot be started.
+///
+/// @author Andy Grundman
+/// @date 03/15/2011
+///
+/// @param [in,out] s If non-null, the.
+/// @param callback   The callback.
+///
+/// ### remarks .
+///-------------------------------------------------------------------------------------------------
+
+void ms_set_result_callback(MediaScan *s, ResultCallback callback) {
+  if (s == NULL) {
+    ms_errno = MSENO_NULLSCANOBJ;
+    LOG_ERROR("MediaScan = NULL, aborting\n");
+    return;
+  }
+
   s->on_result = callback;
-}
+}                               /* ms_set_result_callback() */
 
-void
-ms_set_error_callback(MediaScan *s, ErrorCallback callback)
-{
+///-------------------------------------------------------------------------------------------------
+///  Set a callback that will be called for all errors. This callback is optional.
+///
+/// @author Andy Grundman
+/// @date 03/15/2011
+///
+/// @param [in,out] s If non-null, the.
+/// @param callback   The callback.
+///
+/// ### remarks .
+///-------------------------------------------------------------------------------------------------
+
+void ms_set_error_callback(MediaScan *s, ErrorCallback callback) {
+  if (s == NULL) {
+    ms_errno = MSENO_NULLSCANOBJ;
+    LOG_ERROR("MediaScan = NULL, aborting\n");
+    return;
+  }
+
   s->on_error = callback;
-}
+}                               /* ms_set_error_callback() */
 
-void
-ms_set_progress_callback(MediaScan *s, ProgressCallback callback)
-{
+///-------------------------------------------------------------------------------------------------
+///  Set a callback that will be called during the scan with progress details. This callback
+///   is optional.
+///
+/// @author Andy Grundman
+/// @date 03/15/2011
+///
+/// @param [in,out] s If non-null, the.
+/// @param callback   The callback.
+///
+/// ### remarks .
+///-------------------------------------------------------------------------------------------------
+
+void ms_set_progress_callback(MediaScan *s, ProgressCallback callback) {
+  if (s == NULL) {
+    ms_errno = MSENO_NULLSCANOBJ;
+    LOG_ERROR("MediaScan = NULL, aborting\n");
+    return;
+  }
   s->on_progress = callback;
+}                               /* ms_set_progress_callback() */
+
+///-------------------------------------------------------------------------------------------------
+///  Set progress callback interval in seconds. Progress callback will not be called more
+///   often than this value. This interval defaults to 1 second.
+///
+/// @author Andy Grundman
+/// @date 03/15/2011
+///
+/// @param [in,out] s If non-null, the.
+/// @param seconds    The seconds.
+///
+/// ### remarks .
+///-------------------------------------------------------------------------------------------------
+
+void ms_set_progress_interval(MediaScan *s, int seconds) {
+  if (s == NULL) {
+    ms_errno = MSENO_NULLSCANOBJ;
+    LOG_ERROR("MediaScan = NULL, aborting\n");
+    return;
+  }
+
+  if (s->progress == NULL) {
+    ms_errno = MSENO_NULLSCANOBJ;
+    LOG_ERROR("Progress = NULL, aborting\n");
+    return;
+  }
+
+  s->progress->interval = seconds;
+}                               /* ms_set_progress_interval() */
+
+///-------------------------------------------------------------------------------------------------
+/// Set a callback that will be called when the scan has finished. This callback
+/// is optional.
+///-------------------------------------------------------------------------------------------------
+
+void ms_set_finish_callback(MediaScan *s, FinishCallback callback) {
+  if (s == NULL) {
+    ms_errno = MSENO_NULLSCANOBJ;
+    LOG_ERROR("MediaScan = NULL, aborting\n");
+    return;
+  }
+  s->on_finish = callback;
 }
 
-void
-ms_set_progress_interval(MediaScan *s, int seconds)
-{
-  s->progress_interval = seconds;
+///-------------------------------------------------------------------------------------------------
+///  Set userdata.
+///
+/// @author Andy Grundman
+/// @date 04/05/2011
+///
+/// @param [in,out] s    If non-null, the.
+/// @param [in,out] data If non-null, the data.
+///-------------------------------------------------------------------------------------------------
+
+void ms_set_userdata(MediaScan *s, void *data) {
+  s->userdata = data;
+}                               /* ms_set_userdata() */
+
+int ms_async_fd(MediaScan *s) {
+  return s->thread ? thread_get_result_fd(s->thread) : 0;
 }
 
-static int
-_should_scan(MediaScan *s, const char *path)
-{
+void ms_async_process(MediaScan *s) {
+  if (s->thread) {
+    enum event_type type;
+    void *data;
+
+    thread_signal_read(s->thread->respipe);
+
+    // Pull events from the thread's queue, events contain their type
+    // and a data pointer (Result/Error/Progress) for that callback
+    while (type = thread_get_next_event(s->thread, &data)) {
+      LOG_DEBUG("Got thread event, type %d @ %p\n", type, data);
+      switch (type) {
+        case EVENT_TYPE_RESULT:
+          s->on_result(s, (MediaScanResult *)data, s->userdata);
+          result_destroy((MediaScanResult *)data);
+          break;
+
+        case EVENT_TYPE_PROGRESS:
+          s->on_progress(s, (MediaScanProgress *)data, s->userdata);
+          progress_destroy((MediaScanProgress *)data);  // freeing a copy of progress
+          break;
+
+        case EVENT_TYPE_ERROR:
+          s->on_error(s, (MediaScanError *)data, s->userdata);
+          error_destroy((MediaScanError *)data);
+          break;
+
+        case EVENT_TYPE_FINISH:
+          s->on_finish(s, s->userdata);
+          break;
+      }
+    }
+  }
+}
+
+#ifdef WIN32
+///-------------------------------------------------------------------------------------------------
+///  Watch a directory in the background.
+///
+/// @author Henry Bennett
+/// @date 03/22/2011
+///
+/// @param path Path name of the folder to watch
+/// @param callback Callback with the changes
+///-------------------------------------------------------------------------------------------------
+void ms_watch_directory(MediaScan *s, const char *path, FolderChangeCallback callback) {
+  thread_data_type *thread_data;
+
+  s->on_result = callback;
+
+  thread_data = (thread_data_type *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(thread_data_type));
+  thread_data->s = s;
+  thread_data->lpDir = path;
+
+
+  s->thread = thread_create((void (*)())(WatchDirectory), thread_data);
+  if (!s->thread) {
+    LOG_ERROR("Unable to start async thread\n");
+    return;
+  }
+}                               /* ms_watch_directory() */
+#endif
+
+///-------------------------------------------------------------------------------------------------
+///  Clear watch list
+///
+/// @author Henry Bennett
+/// @date 03/22/2011
+///
+///-------------------------------------------------------------------------------------------------
+void ms_clear_watch(MediaScan *s) {
+// This folder monitoring code is only valid for Win32
+#ifdef WIN32
+  if (s->thread != NULL) {
+    SetEvent(s->thread->ghSignalEvent);
+
+    // Wait until all threads have terminated.
+    WaitForSingleObject(s->thread->hThread, INFINITE);
+
+    CloseHandle(s->thread->hThread);
+    CloseHandle(s->thread->ghSignalEvent);
+  }
+
+#endif
+
+}                               /* ms_clear_watch() */
+
+///-------------------------------------------------------------------------------------------------
+///  Determine if we should scan a path.
+///
+/// @author Andy Grundman
+/// @date 03/15/2011
+///
+/// @param [in,out] s If non-null, the.
+/// @param path     Full pathname of the file.
+///
+/// @return .
+///
+/// ### remarks .
+///-------------------------------------------------------------------------------------------------
+
+int _should_scan(MediaScan *s, const char *path) {
+  char *p = NULL;
+  char *found = NULL;
   char *ext = strrchr(path, '.');
+  int skip_audio = 0;
+  int skip_video = 0;
+  int skip_image = 0;
+
   if (ext != NULL) {
     // Copy the extension and lowercase it
     char extc[10];
     extc[0] = ',';
     strncpy(extc + 1, ext + 1, 7);
     extc[9] = 0;
-    
-    char *p = &extc[1];
+
+    p = &extc[1];
     while (*p != 0) {
       *p = tolower(*p);
       p++;
     }
     *p++ = ',';
     *p = 0;
-    
+
     if (s->nignore_exts) {
       // Check for ignored extension
       int i;
       for (i = 0; i < s->nignore_exts; i++) {
         if (strstr(extc, s->ignore_exts[i]))
           return TYPE_UNKNOWN;
+
+        if (!strcmp("AUDIO", s->ignore_exts[i]))
+          skip_audio = 1;
+        else if (!strcmp("VIDEO", s->ignore_exts[i]))
+          skip_video = 1;
+        else if (!strcmp("IMAGE", s->ignore_exts[i]))
+          skip_image = 1;
       }
     }
-    
-    char *found;
-    
-    found = strstr(AudioExts, extc);
-    if (found)
-      return TYPE_AUDIO;
-    
+
     found = strstr(VideoExts, extc);
     if (found)
-      return TYPE_VIDEO;
-    
+      return skip_video ? TYPE_UNKNOWN : TYPE_VIDEO;
+
+    found = strstr(AudioExts, extc);
+    if (found)
+      return skip_audio ? TYPE_UNKNOWN : TYPE_AUDIO;
+
     found = strstr(ImageExts, extc);
     if (found)
-      return TYPE_IMAGE;
-    
+      return skip_image ? TYPE_UNKNOWN : TYPE_IMAGE;
+
     return TYPE_UNKNOWN;
   }
-      
+
   return TYPE_UNKNOWN;
-}
+}                               /* _should_scan() */
 
-static void
-recurse_dir(MediaScan *s, const char *path, struct dirq_entry *curdir)
-{
-  char *dir;
-
-  if (path[0] != '/') { // XXX Win32
-    // Get full path
-    char *buf = (char *)malloc((size_t)PathMax);
-    if (buf == NULL) {
-      LOG_ERROR("Out of memory for directory scan\n");
-      return;
-    }
-
-    dir = getcwd(buf, (size_t)PathMax);
-    strcat(dir, "/");
-    strcat(dir, path);
+// Callback or notify about progress being updated
+void send_progress(MediaScan *s) {
+  if (s->thread) {
+    // Progress data is always changing, so we make a copy of it to send to other thread
+    MediaScanProgress *pcopy = progress_copy(s->progress);
+    thread_queue_event(s->thread, EVENT_TYPE_PROGRESS, (void *)pcopy);
   }
   else {
-    dir = strdup(path);
+    // Call progress callback directly
+    s->on_progress(s, s->progress, s->userdata);
   }
+}
 
-  // Strip trailing slash if any
-  char *p = &dir[0];
-  while (*p != 0) {
-#ifdef _WIN32
-    if (p[1] == 0 && (*p == '/' || *p == '\\'))
-#else
-    if (p[1] == 0 && *p == '/')
-#endif
-      *p = 0;
-    p++;
+// Callback or notify about an error
+void send_error(MediaScan *s, MediaScanError *e) {
+  if (s->thread) {
+    thread_queue_event(s->thread, EVENT_TYPE_ERROR, (void *)e);
   }
-  
-  LOG_INFO("Recursed into %s\n", dir);
+  else {
+    // Call error callback directly
+    s->on_error(s, e, s->userdata);
+    error_destroy(e);
+  }
+}
 
-  DIR *dirp;
-  if ((dirp = opendir(dir)) == NULL) {
-    LOG_ERROR("Unable to open directory %s: %s\n", dir, strerror(errno));
+// Callback or notify about a result
+void send_result(MediaScan *s, MediaScanResult *r) {
+  if (s->thread) {
+    thread_queue_event(s->thread, EVENT_TYPE_RESULT, (void *)r);
+  }
+  else {
+    // Call progress callback directly
+    s->on_result(s, r, s->userdata);
+    result_destroy(r);
+  }
+}
+
+// Callback or notify about scan being finished
+void send_finish(MediaScan *s) {
+  if (s->thread) {
+    thread_queue_event(s->thread, EVENT_TYPE_FINISH, NULL);
+  }
+  else {
+    // Call finish callback directly
+    s->on_finish(s, s->userdata);
+  }
+}
+
+
+// Called by ms_scan either in a thread or synchronously
+static void *do_scan(void *userdata) {
+  MediaScan *s = ((thread_data_type *)userdata)->s;
+  int i;
+  struct dirq *dir_head = (struct dirq *)s->_dirq;
+  struct dirq_entry *dir_entry = NULL;
+  struct fileq *file_head = NULL;
+  struct fileq_entry *file_entry = NULL;
+  char tmp_full_path[MAX_PATH];
+
+  // Initialize the cache database
+  if (!init_bdb(s)) {
+    MediaScanError *e = error_create("", MS_ERROR_CACHE, "Unable to initialize libmediascan cache");
+    send_error(s, e);
     goto out;
   }
-  
-  struct dirq *subdirq = malloc(sizeof(struct dirq));
-  SIMPLEQ_INIT(subdirq);
 
-  char *tmp_full_path = malloc((size_t)PathMax);
-
-  struct dirent *dp;
-  while ((dp = readdir(dirp)) != NULL) {
-    char *name = dp->d_name;
-
-    // skip all dot files
-    if (name[0] != '.') {
-        // Construct full path
-        *tmp_full_path = 0;
-        strcat(tmp_full_path, dir);
-        strcat(tmp_full_path, "/");
-        strcat(tmp_full_path, name);
-        
-      // XXX some platforms may be missing d_type/DT_DIR
-      if (dp->d_type == DT_DIR) {        
-        // Entry for complete list of dirs
-        // XXX somewhat inefficient, we create this for every directory
-        // even those that don't end up having any scannable files
-        struct dirq_entry *entry = malloc(sizeof(struct dirq_entry));
-        entry->dir = strdup(tmp_full_path);
-        entry->files = malloc(sizeof(struct fileq));
-        SIMPLEQ_INIT(entry->files);
-        
-        // Temporary list of subdirs of the current directory
-        struct dirq_entry *subdir_entry = malloc(sizeof(struct dirq_entry));
-        
-        // Copy entry to subdir_entry, dir will be freed by ms_destroy()
-        memcpy(subdir_entry, entry, sizeof(struct dirq_entry));
-        SIMPLEQ_INSERT_TAIL(subdirq, subdir_entry, entries);
-        
-        SIMPLEQ_INSERT_TAIL((struct dirq *)s->_dirq, entry, entries);
-        
-        s->progress->dir_total++;
-        
-        LOG_INFO("  [%5d] subdir: %s\n", s->progress->dir_total, entry->dir);
-      }
-      else {
-        enum media_type type = _should_scan(s, name);
-        if (type) {
-          // To save memory by not storing the full path to every file,
-          // each dir has a list of files in that dir
-          struct fileq_entry *entry = malloc(sizeof(struct fileq_entry));
-          entry->file = strdup(name);
-          SIMPLEQ_INSERT_TAIL(curdir->files, entry, entries);
-          
-          s->progress->file_total++;
-          
-          LOG_INFO("  [%5d] file: %s\n", s->progress->file_total, entry->file);
-          
-          // Scan the file
-          ms_scan_file(s, tmp_full_path, type);
-        }
-      }
-    }
+  if (s->progress == NULL) {
+    MediaScanError *e = error_create("", MS_ERROR_TYPE_INVALID_PARAMS, "Progress object not created");
+    send_error(s, e);
+    goto out;
   }
-    
-  closedir(dirp);
-  
-  // Send progress update
+
+  // Build a list of all directories and paths
+  // We do this first so we can present an accurate scan eta later
+  progress_start_phase(s->progress, "Discovering");
+
+  for (i = 0; i < s->npaths; i++) {
+    LOG_INFO("Scanning %s\n", s->paths[i]);
+    recurse_dir(s, s->paths[i]);
+  }
+
+  // Scan all files found
+  progress_start_phase(s->progress, "Scanning");
+
+  while (!SIMPLEQ_EMPTY(dir_head)) {
+    dir_entry = SIMPLEQ_FIRST(dir_head);
+
+    file_head = dir_entry->files;
+    while (!SIMPLEQ_EMPTY(file_head)) {
+      file_entry = SIMPLEQ_FIRST(file_head);
+
+      // Construct full path
+      strcpy(tmp_full_path, dir_entry->dir);
+#ifdef WIN32
+      strcat(tmp_full_path, "\\");
+#else
+      strcat(tmp_full_path, "/");
+#endif
+      strcat(tmp_full_path, file_entry->file);
+
+      ms_scan_file(s, tmp_full_path, file_entry->type);
+
+      // Send progress update if necessary
+      if (s->on_progress) {
+        s->progress->done++;
+
+        if (progress_update(s->progress, tmp_full_path))
+          send_progress(s);
+      }
+
+      SIMPLEQ_REMOVE_HEAD(file_head, entries);
+      free(file_entry->file);
+      free(file_entry);
+    }
+
+    SIMPLEQ_REMOVE_HEAD(dir_head, entries);
+    free(dir_entry->dir);
+    free(dir_entry->files);
+    free(dir_entry);
+  }
+
+  // Send final progress callback
   if (s->on_progress) {
-    struct timeval now;
-    gettimeofday(&now, NULL);
-    
-    if (now.tv_sec - s->progress->_last_callback >= s->progress_interval) {
-      s->progress->cur_item = dir;
-      s->progress->_last_callback = now.tv_sec;
-      s->on_progress(s, s->progress);
-    }
+    progress_update(s->progress, NULL);
+    send_progress(s);
   }
 
-  // process subdirs
-  while (!SIMPLEQ_EMPTY(subdirq)) {
-    struct dirq_entry *subdir_entry = SIMPLEQ_FIRST(subdirq);
-    SIMPLEQ_REMOVE_HEAD(subdirq, entries);
-    recurse_dir(s, subdir_entry->dir, subdir_entry);
-    free(subdir_entry);
-  }
-  
-  free(subdirq);
-  free(tmp_full_path);
+  LOG_DEBUG("Finished scanning\n");
 
 out:
-  free(dir);
-}
+  if (s->on_finish)
+    send_finish(s);
 
-void
-ms_scan(MediaScan *s)
-{
-  if (s->on_result == NULL) {
-    LOG_ERROR("Result callback not set, aborting scan\n");
-    return;
-  }
-  
   if (s->async) {
-    LOG_ERROR("async mode not yet supported\n");
-    // XXX TODO
+    LOG_MEM("destroy thread_data @ %p\n", userdata);
+#ifndef WIN32
+    free(userdata);
+#else
+		  // Free the data that was passed to this thread on the heap
+  if (userdata != NULL) {
+    HeapFree(GetProcessHeap(), 0, userdata);
   }
-  
-  int i;  
-  for (i = 0; i < s->npaths; i++) {
-    struct dirq_entry *entry = malloc(sizeof(struct dirq_entry));
-    entry->dir = strdup("/"); // so free doesn't choke on this item later
-    entry->files = malloc(sizeof(struct fileq));
-    SIMPLEQ_INIT(entry->files);
-    SIMPLEQ_INSERT_TAIL((struct dirq *)s->_dirq, entry, entries);
-    
-    char *phase = (char *)malloc((size_t)PathMax);
-    sprintf(phase, "Discovering files in %s", s->paths[i]);
-    s->progress->phase = phase;
-    
-    LOG_INFO("Scanning %s\n", s->paths[i]);
-    recurse_dir(s, s->paths[i], entry);
-    
-    // Send final progress callback
-    if (s->on_progress) {
-      s->progress->cur_item = NULL;
-      s->on_progress(s, s->progress);
-    }
-    
-    free(phase);
+#endif
   }
+
+  return NULL;
 }
 
-void
-ms_scan_file(MediaScan *s, const char *full_path, enum media_type type)
-{
+///-------------------------------------------------------------------------------------------------
+///  Begin a recursive scan of all paths previously provided to ms_add_path(). If async mode
+///   is enabled, this call will return immediately. You must obtain the file descriptor using
+///   ms_async_fd and this must be checked using an event loop or select(). When the fd becomes
+///   readable you must call ms_async_process to trigger any necessary callbacks.
+///
+/// @author Andy Grundman
+/// @date 03/15/2011
+///
+/// @param [in,out] s If non-null, the.
+///
+/// ### remarks .
+///-------------------------------------------------------------------------------------------------
+void ms_scan(MediaScan *s) {
+
   if (s->on_result == NULL) {
+    LOG_ERROR("Result callback not set, aborting scan\n");
+    goto out;
+  }
+
+  if (s->async) {
+    thread_data_type *thread_data;
+
+#ifdef WIN32
+    thread_data = (thread_data_type *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(thread_data_type));
+#else
+    // Is this how you can pass pointers between threads on a POSIX system?
+    // This will need to be freed somehow otherwise we will have a memory leak
+    thread_data = (thread_data_type *)calloc(sizeof(thread_data_type), 1);
+    LOG_MEM("new thread_data @ %p\n", thread_data);
+#endif
+
+    thread_data->lpDir = NULL;
+    thread_data->s = s;
+
+    s->thread = thread_create(do_scan, thread_data);
+    if (!s->thread) {
+      LOG_ERROR("Unable to start async thread\n");
+      goto out;
+    }
+  }
+  else {
+    thread_data_type thread_data;
+    thread_data.s = s;
+    thread_data.lpDir = NULL;
+    do_scan(&thread_data);
+  }
+
+out:
+  return;
+}                               /* ms_scan() */
+
+///-------------------------------------------------------------------------------------------------
+///  Scan a single file. Everything that applies to ms_scan also applies to this function. If
+///   you know the type of the file, set the type paramter to one of TYPE_AUDIO, TYPE_VIDEO, or
+///   TYPE_IMAGE. Set it to TYPE_UNKNOWN to have it determined automatically.
+///
+/// @author Andy Grundman
+/// @date 03/15/2011
+///
+/// @param [in,out] s If non-null, the.
+/// @param full_path  Full pathname of the full file.
+///
+/// ### remarks .
+///-------------------------------------------------------------------------------------------------
+void ms_scan_file(MediaScan *s, const char *tmp_full_path, enum media_type type) {
+  MediaScanError *e = NULL;
+  MediaScanResult *r = NULL;
+  int ret;
+  uint32_t hash;
+  int mtime;
+  size_t size;
+  DBT key;
+
+  if (s == NULL) {
+    ms_errno = MSENO_NULLSCANOBJ;
+    LOG_ERROR("MediaScan = NULL, aborting scan\n");
+    return;
+  }
+
+  if (s->on_result == NULL) {
+    ms_errno = MSENO_NORESULTCALLBACK;
     LOG_ERROR("Result callback not set, aborting scan\n");
     return;
   }
-  
-  LOG_INFO("Scanning file %s\n", full_path);
-  
+
+  LOG_INFO("Scanning file %s\n", tmp_full_path);
+
+  // Check if the file has been recently scanned
+  hash = HashFile(tmp_full_path, &mtime, &size);
+
+  // Zero out the DBTs before using them.
+  memset(&key, 0, sizeof(DBT));
+  key.data = &hash;
+  key.size = sizeof(uint32_t);
+
+  // s->dbp will be null if this function is called directly, if not check if this file is
+  // already scanned.
+  if (s->dbp != NULL && s->dbp->exists(s->dbp, NULL, &key, 0) != DB_NOTFOUND) {
+    LOG_INFO("File hash %X already scanned\n", hash);
+    return;
+  }
+
   if (type == TYPE_UNKNOWN) {
     // auto-detect type
-    type = _should_scan(s, full_path);
+    type = _should_scan(s, tmp_full_path);
     if (!type) {
       if (s->on_error) {
-        MediaScanError *e = error_create(full_path, MS_ERROR_TYPE_UNKNOWN, "Unrecognized file extension");
-        s->on_error(s, e);
-        error_destroy(e);
+        ms_errno = MSENO_SCANERROR;
+        e = error_create(tmp_full_path, MS_ERROR_TYPE_UNKNOWN, "Unrecognized file extension");
+        send_error(s, e);
         return;
       }
     }
   }
-  
-  MediaScanResult *r = result_create();
+
+  r = result_create(s);
   if (r == NULL)
     return;
-  
+
   r->type = type;
-  r->path = full_path;
-  
-  if ( result_scan(r) ) {
-    s->on_result(s, r);
+  r->path = strdup(tmp_full_path);
+
+  if (result_scan(r)) {
+    DBT key, data;
+
+    // These were determined by HashFile
+    r->mtime = mtime;
+    r->size = size;
+    r->hash = hash;
+
+    // Zero out the DBTs before using them.
+    memset(&key, 0, sizeof(DBT));
+    memset(&data, 0, sizeof(DBT));
+
+    key.data = &r->hash;
+    key.size = sizeof(uint32_t);
+
+    data.data = (char *)tmp_full_path;
+    data.size = strlen(tmp_full_path) + 1;
+
+    if (s->dbp != NULL) {
+      ret = s->dbp->put(s->dbp, NULL, &key, &data, DB_NOOVERWRITE);
+      if (ret == DB_KEYEXIST) {
+        s->dbp->err(s->dbp, ret, "Put failed because key %X already exists", r->hash);
+      }
+    }
+    send_result(s, r);
   }
-  else if (s->on_error && r->error) {
-    s->on_error(s, r->error);
+  else {
+    if (s->on_error && r->error) {
+      // Copy the error, because the original will be cleaned up by result_destroy below
+      MediaScanError *ecopy = error_copy(r->error);
+      send_error(s, ecopy);
+    }
+
+    result_destroy(r);
   }
-  
-  result_destroy(r);
+}                               /* ms_scan_file() */
+
+///-------------------------------------------------------------------------------------------------
+///  Query if 'path' is absolute path.
+///
+/// @author Henry Bennett
+/// @date 03/18/2011
+///
+/// @param path Pathname to check.
+///
+/// @return true if absolute path, false if not.
+///
+/// ### remarks Henry Bennett, 03/16/2011.
+///-------------------------------------------------------------------------------------------------
+
+bool is_absolute_path(const char *path) {
+
+  if (path == NULL)
+    return FALSE;
+
+  // \workspace, /workspace, etc
+  if (strlen(path) > 1 && (path[0] == '/' || path[0] == '\\'))
+    return TRUE;
+
+#ifdef WIN32
+  // C:\, D:\, etc
+  if (strlen(path) > 2 && path[1] == ':')
+    return TRUE;
+#endif
+
+  return FALSE;
+}                               /* is_absolute_path() */
+
+void result_add_thumbnail(MediaScanResult *r, MediaScanImage *thumb) {
+  if (r->nthumbnails < MAX_THUMBS)
+    r->_thumbs[r->nthumbnails++] = thumb;
 }
 
-/*
-ScanData
-mediascan_scan_file(const char *path, int flags)
-{
-  _init();
-  
-  ScanData s = NULL;
-  int type = _is_media(path);
-            
-  if (type == TYPE_VIDEO && !(flags & SKIP_VIDEO)) {
-    s = mediascan_new_ScanData(path, flags, type);
+MediaScanImage *ms_result_get_thumbnail(MediaScanResult *r, int index) {
+  MediaScanImage *thumb = NULL;
+
+  if (r->nthumbnails >= index) {
+    thumb = r->_thumbs[index];
   }
-  else if (type == TYPE_AUDIO && !(flags & SKIP_AUDIO)) {
-    s = mediascan_new_ScanData(path, flags, type);
-  }
-  else if (type == TYPE_IMAGE && !(flags & SKIP_IMAGE)) {
-    s = mediascan_new_ScanData(path, flags, type);
-  }
-  
-  return s;
+
+  return thumb;
 }
 
-*/
+const uint8_t *ms_result_get_thumbnail_data(MediaScanResult *r, int index, uint32_t *length) {
+  uint8_t *ret = NULL;
+  *length = 0;
+
+  if (r->nthumbnails >= index) {
+    MediaScanImage *thumb = r->_thumbs[index];
+    if (thumb->_dbuf) {
+      Buffer *buf = (Buffer *)thumb->_dbuf;
+      *length = buffer_len(buf);
+      ret = (uint8_t *)buffer_ptr(buf);
+    }
+  }
+
+  return (const uint8_t *)ret;
+}

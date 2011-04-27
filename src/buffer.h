@@ -21,7 +21,7 @@
 #include <stdint.h>
 
 #ifndef roundup
-#define	roundup(x, y)	((((x)+((y)-1))/(y))*(y))  /* to any y */
+#define	roundup(x, y)	((((x)+((y)-1))/(y))*(y)) /* to any y */
 #endif
 
 #ifndef MAX
@@ -33,12 +33,12 @@
 #endif
 
 typedef struct {
-  unsigned char *buf;    /* Buffer for data. */
-  unsigned int  alloc;   /* Number of bytes allocated for data. */
-  unsigned int  offset;  /* Offset of first byte containing data. */
-  unsigned int  end;     /* Offset of last byte containing data. */
-  unsigned int  cache;   /* bit cache for buffer_get_bits */
-  unsigned int  ncached; /* Number of bits in cache */
+  unsigned char *buf;           /* Buffer for data. */
+  unsigned int alloc;           /* Number of bytes allocated for data. */
+  unsigned int offset;          /* Offset of first byte containing data. */
+  unsigned int end;             /* Offset of last byte containing data. */
+  unsigned int cache;           /* bit cache for buffer_get_bits */
+  unsigned int ncached;         /* Number of bits in cache */
 } Buffer;
 
 enum utf16_byteorder {
@@ -53,7 +53,7 @@ void buffer_free(Buffer *buffer);
 void buffer_clear(Buffer *buffer);
 void buffer_append(Buffer *buffer, const void *data, uint32_t len);
 static int buffer_compact(Buffer *buffer);
-void * buffer_append_space(Buffer *buffer, uint32_t len);
+void *buffer_append_space(Buffer *buffer, uint32_t len);
 int buffer_check_alloc(Buffer *buffer, uint32_t len);
 uint32_t buffer_len(Buffer *buffer);
 int buffer_get_ret(Buffer *buffer, void *buf, uint32_t len);
@@ -62,7 +62,7 @@ int buffer_consume_ret(Buffer *buffer, uint32_t bytes);
 void buffer_consume(Buffer *buffer, uint32_t bytes);
 int buffer_consume_end_ret(Buffer *buffer, uint32_t bytes);
 void buffer_consume_end(Buffer *buffer, uint32_t bytes);
-void * buffer_ptr(Buffer *buffer);
+void *buffer_ptr(Buffer *buffer);
 void buffer_dump(Buffer *buffer, uint32_t len);
 int buffer_get_char_ret(char *ret, Buffer *buffer);
 int buffer_get_char(Buffer *buffer);

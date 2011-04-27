@@ -3,31 +3,66 @@
 .libs
 *~
 *.swp
-missing
-ltmain.sh
-libtool
+*.db
+__db.001
+__db.002
+__db.003
 Makefile
-Makefile.in
 aclocal.m4
 autom4te.cache
 compile
 config.h
-config.guess
 config.log
 config.status
-config.sub
-configure
-depcomp
-install-sh
 stamp-*
 m4/*
+
+# Mac files
+.DS_Store
+
+# Misc stuff
+*.bak
 
 # Binaries
 *.o
 *.la
 *.lo
-test/api_test
-test/scan_test
+test/*_test
+
+# Win32 build stuff
+*.obj
+*.tlog
+*.log
+*.pdb
+*.lastbuildstate
+*.ipch
+*.opensdf
+*.suo
+*.sdf
+*.idb
+*.cov
+win32/Debug/*
+win32/testDebug/*
+win32/video_dlna_testDebug/*
+win32/Debug Library/*
+win32/libpng-1.5.2/projects/vstudio/Debug/*
+win32/libpng-1.5.2/projects/vstudio/libpng/Debug/*
+win32/libpng-1.5.2/projects/vstudio/libpng/Debug Library/*
+win32/libpng-1.5.2/projects/vstudio/pngtest/Debug/*
+win32/libpng-1.5.2/projects/vstudio/pngtest/Debug Library/*
+win32/libpng-1.5.2/projects/vstudio/pngtest/Release Library/*
+win32/libpng-1.5.2/projects/vstudio/pngvalid/Debug/*
+win32/libpng-1.5.2/projects/vstudio/pngvalid/Debug Library/*
+win32/libpng-1.5.2/projects/vstudio/pngvalid/Release Library/*
+win32/libpng-1.5.2/projects/vstudio/zlib/Debug Library/*
+win32/libpng-1.5.2/projects/vstudio/zlib/Release Library/*
+win32/libpng-1.5.2/projects/vstudio/zlib/Debug/*
+win32/libpng-1.5.2/projects/vstudio/Debug Library/*
+win32/libpng-1.5.2/projects/vstudio/Release Library/*
+win32/libpng-1.5.2/projects/vstudio/libpng/Release Library/*
+test/Debug/*
+test/testDebug/*
+test/video_dlna_testDebug/*
 
 # Perl
 Scan.xsc
@@ -38,6 +73,5 @@ META.yml
 blib
 pm_to_blib
 README
-Makefile.old
 Media-Scan*
 

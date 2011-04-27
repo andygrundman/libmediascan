@@ -3,7 +3,13 @@
 #include <stdio.h>
 #include <string.h>
 
+// If we are on MSVC, disable some stupid MSVC warnings
+#ifdef _MSC_VER
+#pragma warning( disable: 4996 )
+#endif
+
 #define LOG_WARN(...)  fprintf(stderr, __VA_ARGS__)
+#define LOG_ERROR LOG_WARN
 
 static char *
 _findbin(const char *cmd)
