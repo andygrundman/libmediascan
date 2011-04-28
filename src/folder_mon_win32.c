@@ -7,6 +7,7 @@
 #include "mediascan.h"
 #include "common.h"
 #include "util.h"
+#include "thread.h"
 
 ///-------------------------------------------------------------------------------------------------
 ///  Watch directory.
@@ -17,10 +18,10 @@
 /// @param thread_data_type Structure containing the MediaScan pointer and the directory to scan
 ///-------------------------------------------------------------------------------------------------
 
-DWORD WINAPI WatchDirectory(thread_data_type *thread_data) {
+void WatchDirectory(void *thread_data) {
   // Copy thread inputs to local variables
-  MediaScan *s = thread_data->s;
-  LPTSTR lpDir = thread_data->lpDir;
+  MediaScan *s = ((thread_data_type*)thread_data)->s;
+  LPTSTR lpDir = ((thread_data_type*)thread_data)->lpDir;
 
   // Data variables for the windows directory change notification
   FILE_NOTIFY_INFORMATION Buffer[1024];
@@ -70,15 +71,10 @@ DWORD WINAPI WatchDirectory(thread_data_type *thread_data) {
   // there is shutdown code at the bottom of this function.
   while (ThreadRunning) {
     // Set up the events are going to wait for
-    HANDLE event_list[2] = { oOverlap.hEvent, s->thread->ghSignalEvent };
-
     LOG_LEVEL(1, "\nWaiting for notification...\n");
 
     // Wait forever for notification.
-    dwWaitStatus = WaitForMultipleObjects(2,  // number of objects in array
-                                          event_list, // array of objects
-                                          FALSE,  // wait for any object
-                                          INFINITE);  // infinite wait
+    dwWaitStatus = WaitForSingleObject(oOverlap.hEvent, INFINITE);  // infinite wait
 
     switch (dwWaitStatus) {
         // This is for the event oOverlap.hEvent
@@ -116,9 +112,9 @@ DWORD WINAPI WatchDirectory(thread_data_type *thread_data) {
           strcat(full_path, buf);
           printf("Found File Changed: %s\n", full_path);
 
-          thread_lock(s->thread);
-          ms_scan_file(s, full_path, TYPE_UNKNOWN);
-          thread_unlock(s->thread);
+        //  thread_lock(s->thread);
+        //  ms_scan_file(s, full_path, TYPE_UNKNOWN);
+        //  thread_unlock(s->thread);
 
           if (0 == pRecord->NextEntryOffset)
             break;
@@ -131,11 +127,11 @@ DWORD WINAPI WatchDirectory(thread_data_type *thread_data) {
         break;                  /* WAIT_OBJECT_0: */
 
         // This is for the event s->ghSignalEvent
-      case WAIT_OBJECT_0 + 1:
+//      case WAIT_OBJECT_0 + 1:
 
-        ThreadRunning = FALSE;
+//        ThreadRunning = FALSE;
 
-        break;                  /* WAIT_OBJECT_0 + 1: */
+//        break;                  /* WAIT_OBJECT_0 + 1: */
 
       case WAIT_TIMEOUT:
 
@@ -156,7 +152,7 @@ DWORD WINAPI WatchDirectory(thread_data_type *thread_data) {
 
   // Free the data that was passed to this thread on the heap
   if (thread_data != NULL) {
-    HeapFree(GetProcessHeap(), 0, thread_data);
+		free(thread_data);
     thread_data = NULL;         // Ensure address is not reused.
   }
 

@@ -119,7 +119,7 @@ int deletefile(char *source)
 }
 #endif
 
-static int result_called = FALSE;
+static int result_called = 0;
 static MediaScanResult result;
 
 static void my_result_callback(MediaScan *s, MediaScanResult *r, void *userdata) {
@@ -156,7 +156,7 @@ static void my_result_callback(MediaScan *s, MediaScanResult *r, void *userdata)
 		memcpy( result.image, r->image, sizeof(MediaScanImage));
 	}
 
-	result_called = TRUE;
+	result_called++;
 }
 
 static void my_error_callback(MediaScan *s, MediaScanError *error, void *userdata) { 
@@ -183,7 +183,7 @@ void test_background_api(void)	{
 
 	// Do some setup for the test
 	CU_ASSERT( _mkdir(test_path) != -1 );
-	result_called = FALSE;
+	result_called = 0;
 	
 	CU_ASSERT(s->on_result == NULL);
 	ms_set_result_callback(s, my_result_callback);
@@ -194,9 +194,9 @@ void test_background_api(void)	{
 	CU_ASSERT(s->on_error == my_error_callback);
 
 	ms_watch_directory(s, test_path, my_result_callback);
-	CU_ASSERT( result_called == FALSE );
+	CU_ASSERT( result_called == 0 );
 	Sleep(1000); // Sleep 1 second
-	CU_ASSERT( result_called == FALSE );
+	CU_ASSERT( result_called == 0 );
 	
 	// Now copy a small video file to the test directory
 	strcpy(src, data_path);
@@ -209,11 +209,11 @@ void test_background_api(void)	{
 
 	CU_ASSERT( CopyFile(src, dest, FALSE) == TRUE );
 	Sleep(1000); // Sleep 1 second
-	CU_ASSERT( result_called == FALSE );
+	CU_ASSERT( result_called == 0 );
 
 	// Now process the callbacks
 	ms_async_process(s);
-	CU_ASSERT( result_called == TRUE );
+	CU_ASSERT( result_called == 1 );
 
 
 	ms_destroy(s);
@@ -254,9 +254,9 @@ void test_async_api(void)	{
 	CU_ASSERT(s->on_error == my_error_callback);
 
 	ms_scan(s);
-	CU_ASSERT( result_called == TRUE );
+	CU_ASSERT( result_called == 5 );
 
-	result_called = FALSE;
+	result_called = 0;
 	reset_bdb(s);
 
 
@@ -272,7 +272,7 @@ void test_async_api(void)	{
 #endif
 
 	ms_scan(s);
-	CU_ASSERT( result_called == FALSE );
+	CU_ASSERT( result_called == 0 );
 
 #ifdef WIN32
   time2 = GetTickCount();
@@ -282,13 +282,13 @@ void test_async_api(void)	{
 #endif
 
 	// Verify that the function returns almost immediately
-	CU_ASSERT( time2 - time1 < 2 );
+	CU_ASSERT( time2 - time1 < 20 );
 
 	Sleep(1000); // Sleep 1 second
 
 	// Now process the callbacks
 	ms_async_process(s);
-	CU_ASSERT( result_called == TRUE );
+	CU_ASSERT( result_called == 5 );
 
 	ms_destroy(s);
 }
@@ -313,7 +313,7 @@ int setupbackground_tests() {
 
    /* add the tests to the background scanning suite */
    if (
-//	   NULL == CU_add_test(pSuite, "Test background scanning API", test_background_api) ||
+//   NULL == CU_add_test(pSuite, "Test background scanning API", test_background_api) //||
 	   NULL == CU_add_test(pSuite, "Test Async scanning API", test_async_api)
 	   )
    {

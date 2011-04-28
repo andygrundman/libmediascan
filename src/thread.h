@@ -11,5 +11,5 @@ void thread_signal(int spipe[2]);
 void thread_signal_read(int spipe[2]);
 void thread_stop(MediaScanThread *t);
 void thread_destroy(MediaScanThread *t);
-
+void WatchDirectory(void *thread_data);
 #endif // _THREAD_H

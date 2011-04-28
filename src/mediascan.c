@@ -58,6 +58,7 @@ enum log_level Debug = ERR;
 static int Initialized = 0;
 int ms_errno = 0;
 long PathMax = MAX_PATH;
+WSADATA wsaData;
 
 
 /*
@@ -200,6 +201,7 @@ static void register_formats(void) {
 ///-------------------------------------------------------------------------------------------------
 
 static void _init(void) {
+	int iResult;
   if (Initialized)
     return;
 
@@ -207,9 +209,22 @@ static void _init(void) {
   register_formats();
 #ifndef WIN32
   unix_init();
+#else
+	pthread_win32_process_attach_np();
+	pthread_win32_thread_attach_np();
+
+
+	// Initialize Winsock
+	iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
+	if (iResult != 0) {
+		  printf("WSAStartup failed: %d\n", iResult);
+	}
+
 #endif
   Initialized = 1;
   ms_errno = 0;
+
+
 }                               /* _init() */
 
 ///-------------------------------------------------------------------------------------------------
@@ -664,13 +679,12 @@ void ms_watch_directory(MediaScan *s, const char *path, FolderChangeCallback cal
   thread_data_type *thread_data;
 
   s->on_result = callback;
-
-  thread_data = (thread_data_type *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(thread_data_type));
+  thread_data = (thread_data_type *)calloc(sizeof(thread_data_type), 1);
   thread_data->s = s;
   thread_data->lpDir = path;
 
 
-  s->thread = thread_create((void (*)())(WatchDirectory), thread_data);
+  s->thread = thread_create(WatchDirectory, thread_data);
   if (!s->thread) {
     LOG_ERROR("Unable to start async thread\n");
     return;
@@ -687,7 +701,7 @@ void ms_watch_directory(MediaScan *s, const char *path, FolderChangeCallback cal
 ///-------------------------------------------------------------------------------------------------
 void ms_clear_watch(MediaScan *s) {
 // This folder monitoring code is only valid for Win32
-#ifdef WIN32
+#ifdef OLD_WIN32
   if (s->thread != NULL) {
     SetEvent(s->thread->ghSignalEvent);
 
@@ -908,14 +922,7 @@ out:
 
   if (s->async) {
     LOG_MEM("destroy thread_data @ %p\n", userdata);
-#ifndef WIN32
     free(userdata);
-#else
-		  // Free the data that was passed to this thread on the heap
-  if (userdata != NULL) {
-    HeapFree(GetProcessHeap(), 0, userdata);
-  }
-#endif
   }
 
   return NULL;
@@ -944,14 +951,8 @@ void ms_scan(MediaScan *s) {
   if (s->async) {
     thread_data_type *thread_data;
 
-#ifdef WIN32
-    thread_data = (thread_data_type *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(thread_data_type));
-#else
-    // Is this how you can pass pointers between threads on a POSIX system?
-    // This will need to be freed somehow otherwise we will have a memory leak
     thread_data = (thread_data_type *)calloc(sizeof(thread_data_type), 1);
     LOG_MEM("new thread_data @ %p\n", thread_data);
-#endif
 
     thread_data->lpDir = NULL;
     thread_data->s = s;
