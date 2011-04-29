@@ -911,10 +911,10 @@ out:
 #ifndef WIN32
     free(userdata);
 #else
-		  // Free the data that was passed to this thread on the heap
-  if (userdata != NULL) {
-    HeapFree(GetProcessHeap(), 0, userdata);
-  }
+    // Free the data that was passed to this thread on the heap
+    if (userdata != NULL) {
+      HeapFree(GetProcessHeap(), 0, userdata);
+    }
 #endif
   }
 
