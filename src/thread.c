@@ -5,8 +5,11 @@
 #include <libmediascan.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifdef WIN32
 #include <io.h>
 #include <signal.h>
+#endif
 
 #include "mediascan.h"
 #include "common.h"
@@ -282,7 +285,11 @@ void thread_signal_read(int spipe[2]) {
 
 // stop thread, blocks until stopped
 void thread_stop(MediaScanThread *t) {
-  if (t->tid.p) {
+#ifndef WIN32
+  if (t->tid) {
+#else
+  if (t->tid.p) { // XXX needed?
+#endif
     LOG_DEBUG("Signalling thread %x to stop\n", t->tid);
 
     // Signal thread to stop with a dummy byte
@@ -290,7 +297,11 @@ void thread_stop(MediaScanThread *t) {
     thread_signal(t->reqpipe);
 
     pthread_join(t->tid, NULL);
-    t->tid.p = 0;
+#ifndef WIN32
+    t->tid = 0;
+#else
+    t->tid.p = 0; // XXX needed?
+#endif
     LOG_DEBUG("Thread stopped\n");
     // Close pipes
 
