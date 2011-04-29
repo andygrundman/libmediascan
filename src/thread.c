@@ -5,6 +5,8 @@
 #include <libmediascan.h>
 #include <stdlib.h>
 #include <string.h>
+#include <io.h>
+#include <signal.h>
 
 #include "mediascan.h"
 #include "common.h"
@@ -12,18 +14,119 @@
 #include "thread.h"
 #include "queue.h"
 
-#ifdef USE_SOCKETS_AS_HANDLES
-# define S_TO_HANDLE(x) ((HANDLE)win32_get_osfhandle (x))
-#else
-# define S_TO_HANDLE(x) ((HANDLE)x)
-#endif
-
 struct equeue_entry {
   enum event_type type;
   void *data;
     TAILQ_ENTRY(equeue_entry) entries;
 };
 TAILQ_HEAD(equeue, equeue_entry);
+
+/*
+#define USE_SOCKETS_AS_HANDLES
+#ifdef USE_SOCKETS_AS_HANDLES
+# define S_TO_HANDLE(x) ((HANDLE)_get_osfhandle (x))
+#else
+# define S_TO_HANDLE(x) ((HANDLE)x)
+#endif
+*/
+
+#ifdef _WIN32
+/* taken almost verbatim from libev's ev_win32.c */
+/* oh, the humanity! */
+static int s_pipe (int filedes [2])
+{
+//  dTHX;
+
+  struct sockaddr_in addr = { 0 };
+  int addr_size = sizeof (addr);
+  struct sockaddr_in adr2;
+  int adr2_size = sizeof (adr2);
+  SOCKET listener;
+  SOCKET sock [2] = { -1, -1 };
+
+  if ((listener = socket (AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET) 
+    return -1;
+
+  addr.sin_family = AF_INET;
+  addr.sin_addr.s_addr = htonl (INADDR_LOOPBACK);
+  addr.sin_port = 0;
+
+  if (bind (listener, (struct sockaddr *)&addr, addr_size))
+    goto fail;
+
+  if (getsockname (listener, (struct sockaddr *)&addr, &addr_size))
+    goto fail;
+
+  if (listen (listener, 1))
+    goto fail;
+
+  if ((sock [0] = socket (AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET) 
+    goto fail;
+
+  if (connect (sock [0], (struct sockaddr *)&addr, addr_size))
+    goto fail;
+
+  if ((sock [1] = accept (listener, 0, 0)) < 0)
+    goto fail;
+
+  /* windows vista returns fantasy port numbers for getpeername.
+   * example for two interconnected tcp sockets:
+   *
+   * (Socket::unpack_sockaddr_in getsockname $sock0)[0] == 53364
+   * (Socket::unpack_sockaddr_in getpeername $sock0)[0] == 53363
+   * (Socket::unpack_sockaddr_in getsockname $sock1)[0] == 53363
+   * (Socket::unpack_sockaddr_in getpeername $sock1)[0] == 53365
+   *
+   * wow! tridirectional sockets!
+   *
+   * this way of checking ports seems to work:
+   */
+  if (getpeername (sock [0], (struct sockaddr *)&addr, &addr_size))
+    goto fail;
+
+  if (getsockname (sock [1], (struct sockaddr *)&adr2, &adr2_size))
+    goto fail;
+
+  errno = WSAEINVAL;
+  if (addr_size != adr2_size
+      || addr.sin_addr.s_addr != adr2.sin_addr.s_addr /* just to be sure, I mean, it's windows */
+      || addr.sin_port        != adr2.sin_port)
+    goto fail;
+
+  closesocket (listener);
+
+  /* when select isn't winsocket, we also expect socket, connect, accept etc.
+   * to work on fds */
+  filedes [0] = sock [0];
+  filedes [1] = sock [1];
+
+  return 0;
+
+fail:
+  closesocket (listener);
+
+  if (sock [0] != INVALID_SOCKET) closesocket (sock [0]);
+  if (sock [1] != INVALID_SOCKET) closesocket (sock [1]);
+
+  return -1;
+}
+/*
+#define s_socketpair(domain,type,protocol,filedes) s_pipe (filedes)
+
+static int
+s_fd_blocking (int fd, int blocking)
+{
+  u_long nonblocking = !blocking;
+
+  return ioctlsocket ((SOCKET)S_TO_HANDLE (fd), FIONBIO, &nonblocking);
+}
+
+#define s_fd_prepare(fd) s_fd_blocking (fd, 0)
+*/
+
+#endif
+
+
 
 MediaScanThread *thread_create(void *(*func) (void *), thread_data_type *thread_data) {
   int err;
@@ -40,7 +143,19 @@ MediaScanThread *thread_create(void *(*func) (void *), thread_data_type *thread_
   TAILQ_INIT((struct equeue *)t->event_queue);
   LOG_MEM("new equeue @ %p\n", t->event_queue);
 
-#ifndef WIN32
+#ifdef WIN32
+  // Setup pipes for communication with main thread
+  if (s_pipe(t->respipe)) {
+    LOG_ERROR("Unable to initialize thread result pipe\n");
+    goto fail;
+  }
+
+  if (s_pipe(t->reqpipe)) {
+    LOG_ERROR("Unable to initialize thread request pipe\n");
+    goto fail;
+  }
+#else
+
   // Setup pipes for communication with main thread
   if (pipe(t->respipe)) {
     LOG_ERROR("Unable to initialize thread result pipe\n");
@@ -51,6 +166,7 @@ MediaScanThread *thread_create(void *(*func) (void *), thread_data_type *thread_
     LOG_ERROR("Unable to initialize thread request pipe\n");
     goto fail;
   }
+#endif
 
   if (pthread_mutex_init(&t->mutex, NULL) != 0) {
     LOG_ERROR("Unable to initialize thread mutex\n");
@@ -65,48 +181,6 @@ MediaScanThread *thread_create(void *(*func) (void *), thread_data_type *thread_
   }
 
   LOG_DEBUG("Thread %x started\n", t->tid);
-#else
-
-  t->ghSignalEvent = CreateEvent(NULL,  // default security attributes
-                                 TRUE,  // manual-reset event
-                                 FALSE, // initial state is nonsignaled
-                                 "StopEvent"  // "StopEvent" name
-    );
-
-  if (t->ghSignalEvent == NULL) {
-    ms_errno = MSENO_THREADERROR;
-    LOG_ERROR("Can't create event\n");
-    goto fail;
-  }
-
-//  thread_data = (thread_data_type *) HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(thread_data_type));
-
-
-//  thread_data->lpDir = NULL; //(char *)path;
-//  thread_data->s = thread_data;
-
-  t->hThread = CreateThread(NULL, // default security attributes
-                            0,  // use default stack size
-                            (LPTHREAD_START_ROUTINE) func,  // WatchDirectory thread
-                            (void *)thread_data,  // (void*)thread_data_type
-                            0,  // use default creation flags
-                            &t->dwThreadId);  // returns the thread identifier
-
-  if (t->hThread == NULL) {
-    ms_errno = MSENO_THREADERROR;
-    LOG_ERROR("Can't create watch thread\n");
-    goto fail;
-  }
-
-  if (!InitializeCriticalSectionAndSpinCount(&t->CriticalSection, 0x00000400)) {
-    LOG_ERROR("Unable to initialize critical section\n");
-    goto fail;
-  }
-
-  LOG_DEBUG("Win32 thread %x started\n", t->dwThreadId);
-
-#endif
-
   goto out;
 
 fail:
@@ -119,9 +193,7 @@ out:
 // Return the file descriptor that should be watched for
 // by the main thread for notifications that events are waiting
 int thread_get_result_fd(MediaScanThread *t) {
-#ifndef WIN32
   return t->respipe[0];
-#endif
 }
 
 // Queue a new event
@@ -171,19 +243,11 @@ out:
 }
 
 void thread_lock(MediaScanThread *t) {
-#ifndef WIN32
   pthread_mutex_lock(&t->mutex);
-#else
-  EnterCriticalSection(&t->CriticalSection);
-#endif
 }
 
 void thread_unlock(MediaScanThread *t) {
-#ifndef WIN32
   pthread_mutex_unlock(&t->mutex);
-#else
-  LeaveCriticalSection(&t->CriticalSection);
-#endif
 }
 
 void thread_signal(int spipe[2]) {
@@ -197,7 +261,7 @@ void thread_signal(int spipe[2]) {
   DWORD dummy;
 
   LOG_DEBUG("thread_signal -> %d\n", spipe[1]);
-  WriteFile(S_TO_HANDLE(spipe[1]), (LPCVOID)&dummy, 1, &dummy, 0);
+	send(spipe[1], (LPCVOID)&dummy, 1, 0);
 #endif
 }
 
@@ -217,8 +281,7 @@ void thread_signal_read(int spipe[2]) {
 
 // stop thread, blocks until stopped
 void thread_stop(MediaScanThread *t) {
-#ifndef WIN32
-  if (t->tid) {
+  if (t->tid.p) {
     LOG_DEBUG("Signalling thread %x to stop\n", t->tid);
 
     // Signal thread to stop with a dummy byte
@@ -226,36 +289,26 @@ void thread_stop(MediaScanThread *t) {
     thread_signal(t->reqpipe);
 
     pthread_join(t->tid, NULL);
-    t->tid = 0;
+    t->tid.p = 0;
     LOG_DEBUG("Thread stopped\n");
-
     // Close pipes
+
+#ifdef WIN32
+    closesocket(t->respipe[0]);
+    closesocket(t->respipe[1]);
+    closesocket(t->reqpipe[0]);
+    closesocket(t->reqpipe[1]);
+#else
     close(t->respipe[0]);
     close(t->respipe[1]);
     close(t->reqpipe[0]);
     close(t->reqpipe[1]);
-  }
-#else
-  if (t != NULL) {
-    SetEvent(t->ghSignalEvent);
-
-    // Wait until all threads have terminated.
-    WaitForSingleObject(t->hThread, INFINITE);
-
-    CloseHandle(t->hThread);
-    CloseHandle(t->ghSignalEvent);
-  }
-
-
 #endif
+  }
 }
 
 void thread_destroy(MediaScanThread *t) {
   thread_stop(t);
-
-#ifdef WIN32
-  DeleteCriticalSection(&t->CriticalSection);
-#endif
 
   // Cleanup event queue
   {

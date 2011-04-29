@@ -16,9 +16,10 @@
 #ifdef WIN32
 #include <Windows.h>
 #include <wchar.h>
-#else
-#include <pthread.h>
 #endif
+
+#include <pthread.h>
+
 
 #define MAX_PATHS 128
 #define MAX_IGNORE_EXTS 128
@@ -83,15 +84,8 @@ struct _Thread {
   int reqpipe[2];               // pipe for main thread to signal worker thread
   void *event_queue;            // TAILQ for events
 
-#ifndef WIN32
   pthread_t tid;
   pthread_mutex_t mutex;
-#else
-  DWORD dwThreadId;
-  HANDLE ghSignalEvent;
-  HANDLE hThread;
-  CRITICAL_SECTION CriticalSection;
-#endif
 };
 typedef struct _Thread MediaScanThread;
 

@@ -136,7 +136,7 @@ void send_finish(MediaScan *s);
 /// @param lpDir String describing the path to be watched
 ///-------------------------------------------------------------------------------------------------
 
-DWORD WINAPI WatchDirectory(LPVOID inData);
+void WatchDirectory(LPVOID inData);
 
 ///-------------------------------------------------------------------------------------------------
 ///  Code to refresh the directory listing, but not the subtree because it would not be necessary.
