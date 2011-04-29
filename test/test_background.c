@@ -65,12 +65,6 @@ int copyfile(char *source, char *dest, int not_used)
             int status = WEXITSTATUS(childExitStatus); /* zero is normal exit */
             /* handle non-zero as you wish */
         }
-//        else if (WIFSIGNALED(status)) /* killed */
-//        {
-//        }
-//        else if (WIFSTOPPED(status)) /* stopped */
-//        {
-//        }
     }
     return TRUE;
 }
@@ -108,12 +102,6 @@ int deletefile(char *source)
             int status = WEXITSTATUS(childExitStatus); /* zero is normal exit */
             /* handle non-zero as you wish */
         }
-//        else if (WIFSIGNALED(status)) /* killed */
-//        {
-//        }
-//        else if (WIFSTOPPED(status)) /* stopped */
-//        {
-//        }
     }
     return TRUE;
 }
@@ -313,8 +301,8 @@ int setupbackground_tests() {
 
    /* add the tests to the background scanning suite */
    if (
-//   NULL == CU_add_test(pSuite, "Test background scanning API", test_background_api) //||
-	   NULL == CU_add_test(pSuite, "Test Async scanning API", test_async_api)
+   NULL == CU_add_test(pSuite, "Test background scanning API", test_background_api) //||
+//	   NULL == CU_add_test(pSuite, "Test Async scanning API", test_async_api)
 	   )
    {
       CU_cleanup_registry();

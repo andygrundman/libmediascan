@@ -5,7 +5,8 @@
 #include <libmediascan.h>
 #include <stdlib.h>
 #include <string.h>
-#include 	<io.h>
+#include <io.h>
+#include <signal.h>
 
 #include "mediascan.h"
 #include "common.h"
@@ -20,12 +21,14 @@ struct equeue_entry {
 };
 TAILQ_HEAD(equeue, equeue_entry);
 
+/*
+#define USE_SOCKETS_AS_HANDLES
 #ifdef USE_SOCKETS_AS_HANDLES
 # define S_TO_HANDLE(x) ((HANDLE)_get_osfhandle (x))
 #else
 # define S_TO_HANDLE(x) ((HANDLE)x)
 #endif
-
+*/
 
 #ifdef _WIN32
 /* taken almost verbatim from libev's ev_win32.c */
@@ -92,15 +95,10 @@ static int s_pipe (int filedes [2])
 
   closesocket (listener);
 
-#ifdef USE_SOCKETS_AS_HANDLES
   /* when select isn't winsocket, we also expect socket, connect, accept etc.
    * to work on fds */
   filedes [0] = sock [0];
   filedes [1] = sock [1];
-#else
-  filedes [0] = _open_osfhandle (sock [0], 0);
-  filedes [1] = _open_osfhandle (sock [1], 0);
-#endif
 
   return 0;
 
@@ -112,7 +110,7 @@ fail:
 
   return -1;
 }
-
+/*
 #define s_socketpair(domain,type,protocol,filedes) s_pipe (filedes)
 
 static int
@@ -124,7 +122,7 @@ s_fd_blocking (int fd, int blocking)
 }
 
 #define s_fd_prepare(fd) s_fd_blocking (fd, 0)
-
+*/
 
 #endif
 
@@ -263,7 +261,7 @@ void thread_signal(int spipe[2]) {
   DWORD dummy;
 
   LOG_DEBUG("thread_signal -> %d\n", spipe[1]);
-  WriteFile(S_TO_HANDLE(spipe[1]), (LPCVOID)&dummy, 1, &dummy, 0);
+	send(spipe[1], (LPCVOID)&dummy, 1, 0);
 #endif
 }
 
@@ -294,10 +292,18 @@ void thread_stop(MediaScanThread *t) {
     t->tid.p = 0;
     LOG_DEBUG("Thread stopped\n");
     // Close pipes
+
+#ifdef WIN32
+    closesocket(t->respipe[0]);
+    closesocket(t->respipe[1]);
+    closesocket(t->reqpipe[0]);
+    closesocket(t->reqpipe[1]);
+#else
     close(t->respipe[0]);
     close(t->respipe[1]);
     close(t->reqpipe[0]);
     close(t->reqpipe[1]);
+#endif
   }
 }
 
