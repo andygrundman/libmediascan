@@ -20,7 +20,7 @@
 #pragma comment(lib, "ws2_32.lib")
 
 
-#pragma warning(disable: 4127)      // Conditional expression is a constant
+#pragma warning(disable: 4127)  // Conditional expression is a constant
 
 #define DATA_BUFSIZE 9
 
@@ -35,8 +35,8 @@
 
 void WatchDirectory(void *thread_data) {
   // Copy thread inputs to local variables
-  MediaScan *s = ((thread_data_type*)thread_data)->s;
-  LPTSTR lpDir = ((thread_data_type*)thread_data)->lpDir;
+  MediaScan *s = ((thread_data_type *)thread_data)->s;
+  LPTSTR lpDir = ((thread_data_type *)thread_data)->lpDir;
 
   // Data variables for the windows directory change notification
   FILE_NOTIFY_INFORMATION Buffer[1024];
@@ -52,17 +52,17 @@ void WatchDirectory(void *thread_data) {
   DWORD dwWaitStatus;
   DWORD dwBytesRead;
   BOOL bResult;
-	WSABUF DataBuf;
+  WSABUF DataBuf;
   DWORD RecvBytes, Flags;
-	char buffer[DATA_BUFSIZE];
-	int rc;
-	int err = 0;
+  char buffer[DATA_BUFSIZE];
+  int rc;
+  int err = 0;
 
   // Thread state variables
   int ThreadRunning = TRUE;
 
-	// Make sure the RecvOverlapped struct is zeroed out
-  SecureZeroMemory((PVOID) &oOverlap, sizeof(OVERLAPPED ) );
+  // Make sure the RecvOverlapped struct is zeroed out
+  SecureZeroMemory((PVOID) & oOverlap, sizeof(OVERLAPPED));
 
   // Create the event that will get fired when a directory changes
   oOverlap.hEvent = CreateEvent(NULL, // default security attributes
@@ -71,18 +71,18 @@ void WatchDirectory(void *thread_data) {
                                 "FileChangeEvent"); // "FileChangeEvent" name
 
   // Make sure the RecvOverlapped struct is zeroed out
-  SecureZeroMemory((PVOID) &RecvOverlapped, sizeof(WSAOVERLAPPED) );
+  SecureZeroMemory((PVOID) & RecvOverlapped, sizeof(WSAOVERLAPPED));
 
   // Create an event handle and setup an overlapped structure.
   RecvOverlapped.hEvent = WSACreateEvent();
-	if (RecvOverlapped.hEvent  == NULL) {
-      printf("WSACreateEvent failed: %d\n", WSAGetLastError());
-      return;
+  if (RecvOverlapped.hEvent == NULL) {
+    printf("WSACreateEvent failed: %d\n", WSAGetLastError());
+    return;
   }
 
 
 
-	DataBuf.len = DATA_BUFSIZE;
+  DataBuf.len = DATA_BUFSIZE;
   DataBuf.buf = buffer;
 
 
@@ -106,18 +106,18 @@ void WatchDirectory(void *thread_data) {
                         NULL    // Not using completion routine
     );
 
-	Flags = 0;
-	rc = WSARecv(s->thread->reqpipe[0], &DataBuf, 1, &RecvBytes, &Flags, &RecvOverlapped, NULL);
-	if ( (rc == SOCKET_ERROR) && (WSA_IO_PENDING != (err = WSAGetLastError()))) {
+  Flags = 0;
+  rc = WSARecv(s->thread->reqpipe[0], &DataBuf, 1, &RecvBytes, &Flags, &RecvOverlapped, NULL);
+  if ((rc == SOCKET_ERROR) && (WSA_IO_PENDING != (err = WSAGetLastError()))) {
     printf("WSARecv failed with error: %d\n", err);
     return;
-	}
+  }
 
   // Run until we are told to stop. It is important to let the thread clean up after itself so 
   // there is shutdown code at the bottom of this function.
   while (ThreadRunning) {
     // Set up the events are going to wait for
-		HANDLE event_list[2] = { oOverlap.hEvent, RecvOverlapped.hEvent };
+    HANDLE event_list[2] = { oOverlap.hEvent, RecvOverlapped.hEvent };
     LOG_LEVEL(1, "\nWaiting for notification...\n");
 
 
@@ -163,7 +163,7 @@ void WatchDirectory(void *thread_data) {
           strcat(full_path, buf);
           printf("Found File Changed: %s\n", full_path);
 
-        ms_scan_file(s, full_path, TYPE_UNKNOWN);
+          ms_scan_file(s, full_path, TYPE_UNKNOWN);
 
           if (0 == pRecord->NextEntryOffset)
             break;
@@ -201,10 +201,10 @@ void WatchDirectory(void *thread_data) {
 
   // Free the data that was passed to this thread on the heap
   if (thread_data != NULL) {
-		free(thread_data);
+    free(thread_data);
     thread_data = NULL;         // Ensure address is not reused.
   }
-	WSACloseEvent(RecvOverlapped.hEvent);
+  WSACloseEvent(RecvOverlapped.hEvent);
 
 
 

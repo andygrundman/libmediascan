@@ -204,7 +204,7 @@ static void register_formats(void) {
 ///-------------------------------------------------------------------------------------------------
 
 static void _init(void) {
-	int iResult;
+  int iResult;
   if (Initialized)
     return;
 
@@ -213,15 +213,15 @@ static void _init(void) {
 #ifndef WIN32
   unix_init();
 #else
-	pthread_win32_process_attach_np();
-	pthread_win32_thread_attach_np();
+  pthread_win32_process_attach_np();
+  pthread_win32_thread_attach_np();
 
 
-	// Initialize Winsock
-	iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
-	if (iResult != 0) {
-		  printf("WSAStartup failed: %d\n", iResult);
-	}
+  // Initialize Winsock
+  iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
+  if (iResult != 0) {
+    printf("WSAStartup failed: %d\n", iResult);
+  }
 
 #endif
   Initialized = 1;
