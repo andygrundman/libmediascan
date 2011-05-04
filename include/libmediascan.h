@@ -21,7 +21,7 @@
 #include <pthread.h>
 
 
-#define MAX_PATHS 128
+#define MAX_PATHS 64
 #define MAX_IGNORE_EXTS 128
 #define MAX_THUMBS      8
 
@@ -298,7 +298,7 @@ MediaScan *ms_create(void);
 void ms_destroy(MediaScan *s);
 
 /**
- * Add a path to be scanned. Up to 128 paths may be added before
+ * Add a path to be scanned. Up to 64 paths may be added before
  * beginning the scan.
  */
 void ms_add_path(MediaScan *s, const char *path);

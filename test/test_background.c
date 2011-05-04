@@ -26,11 +26,11 @@
 #endif
 
 #ifndef WIN32
+
 void Sleep(int ms)
 {
 	usleep(ms * 1000); // Convert to usec
-}
-
+} /* Sleep() */
 
 int copyfile(char *source, char *dest, int not_used)
 {
@@ -67,7 +67,7 @@ int copyfile(char *source, char *dest, int not_used)
         }
     }
     return TRUE;
-}
+} /* copyfile() */
 
 int deletefile(char *source)
 {
@@ -104,7 +104,8 @@ int deletefile(char *source)
         }
     }
     return TRUE;
-}
+} /* deletefile() */
+
 #endif
 
 static int result_called = 0;
@@ -145,7 +146,7 @@ static void my_result_callback(MediaScan *s, MediaScanResult *r, void *userdata)
 	}
 
 	result_called++;
-}
+} /* my_result_callback() */
 
 static void my_error_callback(MediaScan *s, MediaScanError *error, void *userdata) { 
 
@@ -162,6 +163,10 @@ void test_background_api(void)	{
 	const char *test_path = "D:\\Siojej3";
 	const char *data_path = "data\\video";
 	const char *data_file1 = "bars-mpeg1video-mp2.mpg";
+	const char *data_file2 = "bars-msmpeg4-mp2.asf";
+	const char *data_file3 = "bars-msmpeg4v2-mp2.avi";
+	const char *data_file4 = "bars-vp8-vorbis.webm";
+	const char *data_file5 = "wmv92-with-audio.wmv";
 	char src[MAX_PATH];
 	char dest[MAX_PATH];
 
@@ -196,17 +201,40 @@ void test_background_api(void)	{
 	strcat(dest, data_file1);
 
 	CU_ASSERT( CopyFile(src, dest, FALSE) == TRUE );
-	Sleep(1000); // Sleep 1 second
 	CU_ASSERT( result_called == 0 );
+	Sleep(1000); // Sleep 1 second
 
 	// Now process the callbacks
 	ms_async_process(s);
 	CU_ASSERT( result_called == 1 );
 
+	result_called = 0;
+	strcpy(src, data_path);
+	strcat(src, "\\");
+	strcat(src, data_file2);
+
+	strcpy(dest, test_path);
+	strcat(dest, "\\");
+	strcat(dest, data_file2);
+	CU_ASSERT( CopyFile(src, dest, FALSE) == TRUE );
+
+	Sleep(1000); // Sleep 1 second
+
+	// Now process the callbacks
+	ms_async_process(s);
+	CU_ASSERT( result_called == 1 );
 
 	ms_destroy(s);
 
 	// Clean up the test
+	strcpy(dest, test_path);
+	strcat(dest, "\\");
+	strcat(dest, data_file1);
+	CU_ASSERT( DeleteFile(dest) == TRUE);
+
+	strcpy(dest, test_path);
+	strcat(dest, "\\");
+	strcat(dest, data_file2);
 	CU_ASSERT( DeleteFile(dest) == TRUE);
 	CU_ASSERT( _rmdir(test_path) != -1 );
 
@@ -279,7 +307,7 @@ void test_async_api(void)	{
 	CU_ASSERT( result_called == 5 );
 
 	ms_destroy(s);
-}
+} /* test_async_api() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  Setup background tests.
