@@ -158,9 +158,21 @@ static void my_error_callback(MediaScan *s, MediaScanError *error, void *userdat
 /// @author Henry Bennett
 /// @date 03/18/2011
 ///-------------------------------------------------------------------------------------------------
+#define MAKE_PATH(str, path, file)  	{ strcpy((str), (path)); strcat((str), "\\"); strcat((str), (file)); }
+
+static void PathCopyFile(const char *file, const char *src_path, const char *dest_path) 
+{
+	char src[MAX_PATH];
+	char dest[MAX_PATH];
+
+	MAKE_PATH(src, src_path, file);
+	MAKE_PATH(dest, dest_path, file);
+
+	CopyFile(src, dest, FALSE);
+}
 
 void test_background_api(void)	{
-	const char *test_path = "D:\\Siojej3";
+	const char *test_path = "C:\\Siojej3";
 	const char *data_path = "data\\video";
 	const char *data_file1 = "bars-mpeg1video-mp2.mpg";
 	const char *data_file2 = "bars-msmpeg4-mp2.asf";
@@ -192,50 +204,61 @@ void test_background_api(void)	{
 	CU_ASSERT( result_called == 0 );
 	
 	// Now copy a small video file to the test directory
-	strcpy(src, data_path);
-	strcat(src, "\\");
-	strcat(src, data_file1);
+	PathCopyFile(data_file1, data_path, test_path );
 
-	strcpy(dest, test_path);
-	strcat(dest, "\\");
-	strcat(dest, data_file1);
-
-	CU_ASSERT( CopyFile(src, dest, FALSE) == TRUE );
 	CU_ASSERT( result_called == 0 );
 	Sleep(1000); // Sleep 1 second
 
 	// Now process the callbacks
 	ms_async_process(s);
 	CU_ASSERT( result_called == 1 );
-
+	
 	result_called = 0;
-	strcpy(src, data_path);
-	strcat(src, "\\");
-	strcat(src, data_file2);
 
-	strcpy(dest, test_path);
-	strcat(dest, "\\");
-	strcat(dest, data_file2);
-	CU_ASSERT( CopyFile(src, dest, FALSE) == TRUE );
-
+	PathCopyFile(data_file2, data_path, test_path );
 	Sleep(1000); // Sleep 1 second
 
 	// Now process the callbacks
 	ms_async_process(s);
 	CU_ASSERT( result_called == 1 );
+	
+	reset_bdb(s);
+	result_called = 0;
+
+	MAKE_PATH(dest, test_path, data_file1);
+	CU_ASSERT( DeleteFile(dest) == TRUE);
+	MAKE_PATH(dest, test_path, data_file2);
+	CU_ASSERT( DeleteFile(dest) == TRUE);
+
+	PathCopyFile(data_file1, data_path, test_path );
+	Sleep(500); // Sleep 500 milliseconds
+	PathCopyFile(data_file2, data_path, test_path );
+	Sleep(500); // Sleep 500 milliseconds
+	PathCopyFile(data_file3, data_path, test_path );
+	Sleep(500); // Sleep 500 milliseconds
+	PathCopyFile(data_file4, data_path, test_path );
+	Sleep(500); // Sleep 500 milliseconds
+	PathCopyFile(data_file5, data_path, test_path );
+	Sleep(500); // Sleep 500 milliseconds
+
+	// Now process the callbacks
+	ms_async_process(s);
+	CU_ASSERT( result_called == 5 );
 
 	ms_destroy(s);
 
 	// Clean up the test
-	strcpy(dest, test_path);
-	strcat(dest, "\\");
-	strcat(dest, data_file1);
+	MAKE_PATH(dest, test_path, data_file1);
+	CU_ASSERT( DeleteFile(dest) == TRUE);
+	MAKE_PATH(dest, test_path, data_file2);
+	CU_ASSERT( DeleteFile(dest) == TRUE);
+	MAKE_PATH(dest, test_path, data_file3);
+	CU_ASSERT( DeleteFile(dest) == TRUE);
+	MAKE_PATH(dest, test_path, data_file4);
+	CU_ASSERT( DeleteFile(dest) == TRUE);
+	MAKE_PATH(dest, test_path, data_file5);
 	CU_ASSERT( DeleteFile(dest) == TRUE);
 
-	strcpy(dest, test_path);
-	strcat(dest, "\\");
-	strcat(dest, data_file2);
-	CU_ASSERT( DeleteFile(dest) == TRUE);
 	CU_ASSERT( _rmdir(test_path) != -1 );
 
 } /* test_background_api() */

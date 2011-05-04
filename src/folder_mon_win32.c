@@ -24,7 +24,7 @@
 
 #define DATA_BUFSIZE 9
 #define FILE_BUFFER_SZ 1024
-#define DETECTION_FILTER (FILE_NOTIFY_CHANGE_LAST_WRITE|FILE_NOTIFY_CHANGE_CREATION|FILE_NOTIFY_CHANGE_FILE_NAME)
+#define DETECTION_FILTER (FILE_NOTIFY_CHANGE_LAST_WRITE/*|FILE_NOTIFY_CHANGE_CREATION|FILE_NOTIFY_CHANGE_FILE_NAME*/)
 
 ///-------------------------------------------------------------------------------------------------
 ///  Watch directory.
@@ -53,21 +53,27 @@ void WatchDirectory(void *thread_data) {
   DWORD dwWaitStatus;
   DWORD dwBytesRead;
   BOOL bResult;
-	WSABUF DataBuf;
+  WSABUF DataBuf;
   DWORD RecvBytes, Flags;
-	char buffer[DATA_BUFSIZE];
-	int rc = 0;
-	int err = 0;
-	char* pBase = 0;
+  char buffer[DATA_BUFSIZE];
+  int rc = 0;
+  int err = 0;
+  char* pBase = 0;
 
   // Thread state variables
   int ThreadRunning = TRUE;
+
+    // Initialize the cache database
+  if (!init_bdb(s)) {
+    MediaScanError *e = error_create("", MS_ERROR_CACHE, "Unable to initialize libmediascan cache");
+    send_error(s, e);
+  }
 
 	// Make sure the RecvOverlapped struct is zeroed out
   SecureZeroMemory((PVOID) &oOverlap, sizeof(OVERLAPPED ) );
 
   // Create the event that will get fired when a directory changes
-	oOverlap.hEvent = CreateEvent(NULL, // default security attributes
+  oOverlap.hEvent = CreateEvent(NULL, // default security attributes
                                 TRUE, // manual-reset event
                                 FALSE,  // initial state is nonsignaled
                                 TEXT("MyFileChangeEvent")); // "FileChangeEvent" name
@@ -77,36 +83,32 @@ void WatchDirectory(void *thread_data) {
 
   // Create an event handle and setup an overlapped structure.
   RecvOverlapped.hEvent = WSACreateEvent();
-	if (RecvOverlapped.hEvent  == NULL) {
+  if (RecvOverlapped.hEvent  == NULL) {
       printf("WSACreateEvent failed: %d\n", WSAGetLastError());
       return;
   }
 
-
-
-	DataBuf.len = DATA_BUFSIZE;
+  DataBuf.len = DATA_BUFSIZE;
   DataBuf.buf = buffer;
 
-
   // Open the directory that we are going to have windows monitor, note the share modes
-  hDir = CreateFile(lpDir,      // pointer to the file name
-                    FILE_LIST_DIRECTORY,  // access (read/write) mode
+  hDir = CreateFile(lpDir,					// pointer to the file name
+                    FILE_LIST_DIRECTORY,	// access (read/write) mode
                     FILE_SHARE_READ | FILE_SHARE_DELETE | FILE_SHARE_WRITE, // share mode
-                    NULL,       // security descriptor
-                    OPEN_EXISTING,  // how to create
+                    NULL,					// security descriptor
+                    OPEN_EXISTING,			// how to create
                     FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED, // file attributes
-                    NULL);      // file with attributes to copy
+                    NULL);					// file with attributes to copy
 
-  // Tell windows to monitor the folder asyncroniously 
-	
-  ReadDirectoryChangesW(hDir,							// handle to directory
-                        &Buffer,					// read results buffer
+  // Tell windows to monitor the folder asyncroniously using overlapped I/O
+  ReadDirectoryChangesW(hDir,					// handle to directory
+                        &Buffer,				// read results buffer
                         FILE_BUFFER_SZ * sizeof(FILE_NOTIFY_INFORMATION),		// length of buffer
-                        TRUE,							// Monitor sub-directories = TRUE
-                        DETECTION_FILTER,  // filter conditions
-                        &BytesReturned,		// bytes returned
-												&oOverlap,				// We are using overlapped I/O
-                        NULL);						// Not using completion routine
+                        TRUE,					// Monitor sub-directories = TRUE
+                        DETECTION_FILTER,		// filter conditions
+                        &BytesReturned,			// bytes returned
+						&oOverlap,				// We are using overlapped I/O
+                        NULL);					// Not using completion routine
 		
 	Flags = 0;
 	rc = WSARecv(s->thread->reqpipe[0], &DataBuf, 1, &RecvBytes, &Flags, &RecvOverlapped, NULL);
@@ -120,9 +122,9 @@ void WatchDirectory(void *thread_data) {
   while (ThreadRunning) {
 
     // Set up the events are going to wait for
-		HANDLE event_list[2] = { oOverlap.hEvent, RecvOverlapped.hEvent };
-		FILE_NOTIFY_INFORMATION *fni;
-		LOG_LEVEL(1, "\nWaiting for notification...\n");
+	HANDLE event_list[2] = { oOverlap.hEvent, RecvOverlapped.hEvent };
+	FILE_NOTIFY_INFORMATION *fni;
+	LOG_LEVEL(1, "\nWaiting for notification...\n");
 
     // Wait forever for notification.
     dwWaitStatus = WaitForMultipleObjects(2,  // number of objects in array
@@ -152,42 +154,41 @@ void WatchDirectory(void *thread_data) {
           strcpy(full_path, lpDir);
           strcat(full_path, "\\");
           strcat(full_path, buf);
-          printf("Found File Changed: %s", full_path);
+          LOG_INFO("Found File Changed: %s", full_path);
           switch (fni->Action) {
             case FILE_ACTION_ADDED:  
-								printf("  file was added\n");
+				LOG_INFO("  file was added\n");
+				ms_scan_file(s, full_path, TYPE_UNKNOWN);
               break;
             case FILE_ACTION_REMOVED:
-								printf("  file was removed\n");
+				LOG_INFO("  file was removed\n");
               break;
             case FILE_ACTION_MODIFIED: 
-								printf("	file was modified\n"); // This can be a change in the time stamp or attributes."; 
+				LOG_INFO("	file was modified\n"); // This can be a change in the time stamp or attributes."; 
+				ms_scan_file(s, full_path, TYPE_UNKNOWN);
               break;
-            case FILE_ACTION_RENAMED_OLD_NAME: 
-								printf("	file was renamed and this is the old name\n"); 
+/*            case FILE_ACTION_RENAMED_OLD_NAME: 
+								LOG_INFO("	file was renamed and this is the old name\n"); 
               break;
             case FILE_ACTION_RENAMED_NEW_NAME: 
-								printf("	file was renamed and this is the new name\n"); 
+								LOG_INFO("	file was renamed and this is the new name\n"); 
               break;
-          }
-					ms_scan_file(s, full_path, TYPE_UNKNOWN);
+*/          }
 
-
-					if (!fni->NextEntryOffset)
-						break;
-					pBase += fni->NextEntryOffset;
+			if (!fni->NextEntryOffset)
+				break;
+			pBase += fni->NextEntryOffset;
         } while (TRUE);
 
-				ResetEvent(oOverlap.hEvent);
-				SecureZeroMemory((PVOID) Buffer, sizeof(Buffer ) );
-				ReadDirectoryChangesW(hDir,							// handle to directory
-                      &Buffer,					// read results buffer
-                      sizeof(Buffer),		// length of buffer
-                      TRUE,							// Monitor sub-directories = TRUE
-                      DETECTION_FILTER,  // filter conditions
-                      &BytesReturned,		// bytes returned
-											&oOverlap,				// We are using overlapped I/O
-                      NULL);						// Not using completion routine
+		SecureZeroMemory((PVOID) Buffer, sizeof(Buffer ) );
+		ReadDirectoryChangesW(hDir,	// handle to directory
+                &Buffer,				// read results buffer
+                sizeof(Buffer),		// length of buffer
+                TRUE,					// Monitor sub-directories = TRUE
+                DETECTION_FILTER,		// filter conditions
+                &BytesReturned,		// bytes returned
+				&oOverlap,			// We are using overlapped I/O
+                NULL);				// Not using completion routine
 
         break;                  /* WAIT_OBJECT_0: */
 
