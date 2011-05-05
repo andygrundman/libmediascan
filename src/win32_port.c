@@ -109,10 +109,6 @@ int TouchFile(const char *fileName) {
                   (LPFILETIME) NULL,  // to the converted current system time 
                   (LPFILETIME) NULL, &ft);
 
-  if (!f) {
-    int err = GetLastError();
-  }
-
   CloseHandle(hFile);
 
   return f;

@@ -171,7 +171,7 @@ static void PathCopyFile(const char *file, const char *src_path, const char *des
 	CopyFile(src, dest, FALSE);
 }
 
-void test_background_api(void)	{
+static void test_background_api(void)	{
 	const char *test_path = "C:\\Siojej3";
 	const char *data_path = "data\\video";
 	const char *data_file1 = "bars-mpeg1video-mp2.mpg";
@@ -198,7 +198,7 @@ void test_background_api(void)	{
 	ms_set_error_callback(s, my_error_callback); 
 	CU_ASSERT(s->on_error == my_error_callback);
 
-	ms_watch_directory(s, test_path, my_result_callback);
+	ms_watch_directory(s, test_path);
 	CU_ASSERT( result_called == 0 );
 	Sleep(1000); // Sleep 1 second
 	CU_ASSERT( result_called == 0 );
@@ -263,7 +263,58 @@ void test_background_api(void)	{
 
 } /* test_background_api() */
 
-void test_async_api(void)	{
+static void test_background_api2(void)	{
+	const char *test_path = "C:\\4oij3";
+	const char *data_path = "data\\video";
+	const char *data_file1 = "bars-mpeg1video-mp2.mpg";
+	const char *data_file2 = "bars-msmpeg4-mp2.asf";
+	const char *data_file3 = "bars-msmpeg4v2-mp2.avi";
+	const char *data_file4 = "bars-vp8-vorbis.webm";
+	const char *data_file5 = "wmv92-with-audio.wmv";
+	char src[MAX_PATH];
+	char dest[MAX_PATH];
+
+	MediaScan *s = ms_create();
+
+	CU_ASSERT_FATAL(s != NULL);
+
+	// Do some setup for the test
+	CU_ASSERT( _mkdir(test_path) != -1 );
+	result_called = 0;
+	
+	CU_ASSERT(s->on_result == NULL);
+	ms_set_result_callback(s, my_result_callback);
+	CU_ASSERT(s->on_result == my_result_callback);
+
+	CU_ASSERT(s->on_error == NULL);
+	ms_set_error_callback(s, my_error_callback); 
+	CU_ASSERT(s->on_error == my_error_callback);
+
+	ms_watch_directory(s, test_path);
+	Sleep(1000); // Sleep 1 second
+
+	// Now copy a small video file to the test directory
+	PathCopyFile(data_file1, data_path, test_path );
+	CU_ASSERT( result_called == 0 );
+
+
+	// Now process the callbacks
+	ms_async_process(s);
+	CU_ASSERT( result_called == 1 );
+
+	MAKE_PATH(dest, test_path, data_file1);
+	CU_ASSERT( DeleteFile(dest) == TRUE);
+
+
+	ms_destroy(s);
+
+	// Clean up the test
+	CU_ASSERT( _rmdir(test_path) != -1 );
+
+} /* test_background_api2() */
+
+
+static void test_async_api(void)	{
 
   long time1, time2;
 
@@ -352,7 +403,8 @@ int setupbackground_tests() {
 
    /* add the tests to the background scanning suite */
    if (
-   NULL == CU_add_test(pSuite, "Test background scanning API", test_background_api) //||
+   NULL == CU_add_test(pSuite, "Test background scanning API", test_background_api) ||
+   NULL == CU_add_test(pSuite, "Test background scanning Deletion", test_background_api2) //||
 //	   NULL == CU_add_test(pSuite, "Test Async scanning API", test_async_api)
 	   )
    {

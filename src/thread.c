@@ -14,6 +14,10 @@
 #include "thread.h"
 #include "queue.h"
 
+#ifdef _MSC_VER
+#pragma warning( disable: 4127 )
+#endif
+
 struct equeue_entry {
   enum event_type type;
   void *data;
@@ -214,7 +218,6 @@ void thread_queue_event(MediaScanThread *t, enum event_type type, void *data) {
 
 // Return the next queued event
 enum event_type thread_get_next_event(MediaScanThread *t, void **data_out) {
-  char buf[4];
   struct equeue *eq = (struct equeue *)t->event_queue;
   struct equeue_entry *entry = NULL;
   enum event_type type = 0;

@@ -48,6 +48,7 @@
 // If we are on MSVC, disable some stupid MSVC warnings
 #ifdef _MSC_VER
 #pragma warning( disable: 4996 )
+#pragma warning( disable: 4127 )
 #endif
 
 // DLNA support
@@ -217,7 +218,7 @@ static void _init(void) {
 	// Initialize Winsock
 	iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
 	if (iResult != 0) {
-		  printf("WSAStartup failed: %d\n", iResult);
+		  LOG_ERROR("WSAStartup failed: %d\n", iResult);
 	}
 
 #endif
@@ -675,14 +676,12 @@ void ms_async_process(MediaScan *s) {
 /// @param path Path name of the folder to watch
 /// @param callback Callback with the changes
 ///-------------------------------------------------------------------------------------------------
-void ms_watch_directory(MediaScan *s, const char *path, FolderChangeCallback callback) {
+void ms_watch_directory(MediaScan *s, const char *path) {
   thread_data_type *thread_data;
 
-  s->on_result = callback;
   thread_data = (thread_data_type *)calloc(sizeof(thread_data_type), 1);
   thread_data->s = s;
   thread_data->lpDir = path;
-
 
   s->thread = thread_create(WatchDirectory, thread_data);
   if (!s->thread) {
@@ -994,7 +993,7 @@ void ms_scan_file(MediaScan *s, const char *tmp_full_path, enum media_type type)
   uint32_t hash;
   int mtime;
   size_t size;
-  DBT key;
+  DBT key, data;
 
   if (s == NULL) {
     ms_errno = MSENO_NULLSCANOBJ;
@@ -1015,12 +1014,17 @@ void ms_scan_file(MediaScan *s, const char *tmp_full_path, enum media_type type)
 
   // Zero out the DBTs before using them.
   memset(&key, 0, sizeof(DBT));
-  key.data = &hash;
-  key.size = sizeof(uint32_t);
+  key.data = (char *)tmp_full_path;
+  key.size = strlen(tmp_full_path) + 1;
+
+  memset(&data, 0, sizeof(DBT));
+  data.data = &hash;
+  data.size = sizeof(uint32_t);
+
 
   // s->dbp will be null if this function is called directly, if not check if this file is
   // already scanned.
-  if (s->dbp != NULL && s->dbp->exists(s->dbp, NULL, &key, 0) != DB_NOTFOUND) {
+  if (s->dbp != NULL && s->dbp->get(s->dbp, NULL, &key, &data, 0) != DB_NOTFOUND) {
     LOG_INFO("File hash %X already scanned\n", hash);
     return;
   }
@@ -1057,11 +1061,11 @@ void ms_scan_file(MediaScan *s, const char *tmp_full_path, enum media_type type)
     memset(&key, 0, sizeof(DBT));
     memset(&data, 0, sizeof(DBT));
 
-    key.data = &r->hash;
-    key.size = sizeof(uint32_t);
+    key.data = (char *)tmp_full_path;
+    key.size = strlen(tmp_full_path) + 1;
 
-    data.data = (char *)tmp_full_path;
-    data.size = strlen(tmp_full_path) + 1;
+    data.data = &r->hash; 
+    data.size = sizeof(uint32_t);
 
     if (s->dbp != NULL) {
       ret = s->dbp->put(s->dbp, NULL, &key, &data, DB_NOOVERWRITE);

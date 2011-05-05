@@ -16,6 +16,8 @@
 #include "common.h"
 #include "util.h"
 #include "thread.h"
+#include "error.h"
+#include "database.h"
 
 #pragma comment(lib, "ws2_32.lib")
 
@@ -24,7 +26,71 @@
 
 #define DATA_BUFSIZE 9
 #define FILE_BUFFER_SZ 1024
-#define DETECTION_FILTER (FILE_NOTIFY_CHANGE_LAST_WRITE/*|FILE_NOTIFY_CHANGE_CREATION|FILE_NOTIFY_CHANGE_FILE_NAME*/)
+#define DETECTION_FILTER (FILE_NOTIFY_CHANGE_LAST_WRITE|FILE_NOTIFY_CHANGE_CREATION|FILE_NOTIFY_CHANGE_FILE_NAME)
+
+
+static void HandleRemovedFile(MediaScan *s, const char *filename) {
+
+	  DBT data, key;
+		int ret;
+
+    // Zero out the DBTs before using them.
+		memset(&key, 0, sizeof(key));
+    memset(&data, 0, sizeof(DBT));
+
+    key.data = (char *)filename;
+    key.size = strlen(filename) + 1;
+
+    if (s->dbp != NULL) {
+
+			if ((ret = s->dbp->get(s->dbp, NULL, &key, &data, 0)) == 0) {
+				LOG_INFO("db: %s: key retrieved: data was %s.\n",	(char *)key.data, (char *)data.data);
+			}
+			else {
+				s->dbp->err(s->dbp, ret, "DB->get");
+			}
+
+			if ((ret = s->dbp->del(s->dbp, NULL, &key, 0)) == 0) {
+				LOG_INFO("db: %s: key was deleted.\n", (char *)key.data);
+			}
+			else {
+				s->dbp->err(s->dbp, ret, "DB->del");
+			}
+		}
+} /* HandleRemovedFile() */
+
+static BOOL WaitForFile(const char *sz, const DWORD dwWaitSecs)
+{
+	DWORD dwEnd = GetTickCount() + dwWaitSecs*1000;
+	DWORD err;
+	while (1) 
+	{
+		HANDLE h = CreateFile(sz,GENERIC_READ|GENERIC_WRITE,
+													0, // exclusive mode
+													NULL,
+													OPEN_EXISTING,0,0);
+
+		if (h != INVALID_HANDLE_VALUE) 
+		{
+			CloseHandle(h);
+			return TRUE;
+		}
+
+		err = GetLastError();
+		if (err != ERROR_SHARING_VIOLATION) 
+		{
+		LOG_ERROR("WaitForFile errno:%d on file: %s", err, sz);
+		break;
+		}
+
+		if (GetTickCount() > dwEnd) 
+		{
+			break;
+		}
+		Sleep(500);
+	}
+	return FALSE;
+} /* WaitForFile() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  Watch directory.
@@ -84,7 +150,7 @@ void WatchDirectory(void *thread_data) {
   // Create an event handle and setup an overlapped structure.
   RecvOverlapped.hEvent = WSACreateEvent();
   if (RecvOverlapped.hEvent  == NULL) {
-      printf("WSACreateEvent failed: %d\n", WSAGetLastError());
+      LOG_ERROR("WSACreateEvent failed: %d\n", WSAGetLastError());
       return;
   }
 
@@ -113,7 +179,7 @@ void WatchDirectory(void *thread_data) {
 	Flags = 0;
 	rc = WSARecv(s->thread->reqpipe[0], &DataBuf, 1, &RecvBytes, &Flags, &RecvOverlapped, NULL);
 	if ( (rc == SOCKET_ERROR) && (WSA_IO_PENDING != (err = WSAGetLastError()))) {
-    printf("WSARecv failed with error: %d\n", err);
+    LOG_ERROR("WSARecv failed with error: %d\n", err);
     return;
 	}
 
@@ -136,6 +202,7 @@ void WatchDirectory(void *thread_data) {
         // This is for the event oOverlap.hEvent
       case WAIT_OBJECT_0:
         bResult = GetOverlappedResult(hDir, &oOverlap, &dwBytesRead, TRUE);
+
 				pBase = (char*)Buffer;
         do {
 
@@ -155,17 +222,35 @@ void WatchDirectory(void *thread_data) {
           strcat(full_path, "\\");
           strcat(full_path, buf);
           LOG_INFO("Found File Changed: %s", full_path);
+
           switch (fni->Action) {
             case FILE_ACTION_ADDED:  
-				LOG_INFO("  file was added\n");
-				ms_scan_file(s, full_path, TYPE_UNKNOWN);
+								LOG_INFO("  file was added\n");
+
+								// We get notifications even while a file is being copied. This will wait 60 seconds for the file to finish.
+								if(WaitForFile(full_path, 10)) {
+									ms_scan_file(s, full_path, TYPE_UNKNOWN);
+								}
+								else
+								{
+									LOG_ERROR("A file found by the background scanner never finished copying");
+								}
+
               break;
             case FILE_ACTION_REMOVED:
-				LOG_INFO("  file was removed\n");
+								LOG_INFO("  file was removed\n");
+								HandleRemovedFile(s, full_path);
               break;
             case FILE_ACTION_MODIFIED: 
-				LOG_INFO("	file was modified\n"); // This can be a change in the time stamp or attributes."; 
-				ms_scan_file(s, full_path, TYPE_UNKNOWN);
+								LOG_INFO("	file was modified\n"); // This can be a change in the time stamp or attributes."; 
+								// We get notifications even while a file is being copied. This will wait 60 seconds for the file to finish.
+								if(WaitForFile(full_path, 10)) {
+									ms_scan_file(s, full_path, TYPE_UNKNOWN);
+								}
+								else
+								{
+									LOG_ERROR("A file found by the background scanner never finished copying");
+								}
               break;
 /*            case FILE_ACTION_RENAMED_OLD_NAME: 
 								LOG_INFO("	file was renamed and this is the old name\n"); 

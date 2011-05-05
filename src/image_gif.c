@@ -41,7 +41,6 @@ ok:
 }
 
 int image_gif_read_header(MediaScanImage *i, MediaScanResult *r, int is_gif89) {
-  int x;
   GIFData *g = malloc(sizeof(GIFData));
   i->_gif = (void *)g;
   LOG_MEM("new GIFData @ %p\n", i->_gif);

@@ -12,6 +12,7 @@
 #include "error.h"
 #include "thumb.h"
 #include "image_jpeg.h"
+#include "image_png.h"
 #include "fixed.h"
 
 MediaScanImage *thumb_create_from_image(MediaScanImage *i, MediaScanThumbSpec *spec_orig) {

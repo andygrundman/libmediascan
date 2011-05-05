@@ -258,7 +258,6 @@ typedef void (*ResultCallback) (MediaScan *, MediaScanResult *, void *);
 typedef void (*ErrorCallback) (MediaScan *, MediaScanError *, void *);
 typedef void (*ProgressCallback) (MediaScan *, MediaScanProgress *, void *);
 typedef void (*FinishCallback) (MediaScan *, void *);
-typedef void (*FolderChangeCallback) (MediaScan *, MediaScanResult *, void *);
 
 ///< libmediascan's errno
 extern int ms_errno;
@@ -461,7 +460,7 @@ const uint8_t *ms_result_get_thumbnail_data(MediaScanResult *r, int index, uint3
 /// @param callback Callback with the changes
 ///-------------------------------------------------------------------------------------------------
 
-void ms_watch_directory(MediaScan *s, const char *path, FolderChangeCallback callback);
+void ms_watch_directory(MediaScan *s, const char *path);
 
 ///-------------------------------------------------------------------------------------------------
 ///  Clear watch list
