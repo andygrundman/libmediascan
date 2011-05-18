@@ -33,6 +33,7 @@
 #include "image.h"
 #include "thumb.h"
 #include "util.h"
+#include "mediascan.h"
 
 // DLNA support
 #include "libdlna/dlna.h"

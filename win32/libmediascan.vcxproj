@@ -52,6 +52,9 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <TreatWarningAsError>false</TreatWarningAsError>
       <StructMemberAlignment>8Bytes</StructMemberAlignment>
+      <AdditionalOptions>
+ %(AdditionalOptions)</AdditionalOptions>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -60,6 +63,7 @@
     <Lib>
       <AdditionalLibraryDirectories>$(ProjectDir)\..\lib;C:\mingw\msys\1.0\local\lib;C:\mingw\lib\gcc\mingw32\4.5.2;C:\mingw\lib;D:\workspace\scan\test</AdditionalLibraryDirectories>
       <AdditionalDependencies>libgcc.a;libmingwex.lib;$(ProjectDir)Debug\libpng15.lib;$(ProjectDir)Debug\zlib.lib;$(ProjectDir)Debug\jpeg.lib;$(ProjectDir)Debug\pthread.lib;$(ProjectDir)giflib-4.1.6\windows\.\Debug\libungif.lib;libavcodec.a;libavformat.a;libavutil.a;libswscale.a;libexif.a;libintl.lib;$(ProjectDir)..\lib\libdb_small51s.lib;libbz2.a;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/ignore:4006 /ignore:4221 %(AdditionalOptions)</AdditionalOptions>
     </Lib>
     <PreBuildEvent>
       <Command>
@@ -73,17 +77,20 @@
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <Optimization>Full</Optimization>
-      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <Optimization>Disabled</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;PTW32_STATIC_LIB;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_DEBUG;_LIB;PTW32_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)..;$(SolutionDir)..\include;$(SolutionDir)include;$(ProjectDir)pthreads.2;$(ProjectDir)zlib-1.2.5;$(ProjectDir)libpng-1.5.2;$(ProjectDir)jpeg-8a;C:\mingw\msys\1.0\local\include;$(SolutionDir)..\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <StringPooling>true</StringPooling>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
       <DebugInformationFormat>
       </DebugInformationFormat>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <CompileAs>CompileAsC</CompileAs>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <StructMemberAlignment>8Bytes</StructMemberAlignment>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -144,6 +151,7 @@
     <ClInclude Include="..\include\libmediascan.h" />
     <ClInclude Include="..\src\audio.h" />
     <ClInclude Include="..\src\common.h" />
+    <ClInclude Include="..\src\database.h" />
     <ClInclude Include="..\src\mediascan.h" />
     <ClInclude Include="..\src\progress.h" />
     <ClInclude Include="..\src\queue.h" />

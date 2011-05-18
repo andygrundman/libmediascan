@@ -21,7 +21,7 @@
 #include <pthread.h>
 
 
-#define MAX_PATHS 128
+#define MAX_PATHS 64
 #define MAX_IGNORE_EXTS 128
 #define MAX_THUMBS      8
 
@@ -258,7 +258,6 @@ typedef void (*ResultCallback) (MediaScan *, MediaScanResult *, void *);
 typedef void (*ErrorCallback) (MediaScan *, MediaScanError *, void *);
 typedef void (*ProgressCallback) (MediaScan *, MediaScanProgress *, void *);
 typedef void (*FinishCallback) (MediaScan *, void *);
-typedef void (*FolderChangeCallback) (MediaScan *, MediaScanResult *, void *);
 
 ///< libmediascan's errno
 extern int ms_errno;
@@ -298,7 +297,7 @@ MediaScan *ms_create(void);
 void ms_destroy(MediaScan *s);
 
 /**
- * Add a path to be scanned. Up to 128 paths may be added before
+ * Add a path to be scanned. Up to 64 paths may be added before
  * beginning the scan.
  */
 void ms_add_path(MediaScan *s, const char *path);
@@ -461,7 +460,7 @@ const uint8_t *ms_result_get_thumbnail_data(MediaScanResult *r, int index, uint3
 /// @param callback Callback with the changes
 ///-------------------------------------------------------------------------------------------------
 
-void ms_watch_directory(MediaScan *s, const char *path, FolderChangeCallback callback);
+void ms_watch_directory(MediaScan *s, const char *path);
 
 ///-------------------------------------------------------------------------------------------------
 ///  Clear watch list

@@ -17,6 +17,10 @@
 #include "mediascan.h"
 #include "progress.h"
 
+#ifdef _MSC_VER
+#pragma warning( disable: 4127 )
+#endif
+
 ///-------------------------------------------------------------------------------------------------
 ///  Recursively walk a directory struction using Win32 style directory commands
 ///

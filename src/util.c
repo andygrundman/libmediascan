@@ -45,7 +45,6 @@ uint32_t HashFile(const char *file, int *mtime, size_t *size) {
 #else
   BOOL fOk;
   WIN32_FILE_ATTRIBUTE_DATA fileInfo;
-  DWORD dwRet;
 #endif
 
   *mtime = 0;

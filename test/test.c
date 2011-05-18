@@ -155,7 +155,7 @@ void test_ms_scan_2(void)
 }
 
 ///-------------------------------------------------------------------------------------------------
-///  Robustness test for ms_scan. Try to add more than 128 directories to scan.
+///  Robustness test for ms_scan. Try to add more than 64 directories to scan.
 ///
 /// @author Henry Bennett
 /// @date 03/16/2011
@@ -176,7 +176,7 @@ void test_ms_scan_3(void)	{
 	CU_ASSERT(s->npaths == 0);
 
 	// Add 128 Paths to the list, which should work fine
-	for(i = 0; i < 128; i++)
+	for(i = 0; i < MAX_PATHS; i++)
 	{
 		sprintf(dir, "testdir%04d", i);
 		CU_ASSERT(s->npaths == (i) );
@@ -185,16 +185,16 @@ void test_ms_scan_3(void)	{
 		CU_ASSERT_STRING_EQUAL(s->paths[i], dir);
 	}
 
-	CU_ASSERT(s->npaths == 128 );
-	CU_ASSERT_STRING_EQUAL(s->paths[127], dir);
+	CU_ASSERT(s->npaths == MAX_PATHS );
+	CU_ASSERT_STRING_EQUAL(s->paths[MAX_PATHS - 1], dir);
 
 	strcpy(dir2, dir);
 	sprintf(dir, "toomany");
 	ms_add_path(s, dir); // This will fail
 
 	// Make sure number of paths hasn't gone up and the last entry is the same
-	CU_ASSERT(s->npaths == 128 );
-	CU_ASSERT_STRING_EQUAL(s->paths[127], dir2);
+	CU_ASSERT(s->npaths == MAX_PATHS );
+	CU_ASSERT_STRING_EQUAL(s->paths[MAX_PATHS - 1], dir2);
 
 	ms_destroy(s);
 }

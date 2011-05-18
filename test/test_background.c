@@ -26,11 +26,11 @@
 #endif
 
 #ifndef WIN32
+
 void Sleep(int ms)
 {
 	usleep(ms * 1000); // Convert to usec
-}
-
+} /* Sleep() */
 
 int copyfile(char *source, char *dest, int not_used)
 {
@@ -67,7 +67,7 @@ int copyfile(char *source, char *dest, int not_used)
         }
     }
     return TRUE;
-}
+} /* copyfile() */
 
 int deletefile(char *source)
 {
@@ -104,7 +104,8 @@ int deletefile(char *source)
         }
     }
     return TRUE;
-}
+} /* deletefile() */
+
 #endif
 
 static int result_called = 0;
@@ -145,7 +146,7 @@ static void my_result_callback(MediaScan *s, MediaScanResult *r, void *userdata)
 	}
 
 	result_called++;
-}
+} /* my_result_callback() */
 
 static void my_error_callback(MediaScan *s, MediaScanError *error, void *userdata) { 
 
@@ -157,11 +158,27 @@ static void my_error_callback(MediaScan *s, MediaScanError *error, void *userdat
 /// @author Henry Bennett
 /// @date 03/18/2011
 ///-------------------------------------------------------------------------------------------------
+#define MAKE_PATH(str, path, file)  	{ strcpy((str), (path)); strcat((str), "\\"); strcat((str), (file)); }
 
-void test_background_api(void)	{
-	const char *test_path = "D:\\Siojej3";
+static void PathCopyFile(const char *file, const char *src_path, const char *dest_path) 
+{
+	char src[MAX_PATH];
+	char dest[MAX_PATH];
+
+	MAKE_PATH(src, src_path, file);
+	MAKE_PATH(dest, dest_path, file);
+
+	CopyFile(src, dest, FALSE);
+}
+
+static void test_background_api(void)	{
+	const char *test_path = "C:\\Siojej3";
 	const char *data_path = "data\\video";
 	const char *data_file1 = "bars-mpeg1video-mp2.mpg";
+	const char *data_file2 = "bars-msmpeg4-mp2.asf";
+	const char *data_file3 = "bars-msmpeg4v2-mp2.avi";
+	const char *data_file4 = "bars-vp8-vorbis.webm";
+	const char *data_file5 = "wmv92-with-audio.wmv";
 	char src[MAX_PATH];
 	char dest[MAX_PATH];
 
@@ -181,38 +198,123 @@ void test_background_api(void)	{
 	ms_set_error_callback(s, my_error_callback); 
 	CU_ASSERT(s->on_error == my_error_callback);
 
-	ms_watch_directory(s, test_path, my_result_callback);
+	ms_watch_directory(s, test_path);
 	CU_ASSERT( result_called == 0 );
 	Sleep(1000); // Sleep 1 second
 	CU_ASSERT( result_called == 0 );
 	
 	// Now copy a small video file to the test directory
-	strcpy(src, data_path);
-	strcat(src, "\\");
-	strcat(src, data_file1);
+	PathCopyFile(data_file1, data_path, test_path );
 
-	strcpy(dest, test_path);
-	strcat(dest, "\\");
-	strcat(dest, data_file1);
-
-	CU_ASSERT( CopyFile(src, dest, FALSE) == TRUE );
-	Sleep(1000); // Sleep 1 second
 	CU_ASSERT( result_called == 0 );
+	Sleep(1000); // Sleep 1 second
+
+	// Now process the callbacks
+	ms_async_process(s);
+	CU_ASSERT( result_called == 1 );
+	
+	result_called = 0;
+
+	PathCopyFile(data_file2, data_path, test_path );
+	Sleep(1000); // Sleep 1 second
+
+	// Now process the callbacks
+	ms_async_process(s);
+	CU_ASSERT( result_called == 1 );
+	
+	reset_bdb(s);
+	result_called = 0;
+
+	MAKE_PATH(dest, test_path, data_file1);
+	CU_ASSERT( DeleteFile(dest) == TRUE);
+	MAKE_PATH(dest, test_path, data_file2);
+	CU_ASSERT( DeleteFile(dest) == TRUE);
+
+	PathCopyFile(data_file1, data_path, test_path );
+	Sleep(500); // Sleep 500 milliseconds
+	PathCopyFile(data_file2, data_path, test_path );
+	Sleep(500); // Sleep 500 milliseconds
+	PathCopyFile(data_file3, data_path, test_path );
+	Sleep(500); // Sleep 500 milliseconds
+	PathCopyFile(data_file4, data_path, test_path );
+	Sleep(500); // Sleep 500 milliseconds
+	PathCopyFile(data_file5, data_path, test_path );
+	Sleep(500); // Sleep 500 milliseconds
+
+	// Now process the callbacks
+	ms_async_process(s);
+	CU_ASSERT( result_called == 5 );
+
+	ms_destroy(s);
+
+	// Clean up the test
+	MAKE_PATH(dest, test_path, data_file1);
+	CU_ASSERT( DeleteFile(dest) == TRUE);
+	MAKE_PATH(dest, test_path, data_file2);
+	CU_ASSERT( DeleteFile(dest) == TRUE);
+	MAKE_PATH(dest, test_path, data_file3);
+	CU_ASSERT( DeleteFile(dest) == TRUE);
+	MAKE_PATH(dest, test_path, data_file4);
+	CU_ASSERT( DeleteFile(dest) == TRUE);
+	MAKE_PATH(dest, test_path, data_file5);
+	CU_ASSERT( DeleteFile(dest) == TRUE);
+
+	CU_ASSERT( _rmdir(test_path) != -1 );
+
+} /* test_background_api() */
+
+static void test_background_api2(void)	{
+	const char *test_path = "C:\\4oij3";
+	const char *data_path = "data\\video";
+	const char *data_file1 = "bars-mpeg1video-mp2.mpg";
+	const char *data_file2 = "bars-msmpeg4-mp2.asf";
+	const char *data_file3 = "bars-msmpeg4v2-mp2.avi";
+	const char *data_file4 = "bars-vp8-vorbis.webm";
+	const char *data_file5 = "wmv92-with-audio.wmv";
+	char src[MAX_PATH];
+	char dest[MAX_PATH];
+
+	MediaScan *s = ms_create();
+
+	CU_ASSERT_FATAL(s != NULL);
+
+	// Do some setup for the test
+	CU_ASSERT( _mkdir(test_path) != -1 );
+	result_called = 0;
+	
+	CU_ASSERT(s->on_result == NULL);
+	ms_set_result_callback(s, my_result_callback);
+	CU_ASSERT(s->on_result == my_result_callback);
+
+	CU_ASSERT(s->on_error == NULL);
+	ms_set_error_callback(s, my_error_callback); 
+	CU_ASSERT(s->on_error == my_error_callback);
+
+	ms_watch_directory(s, test_path);
+	Sleep(1000); // Sleep 1 second
+
+	// Now copy a small video file to the test directory
+	PathCopyFile(data_file1, data_path, test_path );
+	CU_ASSERT( result_called == 0 );
+
 
 	// Now process the callbacks
 	ms_async_process(s);
 	CU_ASSERT( result_called == 1 );
 
+	MAKE_PATH(dest, test_path, data_file1);
+	CU_ASSERT( DeleteFile(dest) == TRUE);
+
 
 	ms_destroy(s);
 
 	// Clean up the test
-	CU_ASSERT( DeleteFile(dest) == TRUE);
 	CU_ASSERT( _rmdir(test_path) != -1 );
 
-} /* test_background_api() */
+} /* test_background_api2() */
 
-void test_async_api(void)	{
+
+static void test_async_api(void)	{
 
   long time1, time2;
 
@@ -279,7 +381,7 @@ void test_async_api(void)	{
 	CU_ASSERT( result_called == 5 );
 
 	ms_destroy(s);
-}
+} /* test_async_api() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  Setup background tests.
@@ -301,7 +403,8 @@ int setupbackground_tests() {
 
    /* add the tests to the background scanning suite */
    if (
-   NULL == CU_add_test(pSuite, "Test background scanning API", test_background_api) //||
+   NULL == CU_add_test(pSuite, "Test background scanning API", test_background_api) ||
+   NULL == CU_add_test(pSuite, "Test background scanning Deletion", test_background_api2) //||
 //	   NULL == CU_add_test(pSuite, "Test Async scanning API", test_async_api)
 	   )
    {

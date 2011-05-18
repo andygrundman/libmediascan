@@ -17,6 +17,10 @@
 #include "thread.h"
 #include "queue.h"
 
+#ifdef _MSC_VER
+#pragma warning( disable: 4127 )
+#endif
+
 struct equeue_entry {
   enum event_type type;
   void *data;
@@ -218,7 +222,6 @@ void thread_queue_event(MediaScanThread *t, enum event_type type, void *data) {
 
 // Return the next queued event
 enum event_type thread_get_next_event(MediaScanThread *t, void **data_out) {
-  char buf[4];
   struct equeue *eq = (struct equeue *)t->event_queue;
   struct equeue_entry *entry = NULL;
   enum event_type type = 0;
@@ -288,7 +291,7 @@ void thread_stop(MediaScanThread *t) {
 #ifndef WIN32
   if (t->tid) {
 #else
-  if (t->tid.p) { // XXX needed?
+  if (t->tid.p) {               // XXX needed?
 #endif
     LOG_DEBUG("Signalling thread %x to stop\n", t->tid);
 
@@ -300,7 +303,7 @@ void thread_stop(MediaScanThread *t) {
 #ifndef WIN32
     t->tid = 0;
 #else
-    t->tid.p = 0; // XXX needed?
+    t->tid.p = 0;               // XXX needed?
 #endif
     LOG_DEBUG("Thread stopped\n");
     // Close pipes

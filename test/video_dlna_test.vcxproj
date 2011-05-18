@@ -58,6 +58,9 @@
       <AdditionalIncludeDirectories>$(ProjectDir)..\include;$(ProjectDir)..\win32\include;C:\mingw\msys\1.0\local\include;$(ProjectDir)..\lib;$(ProjectDir)..\win32\pthreads.2</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <AdditionalOptions>
+ %(AdditionalOptions)</AdditionalOptions>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
