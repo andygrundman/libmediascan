@@ -1010,27 +1010,32 @@ void ms_scan_file(MediaScan *s, const char *tmp_full_path, enum media_type type)
     return;
   }
 
-  LOG_INFO("Scanning file %s\n", tmp_full_path);
-
   // Check if the file has been recently scanned
   hash = HashFile(tmp_full_path, &mtime, &size);
-
-  // Zero out the DBTs before using them.
+  
+  // Setup DBT values
   memset(&key, 0, sizeof(DBT));
-  key.data = (char *)tmp_full_path;
-  key.size = strlen(tmp_full_path) + 1;
-
   memset(&data, 0, sizeof(DBT));
+  key.data = (char *)tmp_full_path;
+  key.size = strlen(tmp_full_path) + 1;  
   data.data = &hash;
   data.size = sizeof(uint32_t);
 
-
-  // s->dbp will be null if this function is called directly, if not check if this file is
-  // already scanned.
-  if (s->dbp != NULL && s->dbp->get(s->dbp, NULL, &key, &data, 0) != DB_NOTFOUND) {
-    LOG_INFO("File hash %X already scanned\n", hash);
-    return;
+  if (s->flags & MS_RESCAN) {
+    // s->dbp will be null if this function is called directly, if not check if this file is
+    // already scanned.
+    if (s->dbp != NULL) {
+      // DB_GET_BOTH will only return OK if both key and data match, this avoids the need to check
+      // the returned data against hash
+      int ret = s->dbp->get(s->dbp, NULL, &key, &data, DB_GET_BOTH);  
+      if (ret != DB_NOTFOUND) {
+        LOG_INFO("File %s already scanned, skipping\n", tmp_full_path);
+        return;
+      }
+    }
   }
+  
+  LOG_INFO("Scanning file %s\n", tmp_full_path);
 
   if (type == TYPE_UNKNOWN) {
     // auto-detect type
@@ -1053,27 +1058,20 @@ void ms_scan_file(MediaScan *s, const char *tmp_full_path, enum media_type type)
   r->path = strdup(tmp_full_path);
 
   if (result_scan(r)) {
-    DBT key, data;
-
     // These were determined by HashFile
     r->mtime = mtime;
     r->size = size;
     r->hash = hash;
 
-    // Zero out the DBTs before using them.
-    memset(&key, 0, sizeof(DBT));
-    memset(&data, 0, sizeof(DBT));
-
-    key.data = (char *)tmp_full_path;
-    key.size = strlen(tmp_full_path) + 1;
-
-    data.data = &r->hash;
-    data.size = sizeof(uint32_t);
-
+    // Store path -> hash data in cache
     if (s->dbp != NULL) {
-      ret = s->dbp->put(s->dbp, NULL, &key, &data, DB_NOOVERWRITE);
-      if (ret == DB_KEYEXIST) {
-        s->dbp->err(s->dbp, ret, "Put failed because key %X already exists", r->hash);
+      memset(&data, 0, sizeof(DBT));
+      data.data = &hash;
+      data.size = sizeof(uint32_t);
+      
+      ret = s->dbp->put(s->dbp, NULL, &key, &data, 0);
+      if (ret != 0) {
+        s->dbp->err(s->dbp, ret, "Cache store failed: %s", db_strerror(ret));
       }
     }
     send_result(s, r);

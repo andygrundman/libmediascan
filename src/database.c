@@ -40,8 +40,6 @@ void reset_bdb(MediaScan *s) {
 }
 
 int init_bdb(MediaScan *s) {
-  uint32_t env_flags = DB_CREATE | DB_INIT_MPOOL;
-  uint32_t flags = DB_CREATE | DB_TRUNCATE;
   int ret;
   char dbpath[MAX_PATH];
 
@@ -58,7 +56,7 @@ int init_bdb(MediaScan *s) {
   // Open the environment.
   ret = myEnv->open(myEnv,      // DB_ENV ptr
                     s->cachedir ? s->cachedir : ".",  // env home directory
-                    env_flags,  // Open flags
+                    DB_CREATE | DB_INIT_MPOOL,  // Open flags
                     0);         // File mode (default)
 
   if (ret != 0) {
@@ -84,10 +82,11 @@ int init_bdb(MediaScan *s) {
                      dbpath,    /* On-disk file that holds the database. */
                      NULL,      /* Optional logical database name */
                      DB_BTREE,  /* Database access method */
-                     flags,     /* Open flags */
+                     DB_CREATE, /* Open flags */
                      0);        /* File mode (using defaults) */
   if (ret != 0) {
     ms_errno = MSENO_DBERROR;
+    s->dbp->close(s->dbp, 0);
     s->dbp = NULL;
     LOG_ERROR("Database open failed: %s\n", db_strerror(ret));
     return 0;
