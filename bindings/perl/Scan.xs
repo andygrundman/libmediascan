@@ -274,6 +274,13 @@ CODE:
     if (cachedir != NULL && SvPOK(*cachedir))
       ms_set_cachedir(s, SvPVX(*cachedir));
   }
+  
+  // Set flags
+  if (my_hv_exists(selfh, "flags")) {
+    SV **flags = my_hv_fetch(selfh, "flags");
+    if (flags != NULL && SvIOK(*flags))
+      ms_set_flags(s, SvIV(*flags));
+  }
 
   // Set callbacks
   ms_set_result_callback(s, _on_result);

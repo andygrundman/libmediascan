@@ -44,7 +44,8 @@ enum scan_flags {
   MS_USE_EXTENSION = 1,
   MS_FULL_SCAN = 1 << 1,
   MS_RESCAN = 1 << 2,
-  MS_INCLUDE_DELETED = 1 << 3
+  MS_INCLUDE_DELETED = 1 << 3,
+  MS_WATCH_CHANGES = 1 << 4
 };
 
 enum thumb_format {
