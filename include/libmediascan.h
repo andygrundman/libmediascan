@@ -235,6 +235,7 @@ struct _Scan {
   int async;
   char *cachedir;
   int flags;
+  int watch_interval;
 
   MediaScanProgress *progress;
   MediaScanThread *thread;
@@ -359,8 +360,21 @@ void ms_set_cachedir(MediaScan *s, const char *path);
  *   a file that was previously scanned but has since been deleted will be reported to the result_callback
  *   and the r->deleted value will be set. NOTE: Only r->type, r->path, and r->deleted are valid for deleted
  *   results. Also note that this cannot distinguish files that were simply renamed or moved.
+ * MS_WATCH_CHANGES - With this flag, after the scan has completed the path(s) will be monitored for changes.
+ *   For files located on a local drive under OSX, Linux, or Windows, OS-native change detection will be used.
+ *   For files on other systems or on remote network shares, the library will manually look for changes at regular
+ *   intervals. Use ms_set_watch_interval() to configure this interval. To stop watching for changes, call
+ *   ms_clear_watch().
  */
 void ms_set_flags(MediaScan *s, int flags);
+
+/**
+ * Set the interval the library will use to look for changes to files located on non-local filesystems
+ * or on systems that don't support OS-specific change notification methods. If this is not called, the
+ * default watch interval is 10 minutes.
+ * @param interval Watch interval, in seconds.
+ */
+void ms_set_watch_interval(MediaScan *s, int interval_seconds);
 
 /**
  * Set a callback that will be called for every scanned file.
@@ -460,15 +474,13 @@ const uint8_t *ms_result_get_thumbnail_data(MediaScanResult *r, int index, uint3
 /// @param callback Callback with the changes
 ///-------------------------------------------------------------------------------------------------
 
+// XXX replaced by MS_WATCH_CHANGES
 void ms_watch_directory(MediaScan *s, const char *path);
 
-///-------------------------------------------------------------------------------------------------
-///  Clear watch list
-///
-/// @author Henry Bennett
-/// @date 03/22/2011
-///
-///-------------------------------------------------------------------------------------------------
+/**
+ * If ms_scan was run with the flag MS_WATCH_CHANGES, this call will stop watching for changes.
+ * To begin watching again, you must call ms_scan() again.
+ */
 void ms_clear_watch(MediaScan *s);
 
 #endif // _LIBMEDIASCAN_H

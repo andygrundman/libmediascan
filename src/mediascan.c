@@ -296,6 +296,7 @@ MediaScan *ms_create(void) {
   LOG_MEM("new MediaScan @ %p\n", s);
 
   s->flags = MS_USE_EXTENSION | MS_FULL_SCAN;
+  s->watch_interval = 600;      // 10 minutes
 
   s->thread = NULL;
   s->dbp = NULL;
@@ -504,6 +505,11 @@ void ms_set_cachedir(MediaScan *s, const char *path) {
 
 void ms_set_flags(MediaScan *s, int flags) {
   s->flags = flags;
+}
+
+void ms_set_watch_interval(MediaScan *s, int interval_seconds) {
+  if (interval_seconds > 0)
+    s->watch_interval = interval_seconds;
 }
 
 ///-------------------------------------------------------------------------------------------------
@@ -1012,12 +1018,12 @@ void ms_scan_file(MediaScan *s, const char *tmp_full_path, enum media_type type)
 
   // Check if the file has been recently scanned
   hash = HashFile(tmp_full_path, &mtime, &size);
-  
+
   // Setup DBT values
   memset(&key, 0, sizeof(DBT));
   memset(&data, 0, sizeof(DBT));
   key.data = (char *)tmp_full_path;
-  key.size = strlen(tmp_full_path) + 1;  
+  key.size = strlen(tmp_full_path) + 1;
   data.data = &hash;
   data.size = sizeof(uint32_t);
 
@@ -1027,14 +1033,14 @@ void ms_scan_file(MediaScan *s, const char *tmp_full_path, enum media_type type)
     if (s->dbp != NULL) {
       // DB_GET_BOTH will only return OK if both key and data match, this avoids the need to check
       // the returned data against hash
-      int ret = s->dbp->get(s->dbp, NULL, &key, &data, DB_GET_BOTH);  
+      int ret = s->dbp->get(s->dbp, NULL, &key, &data, DB_GET_BOTH);
       if (ret != DB_NOTFOUND) {
         LOG_INFO("File %s already scanned, skipping\n", tmp_full_path);
         return;
       }
     }
   }
-  
+
   LOG_INFO("Scanning file %s\n", tmp_full_path);
 
   if (type == TYPE_UNKNOWN) {
@@ -1068,7 +1074,7 @@ void ms_scan_file(MediaScan *s, const char *tmp_full_path, enum media_type type)
       memset(&data, 0, sizeof(DBT));
       data.data = &hash;
       data.size = sizeof(uint32_t);
-      
+
       ret = s->dbp->put(s->dbp, NULL, &key, &data, 0);
       if (ret != 0) {
         s->dbp->err(s->dbp, ret, "Cache store failed: %s", db_strerror(ret));
