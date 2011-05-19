@@ -13,13 +13,14 @@ my $c = 1;
     my $cv = AnyEvent->condvar;
 
     #my $s = Media::Scan->new( [ _f('video') ], {
-    my $s = Media::Scan->new( [ '/Users/andy/QA/DLNATestContent/Additional Content' ], {
-        loglevel => MS_LOG_WARN,
-        ignore => [],
+    my $s = Media::Scan->new( [ '/Users/andy/Pictures' ], {
+        loglevel => MS_LOG_INFO,
+        ignore => [ 'VIDEO' ],
         async => 1,
+        flags => MS_USE_EXTENSION | MS_FULL_SCAN,
         cachedir => '/tmp/libmediascan',
         thumbnails => [
-            { width => 200 },
+            #{ width => 200 },
         ],
         on_result => sub {
             my $r = shift;
@@ -27,9 +28,9 @@ my $c = 1;
             for my $thumb ( @{ $r->thumbnails } ) {
                 my $ext = $thumb->{codec} eq 'JPEG' ? 'jpg' : 'png';
                 warn "Wrote " . $thumb->{width} . "x" . $thumb->{height} . " thumb${c}.${ext}\n";
-                open my $fh, '>', 'thumb' . $c . ".${ext}";
-                print $fh $thumb->{data};
-                close $fh;
+                #open my $fh, '>', 'thumb' . $c . ".${ext}";
+                #print $fh $thumb->{data};
+                #close $fh;
                 $c++;
             }
         },

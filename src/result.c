@@ -468,6 +468,12 @@ static int scan_image(MediaScanResult *r) {
   i->height = h;
 
 out:
+  // Close the file here, to avoid stacking up a bunch of open files in async mode
+  if (r->_fp) {
+    fclose(r->_fp);
+    r->_fp = NULL;
+  }
+  
   return ret;
 }
 
