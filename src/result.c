@@ -473,7 +473,7 @@ out:
     fclose(r->_fp);
     r->_fp = NULL;
   }
-  
+
   return ret;
 }
 

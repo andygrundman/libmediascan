@@ -1000,8 +1000,8 @@ void ms_scan_file(MediaScan *s, const char *tmp_full_path, enum media_type type)
   MediaScanResult *r = NULL;
   int ret;
   uint32_t hash;
-  int mtime;
-  size_t size;
+  int mtime = 0;
+  size_t size = 0;
   DBT key, data;
 
   if (s == NULL) {
@@ -1018,6 +1018,12 @@ void ms_scan_file(MediaScan *s, const char *tmp_full_path, enum media_type type)
 
   // Check if the file has been recently scanned
   hash = HashFile(tmp_full_path, &mtime, &size);
+  
+  // Skip 0-byte files
+  if (unlikely(size == 0)) {
+    LOG_WARN("Skipping 0-byte file: %s\n", tmp_full_path);
+    return;
+  }
 
   // Setup DBT values
   memset(&key, 0, sizeof(DBT));

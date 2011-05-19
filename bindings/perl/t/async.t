@@ -14,10 +14,10 @@ my $c = 1;
 
     #my $s = Media::Scan->new( [ _f('video') ], {
     my $s = Media::Scan->new( [ '/Users/andy/Pictures' ], {
-        loglevel => MS_LOG_INFO,
+        loglevel => MS_LOG_ERR,
         ignore => [ 'VIDEO' ],
         async => 1,
-        flags => MS_USE_EXTENSION | MS_FULL_SCAN,
+        flags => MS_USE_EXTENSION | MS_RESCAN,
         cachedir => '/tmp/libmediascan',
         thumbnails => [
             #{ width => 200 },
