@@ -23,6 +23,7 @@
 #include <time.h>
 #include <Winsock2.h>
 #include <direct.h>
+#include <shlwapi.h>
 #endif
 
 #include <libmediascan.h>
@@ -687,18 +688,42 @@ void ms_async_process(MediaScan *s) {
 ///-------------------------------------------------------------------------------------------------
 void ms_watch_directory(MediaScan *s, const char *path) {
   thread_data_type *thread_data;
-   char drive[_MAX_DRIVE];
-   char dir[_MAX_DIR];
-   char fname[_MAX_FNAME];
-   char ext[_MAX_EXT];
-
-  // Check the path to see if it is a network share or a local drive
-  _splitpath( path, drive, dir, fname, ext );
-  if(strlen(dir) > 1 && dir[0] == '/' && dir[1] == '/')
+  DWORD           dwAttrs;
+  // First check if this is a standard server share which we can't monitor
+  if(PathIsUNCServerShare(path))
   {
     ms_errno = MSENO_ILLEGALPARAMETER;
 	LOG_ERROR("Can not monitor a network directory\n");
 	return;
+  }
+
+  // Now check if the user is being tricky and trying to send us a mapped drive
+  // See http://msdn.microsoft.com/en-us/library/aa363940%28v=VS.85%29.aspx
+  // and http://msdn.microsoft.com/en-us/library/aa365511%28v=VS.85%29.aspx
+  dwAttrs = GetFileAttributes(path);
+  if( dwAttrs & FILE_ATTRIBUTE_REPARSE_POINT )
+  {
+	  char temp_path[MAX_PATH];
+      WIN32_FIND_DATA FindFileData;
+	  HANDLE hFind;
+
+	  strcpy(temp_path, path);
+	  strcat(temp_path, "*");
+
+	  hFind = FindFirstFile(temp_path, &FindFileData);
+	  if (hFind == INVALID_HANDLE_VALUE) 
+	  {
+		ms_errno = MSENO_ILLEGALPARAMETER;
+		LOG_ERROR("Directory doesn't exsist\n");
+		return;
+	  }
+
+	  if( (FindFileData.dwReserved0 & 0xFFFF) == IO_REPARSE_TAG_MOUNT_POINT )
+	  {
+		ms_errno = MSENO_ILLEGALPARAMETER;
+		LOG_ERROR("Can not monitor a mounted network share\n");
+		return;
+	  }
   }
 
 	thread_data = (thread_data_type *)calloc(sizeof(thread_data_type), 1);

@@ -320,7 +320,11 @@ static void test_background_api2(void)	{
 
 
 static void test_background_api3(void)	{
-	const char *test_path = "//magento/share";
+	const char *test_path = "\\\\magento\\share";
+	const char *test_path2 = "C:\\4o34ij3";
+	const char *test_path3 = "Z:\\";
+	const char *test_path4 = "C:\\data";
+
 	MediaScan *s = ms_create();
 
 	CU_ASSERT_FATAL(s != NULL);
@@ -328,6 +332,7 @@ static void test_background_api3(void)	{
 	// Do some setup for the test
 	result_called = 0;
 	ms_errno = 0;
+	CU_ASSERT( _mkdir(test_path2) != -1 );
 
 	CU_ASSERT(s->on_result == NULL);
 	ms_set_result_callback(s, my_result_callback);
@@ -340,8 +345,26 @@ static void test_background_api3(void)	{
 	ms_watch_directory(s, test_path);
 	CU_ASSERT(ms_errno == MSENO_ILLEGALPARAMETER); // If we got this errno, then we got the failure we wanted
 
+	// Test a directory that looks like a mapped network drive but isn't
+	ms_errno = 0;
+	ms_watch_directory(s, test_path2);
+	CU_ASSERT(ms_errno == 0); 
+
+	// Now test a mapped network drive
+	ms_errno = 0;
+	ms_watch_directory(s, test_path3);
+	CU_ASSERT(ms_errno == MSENO_ILLEGALPARAMETER); 
+
+	// Now test a NTFS mounted folder
+	ms_errno = 0;
+	ms_watch_directory(s, test_path4);
+	CU_ASSERT(ms_errno == 0); 
+
+
 	ms_destroy(s);
 
+	// Clean up the test
+	CU_ASSERT( _rmdir(test_path2) != -1 );
 } /* test_background_api3() */
 
 
