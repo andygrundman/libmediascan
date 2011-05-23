@@ -273,7 +273,8 @@ enum {
   MSENO_MEMERROR = 1004,        // Out of memory error
   MSENO_NOERRORCALLBACK = 1005, // No error callback
   MSENO_THREADERROR = 1006,     // Theading error
-  MSENO_DBERROR = 1007          // Database error
+  MSENO_DBERROR = 1007,         // Database error
+  MSENO_ILLEGALPARAMETER = 1008 // Illegal function parameter
 };
 
 /**

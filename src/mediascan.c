@@ -687,16 +687,29 @@ void ms_async_process(MediaScan *s) {
 ///-------------------------------------------------------------------------------------------------
 void ms_watch_directory(MediaScan *s, const char *path) {
   thread_data_type *thread_data;
+   char drive[_MAX_DRIVE];
+   char dir[_MAX_DIR];
+   char fname[_MAX_FNAME];
+   char ext[_MAX_EXT];
 
-  thread_data = (thread_data_type *)calloc(sizeof(thread_data_type), 1);
-  thread_data->s = s;
-  thread_data->lpDir = path;
-
-  s->thread = thread_create(WatchDirectory, thread_data);
-  if (!s->thread) {
-    LOG_ERROR("Unable to start async thread\n");
-    return;
+  // Check the path to see if it is a network share or a local drive
+  _splitpath( path, drive, dir, fname, ext );
+  if(strlen(dir) > 1 && dir[0] == '/' && dir[1] == '/')
+  {
+    ms_errno = MSENO_ILLEGALPARAMETER;
+	LOG_ERROR("Can not monitor a network directory\n");
+	return;
   }
+
+	thread_data = (thread_data_type *)calloc(sizeof(thread_data_type), 1);
+	thread_data->s = s;
+	thread_data->lpDir = path;
+
+	s->thread = thread_create(WatchDirectory, thread_data);
+	if (!s->thread) {
+	LOG_ERROR("Unable to start async thread\n");
+	return;
+	}
 }                               /* ms_watch_directory() */
 #endif
 

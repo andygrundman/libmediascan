@@ -319,6 +319,32 @@ static void test_background_api2(void)	{
 } /* test_background_api2() */
 
 
+static void test_background_api3(void)	{
+	const char *test_path = "//magento/share";
+	MediaScan *s = ms_create();
+
+	CU_ASSERT_FATAL(s != NULL);
+
+	// Do some setup for the test
+	result_called = 0;
+	ms_errno = 0;
+
+	CU_ASSERT(s->on_result == NULL);
+	ms_set_result_callback(s, my_result_callback);
+	CU_ASSERT(s->on_result == my_result_callback);
+
+	CU_ASSERT(s->on_error == NULL);
+	ms_set_error_callback(s, my_error_callback); 
+	CU_ASSERT(s->on_error == my_error_callback);
+
+	ms_watch_directory(s, test_path);
+	CU_ASSERT(ms_errno == MSENO_ILLEGALPARAMETER); // If we got this errno, then we got the failure we wanted
+
+	ms_destroy(s);
+
+} /* test_background_api3() */
+
+
 static void test_async_api(void)	{
 
   long time1, time2;
@@ -408,9 +434,10 @@ int setupbackground_tests() {
 
    /* add the tests to the background scanning suite */
    if (
-   NULL == CU_add_test(pSuite, "Test background scanning API", test_background_api) //||
+//   NULL == CU_add_test(pSuite, "Test background scanning API", test_background_api) 
 //   NULL == CU_add_test(pSuite, "Test background scanning Deletion", test_background_api2) //||
 //	   NULL == CU_add_test(pSuite, "Test Async scanning API", test_async_api)
+   NULL == CU_add_test(pSuite, "Test edge cases of background scanning API", test_background_api3) 
 	   )
    {
       CU_cleanup_registry();
