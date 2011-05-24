@@ -138,6 +138,8 @@ void WatchDirectory(void *thread_data) {
     send_error(s, e);
   }
 
+  SecureZeroMemory(buffer, DATA_BUFSIZE);
+
   // Make sure the RecvOverlapped struct is zeroed out
   SecureZeroMemory((PVOID) & oOverlap, sizeof(OVERLAPPED));
 

@@ -11,7 +11,16 @@
 #include <strsafe.h>
 #include <direct.h>
 #include <tchar.h>
+#include <Msi.h>
+#include <Shobjidl.h>
+#include <objbase.h>
+#include <objidl.h>
+#include <shlguid.h>
+#include <shlobj.h>   /* For IShellLink */
+
 #include <libmediascan.h>
+
+
 #include "common.h"
 #include "queue.h"
 #include "mediascan.h"
@@ -19,7 +28,54 @@
 
 #ifdef _MSC_VER
 #pragma warning( disable: 4127 )
+#pragma comment(lib, "ole32.lib")
+#pragma comment(lib, "uuid.lib")
+#pragma comment(lib, "Msi.lib")
 #endif
+
+int parse_lnk(const char *path, LPTSTR szTarget, SIZE_T cchTarget) {
+   char szProductCode[39];
+   char szFeatureId[MAX_FEATURE_CHARS+1];
+   char szComponentCode[39];
+   IShellLink*    psl     = NULL;
+   IPersistFile*  ppf     = NULL;
+   BOOL           bResult = FALSE;
+
+#if !defined(UNICODE)
+        WCHAR wsz[MAX_PATH];
+        if (0 == MultiByteToWideChar(CP_ACP, 0, path, -1, wsz, MAX_PATH) )
+            goto cleanup;
+#else
+        LPCWSTR wsz = szShortcutFile;
+#endif
+
+   // First check if this is a shell lnk or some other kind of link
+   // http://msdn.microsoft.com/en-us/library/aa370299%28VS.85%29.aspx
+  // if( MsiGetShortcutTarget(path, szProductCode, szFeatureId, szComponentCode) == ERROR_FUNCTION_FAILED )
+	//   goto cleanup;   // This means it is a shell lnk and can be looked at by IShellLink
+
+   // Now parse the link using the IShellLink COM interface
+   // http://msdn.microsoft.com/en-us/library/bb776891%28v=vs.85%29.aspx
+    if (FAILED( CoCreateInstance(&CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, &IID_IShellLink, (void **) &psl) ))
+        goto cleanup;
+
+    if (FAILED( psl->lpVtbl->QueryInterface(psl, &IID_IPersistFile, (void **) &ppf) ))
+        goto cleanup;
+
+    if (FAILED( ppf->lpVtbl->Load(ppf, wsz, STGM_READ) ))
+        goto cleanup;
+
+    if (NOERROR != psl->lpVtbl->GetPath(psl, szTarget, cchTarget, NULL, 0) )
+        goto cleanup;
+
+    bResult = TRUE;
+
+cleanup:
+    if (ppf) ppf->lpVtbl->Release(ppf);
+    if (psl) psl->lpVtbl->Release(psl);
+    if (!bResult && cchTarget != 0) szTarget[0] = TEXT('\0');
+    return bResult;
+} /* parse_lnk() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  Recursively walk a directory struction using Win32 style directory commands
