@@ -91,6 +91,7 @@ static const char *AudioExts = ",aif,aiff,wav,";
 static const char *VideoExts =
   ",asf,avi,divx,flv,hdmov,m1v,m2p,m2t,m2ts,m2v,m4v,mkv,mov,mpg,mpeg,mpe,mp2p,mp2t,mp4,mts,pes,ps,ts,vob,webm,wmv,xvid,3gp,3g2,3gp2,3gpp,";
 static const char *ImageExts = ",jpg,png,gif,bmp,jpeg,";
+static const char *LnkExts = ",lnk,";
 
 #define REGISTER_DECODER(X,x) { \
           extern AVCodec ff_##x##_decoder; \
@@ -224,7 +225,7 @@ static void _init(void) {
   if (iResult != 0) {
     LOG_ERROR("WSAStartup failed: %d\n", iResult);
   }
-
+ CoInitialize(NULL) ; // To initialize the COM library on the current thread
 #endif
   Initialized = 1;
   ms_errno = 0;
@@ -676,7 +677,6 @@ void ms_async_process(MediaScan *s) {
   }
 }
 
-#ifdef WIN32
 ///-------------------------------------------------------------------------------------------------
 ///  Watch a directory in the background.
 ///
@@ -687,7 +687,10 @@ void ms_async_process(MediaScan *s) {
 /// @param callback Callback with the changes
 ///-------------------------------------------------------------------------------------------------
 void ms_watch_directory(MediaScan *s, const char *path) {
-  thread_data_type *thread_data;
+
+	#ifdef WIN32
+
+	thread_data_type *thread_data;
   DWORD           dwAttrs;
   // First check if this is a standard server share which we can't monitor
   if(PathIsUNCServerShare(path))
@@ -735,8 +738,9 @@ void ms_watch_directory(MediaScan *s, const char *path) {
 	LOG_ERROR("Unable to start async thread\n");
 	return;
 	}
-}                               /* ms_watch_directory() */
 #endif
+
+}                               /* ms_watch_directory() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  Clear watch list
@@ -826,6 +830,10 @@ int _should_scan(MediaScan *s, const char *path) {
     found = strstr(ImageExts, extc);
     if (found)
       return skip_image ? TYPE_UNKNOWN : TYPE_IMAGE;
+
+    found = strstr(LnkExts, extc);
+    if (found)
+      return skip_image ? TYPE_UNKNOWN : TYPE_LNK;
 
     return TYPE_UNKNOWN;
   }
@@ -1033,7 +1041,7 @@ out:
 ///
 /// ### remarks .
 ///-------------------------------------------------------------------------------------------------
-void ms_scan_file(MediaScan *s, const char *tmp_full_path, enum media_type type) {
+void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type) {
   MediaScanError *e = NULL;
   MediaScanResult *r = NULL;
   int ret;
@@ -1041,6 +1049,8 @@ void ms_scan_file(MediaScan *s, const char *tmp_full_path, enum media_type type)
   int mtime = 0;
   size_t size = 0;
   DBT key, data;
+  char tmp_full_path[MAX_PATH];
+  char *ext = strrchr(full_path, '.');
 
   if (s == NULL) {
     ms_errno = MSENO_NULLSCANOBJ;
@@ -1052,6 +1062,17 @@ void ms_scan_file(MediaScan *s, const char *tmp_full_path, enum media_type type)
     ms_errno = MSENO_NORESULTCALLBACK;
     LOG_ERROR("Result callback not set, aborting scan\n");
     return;
+  }
+
+  
+  if( stricmp(ext, ".lnk") == 0 )
+  {
+	// Check if this file is a shortcut and if so resolve it
+	parse_lnk(full_path, tmp_full_path, MAX_PATH);
+  }
+  else
+  {
+	strcpy(tmp_full_path, full_path);
   }
 
   // Check if the file has been recently scanned
@@ -1087,7 +1108,7 @@ void ms_scan_file(MediaScan *s, const char *tmp_full_path, enum media_type type)
 
   LOG_INFO("Scanning file %s\n", tmp_full_path);
 
-  if (type == TYPE_UNKNOWN) {
+  if (type == TYPE_UNKNOWN || type == TYPE_LNK) {
     // auto-detect type
     type = _should_scan(s, tmp_full_path);
     if (!type) {

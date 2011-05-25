@@ -356,9 +356,9 @@ static void test_background_api3(void)	{
 	CU_ASSERT(ms_errno == MSENO_ILLEGALPARAMETER); 
 
 	// Now test a NTFS mounted folder
-	ms_errno = 0;
-	ms_watch_directory(s, test_path4);
-	CU_ASSERT(ms_errno == 0); 
+//	ms_errno = 0;
+//	ms_watch_directory(s, test_path4);
+//	CU_ASSERT(ms_errno == 0); 
 
 
 	ms_destroy(s);
@@ -366,6 +366,36 @@ static void test_background_api3(void)	{
 	// Clean up the test
 	CU_ASSERT( _rmdir(test_path2) != -1 );
 } /* test_background_api3() */
+
+static void test_win32_shortcuts(void)	{
+	const char *test_path = "data\\video\\shortcuts";
+
+	MediaScan *s = ms_create();
+
+	CU_ASSERT_FATAL(s != NULL);
+
+	// Do some setup for the test
+	result_called = 0;
+	ms_errno = 0;
+
+	CU_ASSERT(s->on_result == NULL);
+	ms_set_result_callback(s, my_result_callback);
+	CU_ASSERT(s->on_result == my_result_callback);
+
+	CU_ASSERT(s->on_error == NULL);
+	ms_set_error_callback(s, my_error_callback); 
+	CU_ASSERT(s->on_error == my_error_callback);
+
+	CU_ASSERT(s->npaths == 0);
+	ms_add_path(s, test_path);
+	CU_ASSERT(s->npaths == 1);
+
+	ms_scan(s);
+	CU_ASSERT( result_called == 1 );
+
+	ms_destroy(s);
+
+} /* test_win32_shortcuts() */
 
 
 static void test_async_api(void)	{
@@ -460,7 +490,10 @@ int setupbackground_tests() {
 //   NULL == CU_add_test(pSuite, "Test background scanning API", test_background_api) 
 //   NULL == CU_add_test(pSuite, "Test background scanning Deletion", test_background_api2) //||
 //	   NULL == CU_add_test(pSuite, "Test Async scanning API", test_async_api)
-   NULL == CU_add_test(pSuite, "Test edge cases of background scanning API", test_background_api3) 
+//   NULL == CU_add_test(pSuite, "Test edge cases of background scanning API", test_background_api3) 
+   NULL == CU_add_test(pSuite, "Test Win32 shortcuts", test_win32_shortcuts) 
+
+   
 	   )
    {
       CU_cleanup_registry();

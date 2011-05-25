@@ -37,7 +37,8 @@ enum media_type {
   TYPE_UNKNOWN = 0,
   TYPE_VIDEO,
   TYPE_AUDIO,
-  TYPE_IMAGE
+  TYPE_IMAGE,
+  TYPE_LNK
 };
 
 enum scan_flags {
