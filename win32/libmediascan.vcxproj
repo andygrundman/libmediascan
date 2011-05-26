@@ -71,6 +71,21 @@
       <Message>
       </Message>
     </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>copy $(TargetPath) $(ProjectDir)..\bindings\perl\win32\lib
+copy $(ProjectDir)..\include\libmediascan.h $(ProjectDir)..\bindings\perl\win32\include
+copy $(ProjectDir)\include\getopt.h $(ProjectDir)..\bindings\perl\win32\include
+copy $(ProjectDir)\include\unistd.h $(ProjectDir)..\bindings\perl\win32\include
+copy $(ProjectDir)..\lib\db.h $(ProjectDir)..\bindings\perl\win32\include
+copy $(ProjectDir)..\lib\db_config.h $(ProjectDir)..\bindings\perl\win32\include
+copy $(ProjectDir)..\lib\db_cxx.h $(ProjectDir)..\bindings\perl\win32\include
+copy $(ProjectDir)..\lib\db_int.h $(ProjectDir)..\bindings\perl\win32\include
+copy $(ProjectDir)..\lib\dbstl_common.h $(ProjectDir)..\bindings\perl\win32\include
+copy $(ProjectDir)..\lib\libintl.h $(ProjectDir)..\bindings\perl\win32\include
+copy $(ProjectDir)\pthreads.2\pthread.h $(ProjectDir)..\bindings\perl\win32\include
+copy $(ProjectDir)\pthreads.2\sched.h $(ProjectDir)..\bindings\perl\win32\include
+</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

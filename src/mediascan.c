@@ -899,6 +899,8 @@ static void *do_scan(void *userdata) {
   struct fileq *file_head = NULL;
   struct fileq_entry *file_entry = NULL;
   char tmp_full_path[MAX_PATH];
+  char linked_dir[MAX_PATH];
+  char *ext;
 
   // Initialize the cache database
   if (!init_bdb(s)) {
@@ -1069,6 +1071,8 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type) {
   {
 	// Check if this file is a shortcut and if so resolve it
 	parse_lnk(full_path, tmp_full_path, MAX_PATH);
+	if( PathIsDirectory(tmp_full_path) )
+		return;
   }
   else
   {
