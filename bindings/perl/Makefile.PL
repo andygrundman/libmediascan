@@ -109,6 +109,11 @@ if ( !$LMS ) {
     die "libmediascan not found, please install it and try again. Checked for libmediascan.h in: " . join(", ", $lms_inc, @check) . "\n";
 }
 
+if ( $^O =~ /Win32/i ) {
+    # Win32 has everything in libmediascan.lib and doesn't need other libraries
+    goto MAKEFILE;
+}
+
 # Look for ffmpeg
 for my $incdir ( $ffmpeg_inc, @check ) {
     if ( $incdir && -e catfile($incdir, 'libavformat', 'avformat.h') ) {
@@ -324,9 +329,11 @@ if ( !$BDB ) {
     die "BerkeleyDB not found, please install it and try again. Checked for db.h in: " . join(", ", $bdb_inc, @check) . "\n";
 }
 
+MAKEFILE:
+
 if ( $^O =~ /Win32/i ) {
-    $MYEXTLIB .= 'win32/lib/libgcc.a win32/lib/libmingwex.a win32/lib/libz.a win32/lib/libbz2.a ';
     *MY::postamble = sub {};
+    $MYEXTLIB .= "C:/MinGW/lib/libcoldname.a ";
 }
 
 my $xs_files  = join(' ', glob 'xs/*.xs');
