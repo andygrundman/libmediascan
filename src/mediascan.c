@@ -818,6 +818,8 @@ int _should_scan(MediaScan *s, const char *path) {
           skip_image = 1;
       }
     }
+    
+    
 
     found = strstr(VideoExts, extc);
     if (found)
@@ -1064,8 +1066,8 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type) {
     return;
   }
 
-  
-  if( stricmp(ext, ".lnk") == 0 )
+  #ifdef WIN32
+  if( strcasecmp(ext, ".lnk") == 0 )
   {
 	// Check if this file is a shortcut and if so resolve it
 	parse_lnk(full_path, tmp_full_path, MAX_PATH);
@@ -1074,6 +1076,21 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type) {
   {
 	strcpy(tmp_full_path, full_path);
   }
+  #endif
+  
+ #ifdef __APPLE__
+  if( isAlias(full_path) )
+  {
+  	LOG_INFO("File is a mac alias\n");
+	// Check if this file is a shortcut and if so resolve it
+	CheckMacAlias(full_path, tmp_full_path);
+  }
+  else
+  {
+	strcpy(tmp_full_path, full_path);
+  }  
+ #endif
+  
 
   // Check if the file has been recently scanned
   hash = HashFile(tmp_full_path, &mtime, &size);

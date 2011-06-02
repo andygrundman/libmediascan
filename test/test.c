@@ -508,7 +508,14 @@ void test_ms_large_directory(void)	{
 	ms_destroy(s);
 } /* test_ms_misc_functions() */
 
-
+#ifndef WIN32
+void TouchFile(const char *filename) {
+  struct timeval now;
+  
+  gettimeofday(&now, NULL);
+  utimes(filename  , &now);
+}
+#endif
 
 void test_ms_db(void)	{
 
@@ -611,7 +618,7 @@ int run_unit_tests()
 //	 setup_thumbnail_tests();
 
    /* Run all tests using the CUnit Basic interface */
-   CU_basic_set_mode(CU_BRM_NORMAL);
+   CU_basic_set_mode(CU_BRM_VERBOSE);
    CU_basic_run_tests();
 //	CU_automated_run_tests();
 

@@ -44,4 +44,10 @@ _abspath(const char *bin, const char *path)
   
   return buf;
 }
-  
+
+#ifdef __APPLE__
+
+int isAlias(const char *incoming_path);
+int CheckMacAlias(const char *incoming_path, char *out_path);
+
+#endif

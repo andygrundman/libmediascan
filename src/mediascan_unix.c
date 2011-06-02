@@ -1,7 +1,7 @@
 ///-------------------------------------------------------------------------------------------------
-/// @file libmediascan\src\mediascan_macos.c
+/// @file libmediascan\src\mediascan_macos.m
 ///
-///  mediascan mac OS class.
+///  mediascan cocoa methods
 ///-------------------------------------------------------------------------------------------------
 
 #include <stdlib.h>
@@ -40,6 +40,7 @@ void recurse_dir(MediaScan *s, const char *path) {
   struct dirent *dp;
   struct dirq *subdirq;         // list of subdirs of the current directory
   struct dirq_entry *parent_entry = NULL; // entry for current dir in s->_dirq
+  char redirect_dir[MAX_PATH];
 
   if (path[0] != '/') {         // XXX Win32
     // Get full path
@@ -73,9 +74,16 @@ void recurse_dir(MediaScan *s, const char *path) {
 
   LOG_INFO("Recursed into %s\n", dir);
 
+    if(isAlias(dir))
+    {
+    	CheckMacAlias(dir, redirect_dir); 
+    	LOG_INFO("Resolving Alias %s to %s\n", dir, redirect_dir);
+    	strcpy(dir, redirect_dir);
+    }
+
   if ((dirp = opendir(dir)) == NULL) {
     LOG_ERROR("Unable to open directory %s: %s\n", dir, strerror(errno));
-    goto out;
+	goto out;
   }
 
   subdirq = malloc(sizeof(struct dirq));
@@ -104,9 +112,36 @@ void recurse_dir(MediaScan *s, const char *path) {
       }
       else {
         enum media_type type = _should_scan(s, name);
+
+LOG_INFO("name %s = type %d\n", name, type);
+
         if (type) {
           struct fileq_entry *entry;
+		
+		// Check if this file is a shortcut and if so resolve it
+		if( isAlias(name) )
+		{
+		char full_name[MAX_PATH];
+		
+		LOG_INFO("Mac Alias detected\n");
+		
+		strcpy(full_name, dir);
+		strcat(full_name, "\\");
+		strcat(full_name, name);
+		parse_lnk(full_name, redirect_dir, MAX_PATH);
+		if(PathIsDirectory(redirect_dir))
+			{
+	        struct dirq_entry *subdir_entry = malloc(sizeof(struct dirq_entry));
 
+			subdir_entry->dir = _strdup(redirect_dir);
+			SIMPLEQ_INSERT_TAIL(subdirq, subdir_entry, entries);
+
+			LOG_INFO(" subdir: %s\n", tmp_full_path);
+			type = 0;
+			}
+
+		}
+		
           if (parent_entry == NULL) {
             // Add parent directory to list of dirs with files
             parent_entry = malloc(sizeof(struct dirq_entry));

@@ -61,17 +61,25 @@ static void my_result_callback2(MediaScan *s, MediaScanResult *result, void *use
 		ms_dump_result(result);
 }
 
-void check_mimetypes() {
+void check_mimetypes(int argc, char *argv[]) {
 	long start_count = 0,
 		end_count = 0;
-	#ifndef WIN32
+
+#ifndef WIN32
   char *bin = NULL;
+  struct timeval now;
 #endif
 
   char *dir = NULL;
   MediaScan *s = NULL;
 
-	start_count = GetTickCount();
+
+#ifdef WIN32
+  start_count = GetTickCount();
+#else
+  gettimeofday(&now, NULL);
+  start_count = now.tv_sec;
+#endif
 
 #ifdef WIN32
 //  dir = _abspath(bin, "data\\video\\dlna"); // because binary is in .libs dir
@@ -98,7 +106,14 @@ void check_mimetypes() {
   free(bin);
 #endif
 
-	end_count = GetTickCount();
+#ifdef WIN32
+  end_count = GetTickCount();
+#else
+  gettimeofday(&now, NULL);
+  end_count = now.tv_sec;
+#endif
+
+
 
 	printf("------------------------------------------------------\nTotal MS %d\n", end_count - start_count);
 
@@ -182,7 +197,7 @@ int main(int argc, char *argv[])
   ms_set_log_level(INFO);
   run_unit_tests();
   // 
-  //check_mimetypes();
+  //check_mimetypes(argc, argv);
 
 
 

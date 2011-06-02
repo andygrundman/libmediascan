@@ -397,6 +397,55 @@ static void test_win32_shortcuts(void)	{
 
 } /* test_win32_shortcuts() */
 
+static void test_mac_shortcuts(void)	{
+	const char *test_path = "data/video/macshortcuts";
+	
+	const char *test_file1 = "data/video/macshortcuts/avi_link";
+	const char *test_file2 = "data/video/macshortcuts/dlna";
+	const char *test_file3 = "data/video/macshortcuts/dnla_link";
+	const char *test_file4 = "data/video/macshortcuts/bars-mpeg4-mp2.avi";
+	const char *dest_test_file4 = "/Users/Fox/workspace/libmediascan/test/data/video/bars-mpeg4-mp2.avi";
+	char out_path[MAX_PATH];
+
+	MediaScan *s = ms_create();
+
+	CU_ASSERT_FATAL(s != NULL);
+
+	// Do some setup for the test
+	result_called = 0;
+	ms_errno = 0;
+
+	CU_ASSERT(s->on_result == NULL);
+	ms_set_result_callback(s, my_result_callback);
+	CU_ASSERT(s->on_result == my_result_callback);
+
+	CU_ASSERT(s->on_error == NULL);
+	ms_set_error_callback(s, my_error_callback); 
+	CU_ASSERT(s->on_error == my_error_callback);
+
+	CU_ASSERT(s->npaths == 0);
+	ms_add_path(s, test_file2);
+	CU_ASSERT(s->npaths == 1);
+
+	ms_scan(s);
+	CU_ASSERT( result_called == 1 );
+
+//	if(isAlias(test_file1))
+//		printf("%s is a link\n", test_file1);
+//	if(isAlias(test_file2))
+//		printf("%s is a link\n", test_file2);
+//	if(isAlias(test_file3))
+//		printf("%s is a link\n", test_file3);
+//	if(isAlias(test_file4))
+//		printf("%s is a link\n", test_file4);
+//	CheckMacAlias(test_file4, out_path);
+//	printf("Points to %s\n", out_path);
+
+//	ms_scan_file(s, test_file4, TYPE_UNKNOWN);
+
+	ms_destroy(s);
+
+} /* test_mac_shortcuts() */
 
 static void test_async_api(void)	{
 
@@ -406,7 +455,7 @@ static void test_async_api(void)	{
 	const char dir[MAX_PATH] = "data\\video\\dlna";
 	#else
 	const char dir[MAX_PATH] = "data/video/dlna";
-  struct timeval now;
+  	struct timeval now;
 	#endif
 
 	MediaScan *s = ms_create();
@@ -442,7 +491,7 @@ static void test_async_api(void)	{
   time1 = GetTickCount();
 #else
   gettimeofday(&now, NULL);
-  time1 = then.tv_sec;
+  time1 = now.tv_sec;
 #endif
 
 	ms_scan(s);
@@ -452,7 +501,7 @@ static void test_async_api(void)	{
   time2 = GetTickCount();
 #else
   gettimeofday(&now, NULL);
-  time2 = then.tv_sec;
+  time2 = now.tv_sec;
 #endif
 
 	// Verify that the function returns almost immediately
@@ -491,8 +540,11 @@ int setupbackground_tests() {
 //   NULL == CU_add_test(pSuite, "Test background scanning Deletion", test_background_api2) //||
 //	   NULL == CU_add_test(pSuite, "Test Async scanning API", test_async_api)
 //   NULL == CU_add_test(pSuite, "Test edge cases of background scanning API", test_background_api3) 
+#ifdef WIN32
    NULL == CU_add_test(pSuite, "Test Win32 shortcuts", test_win32_shortcuts) 
-
+#else
+   NULL == CU_add_test(pSuite, "Test Mac shortcuts", test_mac_shortcuts) 
+#endif
    
 	   )
    {
