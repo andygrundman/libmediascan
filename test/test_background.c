@@ -428,7 +428,31 @@ static void test_mac_shortcuts(void)	{
 	CU_ASSERT(s->npaths == 1);
 
 	ms_scan(s);
-	CU_ASSERT( result_called == 1 );
+	CU_ASSERT( result_called == 5 );
+	
+	ms_destroy(s);
+	s = ms_create();
+
+	CU_ASSERT_FATAL(s != NULL);
+
+	// Do some setup for the test
+	result_called = 0;
+	ms_errno = 0;
+
+	CU_ASSERT(s->on_result == NULL);
+	ms_set_result_callback(s, my_result_callback);
+	CU_ASSERT(s->on_result == my_result_callback);
+
+	CU_ASSERT(s->on_error == NULL);
+	ms_set_error_callback(s, my_error_callback); 
+	CU_ASSERT(s->on_error == my_error_callback);
+
+	CU_ASSERT(s->npaths == 0);
+	ms_add_path(s, test_file3);
+	CU_ASSERT(s->npaths == 1);
+
+	ms_scan(s);
+	CU_ASSERT( result_called == 5 );	
 
 //	if(isAlias(test_file1))
 //		printf("%s is a link\n", test_file1);

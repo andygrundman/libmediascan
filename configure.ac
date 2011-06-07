@@ -43,7 +43,7 @@ AC_ARG_WITH(bdb,
        ]
 )
 CFLAGS="-I$bdbdir/include $CFLAGS"
-LDFLAGS="-framework CoreFoundation -framework CoreServices -L$bdbdir/lib $LDFLAGS"
+LDFLAGS="-framework CoreFoundation -framework CoreServices -framework Carbon -L$bdbdir/lib $LDFLAGS"
 AC_SEARCH_LIBS([db_create], [db], [] ,[AC_MSG_ERROR(cannot find libdb.so in $bdbdir/lib)])
 AC_CHECK_HEADERS([db.h], [] ,[AC_MSG_ERROR(cannot find db.h in $bdbdir/include)])
 

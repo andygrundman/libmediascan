@@ -113,7 +113,7 @@ void recurse_dir(MediaScan *s, const char *path) {
       else {
         enum media_type type = _should_scan(s, name);
 
-LOG_INFO("name %s = type %d\n", name, type);
+		LOG_INFO("name %s = type %d\n", name, type);
 
         if (type) {
           struct fileq_entry *entry;

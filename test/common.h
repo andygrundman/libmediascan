@@ -47,6 +47,11 @@ _abspath(const char *bin, const char *path)
 
 #ifdef __APPLE__
 
+#define LINK_NONE 		0
+#define LINK_ALIAS 		1
+#define LINK_SYMLINK 	2
+
+
 int isAlias(const char *incoming_path);
 int CheckMacAlias(const char *incoming_path, char *out_path);
 
