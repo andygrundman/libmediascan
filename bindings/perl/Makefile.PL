@@ -12,7 +12,7 @@ my ($jpeg_inc, $jpeg_lib, $png_inc, $png_lib, $gif_inc, $gif_lib, $gif_lib_name)
 my ($bdb_inc, $bdb_lib);
 my $static;
 
-my $DEFINES = '-O2';
+my $DEFINES = '-O2 /D "PTW32_STATIC_LIB" /D "WIN32"';
 $DEFINES .= ' -Wall' unless $^O =~ /sun|solaris|Win32/i;
 $DEFINES .= ' -Wno-unused-value -Wno-format-security' unless $^O =~ /Win32|sun|solaris/i;
 

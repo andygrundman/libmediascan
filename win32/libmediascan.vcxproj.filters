@@ -12,6 +12,9 @@
     <Filter Include="libdlna">
       <UniqueIdentifier>{a6cf413b-352f-49b6-872e-7731e114de20}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Library">
+      <UniqueIdentifier>{103df2fe-0fd7-4051-989e-c8b9b3880bf1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\buffer.c">
@@ -131,6 +134,9 @@
     <ClCompile Include="..\src\database.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\image_tiff.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\libmediascan.h">
@@ -172,5 +178,10 @@
     <ClInclude Include="..\src\database.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="tiff-3.8.2\lib\libtiff.lib">
+      <Filter>Library</Filter>
+    </Library>
   </ItemGroup>
 </Project>

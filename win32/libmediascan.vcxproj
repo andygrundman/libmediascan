@@ -130,6 +130,7 @@ copy $(ProjectDir)\pthreads.2\sched.h $(ProjectDir)..\bindings\perl\win32\includ
     <ClCompile Include="..\src\image_gif.c" />
     <ClCompile Include="..\src\image_jpeg.c" />
     <ClCompile Include="..\src\image_png.c" />
+    <ClCompile Include="..\src\image_tiff.c" />
     <ClCompile Include="..\src\jenkins\lookup3.c" />
     <ClCompile Include="..\src\libdlna\audio_aac.c" />
     <ClCompile Include="..\src\libdlna\audio_ac3.c" />
@@ -176,6 +177,9 @@ copy $(ProjectDir)\pthreads.2\sched.h $(ProjectDir)..\bindings\perl\win32\includ
     <ClInclude Include="..\src\video.h" />
     <ClInclude Include="..\src\wav.h" />
     <ClInclude Include="include\win32config.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="tiff-3.8.2\lib\libtiff.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

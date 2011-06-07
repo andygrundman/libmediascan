@@ -18,6 +18,10 @@
 #include "image_gif.h"
 #include "image_bmp.h"
 
+#ifdef TIFF_SUPPORT
+#include "image_tiff.h"
+#endif
+
 MediaScanImage *image_create(void) {
   MediaScanImage *i = (MediaScanImage *)calloc(sizeof(MediaScanImage), 1);
   if (i == NULL) {
@@ -33,6 +37,9 @@ MediaScanImage *image_create(void) {
   i->_bmp = NULL;
   i->_png = NULL;
   i->_jpeg = NULL;
+#ifdef TIFF_SUPPORT
+  i->_tiff = NULL;
+#endif
   i->_pixbuf = NULL;
   i->_dbuf = NULL;
 
@@ -102,6 +109,17 @@ int image_read_header(MediaScanImage *i, MediaScanResult *r) {
         }
       }
       break;
+#ifdef TIFF_SUPPORT
+    case 'I':
+      if (bptr[1] == 'I' && bptr[1] == '*') {
+        i->codec = "TIFF";
+        if (!image_tiff_read_header(i, r)) {
+          ret = 0;
+          goto out;
+        }
+      }
+      break;
+#endif
   }
 
   if (!i->codec) {
@@ -146,6 +164,14 @@ int image_load(MediaScanImage *i, MediaScanThumbSpec *spec_hint) {
       goto out;
     }
   }
+#ifdef TIFF_SUPPORT
+  else if (!strcmp("TIFF", i->codec)) {
+    if (!image_tiff_load(i)) {
+      ret = 0;
+      goto out;
+    }
+  }
+#endif
 
 out:
   return ret;
@@ -174,6 +200,11 @@ void image_unload(MediaScanImage *i) {
 
   if (i->_gif)
     image_gif_destroy(i);
+
+#ifdef TIFF_SUPPORT
+  if (i->_tiff)
+    image_tiff_destroy(i);
+#endif
 
   if (i->_pixbuf_size && !i->_pixbuf_is_copy) {
     LOG_MEM("destroy pixbuf @ %p of size %d bytes\n", i->_pixbuf, i->_pixbuf_size);

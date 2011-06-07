@@ -606,8 +606,8 @@ int run_unit_tests()
    }
 #endif
 	 
-   setupbackground_tests();
-
+//   setupbackground_tests();
+   setupimage_tests();
 //	 setup_thumbnail_tests();
 
    /* Run all tests using the CUnit Basic interface */
