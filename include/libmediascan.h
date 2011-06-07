@@ -131,6 +131,9 @@ struct _Image {
   void *_png;                   // PNG-specific internal data
   void *_bmp;                   // BMP-specific internal data
   void *_gif;                   // GIF-specific internal data
+#ifdef TIFF_SUPPORT
+  void *_tiff;                  // TIFF-specific internal data
+#endif
 };
 typedef struct _Image MediaScanImage;
 

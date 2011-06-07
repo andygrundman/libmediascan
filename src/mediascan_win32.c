@@ -17,6 +17,7 @@
 #include <objidl.h>
 #include <shlguid.h>
 #include <shlobj.h>   /* For IShellLink */
+#include <Shlwapi.h>
 
 #include <libmediascan.h>
 
@@ -96,7 +97,7 @@ void recurse_dir(MediaScan *s, const char *path) {
   char *tmp_full_path;
   struct dirq_entry *parent_entry = NULL; // entry for current dir in s->_dirq
   struct dirq *subdirq;         // list of subdirs of the current directory
-
+  char redirect_dir[MAX_PATH];
 
   // Windows directory browsing variables
   HANDLE hFind = INVALID_HANDLE_VALUE;
@@ -184,6 +185,26 @@ void recurse_dir(MediaScan *s, const char *path) {
       else {
         enum media_type type = _should_scan(s, name);
 
+		// Check if this file is a shortcut and if so resolve it
+		if( type == TYPE_LNK )
+		{
+		char full_name[MAX_PATH];
+		strcpy(full_name, dir);
+		strcat(full_name, "\\");
+		strcat(full_name, name);
+		parse_lnk(full_name, redirect_dir, MAX_PATH);
+		if(PathIsDirectory(redirect_dir))
+			{
+	        struct dirq_entry *subdir_entry = malloc(sizeof(struct dirq_entry));
+
+			subdir_entry->dir = _strdup(redirect_dir);
+			SIMPLEQ_INSERT_TAIL(subdirq, subdir_entry, entries);
+
+			LOG_INFO(" subdir: %s\n", tmp_full_path);
+			type = 0;
+			}
+
+		}
         if (type) {
           struct fileq_entry *entry;
 
