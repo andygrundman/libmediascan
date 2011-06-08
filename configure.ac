@@ -43,7 +43,23 @@ AC_ARG_WITH(bdb,
        ]
 )
 CFLAGS="-I$bdbdir/include $CFLAGS"
+
+case "$target_os" in
+	tiger*)
 LDFLAGS="-framework CoreFoundation -framework CoreServices -framework Carbon -L$bdbdir/lib $LDFLAGS"
+;;
+	darwin*)
+LDFLAGS="-framework CoreFoundation -framework CoreServices -framework Carbon -L$bdbdir/lib $LDFLAGS"
+;;
+	apple*)
+LDFLAGS="-framework CoreFoundation -framework CoreServices -framework Carbon -L$bdbdir/lib $LDFLAGS"
+;;
+	*)
+AM_CONDITIONAL(LINUX, true)
+LDFLAGS="-L$bdbdir/lib $LDFLAGS"
+;;
+esac	
+
 AC_SEARCH_LIBS([db_create], [db], [] ,[AC_MSG_ERROR(cannot find libdb.so in $bdbdir/lib)])
 AC_CHECK_HEADERS([db.h], [] ,[AC_MSG_ERROR(cannot find db.h in $bdbdir/include)])
 
