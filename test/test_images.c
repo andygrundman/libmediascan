@@ -5,7 +5,7 @@
 
 #include "../src/mediascan.h"
 #include "../src/database.h"
-#include "Cunit/CUnit/Headers/Basic.h"
+#include "CUnit/CUnit/Headers/Basic.h"
 
 #ifndef MAX_PATH
 #define MAX_PATH 1024
@@ -72,6 +72,18 @@ static void test_image_scanning(void)	{
 	const char file10[MAX_PATH] = "data\\image\\larger\\test_pattern.gif";
 	const char file11[MAX_PATH] = "data\\image\\larger\\test-pattern.jpg";
 	#else
+	const char file01[MAX_PATH] = "data/image/larger/cat_1.png";
+	const char file02[MAX_PATH] = "data/image/larger/hs-1991-05-a-full_jpg.jpg";
+	const char file03[MAX_PATH] = "data/image/larger/hs-1991-05-a-full_tif.tif";
+	const char file04[MAX_PATH] = "data/image/larger/hs-1995-14-a-full_tif.tif";
+	const char file05[MAX_PATH] = "data/image/larger/hs-1995-49-a-full_tif.tif";
+	const char file06[MAX_PATH] = "data/image/larger/hs-2005-02-c-full_jpg.jpg";
+	const char file07[MAX_PATH] = "data/image/larger/QCpatternA-v2.bmp";
+	const char file08[MAX_PATH] = "data/image/larger/star-chart-bars-full-600dpi.png";
+	const char file09[MAX_PATH] = "data/image/larger/test pattern.jpg";
+	const char file10[MAX_PATH] = "data/image/larger/test_pattern.gif";
+	const char file11[MAX_PATH] = "data/image/larger/test-pattern.jpg";
+
 	const char dir[MAX_PATH] = "data/video/dlna";
   struct timeval now;
 	#endif

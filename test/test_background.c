@@ -19,7 +19,7 @@
 
 #include "../src/mediascan.h"
 #include "../src/database.h"
-#include "Cunit/CUnit/Headers/Basic.h"
+#include "CUnit/CUnit/Headers/Basic.h"
 
 #ifndef MAX_PATH
 #define MAX_PATH 1024
@@ -397,6 +397,88 @@ static void test_win32_shortcuts(void)	{
 
 } /* test_win32_shortcuts() */
 
+static void test_linux_shortcuts(void)	{
+	const char *test_path = "data/video/linuxshortcuts";
+	
+	// file is bars-mpeg4-aac.m4v
+	const char *test_file1 = "data/video/linuxshortcuts/dlna_abs.symlink";
+	const char *test_file2 = "data/video/linuxshortcuts/dlna_rel.symlink";
+	const char *test_file3 = "data/video/linuxshortcuts/MPEG_POS_NTSC-ac3_abs.symlink";
+	const char *test_file4 = "data/video/linuxshortcuts/MPEG_POS_NTSC-ac3_rel.symlink";
+	const char *dest_test_file1 = "data/video/dnla/MPEG_PS_NTSC-ac3.mpg";
+	char out_path[MAX_PATH];
+
+	MediaScan *s = ms_create();
+
+	CU_ASSERT_FATAL(s != NULL);
+
+	// Do some setup for the test
+	result_called = 0;
+	ms_errno = 0;
+
+	CU_ASSERT(s->on_result == NULL);
+	ms_set_result_callback(s, my_result_callback);
+	CU_ASSERT(s->on_result == my_result_callback);
+
+	CU_ASSERT(s->on_error == NULL);
+	ms_set_error_callback(s, my_error_callback); 
+	CU_ASSERT(s->on_error == my_error_callback);
+
+	CU_ASSERT(s->npaths == 0);
+	//ms_add_path(s, test_file1);
+	CU_ASSERT(s->npaths == 1);
+
+	ms_scan(s);
+	CU_ASSERT( result_called == 5 );
+	
+	ms_destroy(s);
+	s = ms_create();
+
+	CU_ASSERT_FATAL(s != NULL);
+
+	// Do some setup for the test
+	result_called = 0;
+	ms_errno = 0;
+
+	CU_ASSERT(s->on_result == NULL);
+	ms_set_result_callback(s, my_result_callback);
+	CU_ASSERT(s->on_result == my_result_callback);
+
+	CU_ASSERT(s->on_error == NULL);
+	ms_set_error_callback(s, my_error_callback); 
+	CU_ASSERT(s->on_error == my_error_callback);
+/*
+	CU_ASSERT(s->npaths == 0);
+	ms_add_path(s, test_file3);
+	CU_ASSERT(s->npaths == 1);
+
+	ms_scan(s);
+	CU_ASSERT( result_called == 5 );	
+*/
+//	if(isAlias(test_file1))
+//		printf("%s is a link\n", test_file1);
+//	if(isAlias(test_file2))
+//		printf("%s is a link\n", test_file2);
+//	if(isAlias(test_file3))
+//		printf("%s is a link\n", test_file3);
+//	if(isAlias(test_file4))
+//		printf("%s is a link\n", test_file4);
+//	CheckMacAlias(test_file4, out_path);
+//	printf("Points to %s\n", out_path);
+
+	result_called = 0;
+	ms_scan_file(s, test_file3, TYPE_UNKNOWN);
+	CU_ASSERT( result_called == 1 );
+
+	//reset_bdb(s);
+	//result_called = 0;
+	//ms_scan_file(s, test_file4, TYPE_UNKNOWN);
+	//CU_ASSERT( result_called == 1 );
+
+	ms_destroy(s);
+
+} /* test_linux_shortcuts() */
+
 static void test_mac_shortcuts(void)	{
 	const char *test_path = "data/video/macshortcuts";
 	
@@ -564,8 +646,10 @@ int setupbackground_tests() {
 //   NULL == CU_add_test(pSuite, "Test background scanning Deletion", test_background_api2) //||
 //	   NULL == CU_add_test(pSuite, "Test Async scanning API", test_async_api)
 //   NULL == CU_add_test(pSuite, "Test edge cases of background scanning API", test_background_api3) 
-#ifdef WIN32
+#if defined(WIN32)
    NULL == CU_add_test(pSuite, "Test Win32 shortcuts", test_win32_shortcuts) 
+#elif defined(__linux__)
+   NULL == CU_add_test(pSuite, "Test Linux shortcuts", test_linux_shortcuts) 
 #else
    NULL == CU_add_test(pSuite, "Test Mac shortcuts", test_mac_shortcuts) 
 #endif

@@ -13,7 +13,7 @@
 #include <libavformat/avformat.h>
 
 #include "../src/mediascan.h"
-#include "Cunit/CUnit/Headers/Basic.h"
+#include "CUnit/CUnit/Headers/Basic.h"
 
 #ifndef MAX_PATH
 #define MAX_PATH 1024
@@ -613,8 +613,8 @@ int run_unit_tests()
    }
 #endif
 	 
-//   setupbackground_tests();
-   setupimage_tests();
+   setupbackground_tests();
+//   setupimage_tests();
 //	 setup_thumbnail_tests();
 
    /* Run all tests using the CUnit Basic interface */

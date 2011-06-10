@@ -50,4 +50,10 @@ extern enum log_level Debug;
 // Define to have ms_dump_result write out thumbnail images
 #define DUMP_THUMBNAILS
 
+#if defined(__linux__)
+int PathIsDirectory(const char *dir);
+int FollowLink(const char *incoming_path, char *out_path);
+int isAlias(const char *incoming_path);
+#endif
+
 #endif // _COMMON_H
