@@ -595,21 +595,24 @@ enum {
 /*
  * pthread_attr_{get,set}detachstate
  */
+#ifndef PTHREAD_CREATE_JOINABLE
   PTHREAD_CREATE_JOINABLE       = 0,  /* Default */
   PTHREAD_CREATE_DETACHED       = 1,
-
+#endif
 /*
  * pthread_attr_{get,set}inheritsched
  */
+#ifndef PTHREAD_INHERIT_SCHED
   PTHREAD_INHERIT_SCHED         = 0,
   PTHREAD_EXPLICIT_SCHED        = 1,  /* Default */
-
+#endif
 /*
  * pthread_{get,set}scope
  */
+#ifndef PTHREAD_SCOPE_PROCESS
   PTHREAD_SCOPE_PROCESS         = 0,
   PTHREAD_SCOPE_SYSTEM          = 1,  /* Default */
-
+#endif
 /*
  * pthread_setcancelstate paramters
  */
@@ -619,20 +622,24 @@ enum {
 /*
  * pthread_setcanceltype parameters
  */
+#ifndef PTHREAD_CANCEL_ASYNCHRONOUS
   PTHREAD_CANCEL_ASYNCHRONOUS   = 0,
   PTHREAD_CANCEL_DEFERRED       = 1,  /* Default */
-
+#endif
 /*
  * pthread_mutexattr_{get,set}pshared
  * pthread_condattr_{get,set}pshared
  */
+#ifndef PTHREAD_PROCESS_PRIVATE
   PTHREAD_PROCESS_PRIVATE       = 0,
   PTHREAD_PROCESS_SHARED        = 1,
-
+#endif
 /*
  * pthread_barrier_wait
  */
+#ifndef PTHREAD_BARRIER_SERIAL_THREAD
   PTHREAD_BARRIER_SERIAL_THREAD = -1
+#endif
 };
 
 /*

@@ -55,6 +55,7 @@
       <AdditionalOptions>
  %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -86,6 +87,9 @@ copy $(ProjectDir)\pthreads.2\pthread.h $(ProjectDir)..\bindings\perl\win32\incl
 copy $(ProjectDir)\pthreads.2\sched.h $(ProjectDir)..\bindings\perl\win32\include
 </Command>
     </PostBuildEvent>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -96,7 +100,7 @@ copy $(ProjectDir)\pthreads.2\sched.h $(ProjectDir)..\bindings\perl\win32\includ
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_DEBUG;_LIB;PTW32_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..;$(SolutionDir)..\include;$(SolutionDir)include;$(ProjectDir)pthreads.2;$(ProjectDir)zlib-1.2.5;$(ProjectDir)libpng-1.5.2;$(ProjectDir)jpeg-8a;C:\mingw\msys\1.0\local\include;$(SolutionDir)..\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..;$(SolutionDir)..\include;$(SolutionDir)include;$(ProjectDir)pthreads.2;$(ProjectDir)zlib-1.2.5;$(ProjectDir)libpng-1.5.2;$(ProjectDir)giflib-4.1.6\lib;$(ProjectDir)jpeg-8a;C:\mingw\msys\1.0\local\include;$(SolutionDir)..\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <StringPooling>true</StringPooling>
       <BufferSecurityCheck>true</BufferSecurityCheck>
@@ -114,7 +118,7 @@ copy $(ProjectDir)\pthreads.2\sched.h $(ProjectDir)..\bindings\perl\win32\includ
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>libgcc.a;libmingwex.lib;$(ProjectDir)Release\libpng15.lib;$(ProjectDir)Release\zlib.lib;$(ProjectDir)Release\jpeg.lib;$(ProjectDir)Release\pthread.lib;$(ProjectDir)giflib-4.1.6\windows\Release\libungif.lib;libavcodec.a;libavformat.a;libavutil.a;libswscale.a;libexif.a;libintl.lib;$(ProjectDir)..\lib\libdb_small51s.lib;libbz2.a;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>shlwapi.lib; libgcc.a;libmingwex.lib;$(ProjectDir)Release\libpng15.lib;$(ProjectDir)Release\zlib.lib;$(ProjectDir)Release\jpeg.lib;$(ProjectDir)Release\pthread.lib;$(ProjectDir)giflib-4.1.6\windows\Release\libungif.lib;libavcodec.a;libavformat.a;libavutil.a;libswscale.a;libexif.a;libintl.lib;$(ProjectDir)..\lib\libdb_small51s.lib;libbz2.a;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)\..\lib;C:\mingw\msys\1.0\local\lib;C:\mingw\lib\gcc\mingw32\4.5.2;C:\mingw\lib;D:\workspace\scan\test</AdditionalLibraryDirectories>
       <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
     </Lib>
