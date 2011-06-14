@@ -349,6 +349,7 @@ WriteMakefile(
     INC               => join(' ', @INC),
     LIBS              => [ join(' ', @LIBPATH, @LIBS) ],
     DEFINE            => $DEFINES,
+    LDDLFLAGS					=> '-dll -nologo -nodefaultlib -debug -opt:ref,icf  -libpath:"C:\Perl\lib\CORE" -machine:x86 -manifest -ManifestFile:$@.manifest',
     MYEXTLIB          => $MYEXTLIB,
     depend            => { 'Scan.c' => "$xs_files" },
 );
