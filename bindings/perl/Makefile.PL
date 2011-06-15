@@ -333,7 +333,7 @@ MAKEFILE:
 
 if ( $^O =~ /Win32/i ) {
     *MY::postamble = sub {};
-    $MYEXTLIB .= "C:/MinGW/lib/libcoldname.a ";
+    $MYEXTLIB .= " ";
 }
 
 my $xs_files  = join(' ', glob 'xs/*.xs');
