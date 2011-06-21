@@ -118,20 +118,6 @@ fail:
   return -1;
 }
 
-/*
-#define s_socketpair(domain,type,protocol,filedes) s_pipe (filedes)
-
-static int
-s_fd_blocking (int fd, int blocking)
-{
-  u_long nonblocking = !blocking;
-
-  return ioctlsocket ((SOCKET)S_TO_HANDLE (fd), FIONBIO, &nonblocking);
-}
-
-#define s_fd_prepare(fd) s_fd_blocking (fd, 0)
-*/
-
 #endif
 
 
@@ -207,7 +193,7 @@ int thread_get_result_fd(MediaScanThread *t) {
 // Queue a new event
 void thread_queue_event(MediaScanThread *t, enum event_type type, void *data) {
   struct equeue_entry *entry = malloc(sizeof(struct equeue_entry));
-  LOG_MEM("new equeue_entry @ %p (type %d, data @ %p)\n", entry, type, data);
+  LOG_DEBUG("new equeue_entry @ %p (type %d, data @ %p)\n", entry, type, data);
 
   entry->type = type;
   entry->data = data;

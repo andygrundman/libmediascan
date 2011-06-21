@@ -238,29 +238,11 @@ void recurse_dir(MediaScan *s, const char *path) {
 
   FindClose(hFind);
 
+  LOG_INFO("Going to send progress update\n");
   // Send progress update
   if (s->on_progress)
     if (progress_update(s->progress, dir))
-      s->on_progress(s, s->progress, s->userdata);
-
-/* Old Progress Code
-  // Send progress update
-  if (s->on_progress) {
-	long tick_ms = GetTickCount();
-
-	// Check to see if _last_callback needs to be set to a reasonable time
-	if( s->progress->_last_callback == 0 )
-	{
-		s->progress->_last_callback = tick_ms;
-	}
-
-    if (tick_ms - s->progress->_last_callback >= s->progress_interval) {
-      s->progress->cur_item = dir;
-      s->progress->_last_callback = tick_ms;
-      s->on_progress(s, s->progress);
-    }
-  } */
-
+      send_progress(s);
 
   // process subdirs
   while (!SIMPLEQ_EMPTY(subdirq)) {
@@ -269,7 +251,6 @@ void recurse_dir(MediaScan *s, const char *path) {
     recurse_dir(s, subdir_entry->dir);
     free(subdir_entry);
   }
-
   free(subdirq);
   free(tmp_full_path);
 
