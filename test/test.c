@@ -24,7 +24,7 @@ int setup_thumbnail_tests();
 
 
 #ifdef _MSC_VER
-
+/*
 int strcasecmp(const char *string1, const char *string2 )
 {
 	return _stricmp(string1, string2);
@@ -35,7 +35,7 @@ int strncasecmp(const char *string1, const char *string2, size_t count )
 {
 	return _strnicmp(string1, string2, count);
 }
-
+*/
 #endif
 
 

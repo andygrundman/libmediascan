@@ -622,6 +622,67 @@ static void test_async_api(void)	{
 	ms_destroy(s);
 } /* test_async_api() */
 
+static void test_async_api2(void)	{
+
+  long time1, time2;
+
+	#ifdef WIN32
+	const char dir[MAX_PATH] = "\\Users\\andy\\Pictures";
+	#else
+	const char dir[MAX_PATH] = "/Users/andy/Pictures";
+  	struct timeval now;
+	#endif
+
+	MediaScan *s = ms_create();
+
+	CU_ASSERT(s->npaths == 0);
+	ms_add_path(s, dir);
+	CU_ASSERT(s->npaths == 1);
+
+	CU_ASSERT(s->on_result == NULL);
+	ms_set_result_callback(s, my_result_callback);
+	CU_ASSERT(s->on_result == my_result_callback);
+
+	CU_ASSERT(s->on_error == NULL);
+	ms_set_error_callback(s, my_error_callback); 
+	CU_ASSERT(s->on_error == my_error_callback);
+
+	CU_ASSERT( s->async == FALSE );
+	ms_set_async(s, TRUE);
+	CU_ASSERT( s->async == TRUE );
+
+	ms_set_cachedir(s, "\\tmp\\libmediascan");
+	ms_set_flags(s, MS_USE_EXTENSION);
+#ifdef WIN32
+  time1 = GetTickCount();
+#else
+  gettimeofday(&now, NULL);
+  time1 = now.tv_sec;
+#endif
+
+	ms_scan(s);
+	CU_ASSERT( result_called == 0 );
+
+#ifdef WIN32
+  time2 = GetTickCount();
+#else
+  gettimeofday(&now, NULL);
+  time2 = now.tv_sec;
+#endif
+
+	// Verify that the function returns almost immediately
+	CU_ASSERT( time2 - time1 < 20 );
+
+	Sleep(1000); // Sleep 1 second
+
+	// Now process the callbacks
+	ms_async_process(s);
+	CU_ASSERT( result_called == 8 );
+
+	ms_destroy(s);
+} /* test_async_api2() */
+
+
 ///-------------------------------------------------------------------------------------------------
 ///  Setup background tests.
 ///
@@ -644,8 +705,9 @@ int setupbackground_tests() {
    if (
 //   NULL == CU_add_test(pSuite, "Test background scanning API", test_background_api) 
 //   NULL == CU_add_test(pSuite, "Test background scanning Deletion", test_background_api2) //||
-//	   NULL == CU_add_test(pSuite, "Test Async scanning API", test_async_api)
+    NULL == CU_add_test(pSuite, "Test Async scanning API 2", test_async_api2) ||
 //   NULL == CU_add_test(pSuite, "Test edge cases of background scanning API", test_background_api3) 
+
 #if defined(WIN32)
    NULL == CU_add_test(pSuite, "Test Win32 shortcuts", test_win32_shortcuts) 
 #elif defined(__linux__)
@@ -653,7 +715,7 @@ int setupbackground_tests() {
 #else
    NULL == CU_add_test(pSuite, "Test Mac shortcuts", test_mac_shortcuts) 
 #endif
-   
+
 	   )
    {
       CU_cleanup_registry();

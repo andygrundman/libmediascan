@@ -9,6 +9,10 @@
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Test|Win32">
+      <Configuration>Test</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A7CBC617-55A0-45C2-BA69-6E04C93F5297}</ProjectGuid>
@@ -17,6 +21,11 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Test|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
@@ -31,6 +40,9 @@
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Test|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -56,6 +68,7 @@
  %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -64,7 +77,70 @@
     <Lib>
       <AdditionalLibraryDirectories>$(ProjectDir)\..\lib;C:\mingw\msys\1.0\local\lib;C:\mingw\lib\gcc\mingw32\4.5.2;C:\mingw\lib;D:\workspace\scan\test</AdditionalLibraryDirectories>
       <AdditionalDependencies>shlwapi.lib;libgcc.a;libmingwex.lib;$(ProjectDir)Debug\libpng15.lib;$(ProjectDir)Debug\zlib.lib;$(ProjectDir)Debug\jpeg.lib;$(ProjectDir)Debug\pthread.lib;$(ProjectDir)giflib-4.1.6\windows\.\Debug\libungif.lib;libavcodec.a;libavformat.a;libavutil.a;libswscale.a;libexif.a;libintl.lib;$(ProjectDir)..\lib\libdb_small51s.lib;libbz2.a;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalOptions>/ignore:4006 /ignore:4221 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/ignore:4006 /ignore:4221 /ignore:4099 %(AdditionalOptions)</AdditionalOptions>
+    </Lib>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+      <Message>
+      </Message>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>copy $(TargetPath) $(ProjectDir)..\bindings\perl\win32\lib
+copy $(ProjectDir)..\include\libmediascan.h $(ProjectDir)..\bindings\perl\win32\include
+copy $(ProjectDir)\include\getopt.h $(ProjectDir)..\bindings\perl\win32\include
+copy $(ProjectDir)\include\unistd.h $(ProjectDir)..\bindings\perl\win32\include
+copy $(ProjectDir)..\lib\db.h $(ProjectDir)..\bindings\perl\win32\include
+copy $(ProjectDir)..\lib\db_config.h $(ProjectDir)..\bindings\perl\win32\include
+copy $(ProjectDir)..\lib\db_cxx.h $(ProjectDir)..\bindings\perl\win32\include
+copy $(ProjectDir)..\lib\db_int.h $(ProjectDir)..\bindings\perl\win32\include
+copy $(ProjectDir)..\lib\dbstl_common.h $(ProjectDir)..\bindings\perl\win32\include
+copy $(ProjectDir)..\lib\libintl.h $(ProjectDir)..\bindings\perl\win32\include
+copy $(ProjectDir)\pthreads.2\pthread.h $(ProjectDir)..\bindings\perl\win32\include
+copy $(ProjectDir)\pthreads.2\config.h $(ProjectDir)..\bindings\perl\win32\include
+copy $(ProjectDir)\pthreads.2\sched.h $(ProjectDir)..\bindings\perl\win32\include
+</Command>
+    </PostBuildEvent>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Test|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_LIB;_MT;PTW32_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)..;$(SolutionDir)..\include;$(SolutionDir)include;$(ProjectDir)pthreads.2;$(ProjectDir)zlib-1.2.5;$(ProjectDir)libpng-1.5.2;C:\mingw\msys\1.0\local\include;$(SolutionDir)..\lib;$(ProjectDir)giflib-4.1.6\lib;$(ProjectDir)jpeg-8a;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <CallingConvention>Cdecl</CallingConvention>
+      <CompileAs>CompileAsC</CompileAs>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <StructMemberAlignment>8Bytes</StructMemberAlignment>
+      <AdditionalOptions>
+ %(AdditionalOptions)</AdditionalOptions>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Lib>
+      <AdditionalLibraryDirectories>$(ProjectDir)\..\lib;C:\mingw\msys\1.0\local\lib;C:\mingw\lib\gcc\mingw32\4.5.2;C:\mingw\lib;D:\workspace\scan\test</AdditionalLibraryDirectories>
+      <AdditionalDependencies>shlwapi.lib;libgcc.a;libmingwex.lib;$(ProjectDir)Debug\libpng15.lib;$(ProjectDir)Debug\zlib.lib;$(ProjectDir)Debug\jpeg.lib;$(ProjectDir)Debug\pthread.lib;$(ProjectDir)giflib-4.1.6\windows\.\Debug\libungif.lib;libavcodec.a;libavformat.a;libavutil.a;libswscale.a;libexif.a;libintl.lib;$(ProjectDir)..\lib\libdb_small51s.lib;libbz2.a;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/ignore:4006 /ignore:4221 /ignore:4099 %(AdditionalOptions)</AdditionalOptions>
+      <IgnoreAllDefaultLibraries>
+      </IgnoreAllDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>
+      </IgnoreSpecificDefaultLibraries>
     </Lib>
     <PreBuildEvent>
       <Command>
@@ -97,17 +173,17 @@ copy $(ProjectDir)\pthreads.2\sched.h $(ProjectDir)..\bindings\perl\win32\includ
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <Optimization>Disabled</Optimization>
+      <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_DEBUG;_LIB;PTW32_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_MT;NDEBUG;_LIB;PTW32_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)..;$(SolutionDir)..\include;$(SolutionDir)include;$(ProjectDir)pthreads.2;$(ProjectDir)zlib-1.2.5;$(ProjectDir)libpng-1.5.2;$(ProjectDir)giflib-4.1.6\lib;$(ProjectDir)jpeg-8a;C:\mingw\msys\1.0\local\include;$(SolutionDir)..\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <StringPooling>true</StringPooling>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <DebugInformationFormat>
       </DebugInformationFormat>
-      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <CompileAs>CompileAsC</CompileAs>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <StructMemberAlignment>8Bytes</StructMemberAlignment>
@@ -122,6 +198,7 @@ copy $(ProjectDir)\pthreads.2\sched.h $(ProjectDir)..\bindings\perl\win32\includ
       <AdditionalDependencies>shlwapi.lib; libgcc.a;libmingwex.lib;$(ProjectDir)Release\libpng15.lib;$(ProjectDir)Release\zlib.lib;$(ProjectDir)Release\jpeg.lib;$(ProjectDir)Release\pthread.lib;$(ProjectDir)giflib-4.1.6\windows\Release\libungif.lib;libavcodec.a;libavformat.a;libavutil.a;libswscale.a;libexif.a;libintl.lib;$(ProjectDir)..\lib\libdb_small51s.lib;libbz2.a;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)\..\lib;C:\mingw\msys\1.0\local\lib;C:\mingw\lib\gcc\mingw32\4.5.2;C:\mingw\lib;D:\workspace\scan\test</AdditionalLibraryDirectories>
       <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
+      <IgnoreSpecificDefaultLibraries>MSVCRTD;LIBCMT</IgnoreSpecificDefaultLibraries>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -157,6 +234,7 @@ copy $(ProjectDir)\pthreads.2\sched.h $(ProjectDir)..\bindings\perl\win32\includ
     <ClCompile Include="..\src\libdlna\upnp_dms.c" />
     <ClCompile Include="..\src\mediascan.c">
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">/D "_CRT_SECURE_NO_WARNINGS" %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Test|Win32'">/D "_CRT_SECURE_NO_WARNINGS" %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <ClCompile Include="..\src\mediascan_win32.c" />
     <ClCompile Include="..\src\progress.c" />

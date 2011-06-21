@@ -12,6 +12,16 @@
 
 #include "win32config.h"
 
+int strcasecmp(const char *string1, const char *string2 )
+{
+	return _stricmp(string1, string2);
+}
+
+int strncasecmp(const char *s1, const char *s2, size_t n)
+{
+	return _strnicmp(s1, s2, n); 
+}
+
 ///-------------------------------------------------------------------------------------------------
 ///  Gets a file size.
 ///
