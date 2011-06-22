@@ -109,6 +109,7 @@ int deletefile(char *source)
 #endif
 
 static int result_called = 0;
+static int finish_called = 0;
 static MediaScanResult result;
 
 static void my_result_callback(MediaScan *s, MediaScanResult *r, void *userdata) {
@@ -151,6 +152,13 @@ static void my_result_callback(MediaScan *s, MediaScanResult *r, void *userdata)
 static void my_error_callback(MediaScan *s, MediaScanError *error, void *userdata) { 
 
 } /* my_error_callback() */
+
+static void my_finish_callback(MediaScan *s, void *userdata) { 
+	finish_called = TRUE;
+} /* my_finish_callback() */
+
+
+
 
 ///-------------------------------------------------------------------------------------------------
 ///  Test background api
@@ -625,6 +633,8 @@ static void test_async_api(void)	{
 static void test_async_api2(void)	{
 
   long time1, time2;
+  int fd;
+  fd_set WriteFDs;
 
 	#ifdef WIN32
 	const char dir[MAX_PATH] = "\\Users\\andy\\Pictures";
@@ -634,7 +644,7 @@ static void test_async_api2(void)	{
 	#endif
 
 	MediaScan *s = ms_create();
-
+	ms_set_log_level(DEBUG);
 	CU_ASSERT(s->npaths == 0);
 	ms_add_path(s, dir);
 	CU_ASSERT(s->npaths == 1);
@@ -646,6 +656,11 @@ static void test_async_api2(void)	{
 	CU_ASSERT(s->on_error == NULL);
 	ms_set_error_callback(s, my_error_callback); 
 	CU_ASSERT(s->on_error == my_error_callback);
+
+	CU_ASSERT(s->on_finish == NULL);
+	ms_set_finish_callback(s, my_finish_callback); 
+	CU_ASSERT(s->on_finish == my_finish_callback);
+
 
 	CU_ASSERT( s->async == FALSE );
 	ms_set_async(s, TRUE);
@@ -660,6 +675,7 @@ static void test_async_api2(void)	{
   time1 = now.tv_sec;
 #endif
 
+	finish_called = 0;
 	ms_scan(s);
 	CU_ASSERT( result_called == 0 );
 
@@ -672,11 +688,21 @@ static void test_async_api2(void)	{
 
 	// Verify that the function returns almost immediately
 	CU_ASSERT( time2 - time1 < 20 );
+	
+	fd = ms_async_fd(s);
 
-	Sleep(1000); // Sleep 1 second
-
+	FD_ZERO(&WriteFDs);
+	FD_SET(fd, &WriteFDs);
+	while( select(0, &WriteFDs, 0, 0, 0) > 0)
+	{
+	printf("Activity on a socket!!! \n");
 	// Now process the callbacks
 	ms_async_process(s);
+
+	if(	finish_called )
+		break;
+	}
+
 	CU_ASSERT( result_called == 8 );
 
 	ms_destroy(s);
@@ -704,10 +730,10 @@ int setupbackground_tests() {
    /* add the tests to the background scanning suite */
    if (
 //   NULL == CU_add_test(pSuite, "Test background scanning API", test_background_api) 
-//   NULL == CU_add_test(pSuite, "Test background scanning Deletion", test_background_api2) //||
-    NULL == CU_add_test(pSuite, "Test Async scanning API 2", test_async_api2) ||
+//   NULL == CU_add_test(pSuite, "Test background scanning Deletion", test_background_api2) 
+    NULL == CU_add_test(pSuite, "Test Async scanning API 2", test_async_api2) 
 //   NULL == CU_add_test(pSuite, "Test edge cases of background scanning API", test_background_api3) 
-
+/*
 #if defined(WIN32)
    NULL == CU_add_test(pSuite, "Test Win32 shortcuts", test_win32_shortcuts) 
 #elif defined(__linux__)
@@ -715,7 +741,7 @@ int setupbackground_tests() {
 #else
    NULL == CU_add_test(pSuite, "Test Mac shortcuts", test_mac_shortcuts) 
 #endif
-
+   */
 	   )
    {
       CU_cleanup_registry();
