@@ -37,12 +37,12 @@ int main(int argc, char *argv[])
   char *dir;
 
   plan(TEST_COUNT);  
-  ms_set_log_level(INFO);
+  ms_set_log_level(MEMORY);
 
   // Get path to this binary
   bin = _findbin(argv[0]);
   //dir = _abspath(bin, "../data"); // because binary is in .libs dir
-  dir = "/Users/andy/Pictures";
+  dir = "/Users/andy/Downloads/Mickey";
 
   // Scan all image files
   {
@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
     ms_set_finish_callback(s, my_finish_callback);
     ms_set_async(s, 1);
     //ms_set_cachedir(s, "/tmp/libmediascan");
-    ms_set_flags(s, MS_USE_EXTENSION | MS_RESCAN);
+    //ms_set_flags(s, MS_USE_EXTENSION | MS_RESCAN);
     ms_scan(s);
 
     // XXX Watch fd instead

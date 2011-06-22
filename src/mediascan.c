@@ -225,7 +225,7 @@ static void _init(void) {
   if (iResult != 0) {
     LOG_ERROR("WSAStartup failed: %d\n", iResult);
   }
- CoInitialize(NULL) ; // To initialize the COM library on the current thread
+  CoInitialize(NULL);           // To initialize the COM library on the current thread
 #endif
   Initialized = 1;
   ms_errno = 0;
@@ -688,56 +688,52 @@ void ms_async_process(MediaScan *s) {
 ///-------------------------------------------------------------------------------------------------
 void ms_watch_directory(MediaScan *s, const char *path) {
 
-	#ifdef WIN32
+#ifdef WIN32
 
-	thread_data_type *thread_data;
-  DWORD           dwAttrs;
+  thread_data_type *thread_data;
+  DWORD dwAttrs;
   // First check if this is a standard server share which we can't monitor
-  if(PathIsUNCServerShare(path))
-  {
+  if (PathIsUNCServerShare(path)) {
     ms_errno = MSENO_ILLEGALPARAMETER;
-	LOG_ERROR("Can not monitor a network directory\n");
-	return;
+    LOG_ERROR("Can not monitor a network directory\n");
+    return;
   }
 
   // Now check if the user is being tricky and trying to send us a mapped drive
   // See http://msdn.microsoft.com/en-us/library/aa363940%28v=VS.85%29.aspx
   // and http://msdn.microsoft.com/en-us/library/aa365511%28v=VS.85%29.aspx
   dwAttrs = GetFileAttributes(path);
-  if( dwAttrs & FILE_ATTRIBUTE_REPARSE_POINT )
-  {
-	  char temp_path[MAX_PATH];
-      WIN32_FIND_DATA FindFileData;
-	  HANDLE hFind;
+  if (dwAttrs & FILE_ATTRIBUTE_REPARSE_POINT) {
+    char temp_path[MAX_PATH];
+    WIN32_FIND_DATA FindFileData;
+    HANDLE hFind;
 
-	  strcpy(temp_path, path);
-	  strcat(temp_path, "*");
+    strcpy(temp_path, path);
+    strcat(temp_path, "*");
 
-	  hFind = FindFirstFile(temp_path, &FindFileData);
-	  if (hFind == INVALID_HANDLE_VALUE) 
-	  {
-		ms_errno = MSENO_ILLEGALPARAMETER;
-		LOG_ERROR("Directory doesn't exsist\n");
-		return;
-	  }
+    hFind = FindFirstFile(temp_path, &FindFileData);
+    if (hFind == INVALID_HANDLE_VALUE) {
+      ms_errno = MSENO_ILLEGALPARAMETER;
+      LOG_ERROR("Directory doesn't exsist\n");
+      return;
+    }
 
-	  if( (FindFileData.dwReserved0 & 0xFFFF) == IO_REPARSE_TAG_MOUNT_POINT )
-	  {
-		ms_errno = MSENO_ILLEGALPARAMETER;
-		LOG_ERROR("Can not monitor a mounted network share\n");
-		return;
-	  }
+    if ((FindFileData.dwReserved0 & 0xFFFF) == IO_REPARSE_TAG_MOUNT_POINT) {
+      ms_errno = MSENO_ILLEGALPARAMETER;
+      LOG_ERROR("Can not monitor a mounted network share\n");
+      return;
+    }
   }
 
-	thread_data = (thread_data_type *)calloc(sizeof(thread_data_type), 1);
-	thread_data->s = s;
-	thread_data->lpDir = path;
+  thread_data = (thread_data_type *)calloc(sizeof(thread_data_type), 1);
+  thread_data->s = s;
+  thread_data->lpDir = path;
 
-	s->thread = thread_create(WatchDirectory, thread_data);
-	if (!s->thread) {
-	LOG_ERROR("Unable to start async thread\n");
-	return;
-	}
+  s->thread = thread_create(WatchDirectory, thread_data);
+  if (!s->thread) {
+    LOG_ERROR("Unable to start async thread\n");
+    return;
+  }
 #endif
 
 }                               /* ms_watch_directory() */
@@ -818,8 +814,8 @@ int _should_scan(MediaScan *s, const char *path) {
           skip_image = 1;
       }
     }
-    
-    
+
+
 
     found = strstr(VideoExts, extc);
     if (found)
@@ -1068,37 +1064,33 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type) {
     return;
   }
 
-  #ifdef WIN32
-  if( strcasecmp(ext, ".lnk") == 0 )
-  {
-	// Check if this file is a shortcut and if so resolve it
-	parse_lnk(full_path, tmp_full_path, MAX_PATH);
-	if( PathIsDirectory(tmp_full_path) )
-		return;
+#ifdef WIN32
+  if (strcasecmp(ext, ".lnk") == 0) {
+    // Check if this file is a shortcut and if so resolve it
+    parse_lnk(full_path, tmp_full_path, MAX_PATH);
+    if (PathIsDirectory(tmp_full_path))
+      return;
   }
-  else
-  {
-	strcpy(tmp_full_path, full_path);
+  else {
+    strcpy(tmp_full_path, full_path);
   }
-  #endif
-  
- #ifdef __APPLE__
-  if( isAlias(full_path) )
-  {
-  	LOG_INFO("File is a mac alias\n");
-	// Check if this file is a shortcut and if so resolve it
-	CheckMacAlias(full_path, tmp_full_path);
+#endif
+
+#ifdef __APPLE__
+  if (isAlias(full_path)) {
+    LOG_INFO("File is a mac alias\n");
+    // Check if this file is a shortcut and if so resolve it
+    CheckMacAlias(full_path, tmp_full_path);
   }
-  else
-  {
-	strcpy(tmp_full_path, full_path);
-  }  
- #endif
-  
+  else {
+    strcpy(tmp_full_path, full_path);
+  }
+#endif
+
 
   // Check if the file has been recently scanned
   hash = HashFile(tmp_full_path, &mtime, &size);
-  
+
   // Skip 0-byte files
   if (unlikely(size == 0)) {
     LOG_WARN("Skipping 0-byte file: %s\n", tmp_full_path);
@@ -1211,7 +1203,7 @@ bool is_absolute_path(const char *path) {
 }                               /* is_absolute_path() */
 
 void result_add_thumbnail(MediaScanResult *r, MediaScanImage *thumb) {
-  if (r->nthumbnails < MAX_THUMBS)
+  if (r->nthumbnails < MAX_THUMBS - 1)
     r->_thumbs[r->nthumbnails++] = thumb;
 }
 

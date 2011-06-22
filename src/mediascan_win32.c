@@ -16,7 +16,7 @@
 #include <objbase.h>
 #include <objidl.h>
 #include <shlguid.h>
-#include <shlobj.h>   /* For IShellLink */
+#include <shlobj.h>             /* For IShellLink */
 #include <Shlwapi.h>
 
 #include <libmediascan.h>
@@ -35,48 +35,51 @@
 #endif
 
 int parse_lnk(const char *path, LPTSTR szTarget, SIZE_T cchTarget) {
-   char szProductCode[39];
-   char szFeatureId[MAX_FEATURE_CHARS+1];
-   char szComponentCode[39];
-   IShellLink*    psl     = NULL;
-   IPersistFile*  ppf     = NULL;
-   BOOL           bResult = FALSE;
+  char szProductCode[39];
+  char szFeatureId[MAX_FEATURE_CHARS + 1];
+  char szComponentCode[39];
+  IShellLink *psl = NULL;
+  IPersistFile *ppf = NULL;
+  BOOL bResult = FALSE;
 
 #if !defined(UNICODE)
-        WCHAR wsz[MAX_PATH];
-        if (0 == MultiByteToWideChar(CP_ACP, 0, path, -1, wsz, MAX_PATH) )
-            goto cleanup;
+  WCHAR wsz[MAX_PATH];
+  if (0 == MultiByteToWideChar(CP_ACP, 0, path, -1, wsz, MAX_PATH))
+    goto cleanup;
 #else
-        LPCWSTR wsz = szShortcutFile;
+  LPCWSTR wsz = szShortcutFile;
 #endif
 
-   // First check if this is a shell lnk or some other kind of link
-   // http://msdn.microsoft.com/en-us/library/aa370299%28VS.85%29.aspx
+  // First check if this is a shell lnk or some other kind of link
+  // http://msdn.microsoft.com/en-us/library/aa370299%28VS.85%29.aspx
   // if( MsiGetShortcutTarget(path, szProductCode, szFeatureId, szComponentCode) == ERROR_FUNCTION_FAILED )
-	//   goto cleanup;   // This means it is a shell lnk and can be looked at by IShellLink
+  //   goto cleanup;   // This means it is a shell lnk and can be looked at by IShellLink
 
-   // Now parse the link using the IShellLink COM interface
-   // http://msdn.microsoft.com/en-us/library/bb776891%28v=vs.85%29.aspx
-    if (FAILED( CoCreateInstance(&CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, &IID_IShellLink, (void **) &psl) ))
-        goto cleanup;
+  // Now parse the link using the IShellLink COM interface
+  // http://msdn.microsoft.com/en-us/library/bb776891%28v=vs.85%29.aspx
+  if (FAILED(CoCreateInstance(&CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, &IID_IShellLink, (void **)&psl)))
+    goto cleanup;
 
-    if (FAILED( psl->lpVtbl->QueryInterface(psl, &IID_IPersistFile, (void **) &ppf) ))
-        goto cleanup;
+  if (FAILED(psl->lpVtbl->QueryInterface(psl, &IID_IPersistFile, (void **)&ppf)))
+    goto cleanup;
 
-    if (FAILED( ppf->lpVtbl->Load(ppf, wsz, STGM_READ) ))
-        goto cleanup;
+  if (FAILED(ppf->lpVtbl->Load(ppf, wsz, STGM_READ)))
+    goto cleanup;
 
-    if (NOERROR != psl->lpVtbl->GetPath(psl, szTarget, cchTarget, NULL, 0) )
-        goto cleanup;
+  if (NOERROR != psl->lpVtbl->GetPath(psl, szTarget, cchTarget, NULL, 0))
+    goto cleanup;
 
-    bResult = TRUE;
+  bResult = TRUE;
 
 cleanup:
-    if (ppf) ppf->lpVtbl->Release(ppf);
-    if (psl) psl->lpVtbl->Release(psl);
-    if (!bResult && cchTarget != 0) szTarget[0] = TEXT('\0');
-    return bResult;
-} /* parse_lnk() */
+  if (ppf)
+    ppf->lpVtbl->Release(ppf);
+  if (psl)
+    psl->lpVtbl->Release(psl);
+  if (!bResult && cchTarget != 0)
+    szTarget[0] = TEXT('\0');
+  return bResult;
+}                               /* parse_lnk() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  Recursively walk a directory struction using Win32 style directory commands
@@ -185,26 +188,24 @@ void recurse_dir(MediaScan *s, const char *path) {
       else {
         enum media_type type = _should_scan(s, name);
 
-		// Check if this file is a shortcut and if so resolve it
-		if( type == TYPE_LNK )
-		{
-		char full_name[MAX_PATH];
-		strcpy(full_name, dir);
-		strcat(full_name, "\\");
-		strcat(full_name, name);
-		parse_lnk(full_name, redirect_dir, MAX_PATH);
-		if(PathIsDirectory(redirect_dir))
-			{
-	        struct dirq_entry *subdir_entry = malloc(sizeof(struct dirq_entry));
+        // Check if this file is a shortcut and if so resolve it
+        if (type == TYPE_LNK) {
+          char full_name[MAX_PATH];
+          strcpy(full_name, dir);
+          strcat(full_name, "\\");
+          strcat(full_name, name);
+          parse_lnk(full_name, redirect_dir, MAX_PATH);
+          if (PathIsDirectory(redirect_dir)) {
+            struct dirq_entry *subdir_entry = malloc(sizeof(struct dirq_entry));
 
-			subdir_entry->dir = _strdup(redirect_dir);
-			SIMPLEQ_INSERT_TAIL(subdirq, subdir_entry, entries);
+            subdir_entry->dir = _strdup(redirect_dir);
+            SIMPLEQ_INSERT_TAIL(subdirq, subdir_entry, entries);
 
-			LOG_INFO(" subdir: %s\n", tmp_full_path);
-			type = 0;
-			}
+            LOG_INFO(" subdir: %s\n", tmp_full_path);
+            type = 0;
+          }
 
-		}
+        }
         if (type) {
           struct fileq_entry *entry;
 

@@ -10,4 +10,3 @@
 #include "common.h"
 #include "buffer.h"
 #include "image.h"
-

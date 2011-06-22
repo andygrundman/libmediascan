@@ -33,67 +33,59 @@ static void HandleRemovedFile(MediaScan *s, const char *filename) {
   DBT data, key;
   int ret;
 
-    // Zero out the DBTs before using them.
-		memset(&key, 0, sizeof(key));
-    memset(&data, 0, sizeof(DBT));
+  // Zero out the DBTs before using them.
+  memset(&key, 0, sizeof(key));
+  memset(&data, 0, sizeof(DBT));
 
-    key.data = (char *)filename;
-    key.size = strlen(filename) + 1;
+  key.data = (char *)filename;
+  key.size = strlen(filename) + 1;
 
-    if (s->dbp != NULL) {
+  if (s->dbp != NULL) {
 
-			if ((ret = s->dbp->get(s->dbp, NULL, &key, &data, 0)) == 0) 
-			{
-				LOG_INFO("db: %s: key retrieved: data was %s.\n",	(char *)key.data, (char *)data.data);
+    if ((ret = s->dbp->get(s->dbp, NULL, &key, &data, 0)) == 0) {
+      LOG_INFO("db: %s: key retrieved: data was %s.\n", (char *)key.data, (char *)data.data);
 
-				if ((ret = s->dbp->del(s->dbp, NULL, &key, 0)) == 0) 
-				{
-				LOG_INFO("db: %s: key was deleted.\n", (char *)key.data);
-				}
-				else 
-				{
-				s->dbp->err(s->dbp, ret, "DB->del");
-				}
-			}
-			else {
-				s->dbp->err(s->dbp, ret, "DB->get");
-			}
-		}
-} /* HandleRemovedFile() */
+      if ((ret = s->dbp->del(s->dbp, NULL, &key, 0)) == 0) {
+        LOG_INFO("db: %s: key was deleted.\n", (char *)key.data);
+      }
+      else {
+        s->dbp->err(s->dbp, ret, "DB->del");
+      }
+    }
+    else {
+      s->dbp->err(s->dbp, ret, "DB->get");
+    }
+  }
+}                               /* HandleRemovedFile() */
 
-static BOOL WaitForFile(const char *sz, const DWORD dwWaitSecs)
-{
-	DWORD dwEnd = GetTickCount() + (dwWaitSecs*1000);
-	DWORD err;
-	while (dwEnd > GetTickCount() ) 
-	{
-		HANDLE h = CreateFile(sz,GENERIC_READ|GENERIC_WRITE,
-													0, // exclusive mode
-													NULL,
-													OPEN_EXISTING,0,0);
+static BOOL WaitForFile(const char *sz, const DWORD dwWaitSecs) {
+  DWORD dwEnd = GetTickCount() + (dwWaitSecs * 1000);
+  DWORD err;
+  while (dwEnd > GetTickCount()) {
+    HANDLE h = CreateFile(sz, GENERIC_READ | GENERIC_WRITE,
+                          0,    // exclusive mode
+                          NULL,
+                          OPEN_EXISTING, 0, 0);
 
-		if (h != INVALID_HANDLE_VALUE) 
-		{
-			CloseHandle(h);
-			return TRUE;
-		}
+    if (h != INVALID_HANDLE_VALUE) {
+      CloseHandle(h);
+      return TRUE;
+    }
 
-		err = GetLastError();
-		if (err == ERROR_FILE_NOT_FOUND)
-		{
-		LOG_INFO("%s no longer exsists\n", sz);
-		break;
-		}
-		else if (err != ERROR_SHARING_VIOLATION) 
-		{
-		LOG_ERROR("WaitForFile errno:%d on file: %s\n", err, sz);
-		break;
-		}
+    err = GetLastError();
+    if (err == ERROR_FILE_NOT_FOUND) {
+      LOG_INFO("%s no longer exsists\n", sz);
+      break;
+    }
+    else if (err != ERROR_SHARING_VIOLATION) {
+      LOG_ERROR("WaitForFile errno:%d on file: %s\n", err, sz);
+      break;
+    }
 
-		Sleep(500);
-	}
-	return FALSE;
-} /* WaitForFile() */
+    Sleep(500);
+  }
+  return FALSE;
+}                               /* WaitForFile() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  Watch directory.
@@ -241,7 +233,7 @@ void WatchDirectory(void *thread_data) {
                 LOG_ERROR("A file found by the background scanner never finished copying");
               }
 
-             break;
+              break;
             case FILE_ACTION_REMOVED:
               LOG_INFO("  file was removed\n");
               HandleRemovedFile(s, full_path);

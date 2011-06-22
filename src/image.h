@@ -13,6 +13,7 @@
 
 MediaScanImage *image_create(void);
 void image_destroy(MediaScanImage *i);
+void image_create_tag(MediaScanImage *i, const char *type);
 int image_read_header(MediaScanImage *i, MediaScanResult *r);
 int image_load(MediaScanImage *i, MediaScanThumbSpec *spec_hint);
 void image_alloc_pixbuf(MediaScanImage *i, int width, int height);

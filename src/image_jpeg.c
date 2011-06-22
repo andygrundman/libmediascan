@@ -15,6 +15,7 @@
 #include "buffer.h"
 #include "image.h"
 #include "image_jpeg.h"
+#include "tag.h"
 
 #include "libdlna/dlna_internals.h"
 #include "libdlna/profiles.h"
@@ -326,6 +327,8 @@ int image_jpeg_read_header(MediaScanImage *i, MediaScanResult *r) {
           && marker->data[0] == 'E' && marker->data[1] == 'x' && marker->data[2] == 'i' && marker->data[3] == 'f') {
         ExifData *exif;
 
+        image_create_tag(i, "Exif");
+
         LOG_DEBUG("Parsing EXIF tag of size %d\n", marker->data_length);
         exif = exif_data_new_from_data(marker->data, marker->data_length);
         LOG_MEM("new EXIF data @ %p\n", exif);
@@ -581,6 +584,7 @@ static void parse_exif_ifd(ExifContent * content, void *data) {
 
 static void parse_exif_entry(ExifEntry * e, void *data) {
   MediaScanImage *i = (MediaScanImage *)data;
+  const char *key;
   char val[1024];
 
   // Get orientation
@@ -590,7 +594,11 @@ static void parse_exif_entry(ExifEntry * e, void *data) {
     LOG_DEBUG("Exif orientation: %d\n", i->orientation);
   }
 
-  // XXX store other tags
-  LOG_DEBUG("Exif entry: %x (%d bytes) %s: %s\n", e->tag, e->size,
-            exif_tag_get_name_in_ifd(e->tag, exif_entry_get_ifd(e)), exif_entry_get_value(e, val, sizeof(val)));
+  // Get key and value
+  key = exif_tag_get_name_in_ifd(e->tag, exif_entry_get_ifd(e));
+  exif_entry_get_value(e, val, sizeof(val));
+
+  LOG_DEBUG("Saving Exif entry: %s: %s\n", key, val);
+
+  tag_add_item(i->tag, key, (const char *)val);
 }

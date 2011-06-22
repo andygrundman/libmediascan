@@ -76,24 +76,22 @@ void recurse_dir(MediaScan *s, const char *path) {
   LOG_INFO("Recursed into %s\n", dir);
 
 #if defined(__APPLE__)
-    if(isAlias(dir))
-    {
-    	CheckMacAlias(dir, redirect_dir); 
-    	LOG_INFO("Resolving Alias %s to %s\n", dir, redirect_dir);
-    	strcpy(dir, redirect_dir);
-    }
+  if (isAlias(dir)) {
+    CheckMacAlias(dir, redirect_dir);
+    LOG_INFO("Resolving Alias %s to %s\n", dir, redirect_dir);
+    strcpy(dir, redirect_dir);
+  }
 #elif defined(__linux__)
-    if(isAlias(dir))
-    {
-    	FollowLink(dir, redirect_dir); 
-    	LOG_INFO("Resolving symlink %s to %s\n", dir, redirect_dir);
-    	strcpy(dir, redirect_dir);
-    }
+  if (isAlias(dir)) {
+    FollowLink(dir, redirect_dir);
+    LOG_INFO("Resolving symlink %s to %s\n", dir, redirect_dir);
+    strcpy(dir, redirect_dir);
+  }
 #endif
 
   if ((dirp = opendir(dir)) == NULL) {
     LOG_ERROR("Unable to open directory %s: %s\n", dir, strerror(errno));
-	goto out;
+    goto out;
   }
 
   subdirq = malloc(sizeof(struct dirq));
@@ -123,59 +121,55 @@ void recurse_dir(MediaScan *s, const char *path) {
       else {
         enum media_type type = _should_scan(s, name);
 
-		LOG_INFO("name %s = type %d\n", name, type);
+        LOG_INFO("name %s = type %d\n", name, type);
 
         if (type) {
           struct fileq_entry *entry;
-		
-		// Check if this file is a shortcut and if so resolve it
+
+          // Check if this file is a shortcut and if so resolve it
 #if defined(__MACOS__)
-		if( isAlias(name) )
-		{
-		char full_name[MAX_PATH];
-		
-		LOG_INFO("Mac Alias detected\n");
-		
-		strcpy(full_name, dir);
-		strcat(full_name, "\\");
-		strcat(full_name, name);
-		parse_lnk(full_name, redirect_dir, MAX_PATH);
-		if(PathIsDirectory(redirect_dir))
-			{
-	        struct dirq_entry *subdir_entry = malloc(sizeof(struct dirq_entry));
+          if (isAlias(name)) {
+            char full_name[MAX_PATH];
 
-			subdir_entry->dir = strdup(redirect_dir);
-			SIMPLEQ_INSERT_TAIL(subdirq, subdir_entry, entries);
+            LOG_INFO("Mac Alias detected\n");
 
-			LOG_INFO(" subdir: %s\n", tmp_full_path);
-			type = 0;
-			}
+            strcpy(full_name, dir);
+            strcat(full_name, "\\");
+            strcat(full_name, name);
+            parse_lnk(full_name, redirect_dir, MAX_PATH);
+            if (PathIsDirectory(redirect_dir)) {
+              struct dirq_entry *subdir_entry = malloc(sizeof(struct dirq_entry));
 
-		}
+              subdir_entry->dir = strdup(redirect_dir);
+              SIMPLEQ_INSERT_TAIL(subdirq, subdir_entry, entries);
+
+              LOG_INFO(" subdir: %s\n", tmp_full_path);
+              type = 0;
+            }
+
+          }
 #elif defined(__linux__)
-		if( isAlias(name) )
-		{
-		char full_name[MAX_PATH];
-		
-		printf("Linux Alias detected\n");
-		
-		strcpy(full_name, dir);
-		strcat(full_name, "\\");
-		strcat(full_name, name);
-		FollowLink(full_name, redirect_dir);
-		if(PathIsDirectory(redirect_dir))
-			{
-	        struct dirq_entry *subdir_entry = malloc(sizeof(struct dirq_entry));
+          if (isAlias(name)) {
+            char full_name[MAX_PATH];
 
-			subdir_entry->dir = strdup(redirect_dir);
-			SIMPLEQ_INSERT_TAIL(subdirq, subdir_entry, entries);
+            printf("Linux Alias detected\n");
 
-			LOG_INFO(" subdir: %s\n", tmp_full_path);
-			type = 0;
-			}
+            strcpy(full_name, dir);
+            strcat(full_name, "\\");
+            strcat(full_name, name);
+            FollowLink(full_name, redirect_dir);
+            if (PathIsDirectory(redirect_dir)) {
+              struct dirq_entry *subdir_entry = malloc(sizeof(struct dirq_entry));
 
-		}
-#endif		
+              subdir_entry->dir = strdup(redirect_dir);
+              SIMPLEQ_INSERT_TAIL(subdirq, subdir_entry, entries);
+
+              LOG_INFO(" subdir: %s\n", tmp_full_path);
+              type = 0;
+            }
+
+          }
+#endif
           if (parent_entry == NULL) {
             // Add parent directory to list of dirs with files
             parent_entry = malloc(sizeof(struct dirq_entry));

@@ -21,9 +21,10 @@
 #include <pthread.h>
 
 
-#define MAX_PATHS 64
+#define MAX_PATHS       64
 #define MAX_IGNORE_EXTS 128
 #define MAX_THUMBS      8
+#define MAX_TAG_ITEMS   256
 
 enum media_error {
   MS_ERROR_TYPE_UNKNOWN = -1,
@@ -81,6 +82,12 @@ enum log_level {
   MEMORY = 9
 };
 
+enum tag_value_type {
+  TYPE_UTF8 = 1,
+  TYPE_BINARY,
+  TYPE_INT32
+};
+
 struct _Thread {
   int respipe[2];               // pipe for worker thread to signal mail thread
   int reqpipe[2];               // pipe for main thread to signal worker thread
@@ -91,10 +98,18 @@ struct _Thread {
 };
 typedef struct _Thread MediaScanThread;
 
-struct _Tag {
-  const char *type;
-  // XXX key/value pairs
+struct _TagItem {
+  char *key;
+  char *value;                  // XXX may not be able to store all tag items as strings
 };
+typedef struct _TagItem MediaScanTagItem;
+
+struct _Tag {
+  const char *type;             // ID3v2, EXIF, etc
+  int nitems;
+  struct _TagItem *items[MAX_TAG_ITEMS];  // array of individual tag items
+};
+typedef struct _Tag MediaScanTag;
 
 struct _Audio {
   const char *codec;
@@ -105,8 +120,10 @@ struct _Audio {
   int samplerate;
   int channels;
 
-  struct _Image **images;
-  struct _Tag **tags;
+  int nthumbnails;
+  struct _Image *thumbnails[MAX_THUMBS];
+
+  struct _Tag *tag;
 };
 typedef struct _Audio MediaScanAudio;
 
@@ -120,7 +137,7 @@ struct _Image {
   int offset;                   // byte offset to start of image
   enum exif_orientation orientation;
 
-  struct _Tag **tags;
+  struct _Tag *tag;
 
   // private members
   void *_dbuf;                  // Buffer for compressed image data
@@ -148,7 +165,7 @@ struct _Video {
   struct _Image *thumbnails[MAX_THUMBS];
 
   struct _Audio **streams;
-  struct _Tag **tags;
+  struct _Tag *tag;
 
   // private members
   uint32_t *_pixbuf;            // Uncompressed frame image data used during resize

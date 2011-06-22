@@ -18,52 +18,50 @@
 
 int isAlias(const char *incoming_path) {
 
-char buffer[MAX_PATH];
+  char buffer[MAX_PATH];
 
-int size = readlink(incoming_path, buffer, MAX_PATH);
-if (errno == EINVAL) {
+  int size = readlink(incoming_path, buffer, MAX_PATH);
+  if (errno == EINVAL) {
     return LINK_NONE;
-}
+  }
 
-return LINK_SYMLINK;
-} /* isAlias() */
+  return LINK_SYMLINK;
+}                               /* isAlias() */
 
 int FollowLink(const char *incoming_path, char *out_path) {
 
-char buf[MAX_PATH];
+  char buf[MAX_PATH];
 //char buf2[MAX_PATH];
-ssize_t len;
+  ssize_t len;
 
-if ((len = readlink(incoming_path, buf, MAX_PATH-1)) != -1)
-{
+  if ((len = readlink(incoming_path, buf, MAX_PATH - 1)) != -1) {
     buf[len] = '\0';
 //    strcpy(buf2, buf);
 
     // Check if this is a relative path
-    if(buf[0] == '.')
+    if (buf[0] == '.')
       realpath(buf, out_path);
     else
       strcpy(out_path, buf);
-}
-else
-{
+  }
+  else {
     strcpy(out_path, "");
     printf("readlink %s failed: %d\n", incoming_path, errno);
-}
+  }
 
-return LINK_SYMLINK;
-} /* FollowLink() */
+  return LINK_SYMLINK;
+}                               /* FollowLink() */
 
 
 int PathIsDirectory(const char *dir) {
-    struct stat st_buf;
-    stat (dir, &st_buf);
- 
-    // Get the status of the file
-    if (S_ISREG (st_buf.st_mode)) {
-        return 0; //return false if path is a regular file
-    }
-    if (S_ISDIR (st_buf.st_mode)) {
-        return 1; //return true if path is a directory
-    }
-} /* PathIsDirectory() */
+  struct stat st_buf;
+  stat(dir, &st_buf);
+
+  // Get the status of the file
+  if (S_ISREG(st_buf.st_mode)) {
+    return 0;                   //return false if path is a regular file
+  }
+  if (S_ISDIR(st_buf.st_mode)) {
+    return 1;                   //return true if path is a directory
+  }
+}                               /* PathIsDirectory() */
