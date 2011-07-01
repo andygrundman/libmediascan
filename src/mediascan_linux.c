@@ -20,8 +20,8 @@ int isAlias(const char *incoming_path) {
 
   char buffer[MAX_PATH];
 
-  int size = readlink(incoming_path, buffer, MAX_PATH);
-  if (errno == EINVAL) {
+  int ret = readlink(incoming_path, buffer, MAX_PATH);
+  if (ret == -1) {
     return LINK_NONE;
   }
 
