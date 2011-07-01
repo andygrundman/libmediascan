@@ -12,9 +12,10 @@ my ($jpeg_inc, $jpeg_lib, $png_inc, $png_lib, $gif_inc, $gif_lib, $gif_lib_name)
 my ($bdb_inc, $bdb_lib);
 my $static;
 
-my $DEFINES = '-O2 /D "PTW32_STATIC_LIB" /D "HAVE_CONFIG_H" /D "WIN32"';
+my $DEFINES = '-O2';
 $DEFINES .= ' -Wall' unless $^O =~ /sun|solaris|Win32/i;
 $DEFINES .= ' -Wno-unused-value -Wno-format-security' unless $^O =~ /Win32|sun|solaris/i;
+$DEFINES .= ' /D "PTW32_STATIC_LIB" /D "HAVE_CONFIG_H" /D "WIN32"' if $^O =~ /Win32/i;
 
 my $result = GetOptions(
     "help|h"                 => \$help,
@@ -338,7 +339,7 @@ if ( $^O =~ /Win32/i ) {
 
 my $xs_files  = join(' ', glob 'xs/*.xs');
 
-WriteMakefile(
+my %opts = (
     NAME              => 'Media::Scan',
     VERSION_FROM      => 'lib/Media/Scan.pm',
     PREREQ_PM         => {
@@ -349,7 +350,12 @@ WriteMakefile(
     INC               => join(' ', @INC),
     LIBS              => [ join(' ', @LIBPATH, @LIBS) ],
     DEFINE            => $DEFINES,
-    LDDLFLAGS	      => '-dll -nologo -nodefaultlib -opt:ref,icf  -libpath:"C:\Perl\lib\CORE" -machine:x86 -manifest -ManifestFile:$@.manifest',
     MYEXTLIB          => $MYEXTLIB,
     depend            => { 'Scan.c' => "$xs_files" },
 );
+
+if ( $^O =~ /Win32/i ) {
+    $opts{LDDLFLAGS} = '-dll -nologo -nodefaultlib -opt:ref,icf  -libpath:"C:\Perl\lib\CORE" -machine:x86 -manifest -ManifestFile:$@.manifest';
+}
+
+WriteMakefile(%opts);
