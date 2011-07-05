@@ -90,7 +90,7 @@ CODE:
 
   for (i = 0; i < r->nthumbnails; i++) {
     MediaScanImage *thumb = ms_result_get_thumbnail(r, i);
-    uint32_t len;
+    int len;
     const uint8_t *data = ms_result_get_thumbnail_data(r, i, &len);
     if (len) {
       HV *thumbhv = newHV();
@@ -102,6 +102,23 @@ CODE:
 
       av_push(RETVAL, newRV_noinc((SV *)thumbhv));
     }
+  }
+}
+OUTPUT:
+  RETVAL
+
+HV *
+tags(MediaScanResult *r)
+CODE:
+{
+  int i;
+  int count = ms_result_get_tag_count(r);
+  RETVAL = newHV();
+  
+  for (i = 0; i < count; i++) {
+    const char *key, *value;
+    ms_result_get_tag(r, i, &key, &value);
+    my_hv_store_ent(RETVAL, newSVpv(key, 0), newSVpv(value, 0));
   }
 }
 OUTPUT:

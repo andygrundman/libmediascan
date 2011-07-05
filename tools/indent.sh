@@ -10,7 +10,7 @@ OPTIONS="-nbad -bap -nbc -br -nce -cdw -cli2 -npcs -ncs -nprs -di2 -npsl -l120 \
  -brs -brf -i2 -ci2 -lp -nut -ts2 -bbo -hnl -nprs -nsc -nsob \
  -T MediaScanAudio -T MediaScanImage -T MediaScanVideo -T MediaScanError -T MediaScanResult \
  -T MediaScanProgress -T MediaScanThumbSpec -T MediaScan -T ResultCallback -T ErrorCallback -T FinishCallback \
- -T MediaScanThread -T thread_data_type \
+ -T MediaScanThread -T thread_data_type -T MediaScanTag -T MediaScanTagItem -T NSString \
  -T AVFormatContext -T AVPicture -T AVCodec -T AVPacket -T AVFrame \
  -T ProgressCallback -T FolderChangeCallback -T JPEGData -T PNGData -T GIFData -T buf_src_mgr -T j_common_ptr -T JSAMPROW \
  -T j_decompress_ptr -T j_compress_ptr -T JOCTET -T dlna_t -T av_codecs_t -T pix -T fixed_t -T Buffer -T FILE -T GUID \

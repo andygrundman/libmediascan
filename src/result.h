@@ -23,6 +23,8 @@ MediaScanResult *result_create(MediaScan *s);
  */
 int result_scan(MediaScanResult *r);
 
+void result_create_tag(MediaScanResult *r, const char *type);
+
 void result_destroy(MediaScanResult *r);
 
 #endif

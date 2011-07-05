@@ -327,13 +327,13 @@ int image_jpeg_read_header(MediaScanImage *i, MediaScanResult *r) {
           && marker->data[0] == 'E' && marker->data[1] == 'x' && marker->data[2] == 'i' && marker->data[3] == 'f') {
         ExifData *exif;
 
-        image_create_tag(i, "Exif");
+        result_create_tag(r, "Exif");
 
         LOG_DEBUG("Parsing EXIF tag of size %d\n", marker->data_length);
         exif = exif_data_new_from_data(marker->data, marker->data_length);
         LOG_MEM("new EXIF data @ %p\n", exif);
         if (exif != NULL) {
-          exif_data_foreach_content(exif, parse_exif_ifd, (void *)i);
+          exif_data_foreach_content(exif, parse_exif_ifd, (void *)r);
           LOG_MEM("destroy EXIF data @ %p\n", exif);
           exif_data_free(exif);
         }
@@ -583,15 +583,15 @@ static void parse_exif_ifd(ExifContent * content, void *data) {
 }
 
 static void parse_exif_entry(ExifEntry * e, void *data) {
-  MediaScanImage *i = (MediaScanImage *)data;
+  MediaScanResult *r = (MediaScanResult *)data;
   const char *key;
   char val[1024];
 
   // Get orientation
   if (e->tag == 0x112) {
     ExifByteOrder o = exif_data_get_byte_order(e->parent->parent);
-    i->orientation = exif_get_short(e->data, o);
-    LOG_DEBUG("Exif orientation: %d\n", i->orientation);
+    r->image->orientation = exif_get_short(e->data, o);
+    LOG_DEBUG("Exif orientation: %d\n", r->image->orientation);
   }
 
   // Get key and value
@@ -600,5 +600,5 @@ static void parse_exif_entry(ExifEntry * e, void *data) {
 
   LOG_DEBUG("Saving Exif entry: %s: %s\n", key, val);
 
-  tag_add_item(i->tag, key, (const char *)val);
+  tag_add_item(r->_tag, key, (const char *)val);
 }

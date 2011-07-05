@@ -17,7 +17,6 @@
 #include "image_png.h"
 #include "image_gif.h"
 #include "image_bmp.h"
-#include "tag.h"
 
 #ifdef TIFF_SUPPORT
 #include "image_tiff.h"
@@ -34,7 +33,6 @@ MediaScanImage *image_create(void) {
   LOG_MEM("new MediaScanImage @ %p\n", i);
 
   i->orientation = ORIENTATION_NORMAL;
-  i->tag = NULL;
 
   i->_bmp = NULL;
   i->_png = NULL;
@@ -55,10 +53,6 @@ void image_destroy(MediaScanImage *i) {
   // free uncompressed data if any
   image_unload(i);
 
-  // free tag if any
-  if (i->tag)
-    tag_destroy(i->tag);
-
   // free compressed data if any
   if (i->_dbuf) {
     buffer_free(i->_dbuf);
@@ -68,10 +62,6 @@ void image_destroy(MediaScanImage *i) {
 
   LOG_MEM("destroy MediaScanImage @ %p\n", i);
   free(i);
-}
-
-void image_create_tag(MediaScanImage *i, const char *type) {
-  i->tag = tag_create(type);
 }
 
 int image_read_header(MediaScanImage *i, MediaScanResult *r) {

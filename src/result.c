@@ -34,6 +34,7 @@
 #include "thumb.h"
 #include "util.h"
 #include "mediascan.h"
+#include "tag.h"
 
 // DLNA support
 #include "libdlna/dlna.h"
@@ -543,6 +544,10 @@ int result_scan(MediaScanResult *r) {
   return FALSE;
 }                               /* result_scan() */
 
+void result_create_tag(MediaScanResult *r, const char *type) {
+  r->_tag = tag_create(type);
+}
+
 ///-------------------------------------------------------------------------------------------------
 ///  Result destroy.
 ///
@@ -569,6 +574,9 @@ void result_destroy(MediaScanResult *r) {
 
   if (r->image)
     image_destroy(r->image);
+
+  if (r->_tag)
+    tag_destroy(r->_tag);
 
   if (r->_avf) {
     av_close_input_file(r->_avf);

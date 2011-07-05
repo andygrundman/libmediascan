@@ -7,7 +7,7 @@
 #include "tag_item.h"
 
 MediaScanTag *tag_create(const char *type) {
-  MediaScanTag *t = (MediaScanTag *) calloc(sizeof(MediaScanTag), 1);
+  MediaScanTag *t = (MediaScanTag *)calloc(sizeof(MediaScanTag), 1);
   if (t == NULL) {
     ms_errno = MSENO_MEMERROR;
     FATAL("Out of memory for new MediaScanTag object\n");
@@ -21,7 +21,7 @@ MediaScanTag *tag_create(const char *type) {
   return t;
 }
 
-void tag_destroy(MediaScanTag * t) {
+void tag_destroy(MediaScanTag *t) {
   int i;
 
   // free items
@@ -34,7 +34,7 @@ void tag_destroy(MediaScanTag * t) {
   free(t);
 }
 
-void tag_add_item(MediaScanTag * t, const char *key, const char *value) {
+void tag_add_item(MediaScanTag *t, const char *key, const char *value) {
   MediaScanTagItem *ti = tag_item_create(key, value);
 
   if (t->nitems < MAX_TAG_ITEMS - 1)

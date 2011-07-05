@@ -1217,7 +1217,7 @@ MediaScanImage *ms_result_get_thumbnail(MediaScanResult *r, int index) {
   return thumb;
 }
 
-const uint8_t *ms_result_get_thumbnail_data(MediaScanResult *r, int index, uint32_t *length) {
+const uint8_t *ms_result_get_thumbnail_data(MediaScanResult *r, int index, int *length) {
   uint8_t *ret = NULL;
   *length = 0;
 
@@ -1231,4 +1231,21 @@ const uint8_t *ms_result_get_thumbnail_data(MediaScanResult *r, int index, uint3
   }
 
   return (const uint8_t *)ret;
+}
+
+int ms_result_get_tag_count(MediaScanResult *r) {
+  if (r->_tag)
+    return r->_tag->nitems;
+
+  return 0;
+}
+
+void ms_result_get_tag(MediaScanResult *r, int index, const char **key, const char **value) {
+  MediaScanTag *t = r->_tag;
+
+  if (t && t->nitems >= index) {
+    MediaScanTagItem *ti = t->items[index];
+    *key = (const char *)ti->key;
+    *value = (const char *)ti->value;
+  }
 }

@@ -119,11 +119,6 @@ struct _Audio {
   int vbr;
   int samplerate;
   int channels;
-
-  int nthumbnails;
-  struct _Image *thumbnails[MAX_THUMBS];
-
-  struct _Tag *tag;
 };
 typedef struct _Audio MediaScanAudio;
 
@@ -136,8 +131,6 @@ struct _Image {
   int has_alpha;
   int offset;                   // byte offset to start of image
   enum exif_orientation orientation;
-
-  struct _Tag *tag;
 
   // private members
   void *_dbuf;                  // Buffer for compressed image data
@@ -161,11 +154,7 @@ struct _Video {
   int height;
   double fps;
 
-  int nthumbnails;
-  struct _Image *thumbnails[MAX_THUMBS];
-
   struct _Audio **streams;
-  struct _Tag *tag;
 
   // private members
   uint32_t *_pixbuf;            // Uncompressed frame image data used during resize
@@ -214,6 +203,7 @@ struct _Result {
   FILE *_fp;                    // opened file if necessary
   void *_buf;                   // buffer if necessary
   struct _Image *_thumbs[MAX_THUMBS]; // generated thumbs
+  struct _Tag *_tag;            // tag data
 };
 typedef struct _Result MediaScanResult;
 
@@ -485,7 +475,23 @@ MediaScanImage *ms_result_get_thumbnail(MediaScanResult *r, int index);
  * @param *length (OUT) Returns the length of the thumbnail data.
  * @return A pointer to the raw JPEG or PNG thumbnail data.
  */
-const uint8_t *ms_result_get_thumbnail_data(MediaScanResult *r, int index, uint32_t *length);
+const uint8_t *ms_result_get_thumbnail_data(MediaScanResult *r, int index, int *length);
+
+/**
+ * Return the total number of tags for a given result.
+ * @param r MediaScanResult instance.
+ * @return The total number of tags.
+ */
+int ms_result_get_tag_count(MediaScanResult *r);
+
+/**
+ * Get tag data for a given result.
+ * @param r MediaScanResult instance.
+ * @param index 0-based index of the tag to return. Check ms_result_get_tag_count for the total number.
+ * @param key (OUT) Returns the key string.
+ * @param value (OUT) Returns the value string.
+ */
+void ms_result_get_tag(MediaScanResult *r, int index, const char **key, const char **value);
 
 ///-------------------------------------------------------------------------------------------------
 ///  Watch a directory in the background.
