@@ -239,6 +239,8 @@ copy $(ProjectDir)\pthreads.2\sched.h $(ProjectDir)..\bindings\perl\win32\includ
     <ClCompile Include="..\src\mediascan_win32.c" />
     <ClCompile Include="..\src\progress.c" />
     <ClCompile Include="..\src\result.c" />
+    <ClCompile Include="..\src\tag.c" />
+    <ClCompile Include="..\src\tag_item.c" />
     <ClCompile Include="..\src\thread.c" />
     <ClCompile Include="..\src\thumb.c" />
     <ClCompile Include="..\src\util.c" />
@@ -255,6 +257,8 @@ copy $(ProjectDir)\pthreads.2\sched.h $(ProjectDir)..\bindings\perl\win32\includ
     <ClInclude Include="..\src\progress.h" />
     <ClInclude Include="..\src\queue.h" />
     <ClInclude Include="..\src\result.h" />
+    <ClInclude Include="..\src\tag.h" />
+    <ClInclude Include="..\src\tag_item.h" />
     <ClInclude Include="..\src\thread.h" />
     <ClInclude Include="..\src\util.h" />
     <ClInclude Include="..\src\video.h" />

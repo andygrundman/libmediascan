@@ -16,6 +16,7 @@
 #include "image.h"
 #include "image_jpeg.h"
 #include "tag.h"
+#include "result.h"
 
 #include "libdlna/dlna_internals.h"
 #include "libdlna/profiles.h"

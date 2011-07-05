@@ -137,6 +137,12 @@
     <ClCompile Include="..\src\image_tiff.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\tag.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\tag_item.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\libmediascan.h">
@@ -176,6 +182,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\database.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\tag.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\tag_item.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
