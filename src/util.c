@@ -9,6 +9,7 @@
 #else
 #include <pthread.h>
 #include <sys/stat.h>
+#include <errno.h>
 #endif
 
 // If we are on MSVC, disable some stupid MSVC warnings
@@ -59,6 +60,10 @@ uint32_t HashFile(const char *file, int *mtime, size_t *size) {
   if (!stat(file, &buf)) {
     *mtime = (int)buf.st_mtime;
     *size = buf.st_size;
+  }
+  else
+  {
+	LOG_ERROR("stat error on file %s, errno=%d", file, errno);
   }
 #endif
 
