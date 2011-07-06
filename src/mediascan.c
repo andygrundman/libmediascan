@@ -1064,7 +1064,25 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type) {
     return;
   }
 
-#ifdef WIN32
+#if defined(__MACOS__)
+  if (isAlias(full_path)) {
+    LOG_INFO("File is a mac alias\n");
+    // Check if this file is a shortcut and if so resolve it
+    CheckMacAlias(full_path, tmp_full_path);
+  }
+  else {
+    strcpy(tmp_full_path, full_path);
+  }
+#elif defined(__linux__)
+  if (isAlias(full_path)) {
+    LOG_INFO("File is a linux symlink\n");
+    // Check if this file is a shortcut and if so resolve it
+    FollowLink(full_path, tmp_full_path);
+  }
+  else {
+    strcpy(tmp_full_path, full_path);
+  }
+#elif defined(WIN32)
   if (strcasecmp(ext, ".lnk") == 0) {
     // Check if this file is a shortcut and if so resolve it
     parse_lnk(full_path, tmp_full_path, MAX_PATH);
@@ -1076,16 +1094,6 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type) {
   }
 #endif
 
-#ifdef __APPLE__
-  if (isAlias(full_path)) {
-    LOG_INFO("File is a mac alias\n");
-    // Check if this file is a shortcut and if so resolve it
-    CheckMacAlias(full_path, tmp_full_path);
-  }
-  else {
-    strcpy(tmp_full_path, full_path);
-  }
-#endif
 
 
   // Check if the file has been recently scanned
