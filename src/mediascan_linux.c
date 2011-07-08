@@ -55,7 +55,9 @@ int FollowLink(const char *incoming_path, char *out_path) {
 
 int PathIsDirectory(const char *dir) {
   struct stat st_buf;
-  stat(dir, &st_buf);
+
+  if (stat(dir, &st_buf) == -1)
+    return 0;
 
   // Get the status of the file
   if (S_ISREG(st_buf.st_mode)) {

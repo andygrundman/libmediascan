@@ -22,60 +22,54 @@
 
 int isAlias(const char *incoming_path) {
 
-struct stat fileInfo;
-NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+  struct stat fileInfo;
+  NSAutoreleasePool *pool =[[NSAutoreleasePool alloc] init];
 
-CFStringRef in_path = CFStringCreateWithCString(NULL, incoming_path, kCFStringEncodingMacRoman);
+  CFStringRef in_path = CFStringCreateWithCString(NULL, incoming_path, kCFStringEncodingMacRoman);
 
 // Use lstat to determine if the file is a directory or symlink
-if (lstat([[NSFileManager defaultManager]
-	fileSystemRepresentationWithPath:(NSString *)in_path], &fileInfo) < 0)
-{
-	return LINK_NONE;
-}
+  if (lstat([[NSFileManager defaultManager]
+fileSystemRepresentationWithPath:(NSString *)in_path], &fileInfo) < 0) {
+    return LINK_NONE;
+  }
 
 
-if( S_ISLNK(fileInfo.st_mode) )
-{
-	return LINK_SYMLINK;
-}
-else
-{
-	// Now check for aliases
-	CFStringRef cfPath = CFStringCreateWithCString(kCFAllocatorDefault,
-								incoming_path, kCFStringEncodingUTF8);
-	
-	CFURLRef url = CFURLCreateWithFileSystemPath
-					   (kCFAllocatorDefault, cfPath, kCFURLPOSIXPathStyle, NO);
-					   
-	if (url != NULL)
-	{
-		FSRef fsRef;
-		if (CFURLGetFSRef(url, &fsRef))
-		{
-			Boolean targetIsFolder, wasAliased;
-			OSErr err = FSResolveAliasFile (&fsRef, true, &targetIsFolder, &wasAliased);
-			if((err == noErr) && wasAliased)
-				return LINK_ALIAS;
-			else 
-				return LINK_NONE;
-		}
-		CFRelease(url);
-	}
-}
+  if (S_ISLNK(fileInfo.st_mode)) {
+    return LINK_SYMLINK;
+  }
+  else {
+    // Now check for aliases
+    CFStringRef cfPath = CFStringCreateWithCString(kCFAllocatorDefault,
+                                                   incoming_path, kCFStringEncodingUTF8);
+
+    CFURLRef url = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, cfPath, kCFURLPOSIXPathStyle, NO);
+
+    if (url != NULL) {
+      FSRef fsRef;
+      if (CFURLGetFSRef(url, &fsRef)) {
+        Boolean targetIsFolder, wasAliased;
+        OSErr err = FSResolveAliasFile(&fsRef, true, &targetIsFolder, &wasAliased);
+        if ((err == noErr) && wasAliased)
+          return LINK_ALIAS;
+        else
+          return LINK_NONE;
+      }
+      CFRelease(url);
+    }
+  }
 
 // free pool
-[pool release];
+  [pool release];
 
-return LINK_NONE;
-} /* isAlias() */
+  return LINK_NONE;
+}                               /* isAlias() */
 
 int CheckMacAlias(const char *incoming_path, char *out_path) {
 
-CFStringRef cfPath = CFStringCreateWithCString(kCFAllocatorDefault,
-							incoming_path, kCFStringEncodingUTF8);
+  CFStringRef cfPath = CFStringCreateWithCString(kCFAllocatorDefault,
+                                                 incoming_path, kCFStringEncodingUTF8);
 
-NSString *resolvedPath = [cfPath stringByResolvingSymlinksAndAliases];
+  NSString *resolvedPath =[cfPath stringByResolvingSymlinksAndAliases];
 
-CFStringGetCString(resolvedPath, out_path, MAX_PATH, kCFStringEncodingMacRoman);
-} /* CheckMacAlias() */
+  CFStringGetCString(resolvedPath, out_path, MAX_PATH, kCFStringEncodingMacRoman);
+}                               /* CheckMacAlias() */

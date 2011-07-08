@@ -48,12 +48,12 @@ extern enum log_level Debug;
 //#define USING_TCMALLOC
 
 // Define to have ms_dump_result write out thumbnail images
-#define DUMP_THUMBNAILS
+//#define DUMP_THUMBNAILS
 
-#if defined(__linux__)
+void unix_init(void);
 int PathIsDirectory(const char *dir);
 int FollowLink(const char *incoming_path, char *out_path);
 int isAlias(const char *incoming_path);
-#endif
+int CheckMacAlias(const char *incoming_path, char *out_path);
 
 #endif // _COMMON_H

@@ -57,13 +57,12 @@ uint32_t HashFile(const char *file, int *mtime, size_t *size) {
   *mtime = fileInfo.ftLastWriteTime.dwLowDateTime;
   *size = fileInfo.nFileSizeLow;
 #else
-  if (!stat(file, &buf)) {
+  if (stat(file, &buf) != -1) {
     *mtime = (int)buf.st_mtime;
     *size = buf.st_size;
   }
-  else
-  {
-	LOG_ERROR("stat error on file %s, errno=%d", file, errno);
+  else {
+    LOG_ERROR("stat error on file %s, errno=%d\n", file, errno);
   }
 #endif
 

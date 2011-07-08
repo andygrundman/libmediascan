@@ -127,7 +127,7 @@ void recurse_dir(MediaScan *s, const char *path) {
           struct fileq_entry *entry;
 
           // Check if this file is a shortcut and if so resolve it
-#if defined(__MACOS__)
+#if defined(__APPLE__)
           if (isAlias(name)) {
             char full_name[MAX_PATH];
 

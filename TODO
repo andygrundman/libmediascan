@@ -22,3 +22,5 @@ on_finish gets passed some stats about the scan:
 * list of files with errors and error info?
 
 Result should include a flag for indicating if the file is new, has changed, or was deleted
+
+Perl: would_scan($file) - calls through to should_scan function

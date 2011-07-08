@@ -89,7 +89,7 @@ WSADATA wsaData;
 // File extensions to look for (leading/trailing comma are required)
 static const char *AudioExts = ",aif,aiff,wav,";
 static const char *VideoExts =
-  ",asf,avi,divx,flv,hdmov,m1v,m2p,m2t,m2ts,m2v,m4v,mkv,mov,mpg,mpeg,mpe,mp2p,mp2t,mp4,mts,pes,ps,ts,vob,webm,wmv,xvid,3gp,3g2,3gp2,3gpp,";
+  ",asf,avi,divx,flv,hdmov,m1v,m2p,m2t,m2ts,m2v,m4v,mkv,mov,mpg,mpeg,mpe,mp2p,mp2t,mp4,mts,pes,ps,ts,vob,webm,wmv,xvid,3gp,3g2,3gp2,3gpp,mjpg,";
 static const char *ImageExts = ",jpg,png,gif,bmp,jpeg,";
 static const char *LnkExts = ",lnk,";
 
@@ -207,7 +207,10 @@ static void register_formats(void) {
 ///-------------------------------------------------------------------------------------------------
 
 static void _init(void) {
+#ifdef WIN32
   int iResult;
+#endif
+
   if (Initialized)
     return;
 
@@ -651,7 +654,7 @@ void ms_async_process(MediaScan *s) {
 
     // Pull events from the thread's queue, events contain their type
     // and a data pointer (Result/Error/Progress) for that callback
-    while (type = thread_get_next_event(s->thread, &data)) {
+    while ((type = thread_get_next_event(s->thread, &data))) {
       LOG_DEBUG("Got thread event, type %d @ %p\n", type, data);
       switch (type) {
         case EVENT_TYPE_RESULT:
@@ -831,7 +834,7 @@ int _should_scan(MediaScan *s, const char *path) {
 
     found = strstr(LnkExts, extc);
     if (found)
-      return skip_image ? TYPE_UNKNOWN : TYPE_LNK;
+      return TYPE_LNK;
 
     return TYPE_UNKNOWN;
   }
@@ -897,8 +900,6 @@ static void *do_scan(void *userdata) {
   struct fileq *file_head = NULL;
   struct fileq_entry *file_entry = NULL;
   char tmp_full_path[MAX_PATH];
-  char linked_dir[MAX_PATH];
-  char *ext;
 
   // Initialize the cache database
   if (!init_bdb(s)) {
@@ -1050,7 +1051,10 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type) {
   size_t size = 0;
   DBT key, data;
   char tmp_full_path[MAX_PATH];
+
+#ifdef WIN32
   char *ext = strrchr(full_path, '.');
+#endif
 
   if (s == NULL) {
     ms_errno = MSENO_NULLSCANOBJ;
@@ -1064,7 +1068,7 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type) {
     return;
   }
 
-#if defined(__MACOS__)
+#if defined(__APPLE__)
   if (isAlias(full_path)) {
     LOG_INFO("File is a mac alias\n");
     // Check if this file is a shortcut and if so resolve it
