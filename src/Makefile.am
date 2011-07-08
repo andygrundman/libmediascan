@@ -21,6 +21,8 @@ libmediascan_la_SOURCES = audio.c buffer.c mediascan.c mediascan_unix.c progress
   libdlna/audio_wma.c libdlna/av_mpeg1.c libdlna/av_mpeg2.c libdlna/av_mpeg4_part10.c \
   libdlna/av_mpeg4_part2.c libdlna/av_wmv9.c libdlna/containers.c libdlna/profiles.c \
   jenkins/lookup3.c
+ 
+libmediascan_la_OBJCFLAGS = -Wall -I$(top_srcdir)/include
 
 endif
 

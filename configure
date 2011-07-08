@@ -622,6 +622,10 @@ OBJCDEPMODE
 ac_ct_OBJC
 OBJCFLAGS
 OBJC
+target_os
+target_vendor
+target_cpu
+target
 CPP
 OTOOL64
 OTOOL
@@ -1361,6 +1365,7 @@ Program names:
 System types:
   --build=BUILD     configure for building on BUILD [guessed]
   --host=HOST       cross-compile to build programs to run on HOST [BUILD]
+  --target=TARGET   configure for building compilers for TARGET [HOST]
 _ACEOF
 fi
 
@@ -11396,6 +11401,47 @@ CC="$lt_save_CC"
 
 
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking target system type" >&5
+$as_echo_n "checking target system type... " >&6; }
+if ${ac_cv_target+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test "x$target_alias" = x; then
+  ac_cv_target=$ac_cv_host
+else
+  ac_cv_target=`$SHELL "$ac_aux_dir/config.sub" $target_alias` ||
+    as_fn_error $? "$SHELL $ac_aux_dir/config.sub $target_alias failed" "$LINENO" 5
+fi
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_target" >&5
+$as_echo "$ac_cv_target" >&6; }
+case $ac_cv_target in
+*-*-*) ;;
+*) as_fn_error $? "invalid value of canonical target" "$LINENO" 5;;
+esac
+target=$ac_cv_target
+ac_save_IFS=$IFS; IFS='-'
+set x $ac_cv_target
+shift
+target_cpu=$1
+target_vendor=$2
+shift; shift
+# Remember, the first character of IFS is used to create $*,
+# except with old shells:
+target_os=$*
+IFS=$ac_save_IFS
+case $target_os in *\ *) target_os=`echo "$target_os" | sed 's/ /-/g'`;; esac
+
+
+# The aliases save the names the user supplied, while $host etc.
+# will get canonicalized.
+test -n "$target_alias" &&
+  test "$program_prefix$program_suffix$program_transform_name" = \
+    NONENONEs,x,x, &&
+  program_prefix=${target_alias}-
+
+
 
 
 ac_config_headers="$ac_config_headers config.h"
@@ -13029,13 +13075,15 @@ fi
 CFLAGS="-I$bdbdir/include $CFLAGS"
 
 case "$target_os" in
-	tiger*)
-LDFLAGS="-framework CoreFoundation -framework CoreServices -framework Carbon -L$bdbdir/lib $LDFLAGS"
-;;
-	darwin*)
-LDFLAGS="-framework CoreFoundation -framework CoreServices -framework Carbon -L$bdbdir/lib $LDFLAGS"
-;;
-	apple*)
+	*darwin*)
+ if false; then
+  LINUX_TRUE=
+  LINUX_FALSE='#'
+else
+  LINUX_TRUE='#'
+  LINUX_FALSE=
+fi
+
 LDFLAGS="-framework CoreFoundation -framework CoreServices -framework Carbon -L$bdbdir/lib $LDFLAGS"
 ;;
 	*)
@@ -13424,6 +13472,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${am__fastdepOBJC_TRUE}" && test -z "${am__fastdepOBJC_FALSE}"; then
   as_fn_error $? "conditional \"am__fastdepOBJC\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${LINUX_TRUE}" && test -z "${LINUX_FALSE}"; then
+  as_fn_error $? "conditional \"LINUX\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${LINUX_TRUE}" && test -z "${LINUX_FALSE}"; then

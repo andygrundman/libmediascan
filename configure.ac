@@ -7,6 +7,8 @@ AM_INIT_AUTOMAKE([-Wall -Werror])
 LT_PREREQ([2.4])
 LT_INIT
 
+AC_CANONICAL_SYSTEM
+
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([src/mediascan.c])
 AC_CONFIG_HEADERS([config.h])
@@ -45,13 +47,8 @@ AC_ARG_WITH(bdb,
 CFLAGS="-I$bdbdir/include $CFLAGS"
 
 case "$target_os" in
-	tiger*)
-LDFLAGS="-framework CoreFoundation -framework CoreServices -framework Carbon -L$bdbdir/lib $LDFLAGS"
-;;
-	darwin*)
-LDFLAGS="-framework CoreFoundation -framework CoreServices -framework Carbon -L$bdbdir/lib $LDFLAGS"
-;;
-	apple*)
+	*darwin*)
+AM_CONDITIONAL(LINUX, false)
 LDFLAGS="-framework CoreFoundation -framework CoreServices -framework Carbon -L$bdbdir/lib $LDFLAGS"
 ;;
 	*)

@@ -34,6 +34,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
+target_triplet = @target@
 subdir = src
 DIST_COMMON = $(include_HEADERS) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in
@@ -84,8 +85,9 @@ am__libmediascan_la_SOURCES_DIST = audio.c buffer.c mediascan.c \
 @LINUX_FALSE@	libmediascan_la-image_gif.lo \
 @LINUX_FALSE@	libmediascan_la-thumb.lo \
 @LINUX_FALSE@	libmediascan_la-thread.lo \
-@LINUX_FALSE@	libmediascan_la-database.lo mediascan_macos.lo \
-@LINUX_FALSE@	NSString+SymlinksAndAliases.lo \
+@LINUX_FALSE@	libmediascan_la-database.lo \
+@LINUX_FALSE@	libmediascan_la-mediascan_macos.lo \
+@LINUX_FALSE@	libmediascan_la-NSString+SymlinksAndAliases.lo \
 @LINUX_FALSE@	libmediascan_la-tag.lo \
 @LINUX_FALSE@	libmediascan_la-tag_item.lo \
 @LINUX_FALSE@	libmediascan_la-audio_aac.lo \
@@ -142,8 +144,8 @@ am__libmediascan_la_SOURCES_DIST = audio.c buffer.c mediascan.c \
 @LINUX_TRUE@	libmediascan_la-lookup3.lo
 libmediascan_la_OBJECTS = $(am_libmediascan_la_OBJECTS)
 libmediascan_la_LINK = $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
-	--mode=link $(OBJCLD) $(AM_OBJCFLAGS) $(OBJCFLAGS) \
-	$(libmediascan_la_LDFLAGS) $(LDFLAGS) -o $@
+	--mode=link $(OBJCLD) $(libmediascan_la_OBJCFLAGS) \
+	$(OBJCFLAGS) $(libmediascan_la_LDFLAGS) $(LDFLAGS) -o $@
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -285,7 +287,11 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
 sysconfdir = @sysconfdir@
+target = @target@
 target_alias = @target_alias@
+target_cpu = @target_cpu@
+target_os = @target_os@
+target_vendor = @target_vendor@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
@@ -308,6 +314,7 @@ lib_LTLIBRARIES = libmediascan.la
 @LINUX_TRUE@  libdlna/av_mpeg4_part2.c libdlna/av_wmv9.c libdlna/containers.c libdlna/profiles.c \
 @LINUX_TRUE@  jenkins/lookup3.c
 
+@LINUX_FALSE@libmediascan_la_OBJCFLAGS = -Wall -I$(top_srcdir)/include
 libmediascan_la_CFLAGS = -Wall -I$(top_srcdir)/include
 libmediascan_la_LDFLAGS = -version-info 0:0:0
 
@@ -386,7 +393,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/NSString+SymlinksAndAliases.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmediascan_la-NSString+SymlinksAndAliases.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmediascan_la-audio.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmediascan_la-audio_aac.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmediascan_la-audio_ac3.Plo@am__quote@
@@ -415,6 +422,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmediascan_la-lookup3.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmediascan_la-mediascan.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmediascan_la-mediascan_linux.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmediascan_la-mediascan_macos.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmediascan_la-mediascan_unix.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmediascan_la-profiles.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmediascan_la-progress.Plo@am__quote@
@@ -425,7 +433,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmediascan_la-thumb.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmediascan_la-util.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmediascan_la-video.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mediascan_macos.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -734,6 +741,20 @@ libmediascan_la-mediascan_linux.lo: mediascan_linux.c
 @AMDEP_TRUE@@am__fastdepOBJC_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepOBJC_FALSE@	DEPDIR=$(DEPDIR) $(OBJCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepOBJC_FALSE@	$(LTOBJCCOMPILE) -c -o $@ $<
+
+libmediascan_la-mediascan_macos.lo: mediascan_macos.m
+@am__fastdepOBJC_TRUE@	$(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(OBJC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmediascan_la_OBJCFLAGS) $(OBJCFLAGS) -MT libmediascan_la-mediascan_macos.lo -MD -MP -MF $(DEPDIR)/libmediascan_la-mediascan_macos.Tpo -c -o libmediascan_la-mediascan_macos.lo `test -f 'mediascan_macos.m' || echo '$(srcdir)/'`mediascan_macos.m
+@am__fastdepOBJC_TRUE@	mv -f $(DEPDIR)/libmediascan_la-mediascan_macos.Tpo $(DEPDIR)/libmediascan_la-mediascan_macos.Plo
+@AMDEP_TRUE@@am__fastdepOBJC_FALSE@	source='mediascan_macos.m' object='libmediascan_la-mediascan_macos.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepOBJC_FALSE@	DEPDIR=$(DEPDIR) $(OBJCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepOBJC_FALSE@	$(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(OBJC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmediascan_la_OBJCFLAGS) $(OBJCFLAGS) -c -o libmediascan_la-mediascan_macos.lo `test -f 'mediascan_macos.m' || echo '$(srcdir)/'`mediascan_macos.m
+
+libmediascan_la-NSString+SymlinksAndAliases.lo: NSString+SymlinksAndAliases.m
+@am__fastdepOBJC_TRUE@	$(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(OBJC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmediascan_la_OBJCFLAGS) $(OBJCFLAGS) -MT libmediascan_la-NSString+SymlinksAndAliases.lo -MD -MP -MF $(DEPDIR)/libmediascan_la-NSString+SymlinksAndAliases.Tpo -c -o libmediascan_la-NSString+SymlinksAndAliases.lo `test -f 'NSString+SymlinksAndAliases.m' || echo '$(srcdir)/'`NSString+SymlinksAndAliases.m
+@am__fastdepOBJC_TRUE@	mv -f $(DEPDIR)/libmediascan_la-NSString+SymlinksAndAliases.Tpo $(DEPDIR)/libmediascan_la-NSString+SymlinksAndAliases.Plo
+@AMDEP_TRUE@@am__fastdepOBJC_FALSE@	source='NSString+SymlinksAndAliases.m' object='libmediascan_la-NSString+SymlinksAndAliases.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepOBJC_FALSE@	DEPDIR=$(DEPDIR) $(OBJCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepOBJC_FALSE@	$(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(OBJC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmediascan_la_OBJCFLAGS) $(OBJCFLAGS) -c -o libmediascan_la-NSString+SymlinksAndAliases.lo `test -f 'NSString+SymlinksAndAliases.m' || echo '$(srcdir)/'`NSString+SymlinksAndAliases.m
 
 mostlyclean-libtool:
 	-rm -f *.lo
