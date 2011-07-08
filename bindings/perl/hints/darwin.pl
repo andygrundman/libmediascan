@@ -2,38 +2,21 @@
 
 use Config;
 
-if ( $Config{myarchname} =~ /i386/ ) {
-    my $arch;
-    
-    # Match arch options with the running perl
-    if ( my @archs = $Config{ccflags} =~ /-arch ([^ ]+)/g ) {
-        $arch = join( '', map { "-arch $_ " } @archs );
-        
-        if ( -e 'MANIFEST.SKIP' ) {
-            # XXX for development, use only one arch to speed up compiles
-            $arch = '-arch x86_64 ';
-        }
-    }
-    
+if ( $Config{myarchname} =~ /i386/ ) {    
     # Read OS version
     my $sys = `/usr/sbin/system_profiler SPSoftwareDataType`;
-    my ($osx_ver) = $sys =~ /Mac OS X.*(10\.[^ ]+)/;
-    if ( $osx_ver gt '10.5' ) {
-        # No PPC on 10.6
-        $arch =~ s/\-arch ppc //;
-
-        # Running 10.6+, build as 10.5+
-        if ( -d '/Developer/SDKs/MacOSX10.5.sdk' ) {
-            $arch .= "-isysroot /Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5";
-        }
-        else {
-            # 10.5 SDK not installed, use 10.6 only
-            $arch = "-arch x86_64 -arch i386 -isysroot /Developer/SDKs/MacOSX10.6.sdk -mmacosx-version-min=10.6";
-        }
+    my ($osx_ver) = $sys =~ /Mac OS X.*(10\.[567])/;
+    if ($osx_ver eq '10.5' ) {
+        $arch = "-arch i386 -arch ppc -isysroot /Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.4";
+    }
+    elsif ( $osx_ver eq '10.6' ) {
+        $arch = "-arch x86_64 -arch i386 -isysroot /Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5";
+    }
+    elsif ( $osx_ver eq '10.7' ) {
+        $arch = "-arch x86_64 -arch i386 -isysroot /Developer/SDKs/MacOSX10.6.sdk -mmacosx-version-min=10.6";
     }
     else {
-        # 5.8.x, build for 10.3+
-        $arch .= "-isysroot /Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.3";
+        die "Unsupported OSX version $osx_ver\n";
     }
     
     print "Adding $arch\n";
@@ -46,6 +29,10 @@ if ( $Config{myarchname} =~ /i386/ ) {
     $ccflags  =~ s/-arch\s+\w+//g;
     $ldflags  =~ s/-arch\s+\w+//g;
     $lddlflags =~ s/-arch\s+\w+//g;
+    
+    # LMS requires some frameworks
+    $ldflags .= " -framework CoreFoundation -framework CoreServices -framework Carbon";
+    $lddlflags .= " -framework CoreFoundation -framework CoreServices -framework Carbon";
     
     $self->{CCFLAGS} = "$arch -I/usr/include $ccflags";
     $self->{LDFLAGS} = "$arch -L/usr/lib $ldflags";
