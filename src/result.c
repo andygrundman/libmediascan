@@ -356,6 +356,16 @@ static int scan_video(MediaScanResult *r) {
     v->codec = codecs->vc->codec_name;
   }
   else {
+    char codec_tag_string[128];
+
+    // Check for DRM files and ignore them
+    av_get_codec_tag_string(codec_tag_string, sizeof(codec_tag_string), codecs->vc->codec_tag);
+    if (!strcmp("drmi", codec_tag_string)) {
+      r->error = error_create(r->path, MS_ERROR_READ, "Skipping DRM-protected video file");
+      ret = 0;
+      goto out;
+    }
+
     v->codec = "Unknown";
   }
 
