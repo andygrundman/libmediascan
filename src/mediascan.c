@@ -126,6 +126,9 @@ static void register_codecs(void) {
   REGISTER_DECODER(WMV1, wmv1);
   REGISTER_DECODER(WMV2, wmv2);
   REGISTER_DECODER(WMV3, wmv3);
+  REGISTER_DECODER(MJPEG, mjpeg);
+  REGISTER_DECODER(MJPEGB, mjpegb);
+  REGISTER_DECODER(VC1, vc1);
 
 
   // Audio codecs, needed to get details of audio tracks in videos
@@ -163,6 +166,8 @@ static void register_codecs(void) {
   REGISTER_PARSER(MPEG4VIDEO, mpeg4video);
   REGISTER_PARSER(MPEGAUDIO, mpegaudio);
   REGISTER_PARSER(MPEGVIDEO, mpegvideo);
+  REGISTER_PARSER(MJPEG, mjpeg);
+  REGISTER_PARSER(VC1, vc1);
 }                               /* register_codecs() */
 
 #define REGISTER_DEMUXER(X,x) { \
