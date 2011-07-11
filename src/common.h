@@ -51,7 +51,6 @@ extern enum log_level Debug;
 //#define DUMP_THUMBNAILS
 
 void unix_init(void);
-int PathIsDirectory(const char *dir);
 int FollowLink(const char *incoming_path, char *out_path);
 int isAlias(const char *incoming_path);
 int CheckMacAlias(const char *incoming_path, char *out_path);
