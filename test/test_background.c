@@ -405,6 +405,127 @@ static void test_win32_shortcuts(void)	{
 
 } /* test_win32_shortcuts() */
 
+static void test_win32_shortcut_recursion(void)	{
+	const char *test_path1 = "data\\recursion";
+	const char *test_path2 = "data\\recursion2";
+	const char *test_path3 = "data\\recursion3";
+	MediaScan *s;
+
+	s = ms_create();
+
+	CU_ASSERT_FATAL(s != NULL);
+
+	/* Test #1 of the initial scan functionality */
+	ms_set_flags(s, MS_RESCAN | MS_CLEARDB);
+
+	// Do some setup for the test
+	result_called = 0;
+	ms_errno = 0;
+
+	CU_ASSERT(s->on_result == NULL);
+	ms_set_result_callback(s, my_result_callback);
+	CU_ASSERT(s->on_result == my_result_callback);
+
+	CU_ASSERT(s->on_error == NULL);
+	ms_set_error_callback(s, my_error_callback); 
+	CU_ASSERT(s->on_error == my_error_callback);
+
+	CU_ASSERT(s->npaths == 0);
+	ms_add_path(s, test_path1);
+	CU_ASSERT(s->npaths == 1);
+
+	ms_scan(s);
+	CU_ASSERT( result_called == 1 );
+
+	ms_destroy(s);
+
+	/* Test #2 of the rescan functionality */
+
+	s = ms_create();
+	CU_ASSERT_FATAL(s != NULL);
+
+	ms_set_flags(s, MS_FULL_SCAN);
+
+	// Do some setup for the test
+	result_called = 0;
+	ms_errno = 0;
+
+	CU_ASSERT(s->on_result == NULL);
+	ms_set_result_callback(s, my_result_callback);
+	CU_ASSERT(s->on_result == my_result_callback);
+
+	CU_ASSERT(s->on_error == NULL);
+	ms_set_error_callback(s, my_error_callback); 
+	CU_ASSERT(s->on_error == my_error_callback);
+
+	CU_ASSERT(s->npaths == 0);
+	ms_add_path(s, test_path1);
+	CU_ASSERT(s->npaths == 1);
+
+	ms_scan(s);
+	CU_ASSERT( result_called == 1 );
+
+	ms_destroy(s);
+
+	/* Test #3 of a different directory structure */
+
+	s = ms_create();
+	CU_ASSERT_FATAL(s != NULL);
+
+	ms_set_flags(s, MS_FULL_SCAN);
+
+	// Do some setup for the test
+	result_called = 0;
+	ms_errno = 0;
+
+	CU_ASSERT(s->on_result == NULL);
+	ms_set_result_callback(s, my_result_callback);
+	CU_ASSERT(s->on_result == my_result_callback);
+
+	CU_ASSERT(s->on_error == NULL);
+	ms_set_error_callback(s, my_error_callback); 
+	CU_ASSERT(s->on_error == my_error_callback);
+
+	CU_ASSERT(s->npaths == 0);
+	ms_add_path(s, test_path2);
+	CU_ASSERT(s->npaths == 1);
+
+	ms_scan(s);
+	CU_ASSERT( result_called == 3 );
+
+	ms_destroy(s);
+
+	/* Test #4 of a different directory structure */
+
+	s = ms_create();
+	CU_ASSERT_FATAL(s != NULL);
+
+	ms_set_flags(s, MS_FULL_SCAN);
+
+	// Do some setup for the test
+	result_called = 0;
+	ms_errno = 0;
+
+	CU_ASSERT(s->on_result == NULL);
+	ms_set_result_callback(s, my_result_callback);
+	CU_ASSERT(s->on_result == my_result_callback);
+
+	CU_ASSERT(s->on_error == NULL);
+	ms_set_error_callback(s, my_error_callback); 
+	CU_ASSERT(s->on_error == my_error_callback);
+
+	CU_ASSERT(s->npaths == 0);
+	ms_add_path(s, test_path3);
+	CU_ASSERT(s->npaths == 1);
+
+	ms_scan(s);
+	CU_ASSERT( result_called == 2 );
+
+	ms_destroy(s);
+
+} /* test_win32_shortcut_recursion() */
+
+
 static void test_linux_shortcuts(void)	{
 	const char *test_path = "data/video/linuxshortcuts";
 	
@@ -731,17 +852,17 @@ int setupbackground_tests() {
    if (
 //   NULL == CU_add_test(pSuite, "Test background scanning API", test_background_api) 
 //   NULL == CU_add_test(pSuite, "Test background scanning Deletion", test_background_api2) 
-    NULL == CU_add_test(pSuite, "Test Async scanning API 2", test_async_api2) 
+//    NULL == CU_add_test(pSuite, "Test Async scanning API 2", test_async_api2) 
 //   NULL == CU_add_test(pSuite, "Test edge cases of background scanning API", test_background_api3) 
-/*
+
 #if defined(WIN32)
-   NULL == CU_add_test(pSuite, "Test Win32 shortcuts", test_win32_shortcuts) 
+//   NULL == CU_add_test(pSuite, "Test Win32 shortcuts", test_win32_shortcuts) 
+   NULL == CU_add_test(pSuite, "Test Win32 shortcut infinite recursion", test_win32_shortcut_recursion) 
 #elif defined(__linux__)
    NULL == CU_add_test(pSuite, "Test Linux shortcuts", test_linux_shortcuts) 
 #else
    NULL == CU_add_test(pSuite, "Test Mac shortcuts", test_mac_shortcuts) 
 #endif
-   */
 	   )
    {
       CU_cleanup_registry();

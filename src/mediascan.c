@@ -913,6 +913,11 @@ static void *do_scan(void *userdata) {
     goto out;
   }
 
+  if(s->flags & MS_CLEARDB)
+  {
+	reset_bdb(s);
+  }
+
   if (s->progress == NULL) {
     MediaScanError *e = error_create("", MS_ERROR_TYPE_INVALID_PARAMS, "Progress object not created");
     send_error(s, e);
@@ -925,7 +930,7 @@ static void *do_scan(void *userdata) {
 
   for (i = 0; i < s->npaths; i++) {
     LOG_INFO("Scanning %s\n", s->paths[i]);
-    recurse_dir(s, s->paths[i]);
+    recurse_dir(s, s->paths[i], 0);
   }
 
   // Scan all files found
@@ -1122,7 +1127,7 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type) {
   data.data = &hash;
   data.size = sizeof(uint32_t);
 
-  if (s->flags & MS_RESCAN) {
+  if ( (s->flags & MS_RESCAN) || (s->flags & MS_FULL_SCAN) ) {
     // s->dbp will be null if this function is called directly, if not check if this file is
     // already scanned.
     if (s->dbp != NULL) {
@@ -1130,7 +1135,7 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type) {
       // the returned data against hash
       int ret = s->dbp->get(s->dbp, NULL, &key, &data, DB_GET_BOTH);
       if (ret != DB_NOTFOUND) {
-        LOG_INFO("File %s already scanned, skipping\n", tmp_full_path);
+      //  LOG_INFO("File %s already scanned, skipping\n", tmp_full_path);
         return;
       }
     }

@@ -43,7 +43,7 @@ extern enum log_level Debug;
 #define FATAL(...)     LOG_LEVEL(ERR, __VA_ARGS__);
 
 #define BUF_SIZE 4096
-
+#define RECURSE_LIMIT 64
 // Define if running under tcmalloc
 //#define USING_TCMALLOC
 

@@ -34,7 +34,7 @@ void unix_init(void) {
 /// ### remarks .
 ///-------------------------------------------------------------------------------------------------
 
-void recurse_dir(MediaScan *s, const char *path) {
+void recurse_dir(MediaScan *s, const char *path, int recurse_count) {
   char *dir, *p;
   char tmp_full_path[PathMax];
   DIR *dirp;
@@ -42,6 +42,12 @@ void recurse_dir(MediaScan *s, const char *path) {
   struct dirq *subdirq;         // list of subdirs of the current directory
   struct dirq_entry *parent_entry = NULL; // entry for current dir in s->_dirq
   char redirect_dir[MAX_PATH];
+
+  if(recurse_count > RECURSE_LIMIT)
+  {
+	  LOG_ERROR("Hit recurse limit of %d scanning path %s\n", RECURSE_LIMIT, path);
+	  return;
+  }
 
   if (path[0] != '/') {         // XXX Win32
     // Get full path
@@ -204,7 +210,7 @@ void recurse_dir(MediaScan *s, const char *path) {
   while (!SIMPLEQ_EMPTY(subdirq)) {
     struct dirq_entry *subdir_entry = SIMPLEQ_FIRST(subdirq);
     SIMPLEQ_REMOVE_HEAD(subdirq, entries);
-    recurse_dir(s, subdir_entry->dir);
+    recurse_dir(s, subdir_entry->dir, recurse_count);
     free(subdir_entry);
   }
 

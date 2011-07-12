@@ -77,7 +77,7 @@ bool is_absolute_path(const char *path);
 /// @param path Full pathname of the directory.
 ///-------------------------------------------------------------------------------------------------
 
-void recurse_dir(MediaScan *s, const char *path);
+void recurse_dir(MediaScan *s, const char *path, int recurse_count);
 
 ///-------------------------------------------------------------------------------------------------
 /// Add a thumbnail to the internal list of result thumbnails. Up to MAX_THUMBS (8) can be added.
