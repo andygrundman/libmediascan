@@ -149,7 +149,7 @@ void WatchDirectory(LPVOID inData);
 
 void RefreshDirectory(MediaScan *s, LPTSTR lpDir);
 
-parse_lnk(const char *path, LPTSTR szTarget, SIZE_T cchTarget);
+int parse_lnk(const char *path, LPTSTR szTarget, SIZE_T cchTarget);
 
 #endif // WIN32
 
