@@ -118,6 +118,8 @@ static void my_result_callback(MediaScan *s, MediaScanResult *r, void *userdata)
 	result.path = strdup(r->path);
 	result.flags = r->flags;
 
+	fprintf(stderr, "my_result_callback for %s\n", result.path);
+
 	if(r->error)
 		memcpy(result.error, r->error, sizeof(MediaScanError));
 
@@ -822,18 +824,94 @@ static void test_async_api(void)	{
 	ms_destroy(s);
 } /* test_async_api() */
 
+/* (adapted from Perl) select contributed by Vincent R. Slyngstad (vrs@ibeam.intel.com) */
+#define SOCKET_TEST(x, y) \
+    do {					\
+	if((x) == (y))					\
+	    errno = WSAGetLastError();			\
+    } while (0)
+
+#define SOCKET_TEST_ERROR(x) SOCKET_TEST(x, SOCKET_ERROR)
+#define TO_SOCKET(x) _get_osfhandle(x)
+
+static int
+win32_select(int nfds, fd_set* rd, fd_set* wr, fd_set* ex, const struct timeval* timeout)
+{
+    int r;
+    int i, fd, save_errno = errno;
+    FD_SET nrd, nwr, nex;
+    bool just_sleep = TRUE;
+
+    FD_ZERO(&nrd);
+    FD_ZERO(&nwr);
+    FD_ZERO(&nex);
+    for (i = 0; i < nfds; i++) {
+		if (rd && FD_ISSET(i,rd)) {
+			fd = TO_SOCKET(i);
+			FD_SET((unsigned)fd, &nrd);
+			just_sleep = FALSE;
+		}
+		if (wr && FD_ISSET(i,wr)) {
+			fd = TO_SOCKET(i);
+			FD_SET((unsigned)fd, &nwr);
+			just_sleep = FALSE;
+		}
+		if (ex && FD_ISSET(i,ex)) {
+			fd = TO_SOCKET(i);
+			FD_SET((unsigned)fd, &nex);
+			just_sleep = FALSE;
+		}
+    }
+
+    /* winsock seems incapable of dealing with all three fd_sets being empty,
+     * so do the (millisecond) sleep as a special case
+     */
+    if (just_sleep) {
+		if (timeout)
+			Sleep(timeout->tv_sec  * 1000 +
+			  timeout->tv_usec / 1000);	/* do the best we can */
+		else
+			Sleep(UINT_MAX);
+		return 0;
+    }
+
+    errno = save_errno;
+    SOCKET_TEST_ERROR(r = select(nfds, &nrd, &nwr, &nex, timeout));
+    save_errno = errno;
+
+    for (i = 0; i < nfds; i++) {
+		if (rd && FD_ISSET(i,rd)) {
+			fd = TO_SOCKET(i);
+			if (!FD_ISSET(fd, &nrd)) 
+				FD_CLR(i,rd);
+		}
+		if (wr && FD_ISSET(i,wr)) {
+			fd = TO_SOCKET(i);
+			if (!FD_ISSET(fd, &nwr))
+				FD_CLR(i,wr);
+		}
+		if (ex && FD_ISSET(i,ex)) {
+			fd = TO_SOCKET(i);
+			if (!FD_ISSET(fd, &nex))
+				FD_CLR(i,ex);
+		}
+    }
+    errno = save_errno;
+    return r;
+}
+
 static void test_async_api2(void)	{
 
   long time1, time2;
   int fd;
-  fd_set WriteFDs;
+  FD_SET rd;
+  struct timeval timeout;
 
-	#ifdef WIN32
-	const char dir[MAX_PATH] = "\\Users\\andy\\Pictures";
-	#else
+#ifdef WIN32
+	const char dir[MAX_PATH] = "C:\\Documents and Settings\\Administrator\\My Documents\\My Pictures";
+#else
 	const char dir[MAX_PATH] = "/Users/andy/Pictures";
-  	struct timeval now;
-	#endif
+#endif
 
 	MediaScan *s = ms_create();
 	ms_set_log_level(DEBUG);
@@ -858,41 +936,27 @@ static void test_async_api2(void)	{
 	ms_set_async(s, TRUE);
 	CU_ASSERT( s->async == TRUE );
 
-	ms_set_cachedir(s, "\\tmp\\libmediascan");
+	//ms_set_cachedir(s, "\\tmp\\libmediascan");
 	ms_set_flags(s, MS_USE_EXTENSION);
-#ifdef WIN32
-  time1 = GetTickCount();
-#else
-  gettimeofday(&now, NULL);
-  time1 = now.tv_sec;
-#endif
 
 	finish_called = 0;
 	ms_scan(s);
 	CU_ASSERT( result_called == 0 );
 
-#ifdef WIN32
-  time2 = GetTickCount();
-#else
-  gettimeofday(&now, NULL);
-  time2 = now.tv_sec;
-#endif
-
-	// Verify that the function returns almost immediately
-	CU_ASSERT( time2 - time1 < 20 );
-	
+	// Use select() from Perl's win32 code
 	fd = ms_async_fd(s);
+	FD_ZERO(&rd);
+	FD_SET(fd, &rd);
+	timeout.tv_sec = 10;
+	timeout.tv_usec = 0;
 
-	FD_ZERO(&WriteFDs);
-	FD_SET(fd, &WriteFDs);
-	while( select(0, &WriteFDs, 0, 0, 0) > 0)
-	{
-	printf("Activity on a socket!!! \n");
-	// Now process the callbacks
-	ms_async_process(s);
-
-	if(	finish_called )
-		break;
+	while (!finish_called) {
+		fprintf(stderr, "** waiting in win32_select for fd %d\n", fd);
+		win32_select(fd + 1, &rd, NULL, NULL, &timeout);
+		fprintf(stderr, "** select returned, fd is set? %d\n", FD_ISSET(fd, &rd) ? 1 : 0);
+		if (FD_ISSET(fd, &rd)) {
+			ms_async_process(s);
+		}
 	}
 
 	CU_ASSERT( result_called == 8 );
@@ -923,13 +987,13 @@ int setupbackground_tests() {
    if (
 //   NULL == CU_add_test(pSuite, "Test background scanning API", test_background_api) 
 //   NULL == CU_add_test(pSuite, "Test background scanning Deletion", test_background_api2) 
-//    NULL == CU_add_test(pSuite, "Test Async scanning API 2", test_async_api2) 
+    NULL == CU_add_test(pSuite, "Test Async scanning API 2", test_async_api2) 
 //   NULL == CU_add_test(pSuite, "Test edge cases of background scanning API", test_background_api3) 
 //   NULL == CU_add_test(pSuite, "Test Juke DB", test_juke) 
    NULL == CU_add_test(pSuite, "Test a bad file in Juke", test_juke_bad_file)    
 #if defined(WIN32)
 //   NULL == CU_add_test(pSuite, "Test Win32 shortcuts", test_win32_shortcuts) 
-//   NULL == CU_add_test(pSuite, "Test Win32 shortcut infinite recursion", test_win32_shortcut_recursion) 
+   //NULL == CU_add_test(pSuite, "Test Win32 shortcut infinite recursion", test_win32_shortcut_recursion) 
 #elif defined(__linux__)
    NULL == CU_add_test(pSuite, "Test Linux shortcuts", test_linux_shortcuts) 
 #else

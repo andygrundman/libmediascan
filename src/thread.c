@@ -1,15 +1,17 @@
 
 // Cross-platform thread abstractions
 
+#ifdef WIN32
+#include <Winsock2.h>
+#include <io.h>
+#include <signal.h>
+#include <fcntl.h>
+#endif
+
 #include <errno.h>
 #include <libmediascan.h>
 #include <stdlib.h>
 #include <string.h>
-
-#ifdef WIN32
-#include <io.h>
-#include <signal.h>
-#endif
 
 #include "mediascan.h"
 #include "common.h"
@@ -28,99 +30,84 @@ struct equeue_entry {
 };
 TAILQ_HEAD(equeue, equeue_entry);
 
-/*
-#define USE_SOCKETS_AS_HANDLES
-#ifdef USE_SOCKETS_AS_HANDLES
-# define S_TO_HANDLE(x) ((HANDLE)_get_osfhandle (x))
-#else
-# define S_TO_HANDLE(x) ((HANDLE)x)
-#endif
-*/
+#ifdef WIN32
+/* socketpair.c
+ * Copyright 2007 by Nathan C. Myers <ncm@cantrip.org>; some rights reserved.
+ * This code is Free Software.  It may be copied freely, in original or 
+ * modified form, subject only to the restrictions that (1) the author is
+ * relieved from all responsibilities for any use for any purpose, and (2)
+ * this copyright notice must be retained, unchanged, in its entirety.  If
+ * for any reason the author might be held responsible for any consequences
+ * of copying or use, license is withheld.  
+ */
+int dumb_socketpair(int socks[2])
+{
+    union {
+       struct sockaddr_in inaddr;
+       struct sockaddr addr;
+    } a;
+    SOCKET listener;
+    int e;
+    int addrlen = sizeof(a.inaddr);
+    DWORD flags = 0;
+    int reuse = 1;
+	u_long nonblocking = 0;
 
-#ifdef _WIN32
-/* taken almost verbatim from libev's ev_win32.c */
-/* oh, the humanity! */
-static int s_pipe(int filedes[2]) {
-//  dTHX;
+    if (socks == 0) {
+      WSASetLastError(WSAEINVAL);
+      return SOCKET_ERROR;
+    }
 
-  struct sockaddr_in addr = { 0 };
-  int addr_size = sizeof(addr);
-  struct sockaddr_in adr2;
-  int adr2_size = sizeof(adr2);
-  SOCKET listener;
-  SOCKET sock[2] = { -1, -1 };
+    listener = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (listener == INVALID_SOCKET) 
+        return SOCKET_ERROR;
 
-  if ((listener = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
-    return -1;
+    memset(&a, 0, sizeof(a));
+    a.inaddr.sin_family = AF_INET;
+    a.inaddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    a.inaddr.sin_port = 0; 
 
-  addr.sin_family = AF_INET;
-  addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-  addr.sin_port = 0;
+    socks[0] = socks[1] = INVALID_SOCKET;
+    do {
+        if (setsockopt(listener, SOL_SOCKET, SO_REUSEADDR, 
+               (char*) &reuse, sizeof(reuse)) == -1)
+            break;
+        if  (bind(listener, &a.addr, sizeof(a.inaddr)) == SOCKET_ERROR)
+            break;
+        if  (getsockname(listener, &a.addr, &addrlen) == SOCKET_ERROR)
+            break;
+        if (listen(listener, 1) == SOCKET_ERROR)
+            break;
+        socks[0] = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, flags);
+        if (socks[0] == INVALID_SOCKET)
+            break;
+        if (connect(socks[0], &a.addr, sizeof(a.inaddr)) == SOCKET_ERROR)
+            break;
+        socks[1] = accept(listener, NULL, NULL);
+        if (socks[1] == INVALID_SOCKET)
+            break;
 
-  if (bind(listener, (struct sockaddr *)&addr, addr_size))
-    goto fail;
+		// Make it blocking
+		ioctlsocket(socks[0], FIONBIO, &nonblocking);
 
-  if (getsockname(listener, (struct sockaddr *)&addr, &addr_size))
-    goto fail;
+		socks[0] = _open_osfhandle(socks[0], O_RDWR|O_BINARY);
+		socks[1] = _open_osfhandle(socks[1], O_RDWR|O_BINARY);
 
-  if (listen(listener, 1))
-    goto fail;
+		LOG_DEBUG("socks[0] = %d, socks[1] = %d\n", socks[0], socks[1]);
 
-  if ((sock[0] = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
-    goto fail;
+        closesocket(listener);
+        return 0;
 
-  if (connect(sock[0], (struct sockaddr *)&addr, addr_size))
-    goto fail;
+    } while (0);
 
-  if ((sock[1] = accept(listener, 0, 0)) < 0)
-    goto fail;
-
-  /* windows vista returns fantasy port numbers for getpeername.
-   * example for two interconnected tcp sockets:
-   *
-   * (Socket::unpack_sockaddr_in getsockname $sock0)[0] == 53364
-   * (Socket::unpack_sockaddr_in getpeername $sock0)[0] == 53363
-   * (Socket::unpack_sockaddr_in getsockname $sock1)[0] == 53363
-   * (Socket::unpack_sockaddr_in getpeername $sock1)[0] == 53365
-   *
-   * wow! tridirectional sockets!
-   *
-   * this way of checking ports seems to work:
-   */
-  if (getpeername(sock[0], (struct sockaddr *)&addr, &addr_size))
-    goto fail;
-
-  if (getsockname(sock[1], (struct sockaddr *)&adr2, &adr2_size))
-    goto fail;
-
-  errno = WSAEINVAL;
-  if (addr_size != adr2_size || addr.sin_addr.s_addr != adr2.sin_addr.s_addr  /* just to be sure, I mean, it's windows */
-      || addr.sin_port != adr2.sin_port)
-    goto fail;
-
-  closesocket(listener);
-
-  /* when select isn't winsocket, we also expect socket, connect, accept etc.
-   * to work on fds */
-  filedes[0] = sock[0];
-  filedes[1] = sock[1];
-
-  return 0;
-
-fail:
-  closesocket(listener);
-
-  if (sock[0] != INVALID_SOCKET)
-    closesocket(sock[0]);
-  if (sock[1] != INVALID_SOCKET)
-    closesocket(sock[1]);
-
-  return -1;
+    e = WSAGetLastError();
+    closesocket(listener);
+    closesocket(socks[0]);
+    closesocket(socks[1]);
+    WSASetLastError(e);
+    return SOCKET_ERROR;
 }
-
 #endif
-
-
 
 MediaScanThread *thread_create(void *(*func) (void *), thread_data_type *thread_data) {
   int err;
@@ -139,12 +126,12 @@ MediaScanThread *thread_create(void *(*func) (void *), thread_data_type *thread_
 
 #ifdef WIN32
   // Setup pipes for communication with main thread
-  if (s_pipe(t->respipe)) {
+  if (dumb_socketpair(t->respipe)) {
     LOG_ERROR("Unable to initialize thread result pipe\n");
     goto fail;
   }
 
-  if (s_pipe(t->reqpipe)) {
+  if (dumb_socketpair(t->reqpipe)) {
     LOG_ERROR("Unable to initialize thread request pipe\n");
     goto fail;
   }
@@ -244,29 +231,43 @@ void thread_unlock(MediaScanThread *t) {
 }
 
 void thread_signal(int spipe[2]) {
-#ifndef WIN32
-  static uint64_t counter = 1;
-
-  LOG_DEBUG("thread_signal -> %d\n", spipe[1]);
-  if (write(spipe[1], &counter, 1) < 0)
-    LOG_ERROR("Error signalling thread: %s\n", strerror(errno));
-#else
+#ifdef WIN32
   DWORD dummy;
+  static char counter[8];
+  int n;
+
+  LOG_DEBUG("thread_signal -> %d (%d)\n", spipe[1], _get_osfhandle(spipe[1]));
+  n = WriteFile((HANDLE)_get_osfhandle(spipe[1]), (LPCVOID)&dummy, 1, &dummy, 0);
+  LOG_DEBUG("WriteFile returned %d\n", n);
+  //n = send(spipe[1], (LPCVOID)&dummy, 1, 0);
+  //LOG_DEBUG("send returned %d\n", n);
+  //n = _write(spipe[1], &counter, 1);
+  //LOG_DEBUG("write returned %d\n", n);
+  //if (n < 0) perror("write error: ");
+#else
+  static char counter[8];
 
   LOG_DEBUG("thread_signal -> %d\n", spipe[1]);
-  send(spipe[1], (LPCVOID)&dummy, 1, 0);
+  write(spipe[1], &counter, 1);
 #endif
 }
 
 void thread_signal_read(int spipe[2]) {
   char buf[9];
+  int n;
+  DWORD nread;
 
-  LOG_DEBUG("thread_signal_read <- %d waiting...\n", spipe[0]);
+  LOG_DEBUG("thread_signal_read <- %d (%d) waiting...\n", spipe[0], _get_osfhandle(spipe[0]));
 
-#ifndef WIN32
-  read(spipe[0], buf, sizeof(buf));
+#ifdef WIN32
+  //n = ReadFile((HANDLE)_get_osfhandle(spipe[0]), (LPVOID)&buf, 1, &nread, 0);
+  //LOG_DEBUG("ReadFile returned %d (nread=%d) (error=%d)\n", n, nread, GetLastError());
+  //n = recv((SOCKET)_get_osfhandle(spipe[0]), buf, sizeof(buf), 0);
+  //LOG_DEBUG("recv returned %d\n", n);
+  n = _read(spipe[0], buf, 1);
+  LOG_DEBUG("read returned %d\n", n);
 #else
-  recv(spipe[0], buf, sizeof(buf), 0);
+  read(spipe[0], buf, sizeof(buf));
 #endif
 
   LOG_DEBUG("thread_signal_read <- %d OK\n", spipe[0]);
@@ -295,10 +296,10 @@ void thread_stop(MediaScanThread *t) {
     // Close pipes
 
 #ifdef WIN32
-    closesocket(t->respipe[0]);
-    closesocket(t->respipe[1]);
-    closesocket(t->reqpipe[0]);
-    closesocket(t->reqpipe[1]);
+    closesocket(_get_osfhandle(t->respipe[0]));
+    closesocket(_get_osfhandle(t->respipe[1]));
+    closesocket(_get_osfhandle(t->reqpipe[0]));
+    closesocket(_get_osfhandle(t->reqpipe[1]));
 #else
     close(t->respipe[0]);
     close(t->respipe[1]);
