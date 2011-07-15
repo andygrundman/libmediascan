@@ -992,7 +992,7 @@ int setupbackground_tests() {
     NULL == CU_add_test(pSuite, "Test Async scanning API 2", test_async_api2) 
 //   NULL == CU_add_test(pSuite, "Test edge cases of background scanning API", test_background_api3) 
 //   NULL == CU_add_test(pSuite, "Test Juke DB", test_juke) 
-   NULL == CU_add_test(pSuite, "Test a bad file in Juke", test_juke_bad_file)    
+//   NULL == CU_add_test(pSuite, "Test a bad file in Juke", test_juke_bad_file)    
 #if defined(WIN32)
 //   NULL == CU_add_test(pSuite, "Test Win32 shortcuts", test_win32_shortcuts) 
    //NULL == CU_add_test(pSuite, "Test Win32 shortcut infinite recursion", test_win32_shortcut_recursion) 
