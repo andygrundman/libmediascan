@@ -528,6 +528,77 @@ static void test_win32_shortcut_recursion(void)	{
 
 } /* test_win32_shortcut_recursion() */
 
+static void test_juke(void)	{
+	const char *test_path1 = "E:\\workspace\\JUKE Test Media\\Music";
+	const char *test_path2 = "E:\\workspace\\JUKE Test Media\\Pictures";
+	const char *test_path3 = "E:\\workspace\\JUKE Test Media\\Videos";
+	MediaScan *s;
+
+	s = ms_create();
+
+	CU_ASSERT_FATAL(s != NULL);
+
+	/* Test #1 of the initial scan functionality */
+	ms_set_flags(s, MS_RESCAN | MS_CLEARDB);
+	ms_set_log_level(DEBUG);
+	// Do some setup for the test
+	result_called = 0;
+	ms_errno = 0;
+
+	CU_ASSERT(s->on_result == NULL);
+	ms_set_result_callback(s, my_result_callback);
+	CU_ASSERT(s->on_result == my_result_callback);
+
+	CU_ASSERT(s->on_error == NULL);
+	ms_set_error_callback(s, my_error_callback); 
+	CU_ASSERT(s->on_error == my_error_callback);
+
+	CU_ASSERT(s->npaths == 0);
+	ms_add_path(s, test_path1);
+	ms_add_path(s, test_path2);
+	ms_add_path(s, test_path3);
+	CU_ASSERT(s->npaths == 3);
+
+	ms_scan(s);
+	CU_ASSERT( result_called == 1 );
+
+	ms_destroy(s);
+
+
+} /* test_juke() */
+
+static void test_juke_bad_file(void)	{
+//	const char *test_path1 = "E:\\workspace\\JUKE Test Media\\Videos\\MP4 Test Videos\\TChaseMPEG4.mp4";
+	const char *test_path1 = "data\\video\\TChaseMPEG4.mp4";
+	MediaScan *s;
+
+	s = ms_create();
+
+	CU_ASSERT_FATAL(s != NULL);
+
+	/* Test #1 of the initial scan functionality */
+	ms_set_flags(s, MS_RESCAN | MS_CLEARDB);
+	ms_set_log_level(DEBUG);
+	// Do some setup for the test
+	result_called = 0;
+	ms_errno = 0;
+
+	CU_ASSERT(s->on_result == NULL);
+	ms_set_result_callback(s, my_result_callback);
+	CU_ASSERT(s->on_result == my_result_callback);
+
+	CU_ASSERT(s->on_error == NULL);
+	ms_set_error_callback(s, my_error_callback); 
+	CU_ASSERT(s->on_error == my_error_callback);
+
+	ms_scan_file(s, test_path1, TYPE_VIDEO); 
+	CU_ASSERT( result_called == 1 );
+
+	ms_destroy(s);
+
+
+} /* test_juke_bad_file() */
+
 
 static void test_linux_shortcuts(void)	{
 	const char *test_path = "data/video/linuxshortcuts";
@@ -920,7 +991,8 @@ int setupbackground_tests() {
 //   NULL == CU_add_test(pSuite, "Test background scanning Deletion", test_background_api2) 
     NULL == CU_add_test(pSuite, "Test Async scanning API 2", test_async_api2) 
 //   NULL == CU_add_test(pSuite, "Test edge cases of background scanning API", test_background_api3) 
-
+//   NULL == CU_add_test(pSuite, "Test Juke DB", test_juke) 
+   NULL == CU_add_test(pSuite, "Test a bad file in Juke", test_juke_bad_file)    
 #if defined(WIN32)
 //   NULL == CU_add_test(pSuite, "Test Win32 shortcuts", test_win32_shortcuts) 
    //NULL == CU_add_test(pSuite, "Test Win32 shortcut infinite recursion", test_win32_shortcut_recursion) 
