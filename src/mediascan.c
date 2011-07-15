@@ -650,6 +650,13 @@ int ms_async_fd(MediaScan *s) {
   return s->thread ? thread_get_result_fd(s->thread) : 0;
 }
 
+void ms_set_async_fds(MediaScan *s, int res_rd, int res_wr, int req_rd, int req_wr) {
+  s->async_fds[0] = res_rd;
+  s->async_fds[1] = res_wr;
+  s->async_fds[2] = req_rd;
+  s->async_fds[3] = req_wr;
+}
+
 void ms_async_process(MediaScan *s) {
   if (s->thread) {
     enum event_type type;
@@ -700,6 +707,7 @@ void ms_watch_directory(MediaScan *s, const char *path) {
 
   thread_data_type *thread_data;
   DWORD dwAttrs;
+
   // First check if this is a standard server share which we can't monitor
   if (PathIsUNCServerShare(path)) {
     ms_errno = MSENO_ILLEGALPARAMETER;
@@ -737,7 +745,7 @@ void ms_watch_directory(MediaScan *s, const char *path) {
   thread_data->s = s;
   thread_data->lpDir = path;
 
-  s->thread = thread_create(WatchDirectory, thread_data);
+  s->thread = thread_create(WatchDirectory, thread_data, s->async_fds);
   if (!s->thread) {
     LOG_ERROR("Unable to start async thread\n");
     return;
@@ -1022,7 +1030,7 @@ void ms_scan(MediaScan *s) {
     thread_data->lpDir = NULL;
     thread_data->s = s;
 
-    s->thread = thread_create(do_scan, thread_data);
+    s->thread = thread_create(do_scan, thread_data, s->async_fds);
     if (!s->thread) {
       LOG_ERROR("Unable to start async thread\n");
       goto out;

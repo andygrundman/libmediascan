@@ -156,6 +156,7 @@ static void my_error_callback(MediaScan *s, MediaScanError *error, void *userdat
 } /* my_error_callback() */
 
 static void my_finish_callback(MediaScan *s, void *userdata) { 
+  fprintf(stderr, "finish_callback\n");
 	finish_called = TRUE;
 } /* my_finish_callback() */
 
@@ -872,19 +873,20 @@ static void test_async_api2(void)	{
 	ms_scan(s);
 	CU_ASSERT( result_called == 0 );
 
-	// Use select() from Perl's win32 code
-	fd = ms_async_fd(s);
-	FD_ZERO(&rd);
-	FD_SET(fd, &rd);
-	timeout.tv_sec = 10;
-	timeout.tv_usec = 0;
-
 	while (!finish_called) {
+    // Use select() from Perl's win32 code
+	  fd = ms_async_fd(s);
+	  FD_ZERO(&rd);
+	  FD_SET(fd, &rd);
+	  timeout.tv_sec = 10;
+	  timeout.tv_usec = 0;
+
 		fprintf(stderr, "** waiting in win32_select for fd %d\n", fd);
 		win32_select(fd + 1, &rd, NULL, NULL, &timeout);
 		fprintf(stderr, "** select returned, fd is set? %d\n", FD_ISSET(fd, &rd) ? 1 : 0);
 		if (FD_ISSET(fd, &rd)) {
 			ms_async_process(s);
+      fprintf(stderr, "** async_process returned\n");
 		}
 	}
 

@@ -246,6 +246,7 @@ struct _Scan {
   int nthumbspecs;
   MediaScanThumbSpec *thumbspecs[MAX_THUMBS];
   int async;
+  int async_fds[4];
   char *cachedir;
   int flags;
   int watch_interval;
@@ -448,6 +449,16 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type);
  * is not currently in progress, 0 will be returned.
  */
 int ms_async_fd(MediaScan *s);
+
+/**
+ * Supply your own pair of connected file descriptors for use with thread communication.
+ * This is a hack to work around some issues with the Perl binding. This must be called
+ * before ms_scan().
+ * @param s MediaScan instance.
+ * @param rd The read side of the pipe or socket pair.
+ * @param wr The write side of the pipe or socket pair.
+ */
+void ms_set_async_fds(MediaScan *s, int res_rd, int res_wr, int req_rd, int req_wr);
 
 /**
  * This function should be called whenever the async file descriptor becomes

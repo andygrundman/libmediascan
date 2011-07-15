@@ -268,6 +268,19 @@ CODE:
   async = SvIV(*(my_hv_fetch(selfh, "async")));
   ms_set_async(s, async ? 1 : 0);
   
+  if (async) {
+    // This pipe is created in pure Perl, to support Win32 quirks
+    int res_rd, res_wr, req_rd, req_wr;
+    
+    res_rd = SvIV(*(my_hv_fetch(selfh, "async_res_rd")));
+    res_wr = SvIV(*(my_hv_fetch(selfh, "async_res_wr")));
+    req_rd = SvIV(*(my_hv_fetch(selfh, "async_req_rd")));
+    req_wr = SvIV(*(my_hv_fetch(selfh, "async_req_wr")));
+    warn("Using fds %d/%d and %d/%d\n", res_rd, res_wr, req_rd, req_wr);
+    ms_set_async_fds(s, res_rd, res_wr, req_rd, req_wr);
+    warn("Done setting async_fds\n");
+  }
+  
   // Set cachedir
   if (my_hv_exists(selfh, "cachedir")) {
     SV **cachedir = my_hv_fetch(selfh, "cachedir");

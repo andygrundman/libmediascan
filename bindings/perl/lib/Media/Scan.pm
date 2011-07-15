@@ -14,7 +14,7 @@ use constant MS_LOG_ERR    => 1;
 use constant MS_LOG_WARN   => 2;
 use constant MS_LOG_INFO   => 3;
 use constant MS_LOG_DEBUG  => 4;
-use constant MS_LOG_MEMORY => 5;
+use constant MS_LOG_MEMORY => 9;
 
 # Flags
 use constant MS_USE_EXTENSION   => 1;
@@ -139,6 +139,19 @@ sub new {
     
     if ( ref $opts->{ignore} ne 'ARRAY' ) {
         die "ignore must be an array reference";
+    }
+    
+    # Open a socket pair on Windows for thread communication
+    if ( $opts->{async} && $^O =~ /Win32/i ) {
+      require AnyEvent::Util;
+      import AnyEvent::Util;
+      
+      my ($res_rd, $res_wr) = AnyEvent::Util::portable_pipe();
+      my ($req_rd, $req_wr) = AnyEvent::Util::portable_pipe();
+      $opts->{async_res_rd} = fileno($res_rd);
+      $opts->{async_res_wr} = fileno($res_wr);
+      $opts->{async_req_rd} = fileno($req_rd);
+      $opts->{async_req_wr} = fileno($req_wr);
     }
     
     my $self = bless $opts, $class;
