@@ -9,9 +9,8 @@ use Media::Scan;
 
 my $c = 1;
 {
-    #my $s = Media::Scan->new( [ _f('video') ], {
-    my $s = Media::Scan->new( [ '/Users/andy/QA/DHGMedia' ], {
-        #loglevel => 5,
+    my $s = Media::Scan->new( [ _f('video') ], {
+        loglevel => 9,
         ignore => [],
         async => 0,
         thumbnails => [
@@ -21,7 +20,7 @@ my $c = 1;
           my $r = shift;
           #warn "Result: " . dump($r->as_hash) . "\n";
           open my $fh, '>', 'thumb' . $c . '.jpg';
-          print $fh $r->thumbnails->[0];
+          print $fh $r->thumbnails->[0]->{data};
           close $fh;
           warn "Wrote thumb${c}.jpg\n";
           $c++;

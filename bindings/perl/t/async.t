@@ -2,6 +2,11 @@ use strict;
 
 use Test::More tests => 1;
 
+BEGIN {
+  $ENV{PERL_ANYEVENT_VERBOSE} = 9;
+  $ENV{PERL_ANYEVENT_MODEL} = 'Perl';
+};
+use EV;
 use AnyEvent;
 use Data::Dump qw(dump);
 use File::Spec::Functions;
@@ -13,12 +18,12 @@ my $c = 1;
     my $cv = AnyEvent->condvar;
 
     #my $s = Media::Scan->new( [ _f('video') ], {
-    my $s = Media::Scan->new( [ '/Users/andy/Pictures' ], {
-        loglevel => MS_LOG_ERR,
+    my $s = Media::Scan->new( [ 'C:\\Documents and Settings\\Administrator\\My Documents\\My Pictures' ], {
+        loglevel => MS_LOG_MEMORY,
         ignore => [ 'VIDEO' ],
         async => 1,
-        flags => MS_USE_EXTENSION | MS_RESCAN,
-        cachedir => '/tmp/libmediascan',
+        flags => MS_USE_EXTENSION | MS_FULL_SCAN,
+        #cachedir => '/tmp/libmediascan',
         thumbnails => [
             #{ width => 200 },
         ],
@@ -47,11 +52,16 @@ my $c = 1;
             $cv->send;
         },
     } );
+    
+    warn "Waiting on filehandle " . $s->async_fd . "\n";
+    
+    #$s->async_process while(1);
 
     my $w = AnyEvent->io(
         fh   => $s->async_fd,
         poll => 'r',
         cb   => sub {
+            die "select returned\n";
             $s->async_process;
         },
     );

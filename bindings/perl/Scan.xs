@@ -268,7 +268,7 @@ CODE:
   async = SvIV(*(my_hv_fetch(selfh, "async")));
   ms_set_async(s, async ? 1 : 0);
   
-  if (async) {
+  if (async && my_hv_exists(selfh, "async_res_rd")) {
     // This pipe is created in pure Perl, to support Win32 quirks
     int res_rd, res_wr, req_rd, req_wr;
     
