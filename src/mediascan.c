@@ -650,11 +650,11 @@ int ms_async_fd(MediaScan *s) {
   return s->thread ? thread_get_result_fd(s->thread) : 0;
 }
 
-void ms_set_async_fds(MediaScan *s, int res_rd, int res_wr, int req_rd, int req_wr) {
-  s->async_fds[0] = res_rd;
-  s->async_fds[1] = res_wr;
-  s->async_fds[2] = req_rd;
-  s->async_fds[3] = req_wr;
+void ms_set_async_pipes(MediaScan *s, int respipe[2], int reqpipe[2]) {
+  s->async_fds[0] = respipe[0];
+  s->async_fds[1] = respipe[1];
+  s->async_fds[2] = reqpipe[0];
+  s->async_fds[3] = reqpipe[1];
 }
 
 void ms_async_process(MediaScan *s) {

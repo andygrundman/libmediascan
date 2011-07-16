@@ -141,19 +141,6 @@ sub new {
         die "ignore must be an array reference";
     }
     
-    # Open a socket pair on Windows for thread communication
-    if ( $opts->{async} && $^O =~ /Win32/i ) {
-      require AnyEvent::Util;
-      import AnyEvent::Util;
-      
-      my ($res_rd, $res_wr) = AnyEvent::Util::portable_pipe();
-      my ($req_rd, $req_wr) = AnyEvent::Util::portable_pipe();
-      $opts->{async_res_rd} = fileno($res_rd);
-      $opts->{async_res_wr} = fileno($res_wr);
-      $opts->{async_req_rd} = fileno($req_rd);
-      $opts->{async_req_wr} = fileno($req_wr);
-    }
-    
     my $self = bless $opts, $class;
     
     $self->xs_new();

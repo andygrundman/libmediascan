@@ -40,7 +40,7 @@ TAILQ_HEAD(equeue, equeue_entry);
  * for any reason the author might be held responsible for any consequences
  * of copying or use, license is withheld.  
  */
-int dumb_socketpair(int socks[2])
+static int win32_socketpair(int socks[2])
 {
     union {
        struct sockaddr_in inaddr;
@@ -51,7 +51,6 @@ int dumb_socketpair(int socks[2])
     int addrlen = sizeof(a.inaddr);
     DWORD flags = 0;
     int reuse = 1;
-	u_long nonblocking = 0;
 
     if (socks == 0) {
       WSASetLastError(WSAEINVAL);
@@ -87,13 +86,8 @@ int dumb_socketpair(int socks[2])
         if (socks[1] == INVALID_SOCKET)
             break;
 
-		// Make it blocking
-		ioctlsocket(socks[0], FIONBIO, &nonblocking);
-
-		socks[0] = _open_osfhandle(socks[0], O_RDWR|O_BINARY);
-		socks[1] = _open_osfhandle(socks[1], O_RDWR|O_BINARY);
-
-		LOG_DEBUG("socks[0] = %d, socks[1] = %d\n", socks[0], socks[1]);
+		    socks[0] = _open_osfhandle(socks[0], O_RDWR|O_BINARY);
+		    socks[1] = _open_osfhandle(socks[1], O_RDWR|O_BINARY);
 
         closesocket(listener);
         return 0;
@@ -125,16 +119,18 @@ MediaScanThread *thread_create(void *(*func) (void *), thread_data_type *thread_
   LOG_MEM("new equeue @ %p\n", t->event_queue);
 
   // Setup pipes for communication with main thread
-  // The FDs can be passed in if necessary, otherwise a pipe is created
+  // The FDs can be passed in if necessary (Win32+Perl), otherwise a pipe is created
   if (optional_fds[0] > 0) {
     t->respipe[0] = optional_fds[0];
     t->respipe[1] = optional_fds[1];
     t->reqpipe[0] = optional_fds[2];
     t->reqpipe[1] = optional_fds[3];
+
+    LOG_DEBUG("Using supplied pipes: %d/%d and %d/%d\n", t->respipe[0], t->respipe[1], t->reqpipe[0], t->reqpipe[1]);
   }
   else {
 #ifdef WIN32
-	  if (dumb_socketpair(t->respipe)) {
+	  if (win32_socketpair(t->respipe)) {
 #else
     if (pipe(t->respipe)) {
 #endif
@@ -143,7 +139,7 @@ MediaScanThread *thread_create(void *(*func) (void *), thread_data_type *thread_
 	  }
 
 #ifdef WIN32
-  	if (dumb_socketpair(t->reqpipe)) {
+  	if (win32_socketpair(t->reqpipe)) {
 #else
     if (pipe(t->reqpipe)) {
 #endif
@@ -239,10 +235,10 @@ void thread_signal(int spipe[2]) {
   static char counter[8];
   int n;
 
-  LOG_DEBUG("thread_signal -> %d (%d)\n", spipe[1], _get_osfhandle(spipe[1]));
+  LOG_DEBUG("thread_signal -> %d\n", spipe[1]);
   //n = WriteFile((HANDLE)_get_osfhandle(spipe[1]), (LPCVOID)&dummy, 1, &dummy, 0);
   //LOG_DEBUG("WriteFile returned %d\n", n);
-  n = send((SOCKET)_get_osfhandle(spipe[1]), (LPCVOID)&dummy, 1, 0);
+  n = send((SOCKET)spipe[1], (LPCVOID)&dummy, 1, 0);
   LOG_DEBUG("send returned %d\n", n);
   //n = _write(spipe[1], &counter, 1);
   //LOG_DEBUG("write returned %d\n", n);
@@ -260,12 +256,12 @@ void thread_signal_read(int spipe[2]) {
   int n;
   DWORD nread;
 
-  LOG_DEBUG("thread_signal_read <- %d (%d) waiting...\n", spipe[0], _get_osfhandle(spipe[0]));
+  LOG_DEBUG("thread_signal_read <- %d waiting...\n", spipe[0]);
 
 #ifdef WIN32
   //n = ReadFile((HANDLE)_get_osfhandle(spipe[0]), (LPVOID)&buf, 1, &nread, 0);
   //LOG_DEBUG("ReadFile returned %d (nread=%d) (error=%d)\n", n, nread, GetLastError());
-  n = recv((SOCKET)_get_osfhandle(spipe[0]), buf, sizeof(buf), 0);
+  n = recv((SOCKET)spipe[0], buf, sizeof(buf), 0);
   LOG_DEBUG("recv returned %d\n", n);
   //n = _read(spipe[0], buf, 1);
   //LOG_DEBUG("read returned %d\n", n);
@@ -299,10 +295,10 @@ void thread_stop(MediaScanThread *t) {
     // Close pipes
 
 #ifdef WIN32
-    closesocket(_get_osfhandle(t->respipe[0]));
-    closesocket(_get_osfhandle(t->respipe[1]));
-    closesocket(_get_osfhandle(t->reqpipe[0]));
-    closesocket(_get_osfhandle(t->reqpipe[1]));
+    closesocket(t->respipe[0]);
+    closesocket(t->respipe[1]);
+    closesocket(t->reqpipe[0]);
+    closesocket(t->reqpipe[1]);
 #else
     close(t->respipe[0]);
     close(t->respipe[1]);

@@ -4,7 +4,7 @@ use Test::More tests => 1;
 
 BEGIN {
   $ENV{PERL_ANYEVENT_VERBOSE} = 9;
-  $ENV{PERL_ANYEVENT_MODEL} = 'Perl';
+  $ENV{PERL_ANYEVENT_MODEL} = 'EV';
 };
 use EV;
 use AnyEvent;
@@ -61,8 +61,9 @@ my $c = 1;
         fh   => $s->async_fd,
         poll => 'r',
         cb   => sub {
-            die "select returned\n";
+            warn "** select returned\n";
             $s->async_process;
+            warn "** async_process done\n";
         },
     );
 
