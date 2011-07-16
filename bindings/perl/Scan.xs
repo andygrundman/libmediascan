@@ -379,9 +379,6 @@ CODE:
     reqpipe[0] = S_TO_HANDLE(reqpipe[0]);
     reqpipe[1] = S_TO_HANDLE(reqpipe[1]);
     
-    DEBUG_TRACE("Opened respipe %d / %d\n", respipe[0], respipe[1]);
-    DEBUG_TRACE("Opened reqpipe %d / %d\n", reqpipe[0], reqpipe[1]);
-    
     ms_set_async_pipes(s, respipe, reqpipe);
   }
 #endif
