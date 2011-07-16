@@ -109,10 +109,9 @@ void recurse_dir(MediaScan *s, const char *path, int recurse_count) {
   TCHAR findDir[MAX_PATH];
 
   recurse_count++;
-  if(recurse_count > RECURSE_LIMIT)
-  {
-	  LOG_ERROR("Hit recurse limit of %d scanning path %s\n", RECURSE_LIMIT, path);
-	  return;
+  if (recurse_count > RECURSE_LIMIT) {
+    LOG_ERROR("Hit recurse limit of %d scanning path %s\n", RECURSE_LIMIT, path);
+    return;
   }
 
   if (s == NULL) {
@@ -203,10 +202,10 @@ void recurse_dir(MediaScan *s, const char *path, int recurse_count) {
           strcat(full_name, name);
           parse_lnk(full_name, redirect_dir, MAX_PATH);
           if (PathIsDirectory(redirect_dir)) {
-		    struct dirq_entry *subdir_entry = malloc(sizeof(struct dirq_entry));
-	        subdir_entry->dir = _strdup(redirect_dir);
-			SIMPLEQ_INSERT_TAIL(subdirq, subdir_entry, entries);
-	        LOG_INFO("shortcut dir: %s\n", redirect_dir);
+            struct dirq_entry *subdir_entry = malloc(sizeof(struct dirq_entry));
+            subdir_entry->dir = _strdup(redirect_dir);
+            SIMPLEQ_INSERT_TAIL(subdirq, subdir_entry, entries);
+            LOG_INFO("shortcut dir: %s\n", redirect_dir);
             type = 0;
           }
 

@@ -40,66 +40,64 @@ TAILQ_HEAD(equeue, equeue_entry);
  * for any reason the author might be held responsible for any consequences
  * of copying or use, license is withheld.  
  */
-static int win32_socketpair(int socks[2])
-{
-    union {
-       struct sockaddr_in inaddr;
-       struct sockaddr addr;
-    } a;
-    SOCKET listener;
-    int e;
-    int addrlen = sizeof(a.inaddr);
-    DWORD flags = 0;
-    int reuse = 1;
+static int win32_socketpair(int socks[2]) {
+  union {
+    struct sockaddr_in inaddr;
+    struct sockaddr addr;
+  } a;
+  SOCKET listener;
+  int e;
+  int addrlen = sizeof(a.inaddr);
+  DWORD flags = 0;
+  int reuse = 1;
 
-    if (socks == 0) {
-      WSASetLastError(WSAEINVAL);
-      return SOCKET_ERROR;
-    }
-
-    listener = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if (listener == INVALID_SOCKET) 
-        return SOCKET_ERROR;
-
-    memset(&a, 0, sizeof(a));
-    a.inaddr.sin_family = AF_INET;
-    a.inaddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-    a.inaddr.sin_port = 0; 
-
-    socks[0] = socks[1] = INVALID_SOCKET;
-    do {
-        if (setsockopt(listener, SOL_SOCKET, SO_REUSEADDR, 
-               (char*) &reuse, sizeof(reuse)) == -1)
-            break;
-        if  (bind(listener, &a.addr, sizeof(a.inaddr)) == SOCKET_ERROR)
-            break;
-        if  (getsockname(listener, &a.addr, &addrlen) == SOCKET_ERROR)
-            break;
-        if (listen(listener, 1) == SOCKET_ERROR)
-            break;
-        socks[0] = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, flags);
-        if (socks[0] == INVALID_SOCKET)
-            break;
-        if (connect(socks[0], &a.addr, sizeof(a.inaddr)) == SOCKET_ERROR)
-            break;
-        socks[1] = accept(listener, NULL, NULL);
-        if (socks[1] == INVALID_SOCKET)
-            break;
-
-		    socks[0] = _open_osfhandle(socks[0], O_RDWR|O_BINARY);
-		    socks[1] = _open_osfhandle(socks[1], O_RDWR|O_BINARY);
-
-        closesocket(listener);
-        return 0;
-
-    } while (0);
-
-    e = WSAGetLastError();
-    closesocket(listener);
-    closesocket(socks[0]);
-    closesocket(socks[1]);
-    WSASetLastError(e);
+  if (socks == 0) {
+    WSASetLastError(WSAEINVAL);
     return SOCKET_ERROR;
+  }
+
+  listener = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  if (listener == INVALID_SOCKET)
+    return SOCKET_ERROR;
+
+  memset(&a, 0, sizeof(a));
+  a.inaddr.sin_family = AF_INET;
+  a.inaddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+  a.inaddr.sin_port = 0;
+
+  socks[0] = socks[1] = INVALID_SOCKET;
+  do {
+    if (setsockopt(listener, SOL_SOCKET, SO_REUSEADDR, (char *)&reuse, sizeof(reuse)) == -1)
+      break;
+    if (bind(listener, &a.addr, sizeof(a.inaddr)) == SOCKET_ERROR)
+      break;
+    if (getsockname(listener, &a.addr, &addrlen) == SOCKET_ERROR)
+      break;
+    if (listen(listener, 1) == SOCKET_ERROR)
+      break;
+    socks[0] = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, flags);
+    if (socks[0] == INVALID_SOCKET)
+      break;
+    if (connect(socks[0], &a.addr, sizeof(a.inaddr)) == SOCKET_ERROR)
+      break;
+    socks[1] = accept(listener, NULL, NULL);
+    if (socks[1] == INVALID_SOCKET)
+      break;
+
+    socks[0] = _open_osfhandle(socks[0], O_RDWR | O_BINARY);
+    socks[1] = _open_osfhandle(socks[1], O_RDWR | O_BINARY);
+
+    closesocket(listener);
+    return 0;
+
+  } while (0);
+
+  e = WSAGetLastError();
+  closesocket(listener);
+  closesocket(socks[0]);
+  closesocket(socks[1]);
+  WSASetLastError(e);
+  return SOCKET_ERROR;
 }
 #endif
 
@@ -130,22 +128,22 @@ MediaScanThread *thread_create(void *(*func) (void *), thread_data_type *thread_
   }
   else {
 #ifdef WIN32
-	  if (win32_socketpair(t->respipe)) {
+    if (win32_socketpair(t->respipe)) {
 #else
     if (pipe(t->respipe)) {
 #endif
-		  LOG_ERROR("Unable to initialize thread result pipe\n");
-		  goto fail;
-	  }
+      LOG_ERROR("Unable to initialize thread result pipe\n");
+      goto fail;
+    }
 
 #ifdef WIN32
-  	if (win32_socketpair(t->reqpipe)) {
+    if (win32_socketpair(t->reqpipe)) {
 #else
     if (pipe(t->reqpipe)) {
 #endif
-		  LOG_ERROR("Unable to initialize thread request pipe\n");
-		  goto fail;
-	  }
+      LOG_ERROR("Unable to initialize thread request pipe\n");
+      goto fail;
+    }
   }
 
   if (pthread_mutex_init(&t->mutex, NULL) != 0) {

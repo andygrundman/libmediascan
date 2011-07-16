@@ -43,10 +43,9 @@ void recurse_dir(MediaScan *s, const char *path, int recurse_count) {
   struct dirq_entry *parent_entry = NULL; // entry for current dir in s->_dirq
   char redirect_dir[MAX_PATH];
 
-  if(recurse_count > RECURSE_LIMIT)
-  {
-	  LOG_ERROR("Hit recurse limit of %d scanning path %s\n", RECURSE_LIMIT, path);
-	  return;
+  if (recurse_count > RECURSE_LIMIT) {
+    LOG_ERROR("Hit recurse limit of %d scanning path %s\n", RECURSE_LIMIT, path);
+    return;
   }
 
   if (path[0] != '/') {         // XXX Win32

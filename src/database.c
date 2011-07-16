@@ -37,7 +37,7 @@ void reset_bdb(MediaScan *s) {
   s->dbp->truncate(s->dbp, NULL, &records, 0);
 
   LOG_INFO("Database cleared. %d records deleted\n", records);
-}  /* reset_bdb() */
+}                               /* reset_bdb() */
 
 int init_bdb(MediaScan *s) {
   int ret;
@@ -79,13 +79,11 @@ int init_bdb(MediaScan *s) {
   /* open the database */
   sprintf(dbpath, "%s/libmediascan.db", s->cachedir ? s->cachedir : ".");
 
-  if(s->flags & MS_FULL_SCAN)
-  {
-	  tmp_flags = DB_CREATE | DB_TRUNCATE;
+  if (s->flags & MS_FULL_SCAN) {
+    tmp_flags = DB_CREATE | DB_TRUNCATE;
   }
-  else
-  {
-	  tmp_flags = DB_CREATE;
+  else {
+    tmp_flags = DB_CREATE;
   };
 
   ret = s->dbp->open(s->dbp,    /* DB structure pointer */
@@ -105,4 +103,4 @@ int init_bdb(MediaScan *s) {
   }
 
   return 1;
-}  /* init_bdb() */
+}                               /* init_bdb() */
