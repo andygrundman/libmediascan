@@ -685,15 +685,18 @@ static void test_linux_shortcuts(void)	{
 static void test_mac_shortcuts(void)	{
 	const char *test_path = "data/video/macshortcuts";
 	
-	const char *test_file1 = "data/video/macshortcuts/avi_link";
+	const char *test_file1 = "data/video/macshortcuts/avi_alias";
 	const char *test_file2 = "data/video/macshortcuts/dlna";
-	const char *test_file3 = "data/video/macshortcuts/dnla_link";
+	const char *test_file3 = "data/video/macshortcuts/dnla_link1";
 	const char *test_file4 = "data/video/macshortcuts/bars-mpeg4-mp2.avi";
+	const char *test_file5 = "data/video/macshortcuts/dnla_link2";
+	const char *test_file6 = "data/video/macshortcuts/bars-mpeg4-mp2.avi";
+	const char *test_file7 = "data/video/macshortcuts/avi_link";
 	const char *dest_test_file4 = "/Users/Fox/workspace/libmediascan/test/data/video/bars-mpeg4-mp2.avi";
 	char out_path[MAX_PATH];
 
 	MediaScan *s = ms_create();
-
+		ms_set_log_level(DEBUG);
 	CU_ASSERT_FATAL(s != NULL);
 
 	// Do some setup for the test
@@ -733,14 +736,23 @@ static void test_mac_shortcuts(void)	{
 	CU_ASSERT(s->on_error == my_error_callback);
 
 	CU_ASSERT(s->npaths == 0);
-	ms_add_path(s, test_file3);
+	ms_add_path(s, test_file5);
 	CU_ASSERT(s->npaths == 1);
 
 	ms_scan(s);
 	CU_ASSERT( result_called == 5 );	
 
-//	if(isAlias(test_file1))
-//		printf("%s is a link\n", test_file1);
+	//if(isAlias(test_file6))
+	//	printf("%s is a link\n", test_file6);
+	//ms_scan_file(s, test_file6, TYPE_UNKNOWN);
+
+	if(isAlias(test_file1))
+		printf("%s is a link\n", test_file1);
+	ms_scan_file(s, test_file1, TYPE_UNKNOWN);
+
+	if(isAlias(test_file7))
+		printf("%s is a link\n", test_file7);
+	ms_scan_file(s, test_file7, TYPE_UNKNOWN);
 //	if(isAlias(test_file2))
 //		printf("%s is a link\n", test_file2);
 //	if(isAlias(test_file3))
@@ -824,6 +836,8 @@ static void test_async_api(void)	{
 
 	ms_destroy(s);
 } /* test_async_api() */
+
+#ifdef WIN32
 
 /* (adapted from Perl) select contributed by Vincent R. Slyngstad (vrs@ibeam.intel.com) */
 #define SOCKET_TEST(x, y) \
@@ -966,6 +980,7 @@ static void test_async_api2(void)	{
 	ms_destroy(s);
 } /* test_async_api2() */
 
+#endif
 
 ///-------------------------------------------------------------------------------------------------
 ///  Setup background tests.
@@ -989,7 +1004,9 @@ int setupbackground_tests() {
    if (
 //   NULL == CU_add_test(pSuite, "Test background scanning API", test_background_api) 
 //   NULL == CU_add_test(pSuite, "Test background scanning Deletion", test_background_api2) 
+#if defined(WIN32)
     NULL == CU_add_test(pSuite, "Test Async scanning API 2", test_async_api2) 
+#endif
 //   NULL == CU_add_test(pSuite, "Test edge cases of background scanning API", test_background_api3) 
 //   NULL == CU_add_test(pSuite, "Test Juke DB", test_juke) 
 //   NULL == CU_add_test(pSuite, "Test a bad file in Juke", test_juke_bad_file)    

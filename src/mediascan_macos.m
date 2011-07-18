@@ -65,11 +65,19 @@ fileSystemRepresentationWithPath:(NSString *)in_path], &fileInfo) < 0) {
 }                               /* isAlias() */
 
 int CheckMacAlias(const char *incoming_path, char *out_path) {
+  NSString *NSPath = [NSString stringWithUTF8String:incoming_path]; 
+  NSString *resolvedPath =[NSPath stringByResolvingSymlinksAndAliases];
+  LOG_DEBUG("CheckMacAlias: %s => %s\n", [NSPath UTF8String], [resolvedPath UTF8String]);
+  if(resolvedPath == nil)
+  {
+  [NSPath release];
+  return FALSE;
+  }
 
-  CFStringRef cfPath = CFStringCreateWithCString(kCFAllocatorDefault,
-                                                 incoming_path, kCFStringEncodingUTF8);
-
-  NSString *resolvedPath =[cfPath stringByResolvingSymlinksAndAliases];
-
-  CFStringGetCString(resolvedPath, out_path, MAX_PATH, kCFStringEncodingMacRoman);
+  const char *cString = [resolvedPath UTF8String];
+  strncpy(out_path, cString, PATH_MAX);
+  
+  [NSPath release];
+  [resolvedPath release];
+  return TRUE;
 }                               /* CheckMacAlias() */

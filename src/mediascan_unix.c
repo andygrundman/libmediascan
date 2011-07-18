@@ -82,7 +82,9 @@ void recurse_dir(MediaScan *s, const char *path, int recurse_count) {
 
 #if defined(__APPLE__)
   if (isAlias(dir)) {
+    LOG_WARN("recurse_dir 1\n");
     CheckMacAlias(dir, redirect_dir);
+    LOG_WARN("recurse_dir 2\n");
     LOG_INFO("Resolving Alias %s to %s\n", dir, redirect_dir);
     strcpy(dir, redirect_dir);
   }

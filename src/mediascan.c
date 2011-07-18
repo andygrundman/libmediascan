@@ -1089,7 +1089,10 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type) {
   if (isAlias(full_path)) {
     LOG_INFO("File is a mac alias\n");
     // Check if this file is a shortcut and if so resolve it
-    CheckMacAlias(full_path, tmp_full_path);
+    if( !CheckMacAlias(full_path, tmp_full_path) ){
+    	LOG_ERROR("Failure to follow symlink or alias, skipping file\n");
+    	return;
+    	}
   }
   else {
     strcpy(tmp_full_path, full_path);
@@ -1115,7 +1118,7 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type) {
   }
 #endif
 
-
+LOG_WARN("media 1\n");
 
   // Check if the file has been recently scanned
   hash = HashFile(tmp_full_path, &mtime, &size);
