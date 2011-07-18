@@ -252,7 +252,10 @@ void thread_signal(int spipe[2]) {
 void thread_signal_read(int spipe[2]) {
   char buf[9];
   int n;
+
+#ifdef WIN32
   DWORD nread;
+#endif
 
   LOG_DEBUG("thread_signal_read <- %d waiting...\n", spipe[0]);
 
