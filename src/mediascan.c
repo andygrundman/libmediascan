@@ -1118,8 +1118,6 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type) {
   }
 #endif
 
-LOG_WARN("media 1\n");
-
   // Check if the file has been recently scanned
   hash = HashFile(tmp_full_path, &mtime, &size);
 

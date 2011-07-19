@@ -14,8 +14,29 @@
 
 #import "NSString+SymlinksAndAliases.h"
 #include <sys/stat.h>
+#include <libmediascan.h>
+#include "common.h"
 
 @implementation NSString (SymlinksAndAliases)
+
+
+- (NSString*) absolutePath: (NSString*)path
+{
+	NSString* straitPath = [path stringByStandardizingPath];	
+	if ([straitPath isAbsolutePath] == FALSE)
+	{
+		NSFileManager *filemgr;
+		NSString *currentpath;
+
+		filemgr = [[NSFileManager alloc] init];
+		currentpath = [filemgr currentDirectoryPath];
+	
+		straitPath = [currentpath stringByAppendingPathComponent: path];
+		straitPath = [straitPath stringByStandardizingPath];
+	}
+	
+	return straitPath;
+}
 
 //
 // stringByResolvingSymlinksAndAliases
@@ -31,6 +52,8 @@
 	// Convert to a standardized absolute path.
 	//
 	NSString *path = [self stringByStandardizingPath];
+	path = [self absolutePath: path];
+	
 	if (![path hasPrefix:@"/"])
 	{
 		return nil;
