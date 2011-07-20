@@ -1,5 +1,3 @@
-Symlink/Mac alias/Win32 shortcut handling
-
 Needs to support scanning playlist files
 
 Add CUnit to be built as a dependency when running make check
@@ -24,3 +22,5 @@ on_finish gets passed some stats about the scan:
 Result should include a flag for indicating if the file is new, has changed, or was deleted
 
 Perl: would_scan($file) - calls through to should_scan function
+
+Support defining ignore lists on a per-directory basis
