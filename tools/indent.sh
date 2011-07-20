@@ -19,7 +19,6 @@ OPTIONS="-nbad -bap -nbc -br -nce -cdw -cli2 -npcs -ncs -nprs -di2 -npsl -l120 \
 
 $INDENT $OPTIONS src/*.h include/*.h
 $INDENT $OPTIONS src/*.c
-$INDENT $OPTIONS src/*.m
 
 # We don't reformat external code we've included in subdirectories of src
 

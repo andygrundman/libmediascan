@@ -12,6 +12,8 @@
 //  appreciated but not required.
 //
 
+// *INDENT-OFF*
+
 #import <Cocoa/Cocoa.h>
 
 @ interface NSString (SymlinksAndAliases)
@@ -26,3 +28,5 @@
 - (NSString *)stringByConditionallyResolvingAlias;
 
 @end
+
+// *INDENT-ON*
