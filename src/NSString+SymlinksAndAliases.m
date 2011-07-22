@@ -33,6 +33,9 @@
 	
 		straitPath = [currentpath stringByAppendingPathComponent: path];
 		straitPath = [straitPath stringByStandardizingPath];
+		
+		[currentpath release];
+		[filemgr release];
 	}
 	
 	return straitPath;
@@ -48,7 +51,7 @@
 //
 - (NSString *)stringByResolvingSymlinksAndAliases
 {
-	//
+ 	//
 	// Convert to a standardized absolute path.
 	//
 	NSString *path = [self stringByStandardizingPath];
@@ -56,6 +59,7 @@
 	
 	if (![path hasPrefix:@"/"])
 	{
+		[path release];
 		return nil;
 	}
 	
@@ -77,10 +81,14 @@
 		resolvedPath = [resolvedPath stringByIterativelyResolvingSymlinkOrAlias];
 		if (!resolvedPath)
 		{
+			[pathComponents release];
+			[path release];
 			return nil;
 		}
 	}
 
+	[pathComponents release];
+	[path release];
 	return resolvedPath;
 }
 

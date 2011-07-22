@@ -21,21 +21,26 @@
 #include "common.h"
 
 int isAlias(const char *incoming_path) {
-
+  int link_type;
+  
   struct stat fileInfo;
-  NSAutoreleasePool *pool =[[NSAutoreleasePool alloc] init];
+  link_type = LINK_NONE;
+  
+  //NSAutoreleasePool *pool =[[NSAutoreleasePool alloc] init];
 
   CFStringRef in_path = CFStringCreateWithCString(NULL, incoming_path, kCFStringEncodingMacRoman);
 
 // Use lstat to determine if the file is a directory or symlink
   if (lstat([[NSFileManager defaultManager]
 fileSystemRepresentationWithPath:(NSString *)in_path], &fileInfo) < 0) {
-    return LINK_NONE;
+    link_type = LINK_NONE;
+    goto exit;
   }
 
 
   if (S_ISLNK(fileInfo.st_mode)) {
-    return LINK_SYMLINK;
+    link_type = LINK_SYMLINK;
+    goto exit;
   }
   else {
     // Now check for aliases
@@ -50,21 +55,29 @@ fileSystemRepresentationWithPath:(NSString *)in_path], &fileInfo) < 0) {
         Boolean targetIsFolder, wasAliased;
         OSErr err = FSResolveAliasFile(&fsRef, true, &targetIsFolder, &wasAliased);
         if ((err == noErr) && wasAliased)
-          return LINK_ALIAS;
+        {
+    		link_type = LINK_ALIAS;
+    		goto exit;
+        }
         else
-          return LINK_NONE;
+        {
+    		link_type = LINK_NONE;
+    		goto exit;
+        }
       }
       CFRelease(url);
     }
+     CFRelease(cfPath);
   }
 
-// free pool
-  [pool release];
-
-  return LINK_NONE;
+exit:
+  CFRelease(in_path);
+   
+  return link_type;
 }                               /* isAlias() */
 
 int CheckMacAlias(const char *incoming_path, char *out_path) {
+ // NSAutoreleasePool *pool =[[NSAutoreleasePool alloc] init];
   NSString *NSPath = [NSString stringWithUTF8String:incoming_path]; 
   NSString *resolvedPath =[NSPath stringByResolvingSymlinksAndAliases];
   LOG_DEBUG("CheckMacAlias: %s => %s\n", [NSPath UTF8String], [resolvedPath UTF8String]);
