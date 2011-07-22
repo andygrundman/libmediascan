@@ -15,6 +15,8 @@
 
 #include "mediascan.h"
 #include "common.h"
+#include "result.h"
+#include "progress.h"
 #include "error.h"
 #include "thread.h"
 #include "queue.h"
@@ -298,9 +300,31 @@ void thread_destroy(MediaScanThread *t) {
     while (!TAILQ_EMPTY(eq)) {
       struct equeue_entry *entry = eq->tqh_first;
       TAILQ_REMOVE(eq, entry, entries);
+      
+      // Also need to free the internal objects waiting in the queue
+      LOG_DEBUG("Cleaning up thread event, type %d @ %p\n", entry->type, entry->data);
+      switch (entry->type) {
+        case EVENT_TYPE_RESULT:
+          result_destroy((MediaScanResult *)entry->data);
+          break;
+
+        case EVENT_TYPE_PROGRESS:
+          progress_destroy((MediaScanProgress *)entry->data);  // freeing a copy of progress
+          break;
+
+        case EVENT_TYPE_ERROR:
+          error_destroy((MediaScanError *)entry->data);
+          break;
+
+        case EVENT_TYPE_FINISH:
+        default:
+          break;
+      }
+      
       LOG_MEM("destroy equeue_entry @ %p\n", entry);
       free(entry);
     }
+    
     LOG_MEM("destroy equeue @ %p\n", eq);
     free(eq);
   }

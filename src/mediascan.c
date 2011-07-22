@@ -659,6 +659,10 @@ void ms_async_process(MediaScan *s) {
   if (s->thread) {
     enum event_type type;
     void *data;
+    
+    // Don't try to read thread events if the thread is aborting
+    if (thread_should_abort(s->thread))
+      return;
 
     thread_signal_read(s->thread->respipe);
 
