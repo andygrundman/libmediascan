@@ -340,6 +340,10 @@ void ms_destroy(MediaScan *s) {
   int i;
 
   if (s->thread) {
+    // A thread is running, tell it to abort
+    ms_abort(s);
+
+    // thread_destroy will wait until the thread exits cleanly
     thread_destroy(s->thread);
     s->thread = NULL;
   }
@@ -371,6 +375,13 @@ void ms_destroy(MediaScan *s) {
   LOG_MEM("destroy MediaScan @ %p\n", s);
   free(s);
 }                               /* ms_destroy() */
+
+// Request current scan to abort as soon as possible.
+void ms_abort(MediaScan *s) {
+  // This variable will be read in the worker thread but never modified there,
+  // so no locking is needed
+  s->_want_abort = 1;
+}
 
 ///-------------------------------------------------------------------------------------------------
 ///  Add a path to be scanned. Up to 128 paths may be added before beginning the scan.
@@ -662,10 +673,6 @@ void ms_async_process(MediaScan *s) {
     enum event_type type;
     void *data;
 
-    // Don't try to read thread events if the thread is aborting
-    if (thread_should_abort(s->thread))
-      return;
-
     thread_signal_read(s->thread->respipe);
 
     // Pull events from the thread's queue, events contain their type
@@ -954,9 +961,11 @@ static void *do_scan(void *userdata) {
 
     file_head = dir_entry->files;
     while (!SIMPLEQ_EMPTY(file_head)) {
-      // If running in async mode, check if the scan has been aborted
-      if (s->thread && thread_should_abort(s->thread))
+      // check if the scan has been aborted
+      if (s->_want_abort) {
+        LOG_DEBUG("Aborting scan\n");
         goto aborted;
+      }
 
       file_entry = SIMPLEQ_FIRST(file_head);
 

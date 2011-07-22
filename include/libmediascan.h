@@ -265,6 +265,7 @@ struct _Scan {
   // private
   void *_dirq;                  // simple queue of all directories found
   void *_dlna;                  // libdlna instance
+  int _want_abort;              // set when scan should abort as soon as possible
 };
 
 typedef struct _Scan MediaScan;
@@ -307,10 +308,15 @@ void ms_set_log_level(enum log_level level);
 MediaScan *ms_create(void);
 
 /**
- * Destroy the given MediaScan object. If a scan is currently in progress
- * it will be aborted.
+ * Destroy the given MediaScan object. Do not call this from within a callback.
+ * See ms_abort() to stop a running scan.
  */
 void ms_destroy(MediaScan *s);
+
+/**
+ * Abort a scan in process. This function is safe to call from within a callback.
+ */
+void ms_abort(MediaScan *s);
 
 /**
  * Add a path to be scanned. Up to 64 paths may be added before

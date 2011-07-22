@@ -103,21 +103,6 @@ static int win32_socketpair(int socks[2]) {
 }
 #endif
 
-int thread_should_abort(MediaScanThread *t) {
-  int ret = 0;
-
-  LOG_DEBUG("Checking if thread was aborted...\n");
-
-  thread_lock(t);
-  ret = t->aborted;
-  thread_unlock(t);
-
-  if (ret)
-    LOG_DEBUG("  Thread was aborted\n");
-
-  return ret;
-}
-
 MediaScanThread *thread_create(void *(*func) (void *), thread_data_type *thread_data, int optional_fds[4]) {
   int err;
   MediaScanThread *t = (MediaScanThread *)calloc(sizeof(MediaScanThread), 1);
@@ -267,12 +252,10 @@ void thread_stop(MediaScanThread *t) {
 #else
   if (t->tid.p) {               // XXX needed?
 #endif
-    LOG_DEBUG("Signalling thread %x to stop\n", t->tid);
-    thread_lock(t);
-    t->aborted = 1;
-    thread_unlock(t);
 
+    LOG_DEBUG("Waiting for thread %x to stop...\n", t->tid);
     pthread_join(t->tid, NULL);
+
 #ifndef WIN32
     t->tid = 0;
 #else

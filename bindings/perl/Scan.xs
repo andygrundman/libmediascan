@@ -425,6 +425,12 @@ CODE:
   ms_async_process(s);
 }
 
+void abort(MediaScan *s)
+CODE:
+{
+  ms_abort(s);
+}
+
 void
 DESTROY(MediaScan *s)
 CODE:

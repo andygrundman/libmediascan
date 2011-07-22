@@ -5,7 +5,6 @@ MediaScanThread *thread_create(void *(*func) (void *), thread_data_type *thread_
 int thread_get_result_fd(MediaScanThread *t);
 void thread_queue_event(MediaScanThread *t, enum event_type type, void *data);
 enum event_type thread_get_next_event(MediaScanThread *t, void **data_out);
-int thread_should_abort(MediaScanThread *t);
 void thread_lock(MediaScanThread *t);
 void thread_unlock(MediaScanThread *t);
 void thread_signal(int spipe[2]);

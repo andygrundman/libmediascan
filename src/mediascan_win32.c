@@ -176,6 +176,10 @@ void recurse_dir(MediaScan *s, const char *path, int recurse_count) {
 
     // skip all dot files
     if (name[0] != '.') {
+      // Check if scan should be aborted
+      if (unlikely(s->_want_abort))
+        break;
+
       if (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
         struct dirq_entry *subdir_entry = malloc(sizeof(struct dirq_entry));
 
@@ -245,7 +249,7 @@ void recurse_dir(MediaScan *s, const char *path, int recurse_count) {
 
   LOG_INFO("Going to send progress update\n");
   // Send progress update
-  if (s->on_progress)
+  if (s->on_progress && !s->_want_abort)
     if (progress_update(s->progress, dir))
       send_progress(s);
 
@@ -253,7 +257,8 @@ void recurse_dir(MediaScan *s, const char *path, int recurse_count) {
   while (!SIMPLEQ_EMPTY(subdirq)) {
     struct dirq_entry *subdir_entry = SIMPLEQ_FIRST(subdirq);
     SIMPLEQ_REMOVE_HEAD(subdirq, entries);
-    recurse_dir(s, subdir_entry->dir, recurse_count);
+    if (!s->_want_abort)
+      recurse_dir(s, subdir_entry->dir, recurse_count);
     free(subdir_entry);
   }
   free(subdirq);
