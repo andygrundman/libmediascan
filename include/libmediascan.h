@@ -457,7 +457,7 @@ int ms_async_fd(MediaScan *s);
  * @param s MediaScan instance.
  * @param respipe[2] A pipe/socketpair to be used for worker->main thread communication.
  */
-void ms_set_async_pipes(MediaScan *s, int respipe[2]);
+void ms_set_async_pipe(MediaScan *s, int respipe[2]);
 
 /**
  * This function should be called whenever the async file descriptor becomes

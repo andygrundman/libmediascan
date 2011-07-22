@@ -174,11 +174,13 @@ void WatchDirectory(void *thread_data) {
                         NULL);  // Not using completion routine
 
   Flags = 0;
+/* XXX FIXME, reqpipe is gone
   rc = WSARecv(s->thread->reqpipe[0], &DataBuf, 1, &RecvBytes, &Flags, &RecvOverlapped, NULL);
   if ((rc == SOCKET_ERROR) && (WSA_IO_PENDING != (err = WSAGetLastError()))) {
     LOG_ERROR("WSARecv failed with error: %d\n", err);
     return;
   }
+*/
 
   // Run until we are told to stop. It is important to let the thread clean up after itself so 
   // there is shutdown code at the bottom of this function.

@@ -856,12 +856,14 @@ int _should_scan(MediaScan *s, const char *path) {
 // Callback or notify about progress being updated
 void send_progress(MediaScan *s) {
   if (s->thread) {
+    MediaScanProgress *pcopy;
+
     // Do not queue any progress if thread has aborted
     if (thread_should_abort(s->thread))
       return;
 
     // Progress data is always changing, so we make a copy of it to send to other thread
-    MediaScanProgress *pcopy = progress_copy(s->progress);
+    pcopy = progress_copy(s->progress);
     thread_queue_event(s->thread, EVENT_TYPE_PROGRESS, (void *)pcopy);
   }
   else {

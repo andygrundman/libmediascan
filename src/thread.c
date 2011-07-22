@@ -232,22 +232,13 @@ void thread_unlock(MediaScanThread *t) {
 }
 
 void thread_signal(int spipe[2]) {
+  static char counter[8];
 #ifdef WIN32
   DWORD dummy;
-  static char counter[8];
-  int n;
 
   LOG_DEBUG("thread_signal -> %d\n", spipe[1]);
-  //n = WriteFile((HANDLE)_get_osfhandle(spipe[1]), (LPCVOID)&dummy, 1, &dummy, 0);
-  //LOG_DEBUG("WriteFile returned %d\n", n);
-  n = send((SOCKET)spipe[1], (LPCVOID)&dummy, 1, 0);
-  LOG_DEBUG("send returned %d\n", n);
-  //n = _write(spipe[1], &counter, 1);
-  //LOG_DEBUG("write returned %d\n", n);
-  //if (n < 0) perror("write error: ");
+  send((SOCKET)spipe[1], (LPCVOID)&dummy, 1, 0);
 #else
-  static char counter[8];
-
   LOG_DEBUG("thread_signal -> %d\n", spipe[1]);
   write(spipe[1], &counter, 1);
 #endif
@@ -259,12 +250,7 @@ void thread_signal_read(int spipe[2]) {
   LOG_DEBUG("thread_signal_read <- %d waiting...\n", spipe[0]);
 
 #ifdef WIN32
-  //n = ReadFile((HANDLE)_get_osfhandle(spipe[0]), (LPVOID)&buf, 1, &nread, 0);
-  //LOG_DEBUG("ReadFile returned %d (nread=%d) (error=%d)\n", n, nread, GetLastError());
-  n = recv((SOCKET)spipe[0], buf, sizeof(buf), 0);
-  LOG_DEBUG("recv returned %d\n", n);
-  //n = _read(spipe[0], buf, 1);
-  //LOG_DEBUG("read returned %d\n", n);
+  recv((SOCKET)spipe[0], buf, sizeof(buf), 0);
 #else
   read(spipe[0], buf, sizeof(buf));
 #endif
