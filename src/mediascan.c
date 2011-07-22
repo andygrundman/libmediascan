@@ -339,8 +339,10 @@ MediaScan *ms_create(void) {
 void ms_destroy(MediaScan *s) {
   int i;
 
-  if (s->thread)
+  if (s->thread) {
     thread_destroy(s->thread);
+    s->thread = NULL;
+  }
 
   for (i = 0; i < s->npaths; i++) {
     free(s->paths[i]);
@@ -659,7 +661,7 @@ void ms_async_process(MediaScan *s) {
   if (s->thread) {
     enum event_type type;
     void *data;
-    
+
     // Don't try to read thread events if the thread is aborting
     if (thread_should_abort(s->thread))
       return;
@@ -861,10 +863,6 @@ int _should_scan(MediaScan *s, const char *path) {
 void send_progress(MediaScan *s) {
   if (s->thread) {
     MediaScanProgress *pcopy;
-
-    // Do not queue any progress if thread has aborted
-    if (thread_should_abort(s->thread))
-      return;
 
     // Progress data is always changing, so we make a copy of it to send to other thread
     pcopy = progress_copy(s->progress);

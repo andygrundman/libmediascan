@@ -300,7 +300,7 @@ void thread_destroy(MediaScanThread *t) {
     while (!TAILQ_EMPTY(eq)) {
       struct equeue_entry *entry = eq->tqh_first;
       TAILQ_REMOVE(eq, entry, entries);
-      
+
       // Also need to free the internal objects waiting in the queue
       LOG_DEBUG("Cleaning up thread event, type %d @ %p\n", entry->type, entry->data);
       switch (entry->type) {
@@ -309,7 +309,7 @@ void thread_destroy(MediaScanThread *t) {
           break;
 
         case EVENT_TYPE_PROGRESS:
-          progress_destroy((MediaScanProgress *)entry->data);  // freeing a copy of progress
+          progress_destroy((MediaScanProgress *)entry->data); // freeing a copy of progress
           break;
 
         case EVENT_TYPE_ERROR:
@@ -320,11 +320,11 @@ void thread_destroy(MediaScanThread *t) {
         default:
           break;
       }
-      
+
       LOG_MEM("destroy equeue_entry @ %p\n", entry);
       free(entry);
     }
-    
+
     LOG_MEM("destroy equeue @ %p\n", eq);
     free(eq);
   }
