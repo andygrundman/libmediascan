@@ -666,6 +666,7 @@ uninstall-am:
 
 
 # Remove Perl build files if they exist
+# Also remove test files, we don't need this at this point
 dist-hook:
 	rm -rf $(distdir)/bindings/perl/Makefile.old \
 		$(distdir)/bindings/perl/Makefile \
@@ -674,6 +675,8 @@ dist-hook:
 		$(distdir)/bindings/perl/*.bs \
 		$(distdir)/bindings/perl/*blib \
 		$(distdir)/bindings/perl/MANIFEST.SKIP
+
+	rm -rf $(distdir)/test/data
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
