@@ -369,17 +369,14 @@ CODE:
 #ifdef _WIN32
   if (async) {
     int respipe[2];
-    int reqpipe[2];
     
-    if ((s_pipe(respipe) != 0) || (s_pipe(reqpipe) != 0))
+    if (s_pipe(respipe) != 0)
       croak("Unable to create Win32 pipes");
     
     respipe[0] = S_TO_HANDLE(respipe[0]);
     respipe[1] = S_TO_HANDLE(respipe[1]);
-    reqpipe[0] = S_TO_HANDLE(reqpipe[0]);
-    reqpipe[1] = S_TO_HANDLE(reqpipe[1]);
     
-    ms_set_async_pipes(s, respipe, reqpipe);
+    ms_set_async_pipe(s, respipe);
   }
 #endif
 

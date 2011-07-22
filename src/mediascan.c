@@ -650,11 +650,9 @@ int ms_async_fd(MediaScan *s) {
   return s->thread ? thread_get_result_fd(s->thread) : 0;
 }
 
-void ms_set_async_pipes(MediaScan *s, int respipe[2], int reqpipe[2]) {
+void ms_set_async_pipe(MediaScan *s, int respipe[2]) {
   s->async_fds[0] = respipe[0];
   s->async_fds[1] = respipe[1];
-  s->async_fds[2] = reqpipe[0];
-  s->async_fds[3] = reqpipe[1];
 }
 
 void ms_async_process(MediaScan *s) {
@@ -858,6 +856,10 @@ int _should_scan(MediaScan *s, const char *path) {
 // Callback or notify about progress being updated
 void send_progress(MediaScan *s) {
   if (s->thread) {
+    // Do not queue any progress if thread has aborted
+    if (thread_should_abort(s->thread))
+      return;
+
     // Progress data is always changing, so we make a copy of it to send to other thread
     MediaScanProgress *pcopy = progress_copy(s->progress);
     thread_queue_event(s->thread, EVENT_TYPE_PROGRESS, (void *)pcopy);
@@ -948,6 +950,10 @@ static void *do_scan(void *userdata) {
 
     file_head = dir_entry->files;
     while (!SIMPLEQ_EMPTY(file_head)) {
+      // If running in async mode, check if the scan has been aborted
+      if (s->thread && thread_should_abort(s->thread))
+        goto aborted;
+
       file_entry = SIMPLEQ_FIRST(file_head);
 
       // Construct full path
@@ -992,6 +998,7 @@ out:
   if (s->on_finish)
     send_finish(s);
 
+aborted:
   if (s->async) {
     LOG_MEM("destroy thread_data @ %p\n", userdata);
     free(userdata);

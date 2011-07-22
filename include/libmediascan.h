@@ -90,9 +90,9 @@ enum tag_value_type {
 };
 
 struct _Thread {
-  int respipe[2];               // pipe for worker thread to signal mail thread
-  int reqpipe[2];               // pipe for main thread to signal worker thread
+  int respipe[2];               // pipe for worker thread to signal main thread
   void *event_queue;            // TAILQ for events
+  int aborted;                  // flag set when thread should abort itself
 
   pthread_t tid;
   pthread_mutex_t mutex;
@@ -246,7 +246,7 @@ struct _Scan {
   int nthumbspecs;
   MediaScanThumbSpec *thumbspecs[MAX_THUMBS];
   int async;
-  int async_fds[4];
+  int async_fds[2];
   char *cachedir;
   int flags;
   int watch_interval;
@@ -451,14 +451,13 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type);
 int ms_async_fd(MediaScan *s);
 
 /**
- * Supply your own pairs of connected file descriptors for use with thread communication.
+ * Supply your own pair of connected file descriptors for use with thread communication.
  * This is a hack to work around some issues with the Perl binding. This must be called
  * before ms_scan().
  * @param s MediaScan instance.
  * @param respipe[2] A pipe/socketpair to be used for worker->main thread communication.
- * @param reqpipe[2] A pipe/socketpair to be used for main->worker thread communication.
  */
-void ms_set_async_pipes(MediaScan *s, int respipe[2], int reqpipe[2]);
+void ms_set_async_pipes(MediaScan *s, int respipe[2]);
 
 /**
  * This function should be called whenever the async file descriptor becomes

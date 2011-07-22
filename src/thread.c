@@ -2,10 +2,10 @@
 // Cross-platform thread abstractions
 
 #ifdef WIN32
-#include <Winsock2.h>
-#include <io.h>
-#include <signal.h>
-#include <fcntl.h>
+# include <Winsock2.h>
+# include <io.h>
+# include <signal.h>
+# include <fcntl.h>
 #endif
 
 #include <errno.h>
@@ -101,6 +101,21 @@ static int win32_socketpair(int socks[2]) {
 }
 #endif
 
+int thread_should_abort(MediaScanThread *t) {
+  int ret = 0;
+
+  LOG_DEBUG("Checking if thread was aborted...\n");
+
+  thread_lock(t);
+  ret = t->aborted;
+  thread_unlock(t);
+
+  if (ret)
+    LOG_DEBUG("  Thread was aborted\n");
+
+  return ret;
+}
+
 MediaScanThread *thread_create(void *(*func) (void *), thread_data_type *thread_data, int optional_fds[4]) {
   int err;
   MediaScanThread *t = (MediaScanThread *)calloc(sizeof(MediaScanThread), 1);
@@ -121,10 +136,8 @@ MediaScanThread *thread_create(void *(*func) (void *), thread_data_type *thread_
   if (optional_fds[0] > 0) {
     t->respipe[0] = optional_fds[0];
     t->respipe[1] = optional_fds[1];
-    t->reqpipe[0] = optional_fds[2];
-    t->reqpipe[1] = optional_fds[3];
 
-    LOG_DEBUG("Using supplied pipes: %d/%d and %d/%d\n", t->respipe[0], t->respipe[1], t->reqpipe[0], t->reqpipe[1]);
+    LOG_DEBUG("Using supplied pipe: %d/%d\n", t->respipe[0], t->respipe[1]);
   }
   else {
 #ifdef WIN32
@@ -133,15 +146,6 @@ MediaScanThread *thread_create(void *(*func) (void *), thread_data_type *thread_
     if (pipe(t->respipe)) {
 #endif
       LOG_ERROR("Unable to initialize thread result pipe\n");
-      goto fail;
-    }
-
-#ifdef WIN32
-    if (win32_socketpair(t->reqpipe)) {
-#else
-    if (pipe(t->reqpipe)) {
-#endif
-      LOG_ERROR("Unable to initialize thread request pipe\n");
       goto fail;
     }
   }
@@ -251,11 +255,6 @@ void thread_signal(int spipe[2]) {
 
 void thread_signal_read(int spipe[2]) {
   char buf[9];
-  int n;
-
-#ifdef WIN32
-  DWORD nread;
-#endif
 
   LOG_DEBUG("thread_signal_read <- %d waiting...\n", spipe[0]);
 
@@ -281,10 +280,9 @@ void thread_stop(MediaScanThread *t) {
   if (t->tid.p) {               // XXX needed?
 #endif
     LOG_DEBUG("Signalling thread %x to stop\n", t->tid);
-
-    // Signal thread to stop with a dummy byte
-    // XXX Worker thread needs to check for this
-    thread_signal(t->reqpipe);
+    thread_lock(t);
+    t->aborted = 1;
+    thread_unlock(t);
 
     pthread_join(t->tid, NULL);
 #ifndef WIN32
@@ -298,13 +296,9 @@ void thread_stop(MediaScanThread *t) {
 #ifdef WIN32
     closesocket(t->respipe[0]);
     closesocket(t->respipe[1]);
-    closesocket(t->reqpipe[0]);
-    closesocket(t->reqpipe[1]);
 #else
     close(t->respipe[0]);
     close(t->respipe[1]);
-    close(t->reqpipe[0]);
-    close(t->reqpipe[1]);
 #endif
   }
 }
@@ -324,6 +318,8 @@ void thread_destroy(MediaScanThread *t) {
     LOG_MEM("destroy equeue @ %p\n", eq);
     free(eq);
   }
+
+  pthread_mutex_destroy(&t->mutex);
 
   LOG_MEM("destroy MediaScanThread @ %p\n", t);
   free(t);
