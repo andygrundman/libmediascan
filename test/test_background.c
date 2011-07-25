@@ -153,6 +153,9 @@ static void my_result_callback(MediaScan *s, MediaScanResult *r, void *userdata)
 
 static void my_error_callback(MediaScan *s, MediaScanError *error, void *userdata) { 
 
+
+fprintf(stderr, "my_error_callback, err=%d, averr=%d\n", error->error_code, error->averror);
+
 } /* my_error_callback() */
 
 static void my_finish_callback(MediaScan *s, void *userdata) { 

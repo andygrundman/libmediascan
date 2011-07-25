@@ -26,18 +26,16 @@ int isAlias(const char *incoming_path) {
   struct stat fileInfo;
   link_type = LINK_NONE;
   
-  //NSAutoreleasePool *pool =[[NSAutoreleasePool alloc] init];
-
-  CFStringRef in_path = CFStringCreateWithCString(NULL, incoming_path, kCFStringEncodingMacRoman);
+  //CFStringRef in_path = CFStringCreateWithCString(NULL, incoming_path, kCFStringEncodingMacRoman);
 
 // Use lstat to determine if the file is a directory or symlink
-  if (lstat([[NSFileManager defaultManager]
-fileSystemRepresentationWithPath:(NSString *)in_path], &fileInfo) < 0) {
+//  if (lstat([[NSFileManager defaultManager]
+//fileSystemRepresentationWithPath:(NSString *)in_path], &fileInfo) < 0) {
+  if (lstat(incoming_path, &fileInfo) < 0) {
     link_type = LINK_NONE;
     goto exit;
   }
-
-
+ 
   if (S_ISLNK(fileInfo.st_mode)) {
     link_type = LINK_SYMLINK;
     goto exit;
@@ -71,26 +69,28 @@ fileSystemRepresentationWithPath:(NSString *)in_path], &fileInfo) < 0) {
   }
 
 exit:
-  CFRelease(in_path);
+//  CFRelease(in_path);
    
   return link_type;
 }                               /* isAlias() */
 
 int CheckMacAlias(const char *incoming_path, char *out_path) {
- // NSAutoreleasePool *pool =[[NSAutoreleasePool alloc] init];
-  NSString *NSPath = [NSString stringWithUTF8String:incoming_path]; 
-  NSString *resolvedPath =[NSPath stringByResolvingSymlinksAndAliases];
+  NSAutoreleasePool *pool =[[NSAutoreleasePool alloc] init];
+  NSString *NSPath = [[NSString alloc] initWithUTF8String:incoming_path]; 
+  NSString *resolvedPath = [NSPath stringByResolvingSymlinksAndAliases];
   LOG_DEBUG("CheckMacAlias: %s => %s\n", [NSPath UTF8String], [resolvedPath UTF8String]);
   if(resolvedPath == nil)
   {
-  [NSPath release];
+  [NSPath autorelease];
+  [pool drain];
   return FALSE;
   }
 
   const char *cString = [resolvedPath UTF8String];
   strncpy(out_path, cString, PATH_MAX);
   
-  [NSPath release];
-  [resolvedPath release];
+  [NSPath autorelease];
+  [pool drain];
   return TRUE;
+
 }                               /* CheckMacAlias() */
