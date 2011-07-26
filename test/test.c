@@ -21,7 +21,7 @@
 
 int setupbackground_tests();
 int setup_thumbnail_tests();
-
+int setupdefect_tests();
 
 #ifdef _MSC_VER
 /*
@@ -613,7 +613,8 @@ int run_unit_tests()
    }
 #endif
 	 
-   setupbackground_tests();
+//   setupbackground_tests();
+   setupdefect_tests();
 //   setupimage_tests();
 //	 setup_thumbnail_tests();
 

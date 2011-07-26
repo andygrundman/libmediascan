@@ -171,6 +171,7 @@
     <ClCompile Include="tap.c" />
     <ClCompile Include="test.c" />
     <ClCompile Include="test_background.c" />
+    <ClCompile Include="test_defects.c" />
     <ClCompile Include="test_images.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

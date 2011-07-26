@@ -94,7 +94,7 @@ static const struct {
 // The following MIME types are now officially registered with IANA and specified with the IETF as RFC 5334
 // http://tools.ietf.org/html/rfc5215
 	{ "flac",											"audio/flac" },
-	{ "oga,ogg,spx",							"audio/ogg" },
+	{ "oga,ogg,spx",									"audio/ogg" },
 	{ "ogv",											"video/ogg" },
 
 // http://tools.ietf.org/html/rfc2046
@@ -140,7 +140,7 @@ static const struct {
   { "gif",											"image/gif"    },
 
 	// http://tools.ietf.org/html/rfc2045
-  { "jpg,jpeg",									"image/jpeg"    },
+  { "jpg,jpeg,jpe",									"image/jpeg"    },
 
 	// http://tools.ietf.org/html/rfc2083
   { "png",											"image/png"    },

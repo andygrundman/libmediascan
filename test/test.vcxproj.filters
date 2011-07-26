@@ -36,5 +36,8 @@
     <ClCompile Include="test_images.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="test_defects.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

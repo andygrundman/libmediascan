@@ -90,7 +90,7 @@ WSADATA wsaData;
 static const char *AudioExts = ",aif,aiff,wav,";
 static const char *VideoExts =
   ",asf,avi,divx,flv,hdmov,m1v,m2p,m2t,m2ts,m2v,m4v,mkv,mov,mpg,mpeg,mpe,mp2p,mp2t,mp4,mts,pes,ps,ts,vob,webm,wmv,xvid,3gp,3g2,3gp2,3gpp,mjpg,";
-static const char *ImageExts = ",jpg,png,gif,bmp,jpeg,";
+static const char *ImageExts = ",jpg,png,gif,bmp,jpeg,jpe,";
 static const char *LnkExts = ",lnk,";
 
 #define REGISTER_DECODER(X,x) { \
