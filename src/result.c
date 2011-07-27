@@ -97,6 +97,8 @@ static const struct {
 	{ "oga,ogg,spx",									"audio/ogg" },
 	{ "ogv",											"video/ogg" },
 
+	{ "mov",											"video/x-quicktime" },
+
 // http://tools.ietf.org/html/rfc2046
   { "mpg,mpeg,mp1,mp2,mlv,mpv", "video/mpeg" },
   { "mp3,mla,m2a,mpa",          "audio/mpeg" },
