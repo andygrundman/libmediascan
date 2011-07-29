@@ -111,6 +111,7 @@ int deletefile(char *source)
 static int result_called = 0;
 static int finish_called = 0;
 static MediaScanResult result;
+static int do_dump = 0;
 
 static void my_result_callback(MediaScan *s, MediaScanResult *r, void *userdata) {
 
@@ -149,6 +150,10 @@ static void my_result_callback(MediaScan *s, MediaScanResult *r, void *userdata)
 	}
 
 	result_called++;
+
+	if(do_dump)
+		ms_dump_result(r);
+
 } /* my_result_callback() */
 
 static void my_error_callback(MediaScan *s, MediaScanError *error, void *userdata) { 
@@ -178,7 +183,7 @@ static void test_defect_21069(void)	{
 	// Do some setup for the test
 	result_called = 0;
 	ms_errno = 0;
-
+	do_dump = 0;
 	CU_ASSERT(s->on_result == NULL);
 	ms_set_result_callback(s, my_result_callback);
 	CU_ASSERT(s->on_result == my_result_callback);
@@ -199,6 +204,43 @@ static void test_defect_21069(void)	{
 
 } /* test_defect_21069() */
 
+
+static void test_defect_19701(void)	{
+	const char *test_path = "data\\defect_19701";
+	MediaScan *s;
+
+	s = ms_create();
+
+	CU_ASSERT_FATAL(s != NULL);
+
+	/* Test #1 of the initial scan functionality */
+	ms_set_flags(s, MS_RESCAN | MS_CLEARDB);
+	ms_set_log_level(DEBUG);
+	ms_add_thumbnail_spec(s, THUMB_JPEG, 100,100, TRUE, 0, 90);
+	// Do some setup for the test
+	result_called = 0;
+	ms_errno = 0;
+	do_dump = 1;
+
+	CU_ASSERT(s->on_result == NULL);
+	ms_set_result_callback(s, my_result_callback);
+	CU_ASSERT(s->on_result == my_result_callback);
+
+	CU_ASSERT(s->on_error == NULL);
+	ms_set_error_callback(s, my_error_callback); 
+	CU_ASSERT(s->on_error == my_error_callback);
+
+	CU_ASSERT(s->npaths == 0);
+	ms_add_path(s, test_path);
+	CU_ASSERT(s->npaths == 1);
+
+	ms_scan(s);
+	CU_ASSERT( result_called == 3 );	
+
+	ms_destroy(s);
+
+
+} /* test_defect_19701() */
 
 
 ///-------------------------------------------------------------------------------------------------
@@ -221,7 +263,9 @@ int setupdefect_tests() {
 
    /* add the tests to the background scanning suite */
    if (
-      NULL == CU_add_test(pSuite, "Test defect 21069", test_defect_21069) 
+//      NULL == CU_add_test(pSuite, "Test defect 21069", test_defect_21069) ||
+      NULL == CU_add_test(pSuite, "Test defect 19701", test_defect_19701) 
+	  
 	   )
    {
       CU_cleanup_registry();

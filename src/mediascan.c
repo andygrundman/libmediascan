@@ -129,6 +129,7 @@ static void register_codecs(void) {
   REGISTER_DECODER(MJPEG, mjpeg);
   REGISTER_DECODER(MJPEGB, mjpegb);
   REGISTER_DECODER(VC1, vc1);
+  REGISTER_DECODER(FLV, flv);
 
 
   // Audio codecs, needed to get details of audio tracks in videos

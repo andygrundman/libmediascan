@@ -61,6 +61,8 @@ MediaScanImage *video_create_image_from_frame(MediaScanVideo *v, MediaScanResult
   uint8_t *src;
   int x, y;
   int ofs = 0;
+  int no_keyframe_found = 0;
+  int skipped_frames = 0;
 
   if ((avcodec_open(codecs->vc, codec)) < 0) {
     LOG_ERROR("Couldn't open video codec %s for thumbnail creation\n", codec->name);
@@ -94,9 +96,18 @@ MediaScanImage *video_create_image_from_frame(MediaScanVideo *v, MediaScanResult
   for (;;) {
     int ret;
     if ((ret = av_read_frame(avf, &packet)) < 0) {
-      LOG_ERROR("Couldn't read video frame (%s): ", v->path);
-      print_averror(ret);
-      goto err;
+
+	  if(ret == AVERROR_EOF || skipped_frames > 200)	  {
+		LOG_DEBUG("Couldn't find a keyframe, using first frame\n");
+		no_keyframe_found = 1;
+		av_seek_frame(avf, codecs->vsid, 0, 0);
+		av_read_frame(avf, &packet);
+	  }
+	  else	  {
+		LOG_ERROR("Couldn't read video frame (%s): ", v->path);
+		print_averror(ret);
+		goto err;
+	  }
     }
 
     // Skip frame if it's not from the video stream
@@ -106,8 +117,9 @@ MediaScanImage *video_create_image_from_frame(MediaScanVideo *v, MediaScanResult
     }
 
     // Skip non-key-frames
-    if (!(packet.flags & AV_PKT_FLAG_KEY)) {
+    if ( !no_keyframe_found && !(packet.flags & AV_PKT_FLAG_KEY)) {
       av_free_packet(&packet);
+	  skipped_frames++;
       continue;
     }
 
