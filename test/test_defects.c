@@ -242,6 +242,42 @@ static void test_defect_19701(void)	{
 
 } /* test_defect_19701() */
 
+static void test_defect_21070(void)	{
+	const char *test_path = "data\\defect_21070";
+	MediaScan *s;
+
+	s = ms_create();
+
+	CU_ASSERT_FATAL(s != NULL);
+
+	/* Test #1 of the initial scan functionality */
+	ms_set_flags(s, MS_RESCAN | MS_CLEARDB);
+	ms_set_log_level(DEBUG);
+	ms_add_thumbnail_spec(s, THUMB_JPEG, 100,100, TRUE, 0, 90);
+	// Do some setup for the test
+	result_called = 0;
+	ms_errno = 0;
+	do_dump = 1;
+
+	CU_ASSERT(s->on_result == NULL);
+	ms_set_result_callback(s, my_result_callback);
+	CU_ASSERT(s->on_result == my_result_callback);
+
+	CU_ASSERT(s->on_error == NULL);
+	ms_set_error_callback(s, my_error_callback); 
+	CU_ASSERT(s->on_error == my_error_callback);
+
+	CU_ASSERT(s->npaths == 0);
+	ms_add_path(s, test_path);
+	CU_ASSERT(s->npaths == 1);
+
+	ms_scan(s);
+	CU_ASSERT( result_called == 1 );	
+
+	ms_destroy(s);
+
+
+} /* test_defect_21070() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  Setup defect tests.
@@ -264,7 +300,8 @@ int setupdefect_tests() {
    /* add the tests to the background scanning suite */
    if (
 //      NULL == CU_add_test(pSuite, "Test defect 21069", test_defect_21069) ||
-      NULL == CU_add_test(pSuite, "Test defect 19701", test_defect_19701) 
+//      NULL == CU_add_test(pSuite, "Test defect 19701", test_defect_19701) 
+      NULL == CU_add_test(pSuite, "Test defect 21070", test_defect_21070) 
 	  
 	   )
    {
