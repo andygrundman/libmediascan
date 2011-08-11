@@ -4,7 +4,7 @@ SV *
 codec(MediaScanResult *r)
 CODE:
 {
-  RETVAL = newSVpv(r->image->codec, 0);
+  RETVAL = r->image->codec ? newSVpv(r->image->codec, 0) : &PL_sv_undef;
 }
 OUTPUT:
   RETVAL

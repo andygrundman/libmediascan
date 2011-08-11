@@ -13,7 +13,7 @@ SV *
 path(MediaScanResult *r)
 CODE:
 {
-  RETVAL = newSVpv(r->path, 0);
+  RETVAL = r->path ? newSVpv(r->path, 0) : &PL_sv_undef;
 }
 OUTPUT:
   RETVAL
@@ -22,7 +22,7 @@ SV *
 mime_type(MediaScanResult *r)
 CODE:
 {
-  RETVAL = newSVpv(r->mime_type, 0);
+  RETVAL = r->mime_type ? newSVpv(r->mime_type, 0) : &PL_sv_undef;
 }
 OUTPUT:
   RETVAL
@@ -31,7 +31,7 @@ SV *
 dlna_profile(MediaScanResult *r)
 CODE:
 {
-  RETVAL = newSVpv(r->dlna_profile, 0);
+  RETVAL = r->dlna_profile ? newSVpv(r->dlna_profile, 0) : &PL_sv_undef;
 }
 OUTPUT:
   RETVAL
