@@ -42,17 +42,17 @@ MediaScanImage *thumb_create_from_image(MediaScanImage *i, MediaScanThumbSpec *s
     }
   }
 
-  if (!spec->height) {            // Only width was specified
+  if (!spec->height) {          // Only width was specified
     spec->height = (int)((float)i->height / i->width * spec->width);
     if (spec->height < 1)
       spec->height = 1;
   }
-  else if (!spec->width) {       // Only height was specified
+  else if (!spec->width) {      // Only height was specified
     spec->width = (int)((float)i->width / i->height * spec->height);
     if (spec->width < 1)
       spec->width = 1;
   }
-  
+
   LOG_DEBUG("Resizing from %d x %d -> %d x %d\n", i->width, i->height, spec->width, spec->height);
 
   thumb->width = spec->width;
