@@ -15,6 +15,7 @@
 #endif
 
 #include <libavformat/avformat.h>
+#include <libavutil/dict.h>
 
 #ifdef _MSC_VER
 #pragma warning( default: 4244 )
@@ -273,6 +274,7 @@ static int scan_video(MediaScanResult *r) {
   AVFormatContext *avf = NULL;
   AVInputFormat *iformat = NULL;
   AVCodec *c = NULL;
+  AVDictionaryEntry *tag = NULL;
   MediaScanVideo *v = NULL;
   MediaScanAudio *a = NULL;
   MediaScan *s = NULL;
@@ -401,7 +403,17 @@ static int scan_video(MediaScanResult *r) {
     a->channels = codecs->ac->channels;
   }
 
-  // XXX additional streams(?), tags
+  // XXX additional streams(?)
+
+  // Process any video tags
+  while ((tag = av_dict_get(avf->metadata, "", tag, AV_DICT_IGNORE_SUFFIX))) {
+    if (!r->_tag)
+      result_create_tag(r, "Video");
+
+    LOG_DEBUG("Saving video tag: %s: %s\n", tag->key, tag->value);
+
+    tag_add_item(r->_tag, tag->key, tag->value);
+  }
 
   // Create thumbnail(s) if we found a valid video decoder above
   s = (MediaScan *)r->_scan;
