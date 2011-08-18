@@ -52,7 +52,6 @@ void buffer_init_or_clear(Buffer *buffer, uint32_t len);
 void buffer_free(Buffer *buffer);
 void buffer_clear(Buffer *buffer);
 void buffer_append(Buffer *buffer, const void *data, uint32_t len);
-static int buffer_compact(Buffer *buffer);
 void *buffer_append_space(Buffer *buffer, uint32_t len);
 int buffer_check_alloc(Buffer *buffer, uint32_t len);
 uint32_t buffer_len(Buffer *buffer);
