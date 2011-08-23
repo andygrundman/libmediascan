@@ -54,6 +54,21 @@ typedef struct thread_data thread_data_type;
 
 int _should_scan(MediaScan *s, const char *path);
 
+///-------------------------------------------------------------------------------------------------
+///  Determine if we should scan a path.
+///
+/// @author Andy Grundman
+/// @date 03/15/2011
+///
+/// @param [in,out] s If non-null, the.
+/// @param path     Full pathname of the file.
+///
+/// @return .
+///
+/// ### remarks .
+///-------------------------------------------------------------------------------------------------
+
+int _should_scan_dir(MediaScan *s, const char *path);
 
 ///-------------------------------------------------------------------------------------------------
 /// <summary> Query if 'path' is absolute path. </summary>

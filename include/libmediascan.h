@@ -21,10 +21,11 @@
 #include <pthread.h>
 
 
-#define MAX_PATHS       64
-#define MAX_IGNORE_EXTS 128
-#define MAX_THUMBS      8
-#define MAX_TAG_ITEMS   256
+#define MAX_PATHS        64
+#define MAX_IGNORE_EXTS  128
+#define MAX_IGNORE_SDIRS 128
+#define MAX_THUMBS       8
+#define MAX_TAG_ITEMS    256
 
 enum media_error {
   MS_ERROR_TYPE_UNKNOWN = -1,
@@ -243,6 +244,8 @@ struct _Scan {
   char *paths[MAX_PATHS];
   int nignore_exts;
   char *ignore_exts[MAX_IGNORE_EXTS];
+  int nignore_sdirs;
+  char *ignore_sdirs[MAX_IGNORE_SDIRS];
   int nthumbspecs;
   MediaScanThumbSpec *thumbspecs[MAX_THUMBS];
   int async;
@@ -323,6 +326,13 @@ void ms_abort(MediaScan *s);
  * beginning the scan.
  */
 void ms_add_path(MediaScan *s, const char *path);
+
+
+/**
+ * Add a subdirectory name to be ignored. For example, if you add ".ite" then all subdirectories
+ * named /.ite will be ignored by the scanner
+ */
+void ms_add_ignore_directory_suffix(MediaScan *s, const char *suffix);
 
 /**
  * Add a file extension to ignore all files with this extension.

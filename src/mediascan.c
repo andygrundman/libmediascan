@@ -357,6 +357,10 @@ void ms_destroy(MediaScan *s) {
     free(s->ignore_exts[i]);
   }
 
+    for (i = 0; i < s->nignore_sdirs; i++) {
+    free(s->ignore_sdirs[i]);
+  }
+
   for (i = 0; i < s->nthumbspecs; i++) {
     free(s->thumbspecs[i]);
   }
@@ -464,6 +468,33 @@ void ms_add_ignore_extension(MediaScan *s, const char *extension) {
 
   s->ignore_exts[s->nignore_exts++] = tmp;
 }                               /* ms_add_ignore_extension() */
+
+void ms_add_ignore_directory_suffix(MediaScan *s, const char *suffix) {
+  int len = 0;
+  char *tmp = NULL;
+
+  if (s == NULL) {
+    ms_errno = MSENO_NULLSCANOBJ;
+    FATAL("MediaScan = NULL, aborting scan\n");
+    return;
+  }
+
+  if (s->nignore_sdirs == MAX_IGNORE_SDIRS) {
+    FATAL("Ignore subdirectory limit reached (%d)\n", MAX_IGNORE_SDIRS);
+    return;
+  }
+
+  len = strlen(suffix) + 1;
+  tmp = malloc(len);
+  if (tmp == NULL) {
+    FATAL("Out of memory for ignore subdirectory\n");
+    return;
+  }
+
+  strncpy(tmp, suffix, len);
+
+  s->ignore_sdirs[s->nignore_sdirs++] = tmp;
+} /* ms_add_ignore_directory_suffix() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  Add thumbnail spec.
@@ -791,7 +822,7 @@ void ms_clear_watch(MediaScan *s) {
 }                               /* ms_clear_watch() */
 
 ///-------------------------------------------------------------------------------------------------
-///  Determine if we should scan a path.
+///  Determine if we should scan a file.
 ///
 /// @author Andy Grundman
 /// @date 03/15/2011
@@ -866,6 +897,53 @@ int _should_scan(MediaScan *s, const char *path) {
 
   return TYPE_UNKNOWN;
 }                               /* _should_scan() */
+
+///-------------------------------------------------------------------------------------------------
+///  Determine if we should scan a path.
+///
+/// @author Andy Grundman
+/// @date 03/15/2011
+///
+/// @param [in,out] s If non-null, the.
+/// @param path     Full pathname of the file.
+///
+/// @return .
+///
+/// ### remarks .
+///-------------------------------------------------------------------------------------------------
+
+int _should_scan_dir(MediaScan *s, const char *path) {
+  char *p = NULL;
+  char *found = NULL;
+  char *ext = strrchr(path, '.');
+
+  if (ext != NULL) {
+    // Copy the extension and lowercase it
+    char extc[10];
+    extc[0] = ',';
+    strncpy(extc + 1, ext + 1, 7);
+    extc[9] = 0;
+
+    p = &extc[1];
+    while (*p != 0) {
+      *p = tolower(*p);
+      p++;
+    }
+    *p++ = ',';
+    *p = 0;
+
+    if (s->nignore_sdirs) {
+      // Check for ignored extension
+      int i;
+      for (i = 0; i < s->nignore_sdirs; i++) {
+        if (strstr(extc, s->ignore_sdirs[i]))
+          return FALSE;
+      }
+    }
+  }
+	return TRUE;
+}                               /* _should_scan_dir() */
+
 
 // Callback or notify about progress being updated
 void send_progress(MediaScan *s) {
