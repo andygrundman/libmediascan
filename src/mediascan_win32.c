@@ -189,16 +189,14 @@ void recurse_dir(MediaScan *s, const char *path, int recurse_count) {
         strcat_s(tmp_full_path, MAX_PATH, "\\");
         strcat_s(tmp_full_path, MAX_PATH, name);
 
-		if( _should_scan_dir(s, tmp_full_path) )
-		{
-			subdir_entry->dir = _strdup(tmp_full_path);
-			SIMPLEQ_INSERT_TAIL(subdirq, subdir_entry, entries);
-	        LOG_INFO(" subdir: %s\n", tmp_full_path);
-		}
-		else
-		{
-	        LOG_INFO(" skipping subdir: %s\n", tmp_full_path);
-		}
+        if (_should_scan_dir(s, tmp_full_path)) {
+          subdir_entry->dir = _strdup(tmp_full_path);
+          SIMPLEQ_INSERT_TAIL(subdirq, subdir_entry, entries);
+          LOG_INFO(" subdir: %s\n", tmp_full_path);
+        }
+        else {
+          LOG_INFO(" skipping subdir: %s\n", tmp_full_path);
+        }
       }
       else {
         enum media_type type = _should_scan(s, name);

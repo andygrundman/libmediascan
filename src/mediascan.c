@@ -357,7 +357,7 @@ void ms_destroy(MediaScan *s) {
     free(s->ignore_exts[i]);
   }
 
-    for (i = 0; i < s->nignore_sdirs; i++) {
+  for (i = 0; i < s->nignore_sdirs; i++) {
     free(s->ignore_sdirs[i]);
   }
 
@@ -494,7 +494,7 @@ void ms_add_ignore_directory_suffix(MediaScan *s, const char *suffix) {
   strncpy(tmp, suffix, len);
 
   s->ignore_sdirs[s->nignore_sdirs++] = tmp;
-} /* ms_add_ignore_directory_suffix() */
+}                               /* ms_add_ignore_directory_suffix() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  Add thumbnail spec.
@@ -941,7 +941,7 @@ int _should_scan_dir(MediaScan *s, const char *path) {
       }
     }
   }
-	return TRUE;
+  return TRUE;
 }                               /* _should_scan_dir() */
 
 
