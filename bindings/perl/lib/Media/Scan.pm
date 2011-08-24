@@ -83,6 +83,11 @@ An array reference of file extensions that should be skipped. You may also speci
     IMAGE - Ignore all image files.
     VIDEO - Ignore all video files.
 
+=item ignore_dirs (default: none)
+
+An array reference of directory extensions that should be skipped, for example the iTunes container
+directories "ite" and "itlp".
+
 =item thumbnails (default: none)
 
 An arrayref of hashes with one or more thumbnail specifications. Thumbnails are created during the

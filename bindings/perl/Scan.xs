@@ -287,7 +287,7 @@ CODE:
   int i;
   MediaScan *s = xs_object_magic_get_struct_rv(aTHX_ self);
   HV *selfh = (HV *)SvRV(self);
-  AV *paths, *ignore, *thumbnails;
+  AV *paths, *ignore, *ignore_dirs, *thumbnails;
   int async;
   
   // Set log level
@@ -307,6 +307,14 @@ CODE:
     SV **ext = av_fetch(ignore, i, 0);
     if (ext != NULL && SvPOK(*ext))
       ms_add_ignore_extension(s, SvPVX(*ext));
+  }
+  
+  // Set dirs to ignore
+  ignore_dirs = (AV *)SvRV(*(my_hv_fetch(selfh, "ignore_dirs")));
+  for (i = 0; i < av_len(ignore_dirs) + 1; i++) {
+    SV **suffix = av_fetch(ignore_dirs, i, 0);
+    if (suffix != NULL && SvPOK(*suffix))
+      ms_add_ignore_directory_suffix(s, SvPVX(*suffix));
   }
   
   // Set thumbnail specs
