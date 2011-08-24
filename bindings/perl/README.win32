@@ -7,36 +7,14 @@ Building Media::Scan on Win32
    win32/lib
 
 * Build and install FFmpeg using MinGW. See libmediascan/win32/win32_build_instructions.txt
+  Strip the binaries to reduce the eventual DLL size:
+  strip --strip-debug /usr/local/lib/libav* /usr/local/lib/libswscale.a
 
 * Build and install libexif using MinGW. See libmediascan/win32/win32_build_instructions.txt
-
-* Build and install giflib using MinGW. See libmediascan/win32/win32_build_instructions.txt
+  strip --strip-debug /usr/local/lib/libexif.a
 
 * Build libmediascan using Visual Studio. See libmediascan/win32/win32_build_instructions.txt
-
-* Copy FFmpeg headers to win32/include:
-  C:\MinGW\msys\1.0\local\include\libav* -> win32/include
-
-* Copy FFmpeg static libs to win32/lib:
-  C:\MinGW\msys\1.0\local\lib\libav*.a -> win32/lib
-  
-* Rename libav*.a to libav*.lib
-
-* Copy libexif headers to win32/include, and lib to win32/lib.
-
-* Copy giflib header to win32/include, and lib to win32/lib.
-
-* Copy libmediascan header to win32/include:
-  ..\..\include\libmediascan.h -> win32/include
-
-* Copy libmediascan static lib to win32/lib:
-  ..\..\win32\Release\libmediascan.lib -> win32/lib
-
-* Copy other support libs to win32/lib:
-  C:\MinGW\lib\gcc\mingw32\4.5.2\libgcc.a -> win32/lib
-  C:\MinGW\lib\libz.a -> win32/lib
-  C:\MinGW\lib\libbz2.a -> win32/lib
-  ..\..\win32\libmingwex.a -> win32/lib
+  The build process will automatically copy files to Perl's win32/include and win32/lib dirs.
 
 * Make sure vcvarsall.bat has been run.
 
@@ -47,3 +25,8 @@ Building Media::Scan on Win32
 * nmake
 * nmake test
 * nmake install
+
+TODO
+----
+Use libjpeg-turbo instead of included jpeg-8a.
+Use ASM-optimized version of zlib
