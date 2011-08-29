@@ -246,6 +246,7 @@ _on_finish(MediaScan *s, void *userdata)
 
   {
     dSP;
+    PUSHMARK(SP);
     call_sv(callback, G_VOID | G_DISCARD | G_EVAL);
 
     SPAGAIN;
