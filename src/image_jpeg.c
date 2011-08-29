@@ -215,7 +215,6 @@ static void buf_dst_mgr_init(j_compress_ptr cinfo) {
 
 static boolean buf_dst_mgr_empty(j_compress_ptr cinfo) {
   struct buf_dst_mgr *dst = (void *)cinfo->dest;
-  void *tmp;
 
   // Copy tmp buffer to image buffer
   buffer_append(dst->dbuf, dst->buf, BUF_SIZE);
@@ -346,7 +345,6 @@ int image_jpeg_read_header(MediaScanImage *i, MediaScanResult *r) {
     }
   }
 
-out:
   return ret;
 }
 

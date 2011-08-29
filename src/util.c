@@ -37,7 +37,7 @@
 /// @return 32-bit file hash
 ///-------------------------------------------------------------------------------------------------
 
-uint32_t HashFile(const char *file, int *mtime, size_t *size) {
+uint32_t HashFile(const char *file, int *mtime, uint64_t *size) {
   uint32_t hash;
   char fileData[MAX_PATH];
 
@@ -55,11 +55,11 @@ uint32_t HashFile(const char *file, int *mtime, size_t *size) {
   fOk = GetFileAttributesEx(file, GetFileExInfoStandard, (void *)&fileInfo);
 
   *mtime = fileInfo.ftLastWriteTime.dwLowDateTime;
-  *size = fileInfo.nFileSizeLow;
+  *size = (uint64_t)fileInfo.nFileSizeLow;
 #else
   if (stat(file, &buf) != -1) {
     *mtime = (int)buf.st_mtime;
-    *size = buf.st_size;
+    *size = (uint64_t)buf.st_size;
   }
   else {
     LOG_ERROR("stat error on file %s, errno=%d\n", file, errno);
@@ -67,7 +67,7 @@ uint32_t HashFile(const char *file, int *mtime, size_t *size) {
 #endif
 
   // Generate a hash of the full file path, modified time, and file size
-  sprintf(fileData, "%s%d%ld", file, *mtime, *size);
+  sprintf(fileData, "%s%d%llu", file, *mtime, *size);
   hash = hashlittle(fileData, strlen(fileData), 0);
 
   return hash;

@@ -115,8 +115,8 @@ typedef struct _Tag MediaScanTag;
 
 struct _Audio {
   const char *codec;
-  off_t audio_offset;
-  off_t audio_size;
+  uint64_t audio_offset;
+  uint64_t audio_size;
   int bitrate;
   int vbr;
   int samplerate;
@@ -185,7 +185,7 @@ struct _Result {
 
   const char *mime_type;
   const char *dlna_profile;
-  off_t size;
+  uint64_t size;
   int mtime;
   int bitrate;                  ///< total bitrate
   int duration_ms;

@@ -638,7 +638,7 @@ void ms_dump_result(MediaScanResult *r) {
   LOG_OUTPUT("%s\n", r->path);
   LOG_OUTPUT("  MIME type:    %s\n", r->mime_type);
   LOG_OUTPUT("  DLNA profile: %s\n", r->dlna_profile);
-  LOG_OUTPUT("  File size:    %lld\n", r->size);
+  LOG_OUTPUT("  File size:    %llu\n", r->size);
   LOG_OUTPUT("  Modified:     %d\n", r->mtime);
   if (r->bitrate)
     LOG_OUTPUT("  Bitrate:      %d bps\n", r->bitrate);

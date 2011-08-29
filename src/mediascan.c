@@ -1164,7 +1164,7 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type) {
   int ret;
   uint32_t hash;
   int mtime = 0;
-  size_t size = 0;
+  uint64_t size = 0;
   DBT key, data;
   char tmp_full_path[MAX_PATH];
 
