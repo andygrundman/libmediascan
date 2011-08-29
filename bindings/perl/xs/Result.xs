@@ -40,7 +40,7 @@ int
 size(MediaScanResult *r)
 CODE:
 {
-  RETVAL = r->size;
+  RETVAL = (int)r->size;
 }
 OUTPUT:
   RETVAL
@@ -98,7 +98,7 @@ CODE:
       my_hv_store(thumbhv, "codec", newSVpv(thumb->codec, 0));
       my_hv_store(thumbhv, "width", newSVuv(thumb->width));
       my_hv_store(thumbhv, "height", newSVuv(thumb->height));
-      my_hv_store(thumbhv, "data", newSVpvn(data, len));
+      my_hv_store(thumbhv, "data", newSVpvn((const char *)data, len));
 
       av_push(RETVAL, newRV_noinc((SV *)thumbhv));
     }
