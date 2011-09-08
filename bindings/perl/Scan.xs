@@ -313,9 +313,9 @@ CODE:
   // Set dirs to ignore
   ignore_dirs = (AV *)SvRV(*(my_hv_fetch(selfh, "ignore_dirs")));
   for (i = 0; i < av_len(ignore_dirs) + 1; i++) {
-    SV **suffix = av_fetch(ignore_dirs, i, 0);
-    if (suffix != NULL && SvPOK(*suffix))
-      ms_add_ignore_directory_suffix(s, SvPVX(*suffix));
+    SV **str = av_fetch(ignore_dirs, i, 0);
+    if (str != NULL && SvPOK(*str))
+      ms_add_ignore_directory_substring(s, SvPVX(*str));
   }
   
   // Set thumbnail specs

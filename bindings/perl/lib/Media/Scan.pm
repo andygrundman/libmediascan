@@ -85,8 +85,8 @@ An array reference of file extensions that should be skipped. You may also speci
 
 =item ignore_dirs (default: none)
 
-An array reference of directory extensions that should be skipped, for example the iTunes container
-directories "ite" and "itlp".
+An array reference of directory substrings that should be skipped, for example the iTunes container
+directories ".ite" and ".itlp" or the Windows directory "RECYCLER". The substrings are case-sensitive.
 
 =item thumbnails (default: none)
 
