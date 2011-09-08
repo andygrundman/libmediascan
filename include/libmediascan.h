@@ -26,6 +26,7 @@
 #define MAX_IGNORE_SDIRS 128
 #define MAX_THUMBS       8
 #define MAX_TAG_ITEMS    256
+#define MAX_SUBSTRING_LEN 32
 
 enum media_error {
   MS_ERROR_TYPE_UNKNOWN = -1,
@@ -332,7 +333,7 @@ void ms_add_path(MediaScan *s, const char *path);
  * Add a subdirectory name to be ignored. For example, if you add ".ite" then all subdirectories
  * named /.ite will be ignored by the scanner
  */
-void ms_add_ignore_directory_suffix(MediaScan *s, const char *suffix);
+void ms_add_ignore_directory_substring(MediaScan *s, const char *suffix);
 
 /**
  * Add a file extension to ignore all files with this extension.

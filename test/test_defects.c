@@ -364,7 +364,7 @@ static void test_defect_21660(void)	{
 	ms_set_flags(s, MS_RESCAN | MS_CLEARDB);
 	ms_set_log_level(DEBUG);
 	ms_add_thumbnail_spec(s, THUMB_JPEG, 100,100, TRUE, 0, 90);
-	ms_add_ignore_directory_suffix(s, "itlp");
+	ms_add_ignore_directory_substring(s, "itlp");
 	// Do some setup for the test
 	result_called = 0;
 	ms_errno = 0;

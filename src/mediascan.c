@@ -469,7 +469,7 @@ void ms_add_ignore_extension(MediaScan *s, const char *extension) {
   s->ignore_exts[s->nignore_exts++] = tmp;
 }                               /* ms_add_ignore_extension() */
 
-void ms_add_ignore_directory_suffix(MediaScan *s, const char *suffix) {
+void ms_add_ignore_directory_substring(MediaScan *s, const char *suffix) {
   int len = 0;
   char *tmp = NULL;
 
@@ -494,7 +494,7 @@ void ms_add_ignore_directory_suffix(MediaScan *s, const char *suffix) {
   strncpy(tmp, suffix, len);
 
   s->ignore_sdirs[s->nignore_sdirs++] = tmp;
-}                               /* ms_add_ignore_directory_suffix() */
+}                               /* ms_add_ignore_directory_substring() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  Add thumbnail spec.
@@ -915,32 +915,16 @@ int _should_scan(MediaScan *s, const char *path) {
 int _should_scan_dir(MediaScan *s, const char *path) {
   char *p = NULL;
   char *found = NULL;
-  char *ext = strrchr(path, '.');
 
-  if (ext != NULL) {
-    // Copy the extension and lowercase it
-    char extc[10];
-    extc[0] = ',';
-    strncpy(extc + 1, ext + 1, 7);
-    extc[9] = 0;
-
-    p = &extc[1];
-    while (*p != 0) {
-      *p = tolower(*p);
-      p++;
-    }
-    *p++ = ',';
-    *p = 0;
-
-    if (s->nignore_sdirs) {
-      // Check for ignored extension
+  if (s->nignore_sdirs) {
+      // Check for ignored substring
       int i;
       for (i = 0; i < s->nignore_sdirs; i++) {
-        if (strstr(extc, s->ignore_sdirs[i]))
+        if (strstr(path, s->ignore_sdirs[i]))
           return FALSE;
       }
-    }
   }
+
   return TRUE;
 }                               /* _should_scan_dir() */
 
