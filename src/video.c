@@ -111,7 +111,7 @@ MediaScanImage *video_create_image_from_frame(MediaScanVideo *v, MediaScanResult
     }
 
     // Skip frame if it's not from the video stream
-    if (packet.stream_index != codecs->vsid) {
+    if (!no_keyframe_found && packet.stream_index != codecs->vsid) {
       av_free_packet(&packet);
       continue;
     }
