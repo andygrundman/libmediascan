@@ -127,12 +127,16 @@ MediaScanImage *video_create_image_from_frame(MediaScanVideo *v, MediaScanResult
               packet.pos, packet.size, packet.stream_index, packet.duration);
 
     if ((ret = avcodec_decode_video2(codecs->vc, frame, &got_picture, &packet)) < 0) {
-      LOG_ERROR("Error decoding video frame (%s):", v->path);
+      LOG_ERROR("Error decoding video frame for thumbnail (%s):", v->path);
       print_averror(ret);
       goto err;
     }
 
-    if (got_picture) {
+    if (!got_picture) {
+      LOG_ERROR("Error decoding video frame for thumbnail (%s):", v->path);
+      goto err;
+    }
+    else {
       int rgb_bufsize;
       AVFrame *frame_rgb = NULL;
       uint8_t *rgb_buffer = NULL;
