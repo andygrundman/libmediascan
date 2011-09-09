@@ -95,6 +95,10 @@ MediaScanImage *video_create_image_from_frame(MediaScanVideo *v, MediaScanResult
 
   for (;;) {
     int ret;
+    int rgb_bufsize;
+    AVFrame *frame_rgb = NULL;
+    uint8_t *rgb_buffer = NULL;
+    
     if ((ret = av_read_frame(avf, &packet)) < 0) {
 
       if (ret == AVERROR_EOF || skipped_frames > 200) {
@@ -133,66 +137,65 @@ MediaScanImage *video_create_image_from_frame(MediaScanVideo *v, MediaScanResult
     }
 
     if (!got_picture) {
-      LOG_ERROR("Error decoding video frame for thumbnail: %s\n", v->path);
+      if (skipped_frames > 200) {
+        LOG_ERROR("Error decoding video frame for thumbnail: %s\n", v->path);
+        goto err;
+      }
+      // Try next frame
+      continue;
+    }
+
+    // use swscale to convert from source format to RGBA in our buffer with no resizing
+    // XXX what scaler is fastest here when not actually resizing?
+    swsc = sws_getContext(i->width, i->height, codecs->vc->pix_fmt,
+                          i->width, i->height, PIX_FMT_RGB24, SWS_FAST_BILINEAR, NULL, NULL, NULL);
+    if (!swsc) {
+      LOG_ERROR("Unable to get swscale context\n");
       goto err;
     }
-    else {
-      int rgb_bufsize;
-      AVFrame *frame_rgb = NULL;
-      uint8_t *rgb_buffer = NULL;
 
-      // use swscale to convert from source format to RGBA in our buffer with no resizing
-      // XXX what scaler is fastest here when not actually resizing?
-      swsc = sws_getContext(i->width, i->height, codecs->vc->pix_fmt,
-                            i->width, i->height, PIX_FMT_RGB24, SWS_FAST_BILINEAR, NULL, NULL, NULL);
-      if (!swsc) {
-        LOG_ERROR("Unable to get swscale context\n");
-        goto err;
-      }
-
-      frame_rgb = avcodec_alloc_frame();
-      if (!frame_rgb) {
-        LOG_ERROR("Couldn't allocate a video frame\n");
-        goto err;
-      }
-
-      // XXX There is probably a way to get sws_scale to write directly to i->_pixbuf in our RGBA format
-
-      rgb_bufsize = avpicture_get_size(PIX_FMT_RGB24, i->width, i->height);
-      rgb_buffer = av_malloc(rgb_bufsize);
-      if (!rgb_buffer) {
-        LOG_ERROR("Couldn't allocate an RGB video buffer\n");
-        av_free(frame_rgb);
-        goto err;
-      }
-      LOG_MEM("new rgb_buffer of size %d @ %p\n", rgb_bufsize, rgb_buffer);
-
-      avpicture_fill((AVPicture *)frame_rgb, rgb_buffer, PIX_FMT_RGB24, i->width, i->height);
-
-      // Convert image to RGB24
-      sws_scale(swsc, frame->data, frame->linesize, 0, i->height, frame_rgb->data, frame_rgb->linesize);
-
-      // Allocate space for our version of the image
-      image_alloc_pixbuf(i, i->width, i->height);
-
-      src = frame_rgb->data[0];
-      ofs = 0;
-      for (y = 0; y < i->height; y++) {
-        for (x = 0; x < i->width * 3; x += 3) {
-          i->_pixbuf[ofs++] = COL(src[x], src[x + 1], src[x + 2]);
-        }
-        src += i->width * 3;
-      }
-
-      // Free the frame
-      LOG_MEM("destroy rgb_buffer @ %p\n", rgb_buffer);
-      av_free(rgb_buffer);
-
-      av_free(frame_rgb);
-
-      // Done!
-      goto out;
+    frame_rgb = avcodec_alloc_frame();
+    if (!frame_rgb) {
+      LOG_ERROR("Couldn't allocate a video frame\n");
+      goto err;
     }
+
+    // XXX There is probably a way to get sws_scale to write directly to i->_pixbuf in our RGBA format
+
+    rgb_bufsize = avpicture_get_size(PIX_FMT_RGB24, i->width, i->height);
+    rgb_buffer = av_malloc(rgb_bufsize);
+    if (!rgb_buffer) {
+      LOG_ERROR("Couldn't allocate an RGB video buffer\n");
+      av_free(frame_rgb);
+      goto err;
+    }
+    LOG_MEM("new rgb_buffer of size %d @ %p\n", rgb_bufsize, rgb_buffer);
+
+    avpicture_fill((AVPicture *)frame_rgb, rgb_buffer, PIX_FMT_RGB24, i->width, i->height);
+
+    // Convert image to RGB24
+    sws_scale(swsc, frame->data, frame->linesize, 0, i->height, frame_rgb->data, frame_rgb->linesize);
+
+    // Allocate space for our version of the image
+    image_alloc_pixbuf(i, i->width, i->height);
+
+    src = frame_rgb->data[0];
+    ofs = 0;
+    for (y = 0; y < i->height; y++) {
+      for (x = 0; x < i->width * 3; x += 3) {
+        i->_pixbuf[ofs++] = COL(src[x], src[x + 1], src[x + 2]);
+      }
+      src += i->width * 3;
+    }
+
+    // Free the frame
+    LOG_MEM("destroy rgb_buffer @ %p\n", rgb_buffer);
+    av_free(rgb_buffer);
+
+    av_free(frame_rgb);
+
+    // Done!
+    goto out;
   }
 
 err:

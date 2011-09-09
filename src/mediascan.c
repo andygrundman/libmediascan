@@ -917,12 +917,12 @@ int _should_scan_dir(MediaScan *s, const char *path) {
   char *found = NULL;
 
   if (s->nignore_sdirs) {
-      // Check for ignored substring
-      int i;
-      for (i = 0; i < s->nignore_sdirs; i++) {
-        if (strstr(path, s->ignore_sdirs[i]))
-          return FALSE;
-      }
+    // Check for ignored substring
+    int i;
+    for (i = 0; i < s->nignore_sdirs; i++) {
+      if (strstr(path, s->ignore_sdirs[i]))
+        return FALSE;
+    }
   }
 
   return TRUE;
