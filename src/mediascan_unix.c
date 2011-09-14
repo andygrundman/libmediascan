@@ -15,12 +15,6 @@
 #include "progress.h"
 #include "mediascan.h"
 
-//extern long PathMax;
-
-void unix_init(void) {
-  PathMax = pathconf(".", _PC_PATH_MAX);  // 1024
-}
-
 ///-------------------------------------------------------------------------------------------------
 ///  Recursively walk a directory struction.
 ///
@@ -36,7 +30,7 @@ void unix_init(void) {
 
 void recurse_dir(MediaScan *s, const char *path, int recurse_count) {
   char *dir, *p;
-  char tmp_full_path[PathMax];
+  char tmp_full_path[MAX_PATH_STR_LEN];
   DIR *dirp;
   struct dirent *dp;
   struct dirq *subdirq;         // list of subdirs of the current directory
