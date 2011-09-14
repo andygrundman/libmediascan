@@ -15,7 +15,7 @@
 #include "progress.h"
 #include "mediascan.h"
 
-extern long PathMax;
+//extern long PathMax;
 
 void unix_init(void) {
   PathMax = pathconf(".", _PC_PATH_MAX);  // 1024
@@ -41,7 +41,7 @@ void recurse_dir(MediaScan *s, const char *path, int recurse_count) {
   struct dirent *dp;
   struct dirq *subdirq;         // list of subdirs of the current directory
   struct dirq_entry *parent_entry = NULL; // entry for current dir in s->_dirq
-  char redirect_dir[MAX_PATH];
+  char redirect_dir[MAX_PATH_STR_LEN];
 
   if (recurse_count > RECURSE_LIMIT) {
     LOG_ERROR("Hit recurse limit of %d scanning path %s\n", RECURSE_LIMIT, path);
@@ -50,20 +50,20 @@ void recurse_dir(MediaScan *s, const char *path, int recurse_count) {
 
   if (path[0] != '/') {         // XXX Win32
     // Get full path
-    char *buf = (char *)malloc((size_t)PathMax);
+    char *buf = (char *)malloc((size_t)MAX_PATH_STR_LEN);
     if (buf == NULL) {
       FATAL("Out of memory for directory scan\n");
       return;
     }
 
-    dir = getcwd(buf, (size_t)PathMax);
+    dir = getcwd(buf, (size_t)MAX_PATH_STR_LEN);
     strcat(dir, "/");
     strcat(dir, path);
   }
   else {
 #ifdef USING_TCMALLOC
     // strdup will cause tcmalloc to crash on free
-    dir = (char *)malloc((size_t)PathMax);
+    dir = (char *)malloc((size_t)MAX_PATH_STR_LEN);
     strcpy(dir, path);
 #else
     dir = strdup(path);
@@ -148,14 +148,14 @@ void recurse_dir(MediaScan *s, const char *path, int recurse_count) {
           // Check if this file is a shortcut and if so resolve it
 #if defined(__APPLE__)
           if (isAlias(name)) {
-            char full_name[MAX_PATH];
+            char full_name[MAX_PATH_STR_LEN];
 
             LOG_INFO("Mac Alias detected\n");
 
             strcpy(full_name, dir);
             strcat(full_name, "\\");
             strcat(full_name, name);
-            parse_lnk(full_name, redirect_dir, MAX_PATH);
+            parse_lnk(full_name, redirect_dir, MAX_PATH_STR_LEN);
             if (PathIsDirectory(redirect_dir)) {
               struct dirq_entry *subdir_entry = malloc(sizeof(struct dirq_entry));
 
@@ -169,7 +169,7 @@ void recurse_dir(MediaScan *s, const char *path, int recurse_count) {
           }
 #elif defined(__linux__)
           if (isAlias(name)) {
-            char full_name[MAX_PATH];
+            char full_name[MAX_PATH_STR_LEN];
 
             printf("Linux Alias detected\n");
 

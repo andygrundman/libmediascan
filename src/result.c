@@ -689,7 +689,7 @@ void ms_dump_result(MediaScanResult *r) {
     {
       static int tcount = 1;
       FILE *tfp;
-      char file[MAX_PATH];
+      char file[MAX_PATH_STR_LEN];
       if (!strcmp("JPEG", thumb->codec))
         sprintf(file, "thumb%d.jpg", tcount++);
       else

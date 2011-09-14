@@ -18,9 +18,9 @@
 
 int isAlias(const char *incoming_path) {
 
-  char buffer[MAX_PATH];
+  char buffer[MAX_PATH_STR_LEN];
 
-  int ret = readlink(incoming_path, buffer, MAX_PATH);
+  int ret = readlink(incoming_path, buffer, MAX_PATH_STR_LEN);
   if (ret == -1) {
     return LINK_NONE;
   }
@@ -30,11 +30,11 @@ int isAlias(const char *incoming_path) {
 
 int FollowLink(const char *incoming_path, char *out_path) {
 
-  char buf[MAX_PATH];
-//char buf2[MAX_PATH];
+  char buf[MAX_PATH_STR_LEN];
+//char buf2[MAX_PATH_STR_LEN];
   ssize_t len;
 
-  if ((len = readlink(incoming_path, buf, MAX_PATH - 1)) != -1) {
+  if ((len = readlink(incoming_path, buf, MAX_PATH_STR_LEN - 1)) != -1) {
     buf[len] = '\0';
 //    strcpy(buf2, buf);
 

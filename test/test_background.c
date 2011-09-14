@@ -18,12 +18,9 @@
 #include <libmediascan.h>
 
 #include "../src/mediascan.h"
+#include "../src/common.h"
 #include "../src/database.h"
 #include "CUnit/CUnit/Headers/Basic.h"
-
-#ifndef MAX_PATH
-#define MAX_PATH 1024
-#endif
 
 #ifndef WIN32
 
@@ -176,8 +173,8 @@ static void my_finish_callback(MediaScan *s, void *userdata) {
 
 static void PathCopyFile(const char *file, const char *src_path, const char *dest_path) 
 {
-	char src[MAX_PATH];
-	char dest[MAX_PATH];
+	char src[MAX_PATH_STR_LEN];
+	char dest[MAX_PATH_STR_LEN];
 
 	MAKE_PATH(src, src_path, file);
 	MAKE_PATH(dest, dest_path, file);
@@ -194,8 +191,8 @@ static void test_background_api(void)	{
 	const char *data_file3 = "bars-msmpeg4v2-mp2.avi";
 	const char *data_file4 = "bars-vp8-vorbis.webm";
 	const char *data_file5 = "wmv92-with-audio.wmv";
-//	char src[MAX_PATH];
-	char dest[MAX_PATH];
+//	char src[MAX_PATH_STR_LEN];
+	char dest[MAX_PATH_STR_LEN];
 
 	MediaScan *s = ms_create();
 
@@ -290,8 +287,8 @@ static void test_background_api2(void)	{
 	const char *data_file3 = "bars-msmpeg4v2-mp2.avi";
 	const char *data_file4 = "bars-vp8-vorbis.webm";
 	const char *data_file5 = "wmv92-with-audio.wmv";
-//	char src[MAX_PATH];
-	char dest[MAX_PATH];
+//	char src[MAX_PATH_STR_LEN];
+	char dest[MAX_PATH_STR_LEN];
 
 	MediaScan *s = ms_create();
 
@@ -612,7 +609,7 @@ static void test_linux_shortcuts(void)	{
 	const char *test_file3 = "data/video/linuxshortcuts/MPEG_POS_NTSC-ac3_abs.symlink";
 	const char *test_file4 = "data/video/linuxshortcuts/MPEG_POS_NTSC-ac3_rel.symlink";
 	const char *dest_test_file1 = "data/video/dnla/MPEG_PS_NTSC-ac3.mpg";
-	char out_path[MAX_PATH];
+	char out_path[MAX_PATH_STR_LEN];
 
 	MediaScan *s = ms_create();
 
@@ -696,7 +693,7 @@ static void test_mac_shortcuts(void)	{
 	const char *test_file6 = "data/video/macshortcuts/bars-mpeg4-mp2.avi";
 	const char *test_file7 = "data/video/macshortcuts/avi_link";
 	const char *dest_test_file4 = "/Users/Fox/workspace/libmediascan/test/data/video/bars-mpeg4-mp2.avi";
-	char out_path[MAX_PATH];
+	char out_path[MAX_PATH_STR_LEN];
 
 	MediaScan *s = ms_create();
 		ms_set_log_level(DEBUG);
@@ -783,9 +780,9 @@ static void test_async_api(void)	{
   long time1, time2;
 
 	#ifdef WIN32
-	const char dir[MAX_PATH] = "data\\video\\dlna";
+	const char dir[MAX_PATH_STR_LEN] = "data\\video\\dlna";
 	#else
-	const char dir[MAX_PATH] = "data/video/dlna";
+	const char dir[MAX_PATH_STR_LEN] = "data/video/dlna";
   	struct timeval now;
 	#endif
 
@@ -933,9 +930,9 @@ static void test_async_api2(void)	{
   struct timeval timeout;
 
 #ifdef WIN32
-	const char dir[MAX_PATH] = "C:\\Documents and Settings\\Administrator\\My Documents\\My Pictures";
+	const char dir[MAX_PATH_STR_LEN] = "C:\\Documents and Settings\\Administrator\\My Documents\\My Pictures";
 #else
-	const char dir[MAX_PATH] = "/Users/andy/Pictures";
+	const char dir[MAX_PATH_STR_LEN] = "/Users/andy/Pictures";
 #endif
 
 	MediaScan *s = ms_create();

@@ -59,7 +59,6 @@
 enum log_level Debug = ERR;
 static int Initialized = 0;
 int ms_errno = 0;
-long PathMax = MAX_PATH;
 
 #ifdef WIN32
 WSADATA wsaData;
@@ -222,9 +221,7 @@ static void _init(void) {
 
   register_codecs();
   register_formats();
-#ifndef WIN32
-  unix_init();
-#else
+#ifdef WIN32
   pthread_win32_process_attach_np();
   pthread_win32_thread_attach_np();
 
@@ -763,7 +760,7 @@ void ms_watch_directory(MediaScan *s, const char *path) {
   // and http://msdn.microsoft.com/en-us/library/aa365511%28v=VS.85%29.aspx
   dwAttrs = GetFileAttributes(path);
   if (dwAttrs & FILE_ATTRIBUTE_REPARSE_POINT) {
-    char temp_path[MAX_PATH];
+    char temp_path[MAX_PATH_STR_LEN];
     WIN32_FIND_DATA FindFileData;
     HANDLE hFind;
 
@@ -988,7 +985,7 @@ static void *do_scan(void *userdata) {
   struct dirq_entry *dir_entry = NULL;
   struct fileq *file_head = NULL;
   struct fileq_entry *file_entry = NULL;
-  char tmp_full_path[MAX_PATH];
+  char tmp_full_path[MAX_PATH_STR_LEN];
 
   // Initialize the cache database
   if (!init_bdb(s)) {
@@ -1150,7 +1147,7 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type) {
   int mtime = 0;
   uint64_t size = 0;
   DBT key, data;
-  char tmp_full_path[MAX_PATH];
+  char tmp_full_path[MAX_PATH_STR_LEN];
 
 #ifdef WIN32
   char *ext = strrchr(full_path, '.');
@@ -1192,7 +1189,7 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type) {
 #elif defined(WIN32)
   if (strcasecmp(ext, ".lnk") == 0) {
     // Check if this file is a shortcut and if so resolve it
-    parse_lnk(full_path, tmp_full_path, MAX_PATH);
+    parse_lnk(full_path, tmp_full_path, MAX_PATH_STR_LEN);
     if (PathIsDirectory(tmp_full_path))
       return;
   }

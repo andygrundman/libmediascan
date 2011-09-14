@@ -105,7 +105,7 @@ void WatchDirectory(void *thread_data) {
   OVERLAPPED oOverlap;
   FILE_NOTIFY_INFORMATION Buffer[FILE_BUFFER_SZ];
   char buf[256];
-  char full_path[MAX_PATH];
+  char full_path[MAX_PATH_STR_LEN];
   DWORD BytesReturned;
 
   // Overlapped I/O variables

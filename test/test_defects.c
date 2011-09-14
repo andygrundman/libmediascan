@@ -18,12 +18,9 @@
 #include <libmediascan.h>
 
 #include "../src/mediascan.h"
+#include "../src/common.h"
 #include "../src/database.h"
 #include "CUnit/CUnit/Headers/Basic.h"
-
-#ifndef MAX_PATH
-#define MAX_PATH 1024
-#endif
 
 #ifndef WIN32
 
@@ -390,6 +387,72 @@ static void test_defect_21660(void)	{
 
 } /* test_defect_21660() */
 
+static void test_defect__bugzilla_17564(void)	{
+	const int depth = 20;
+	char test_path[MAX_PATH_STR_LEN];
+	char test_path_dest[MAX_PATH_STR_LEN];
+	const char start_dir[] = "C:\\logitest";
+	const char src_filename[] = "bars-mpeg1video-mp2.mpg";
+	const char src_file[] = "data\\video\\bars-mpeg1video-mp2.mpg";
+	MediaScan *s = NULL;
+	int i = 0;
+
+
+	s = ms_create();
+
+	CU_ASSERT( _mkdir(start_dir) != -1 );
+	strcpy(test_path, start_dir);
+	for(i = 0; i < depth; i++)
+	{
+		// 10 characters
+		strcat(test_path, "\\directory0");
+		CU_ASSERT( _mkdir(test_path) != -1 );
+	}
+
+	CU_ASSERT_FATAL(s != NULL);
+
+	ms_set_flags(s, MS_RESCAN | MS_CLEARDB);
+	ms_set_log_level(DEBUG);
+	// Do some setup for the test
+	result_called = 0;
+	ms_errno = 0;
+	do_dump = 1;
+
+	CU_ASSERT(s->on_result == NULL);
+	ms_set_result_callback(s, my_result_callback);
+	CU_ASSERT(s->on_result == my_result_callback);
+
+	CU_ASSERT(s->on_error == NULL);
+	ms_set_error_callback(s, my_error_callback); 
+	CU_ASSERT(s->on_error == my_error_callback);
+
+	CU_ASSERT(s->npaths == 0);
+	ms_add_path(s, test_path);
+	CU_ASSERT(s->npaths == 1);
+
+	strcpy(test_path_dest, test_path);
+	strcat(test_path_dest, "\\");
+	strcat(test_path_dest, src_filename);
+	CopyFile(src_file, test_path_dest, FALSE);
+
+	printf("\n\n\n\n path %d \n\n\n\n", strlen(test_path_dest));
+
+	ms_scan(s);
+	CU_ASSERT( result_called == 1 );	
+
+	ms_destroy(s);
+
+	CU_ASSERT( DeleteFile(test_path_dest) == TRUE);
+	for(i = 0; i < depth; i++)
+	{
+		CU_ASSERT( _rmdir(test_path) != -1 );
+		test_path[ strlen(test_path) - 11 ] = 0;
+	}
+
+ CU_ASSERT( _rmdir(start_dir) != -1 );
+
+
+} /* test_defect__bugzilla_17564() */
 
 ///-------------------------------------------------------------------------------------------------
 ///  Setup defect tests.
@@ -412,11 +475,12 @@ int setupdefect_tests() {
    /* add the tests to the background scanning suite */
    if (
 //      NULL == CU_add_test(pSuite, "Test defect 21069", test_defect_21069) ||
-//      NULL == CU_add_test(pSuite, "Test defect 19701", test_defect_19701) 
-//      NULL == CU_add_test(pSuite, "Test defect 21070", test_defect_21070) 
-//      NULL == CU_add_test(pSuite, "Test defect 21416", test_defect_21416) 
-//      NULL == CU_add_test(pSuite, "Test defect 21352", test_defect_21352) 
-      NULL == CU_add_test(pSuite, "Test defect 21660", test_defect_21660) 
+//      NULL == CU_add_test(pSuite, "Test defect 19701", test_defect_19701) || 
+//      NULL == CU_add_test(pSuite, "Test defect 21070", test_defect_21070) ||
+//      NULL == CU_add_test(pSuite, "Test defect 21416", test_defect_21416) ||
+//      NULL == CU_add_test(pSuite, "Test defect 21352", test_defect_21352) ||
+//      NULL == CU_add_test(pSuite, "Test defect 21660", test_defect_21660) ||
+      NULL == CU_add_test(pSuite, "Test defect Bugzilla 17564", test_defect__bugzilla_17564) 
 	  
 	   )
    {

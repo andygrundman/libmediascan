@@ -42,7 +42,7 @@ void reset_bdb(MediaScan *s) {
 int init_bdb(MediaScan *s) {
   int ret;
   int tmp_flags;
-  char dbpath[MAX_PATH];
+  char dbpath[MAX_PATH_STR_LEN];
 
   if (s->dbp)
     return 1;

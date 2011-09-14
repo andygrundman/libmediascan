@@ -8,7 +8,10 @@
 #pragma warning( disable: 4996 )
 #endif
 
+#undef LOG_WARN
 #define LOG_WARN(...)  fprintf(stderr, __VA_ARGS__)
+
+#undef LOG_ERROR
 #define LOG_ERROR LOG_WARN
 
 static char *

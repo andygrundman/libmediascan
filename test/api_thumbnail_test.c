@@ -30,10 +30,11 @@
 
 #include "Cunit/CUnit/Headers/Basic.h"
 
-
+/*
 #ifndef MAX_PATH
 #define MAX_PATH 1024
 #endif
+*/
 
 static int result_called = FALSE;
 static int error_called = FALSE;
@@ -427,7 +428,7 @@ void test_thumbnailing(void)	{
 void generate_thumbnails()
 {
 	FILE *tfp;
-	char file[MAX_PATH];
+	char file[MAX_PATH_STR_LEN];
 	int i, n;
 	MediaScanImage *thumb;
 	Buffer *dbuf;

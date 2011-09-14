@@ -13,11 +13,8 @@
 #include <libavformat/avformat.h>
 
 #include "../src/mediascan.h"
+#include "../src/common.h"
 #include "CUnit/CUnit/Headers/Basic.h"
-
-#ifndef MAX_PATH
-#define MAX_PATH 1024
-#endif
 
 int setupbackground_tests();
 int setup_thumbnail_tests();
@@ -94,9 +91,9 @@ static void my_error_callback(MediaScan *s, MediaScanError *error, void *userdat
 
 void test_ms_scan(void){
 	#ifdef WIN32
-	const char dir[MAX_PATH] = "data\\video\\dlna";
+	const char dir[MAX_PATH_STR_LEN] = "data\\video\\dlna";
 	#else
-	const char dir[MAX_PATH] = "data/video/dlna";
+	const char dir[MAX_PATH_STR_LEN] = "data/video/dlna";
 	#endif
 	
 	MediaScan *s = ms_create();
@@ -165,8 +162,8 @@ void test_ms_scan_2(void)
 
 void test_ms_scan_3(void)	{
 
-	char dir[MAX_PATH];
-	char dir2[MAX_PATH];
+	char dir[MAX_PATH_STR_LEN];
+	char dir2[MAX_PATH_STR_LEN];
 	int i = 0;
 
 	MediaScan *s = ms_create();
@@ -207,7 +204,7 @@ void test_ms_scan_3(void)	{
 ///-------------------------------------------------------------------------------------------------
 
 void test_ms_scan_4(void)	{
-	char dir[MAX_PATH] = "notadirectory";
+	char dir[MAX_PATH_STR_LEN] = "notadirectory";
 	MediaScan *s = ms_create();
 
 	CU_ASSERT_FATAL(s != NULL);
@@ -245,9 +242,9 @@ void test_ms_scan_5(void)	{
 		#define NUM_STRINGS 3
 	
 	int i = 0;
-	char in_dir[NUM_STRINGS][MAX_PATH] = 
+	char in_dir[NUM_STRINGS][MAX_PATH_STR_LEN] = 
 		{ "data", "data/", "data\\" };
-	char out_dir[NUM_STRINGS][MAX_PATH] = 
+	char out_dir[NUM_STRINGS][MAX_PATH_STR_LEN] = 
 		{ "data", "data/", "data\\" };
 
 	MediaScan *s = ms_create();
@@ -301,9 +298,9 @@ static void my_progress_callback_6(MediaScan *s, MediaScanProgress *progress, vo
 
 void test_ms_scan_6(void)	{
 #ifdef WIN32
-	char dir[MAX_PATH] = "data\\audio\\mp3";
+	char dir[MAX_PATH_STR_LEN] = "data\\audio\\mp3";
 #else
-	char dir[MAX_PATH] = "data/audio/mp3";
+	char dir[MAX_PATH_STR_LEN] = "data/audio/mp3";
 #endif
 	MediaScan *s = ms_create();
 
@@ -386,11 +383,11 @@ static void my_error_callback_1(MediaScan *s, MediaScanError *error, void *userd
 
 void test_ms_file_scan_1(void)	{
 #ifdef WIN32
-	char valid_file[MAX_PATH] = "data\\video\\bars-mpeg4-aac.m4v";
-	char invalid_file[MAX_PATH] = "data\\video\\notafile.m4v";
+	char valid_file[MAX_PATH_STR_LEN] = "data\\video\\bars-mpeg4-aac.m4v";
+	char invalid_file[MAX_PATH_STR_LEN] = "data\\video\\notafile.m4v";
 #else
-	char valid_file[MAX_PATH] = "data/video/bars-mpeg4-aac.m4v";
-	char invalid_file[MAX_PATH] = "data/video/notafile.m4v";
+	char valid_file[MAX_PATH_STR_LEN] = "data/video/bars-mpeg4-aac.m4v";
+	char invalid_file[MAX_PATH_STR_LEN] = "data/video/notafile.m4v";
 #endif
 	MediaScan *s = ms_create();
 	
@@ -439,9 +436,9 @@ void test_ms_file_scan_1(void)	{
 
 void test_ms_file_asf_audio(void)	{
 #ifdef WIN32
-	char asf_file[MAX_PATH] = "data\\audio\\wmv92-with-audio.wmv";
+	char asf_file[MAX_PATH_STR_LEN] = "data\\audio\\wmv92-with-audio.wmv";
 #else
-	char asf_file[MAX_PATH] = "data/audio/wmv92-with-audio.wmv";
+	char asf_file[MAX_PATH_STR_LEN] = "data/audio/wmv92-with-audio.wmv";
 #endif
 	MediaScan *s = ms_create();
 	
@@ -484,7 +481,7 @@ void test_ms_misc_functions(void)	{
 
 
 void test_ms_large_directory(void)	{
-	char dir[MAX_PATH] = "data";
+	char dir[MAX_PATH_STR_LEN] = "data";
 	MediaScan *s = ms_create();
 
 	CU_ASSERT_FATAL(s != NULL);
@@ -520,9 +517,9 @@ void TouchFile(const char *filename) {
 void test_ms_db(void)	{
 
 #ifdef WIN32
-	char valid_file[MAX_PATH] = "data\\video\\bars-mpeg4-aac.m4v";
+	char valid_file[MAX_PATH_STR_LEN] = "data\\video\\bars-mpeg4-aac.m4v";
 #else
-	char valid_file[MAX_PATH] = "data/video/bars-mpeg4-aac.m4v";
+	char valid_file[MAX_PATH_STR_LEN] = "data/video/bars-mpeg4-aac.m4v";
 #endif
 
 	MediaScan *s = ms_create();

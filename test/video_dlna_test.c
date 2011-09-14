@@ -7,6 +7,7 @@
 #include <math.h>
 
 #include "../src/mediascan.h"
+#include "../src/common.h"
 
 #include "tap.h"
 #include "common.h"
@@ -19,10 +20,6 @@
 
 #ifndef TRUE
 #define TRUE 1
-#endif
-
-#ifndef MAX_PATH
-#define MAX_PATH 1024
 #endif
 
 #ifdef _MSC_VER
@@ -299,7 +296,7 @@ static void my_result_callback2(MediaScan *s, MediaScanResult *r, void *userdata
 static void test_DLNA_files(char *file, ExpectedResultType *expected)
 {
 	MediaScan *s = NULL;
-	char full_file[MAX_PATH];
+	char full_file[MAX_PATH_STR_LEN];
 	
 	#ifdef WIN32
 	strcpy(full_file, "data\\video\\dlna_individual\\");
@@ -347,7 +344,7 @@ static void test_DLNA_files(char *file, ExpectedResultType *expected)
 static void test_DLNA_audio_files(char *file, ExpectedResultType *expected)
 {
 	MediaScan *s = NULL;
-	char full_file[MAX_PATH];
+	char full_file[MAX_PATH_STR_LEN];
 	
 	#ifdef WIN32
 	strcpy(full_file, "data\\audio\\dlna_individual\\");

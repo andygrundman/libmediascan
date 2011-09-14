@@ -43,8 +43,8 @@ int parse_lnk(const char *path, LPTSTR szTarget, SIZE_T cchTarget) {
   BOOL bResult = FALSE;
 
 #if !defined(UNICODE)
-  WCHAR wsz[MAX_PATH];
-  if (0 == MultiByteToWideChar(CP_ACP, 0, path, -1, wsz, MAX_PATH))
+  WCHAR wsz[MAX_PATH_STR_LEN];
+  if (0 == MultiByteToWideChar(CP_ACP, 0, path, -1, wsz, MAX_PATH_STR_LEN))
     goto cleanup;
 #else
   LPCWSTR wsz = szShortcutFile;
@@ -100,13 +100,13 @@ void recurse_dir(MediaScan *s, const char *path, int recurse_count) {
   char *tmp_full_path;
   struct dirq_entry *parent_entry = NULL; // entry for current dir in s->_dirq
   struct dirq *subdirq;         // list of subdirs of the current directory
-  char redirect_dir[MAX_PATH];
+  char redirect_dir[MAX_PATH_STR_LEN];
 
   // Windows directory browsing variables
   HANDLE hFind = INVALID_HANDLE_VALUE;
   WIN32_FIND_DATA ffd;
   DWORD dwError = 0;
-  TCHAR findDir[MAX_PATH];
+  TCHAR findDir[MAX_PATH_STR_LEN];
 
   recurse_count++;
   if (recurse_count > RECURSE_LIMIT) {
@@ -122,16 +122,16 @@ void recurse_dir(MediaScan *s, const char *path, int recurse_count) {
 
   if (!is_absolute_path(path)) {
     // Get full path
-    char *buf = (char *)malloc(MAX_PATH);
+    char *buf = (char *)malloc(MAX_PATH_STR_LEN);
     if (buf == NULL) {
       LOG_ERROR("Out of memory for directory scan\n");
       return;
     }
 
-    dir = _getcwd(buf, MAX_PATH);
+    dir = _getcwd(buf, MAX_PATH_STR_LEN);
 
-    strcat_s(dir, MAX_PATH, "\\");
-    strcat_s(dir, MAX_PATH, path);
+    strcat_s(dir, MAX_PATH_STR_LEN, "\\");
+    strcat_s(dir, MAX_PATH_STR_LEN, path);
   }
   else {
     dir = _strdup(path);
@@ -151,8 +151,8 @@ void recurse_dir(MediaScan *s, const char *path, int recurse_count) {
 
   // Prepare string for use with FindFile functions.  First, copy the
   // string to a buffer, then append '\*' to the directory name.
-  StringCchCopy(findDir, MAX_PATH, dir);
-  StringCchCat(findDir, MAX_PATH, TEXT("\\*"));
+  StringCchCopy(findDir, MAX_PATH_STR_LEN, dir);
+  StringCchCat(findDir, MAX_PATH_STR_LEN, TEXT("\\*"));
 
 
   // Find the first file in the directory.
@@ -167,7 +167,7 @@ void recurse_dir(MediaScan *s, const char *path, int recurse_count) {
   subdirq = malloc(sizeof(struct dirq));
   SIMPLEQ_INIT(subdirq);
 
-  tmp_full_path = malloc(MAX_PATH);
+  tmp_full_path = malloc(MAX_PATH_STR_LEN);
 
 
   do {
@@ -185,9 +185,9 @@ void recurse_dir(MediaScan *s, const char *path, int recurse_count) {
 
         // Construct full path
         *tmp_full_path = 0;
-        strcat_s(tmp_full_path, MAX_PATH, dir);
-        strcat_s(tmp_full_path, MAX_PATH, "\\");
-        strcat_s(tmp_full_path, MAX_PATH, name);
+        strcat_s(tmp_full_path, MAX_PATH_STR_LEN, dir);
+        strcat_s(tmp_full_path, MAX_PATH_STR_LEN, "\\");
+        strcat_s(tmp_full_path, MAX_PATH_STR_LEN, name);
 
         if (_should_scan_dir(s, tmp_full_path)) {
           subdir_entry->dir = _strdup(tmp_full_path);
@@ -203,11 +203,11 @@ void recurse_dir(MediaScan *s, const char *path, int recurse_count) {
 
         // Check if this file is a shortcut and if so resolve it
         if (type == TYPE_LNK) {
-          char full_name[MAX_PATH];
+          char full_name[MAX_PATH_STR_LEN];
           strcpy(full_name, dir);
           strcat(full_name, "\\");
           strcat(full_name, name);
-          parse_lnk(full_name, redirect_dir, MAX_PATH);
+          parse_lnk(full_name, redirect_dir, MAX_PATH_STR_LEN);
           if (PathIsDirectory(redirect_dir)) {
             struct dirq_entry *subdir_entry = malloc(sizeof(struct dirq_entry));
             subdir_entry->dir = _strdup(redirect_dir);

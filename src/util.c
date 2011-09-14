@@ -39,7 +39,7 @@
 
 uint32_t HashFile(const char *file, int *mtime, uint64_t *size) {
   uint32_t hash;
-  char fileData[MAX_PATH];
+  char fileData[MAX_PATH_STR_LEN];
 
 #ifndef WIN32
   struct stat buf;

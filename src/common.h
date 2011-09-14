@@ -19,9 +19,8 @@
 extern enum log_level Debug;
 
 
-#ifndef MAX_PATH
-#define MAX_PATH 1024
-#endif
+#undef MAX_PATH
+#define MAX_PATH_STR_LEN 1024
 
 #ifndef FALSE
 #define FALSE 0
@@ -50,7 +49,6 @@ extern enum log_level Debug;
 // Define to have ms_dump_result write out thumbnail images
 //#define DUMP_THUMBNAILS
 
-void unix_init(void);
 int FollowLink(const char *incoming_path, char *out_path);
 int isAlias(const char *incoming_path);
 int CheckMacAlias(const char *incoming_path, char *out_path);
