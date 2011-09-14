@@ -67,7 +67,8 @@ uint32_t HashFile(const char *file, int *mtime, uint64_t *size) {
 #endif
 
   // Generate a hash of the full file path, modified time, and file size
-  sprintf(fileData, "%s%d%llu", file, *mtime, *size);
+  memset(fileData, 0, sizeof(fileData));
+  snprintf(fileData, sizeof(fileData) - 1, "%s%d%llu", file, *mtime, *size);
   hash = hashlittle(fileData, strlen(fileData), 0);
 
   return hash;
