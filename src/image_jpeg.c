@@ -393,8 +393,10 @@ int image_jpeg_load(MediaScanImage *i, MediaScanThumbSpec *spec_hint) {
   scale_factor = (float)j->cinfo->output_width / spec_hint->width;
   if (scale_factor > ((float)j->cinfo->output_height / spec_hint->height))
     scale_factor = (float)j->cinfo->output_height / spec_hint->height;
-  j->cinfo->scale_denom *= (unsigned int)scale_factor;
-  jpeg_calc_output_dimensions(j->cinfo);
+  if (scale_factor > 1) { // Avoid divide by 0
+    j->cinfo->scale_denom *= (unsigned int)scale_factor;
+    jpeg_calc_output_dimensions(j->cinfo);
+  }
 
   w = j->cinfo->output_width;
   h = j->cinfo->output_height;

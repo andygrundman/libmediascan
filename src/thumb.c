@@ -140,10 +140,14 @@ int thumb_resize(MediaScanImage *src, MediaScanImage *dst, MediaScanThumbSpec *s
     if (source_ar >= dest_ar) {
       spec->height_padding = (int)((dst->height - (dst->width / source_ar)) / 2);
       spec->height_inner = (int)(dst->width / source_ar);
+      if (spec->height_inner < 1) // Avoid divide by 0
+        spec->height_inner = 1;
     }
     else {
       spec->width_padding = (int)((dst->width - (dst->height * source_ar)) / 2);
       spec->width_inner = (int)(dst->height * source_ar);
+      if (spec->width_inner < 1) // Avoid divide by 0
+        spec->width_inner = 1;
     }
 
     // Fill new space with the bgcolor or zeros
