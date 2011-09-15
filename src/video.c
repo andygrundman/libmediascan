@@ -98,7 +98,7 @@ MediaScanImage *video_create_image_from_frame(MediaScanVideo *v, MediaScanResult
     int rgb_bufsize;
     AVFrame *frame_rgb = NULL;
     uint8_t *rgb_buffer = NULL;
-    
+
     if ((ret = av_read_frame(avf, &packet)) < 0) {
 
       if (ret == AVERROR_EOF || skipped_frames > 200) {

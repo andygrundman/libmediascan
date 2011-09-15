@@ -146,7 +146,7 @@ int thumb_resize(MediaScanImage *src, MediaScanImage *dst, MediaScanThumbSpec *s
     else {
       spec->width_padding = (int)((dst->width - (dst->height * source_ar)) / 2);
       spec->width_inner = (int)(dst->height * source_ar);
-      if (spec->width_inner < 1) // Avoid divide by 0
+      if (spec->width_inner < 1)  // Avoid divide by 0
         spec->width_inner = 1;
     }
 
