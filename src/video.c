@@ -99,8 +99,13 @@ MediaScanImage *video_create_image_from_frame(MediaScanVideo *v, MediaScanResult
     AVFrame *frame_rgb = NULL;
     uint8_t *rgb_buffer = NULL;
 
-    if ((ret = av_read_frame(avf, &packet)) < 0) {
+    // Give up if we already tried the first frame
+    if (no_keyframe_found) {
+      LOG_ERROR("Error decoding video frame for thumbnail: %s\n", v->path);
+      goto err;
+    }
 
+    if ((ret = av_read_frame(avf, &packet)) < 0) {
       if (ret == AVERROR_EOF || skipped_frames > 200) {
         LOG_DEBUG("Couldn't find a keyframe, using first frame\n");
         no_keyframe_found = 1;
@@ -123,6 +128,13 @@ MediaScanImage *video_create_image_from_frame(MediaScanVideo *v, MediaScanResult
 
     // Skip non-key-frames
     if (!no_keyframe_found && !(packet.flags & AV_PKT_FLAG_KEY)) {
+      av_free_packet(&packet);
+      skipped_frames++;
+      continue;
+    }
+
+    // Skip invalid packets, not sure why this isn't an error from av_read_frame
+    if (packet.pos < 0) {
       av_free_packet(&packet);
       skipped_frames++;
       continue;
