@@ -117,6 +117,7 @@ MediaScanImage *video_create_image_from_frame(MediaScanVideo *v, MediaScanResult
     // Skip frame if it's not from the video stream
     if (!no_keyframe_found && packet.stream_index != codecs->vsid) {
       av_free_packet(&packet);
+      skipped_frames++;
       continue;
     }
 
@@ -141,8 +142,12 @@ MediaScanImage *video_create_image_from_frame(MediaScanVideo *v, MediaScanResult
         LOG_ERROR("Error decoding video frame for thumbnail: %s\n", v->path);
         goto err;
       }
-      // Try next frame
-      continue;
+      if (!no_keyframe_found) {
+        // Try next frame
+        av_free_packet(&packet);
+        skipped_frames++;
+        continue;
+      }
     }
 
     // use swscale to convert from source format to RGBA in our buffer with no resizing
