@@ -4,8 +4,8 @@ use Config;
 
 if ( $Config{myarchname} =~ /i386/ ) {    
     # Read OS version
-    my $sys = `/usr/sbin/system_profiler SPSoftwareDataType`;
-    my ($osx_ver) = $sys =~ /Mac OS X.*(10\.[567])/;
+    my $ver = `sw_vers -productVersion`;
+    my ($osx_ver) = $ver =~ /(10\.[567])/;
     if ($osx_ver eq '10.5' ) {
         $arch = "-arch i386 -arch ppc -isysroot /Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.4";
     }
