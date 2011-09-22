@@ -371,8 +371,7 @@ void ms_destroy(MediaScan *s) {
     free(s->cachedir);
 
   /* When we're done with the database, close it. */
-  if (s->dbp != NULL)
-    s->dbp->close(s->dbp, 0);
+  bdb_destroy(s);
 
   LOG_MEM("destroy MediaScan @ %p\n", s);
   free(s);

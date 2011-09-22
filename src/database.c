@@ -70,8 +70,8 @@ int init_bdb(MediaScan *s) {
    * so the environment pointer is myEnv. */
   ret = db_create(&s->dbp, myEnv, 0);
   if (ret != 0) {
+    bdb_destroy(s);
     ms_errno = MSENO_DBERROR;
-    s->dbp = NULL;
     LOG_ERROR("Database creation failed: %s", db_strerror(ret));
     return 0;
   }
@@ -95,12 +95,24 @@ int init_bdb(MediaScan *s) {
                      0);        /* File mode (using defaults) */
 
   if (ret != 0) {
+    bdb_destroy(s);
     ms_errno = MSENO_DBERROR;
-    s->dbp->close(s->dbp, 0);
-    s->dbp = NULL;
     LOG_ERROR("Database open failed: %s\n", db_strerror(ret));
     return 0;
   }
 
   return 1;
 }                               /* init_bdb() */
+
+void bdb_destroy(MediaScan *s) {
+  if (s->dbp != NULL) {
+    s->dbp->close(s->dbp, 0);
+    s->dbp = NULL;
+  }
+  
+  if (myEnv != NULL) {
+    myEnv->close(myEnv, DB_FORCESYNC);
+    myEnv = NULL;
+  }
+}
+  
