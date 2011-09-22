@@ -87,6 +87,7 @@ CODE:
 {
   int i;
   RETVAL = newAV();
+  sv_2mortal((SV*)RETVAL);
 
   for (i = 0; i < r->nthumbnails; i++) {
     MediaScanImage *thumb = ms_result_get_thumbnail(r, i);
@@ -114,6 +115,7 @@ CODE:
   int i;
   int count = ms_result_get_tag_count(r);
   RETVAL = newHV();
+  sv_2mortal((SV*)RETVAL);
   
   for (i = 0; i < count; i++) {
     const char *key, *value;
