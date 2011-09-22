@@ -188,6 +188,15 @@ void image_alloc_pixbuf(MediaScanImage *i, int width, int height) {
   LOG_MEM("new pixbuf @ %p for image of size %d x %d (%d bytes)\n", i->_pixbuf, width, height, size);
 }
 
+void image_free_pixbuf(MediaScanImage *i) {
+  if (i->_pixbuf_size && !i->_pixbuf_is_copy) {
+    LOG_MEM("destroy pixbuf @ %p of size %d bytes\n", i->_pixbuf, i->_pixbuf_size);
+
+    free(i->_pixbuf);
+    i->_pixbuf_size = 0;
+  }
+}
+
 void image_unload(MediaScanImage *i) {
   if (i->_jpeg)
     image_jpeg_destroy(i);
@@ -206,10 +215,6 @@ void image_unload(MediaScanImage *i) {
     image_tiff_destroy(i);
 #endif
 
-  if (i->_pixbuf_size && !i->_pixbuf_is_copy) {
-    LOG_MEM("destroy pixbuf @ %p of size %d bytes\n", i->_pixbuf, i->_pixbuf_size);
-
-    free(i->_pixbuf);
-    i->_pixbuf_size = 0;
-  }
+  if (i->_pixbuf_size)
+    image_free_pixbuf(i);
 }

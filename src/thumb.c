@@ -58,11 +58,6 @@ MediaScanImage *thumb_create_from_image(MediaScanImage *i, MediaScanThumbSpec *s
   thumb->width = spec->width;
   thumb->height = spec->height;
 
-  // Load the source image into memory, we pass the spec to give a hint
-  // to the loader when it can optimize the loaded size (JPEG)
-  if (!image_load(i, spec))
-    goto err;
-
   // Resize, will store uncompressed resize data in pixbuf
   if (!thumb_resize(i, thumb, spec))
     goto err;
@@ -86,11 +81,15 @@ MediaScanImage *thumb_create_from_image(MediaScanImage *i, MediaScanThumbSpec *s
       break;
 
     case THUMB_PNG:
+    default:
       thumb->codec = "PNG";
       if (!image_png_compress(thumb, spec))
         goto err;
       break;
   }
+
+  // Free uncompressed resize data we no longer need
+  image_free_pixbuf(thumb);
 
   goto ok;
 

@@ -477,9 +477,22 @@ static int scan_image(MediaScanResult *r) {
   s = (MediaScan *)r->_scan;
   if (s->nthumbspecs) {
     int x;
+    MediaScanThumbSpec *largest_spec = NULL;
 
-    // XXX sort from biggest to smallest, resize in series
-    // XXX Move image_load call here
+    // Figure out the largest size we're thumbnailing
+    for (x = 0; x < s->nthumbspecs; x++) {
+      int sw = s->thumbspecs[x]->width;
+      int sh = s->thumbspecs[x]->height;
+      if (!largest_spec || (sw > largest_spec->width || sh > largest_spec->height))
+        largest_spec = s->thumbspecs[x];
+    }
+
+    // Load the source image into memory, we pass the spec to give a hint
+    // to the loader when it can optimize the loaded size (JPEG)
+    if (!image_load(i, largest_spec))
+      goto out;
+
+    // XXX sort specs from biggest to smallest, resize in series
 
     for (x = 0; x < s->nthumbspecs; x++) {
       MediaScanImage *thumb = thumb_create_from_image(i, s->thumbspecs[x]);

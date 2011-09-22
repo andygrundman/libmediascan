@@ -109,10 +109,9 @@ void bdb_destroy(MediaScan *s) {
     s->dbp->close(s->dbp, 0);
     s->dbp = NULL;
   }
-  
+
   if (myEnv != NULL) {
     myEnv->close(myEnv, DB_FORCESYNC);
     myEnv = NULL;
   }
 }
-  
