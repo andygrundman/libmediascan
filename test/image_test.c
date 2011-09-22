@@ -9,7 +9,7 @@ static int rcount = 0;
 static int done = 0;
 
 static void my_result_callback(MediaScan *s, MediaScanResult *result, void *userdata) {
-  ms_dump_result(result);
+  //ms_dump_result(result);
   rcount++;
 }
 
@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
   // Get path to this binary
   bin = _findbin(argv[0]);
   //dir = _abspath(bin, "../data"); // because binary is in .libs dir
-  dir = "/Users/andy/dev/git/libmediascan/test/bugs";
+  dir = "/Users/andy/Pictures/iPhoto Library";
 
   // Scan all image files
   {
@@ -51,14 +51,18 @@ int main(int argc, char *argv[])
     ms_add_ignore_extension(s, "AUDIO");
     //ms_add_ignore_extension(s, "IMAGE");
     ms_add_ignore_extension(s, "VIDEO");
-    ms_add_thumbnail_spec(s, THUMB_AUTO, 40, 40, 1, 0, 0);
+    ms_add_thumbnail_spec(s, THUMB_PNG, 160, 160, 1, 0, 0);
+    ms_add_thumbnail_spec(s, THUMB_JPEG, 160, 160, 1, 0, 0);
+    ms_add_thumbnail_spec(s, THUMB_PNG, 41, 41, 1, 0, 0);
+    ms_add_thumbnail_spec(s, THUMB_PNG, 40, 40, 1, 0, 0);
+    ms_add_thumbnail_spec(s, THUMB_PNG, 100, 100, 1, 0, 0);
     ms_set_result_callback(s, my_result_callback);
     ms_set_error_callback(s, my_error_callback);
     ms_set_progress_callback(s, my_progress_callback);
     ms_set_finish_callback(s, my_finish_callback);
     ms_set_async(s, 0);
     //ms_set_cachedir(s, "/tmp/libmediascan");
-    //ms_set_flags(s, MS_USE_EXTENSION | MS_RESCAN);
+    ms_set_flags(s, MS_USE_EXTENSION | MS_FULL_SCAN | MS_CLEARDB);
     ms_scan(s);
 
     // XXX Watch fd instead
