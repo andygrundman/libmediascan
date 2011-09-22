@@ -20,6 +20,7 @@
 
 
 #include "common.h"
+#include "database.h"
 #include "buffer.h"
 #include "queue.h"
 #include "progress.h"
