@@ -21,10 +21,10 @@
 #include "common.h"
 
 int isAlias(const char *incoming_path) {
-  int link_type;
-  
+  int link_type = LINK_NONE;
   struct stat fileInfo;
-  link_type = LINK_NONE;
+  CFStringRef cfPath = NULL;
+  CFURLRef url = NULL;
   
   //CFStringRef in_path = CFStringCreateWithCString(NULL, incoming_path, kCFStringEncodingMacRoman);
 
@@ -38,39 +38,31 @@ int isAlias(const char *incoming_path) {
  
   if (S_ISLNK(fileInfo.st_mode)) {
     link_type = LINK_SYMLINK;
-    goto exit;
   }
   else {
     // Now check for aliases
-    CFStringRef cfPath = CFStringCreateWithCString(kCFAllocatorDefault,
-                                                   incoming_path, kCFStringEncodingUTF8);
-
-    CFURLRef url = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, cfPath, kCFURLPOSIXPathStyle, NO);
+    cfPath = CFStringCreateWithCString(kCFAllocatorDefault, incoming_path, kCFStringEncodingUTF8);
+    url    = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, cfPath, kCFURLPOSIXPathStyle, NO);
 
     if (url != NULL) {
       FSRef fsRef;
+      
       if (CFURLGetFSRef(url, &fsRef)) {
         Boolean targetIsFolder, wasAliased;
         OSErr err = FSResolveAliasFile(&fsRef, true, &targetIsFolder, &wasAliased);
         if ((err == noErr) && wasAliased)
-        {
-    		link_type = LINK_ALIAS;
-    		goto exit;
-        }
+    		  link_type = LINK_ALIAS;
         else
-        {
-    		link_type = LINK_NONE;
-    		goto exit;
-        }
+    		  link_type = LINK_NONE;
       }
+      
       CFRelease(url);
     }
-     CFRelease(cfPath);
+    
+    CFRelease(cfPath);
   }
 
-exit:
-//  CFRelease(in_path);
-   
+exit:   
   return link_type;
 }                               /* isAlias() */
 
@@ -79,11 +71,10 @@ int CheckMacAlias(const char *incoming_path, char *out_path) {
   NSString *NSPath = [[NSString alloc] initWithUTF8String:incoming_path]; 
   NSString *resolvedPath = [NSPath stringByResolvingSymlinksAndAliases];
   LOG_DEBUG("CheckMacAlias: %s => %s\n", [NSPath UTF8String], [resolvedPath UTF8String]);
-  if(resolvedPath == nil)
-  {
-  [NSPath autorelease];
-  [pool drain];
-  return FALSE;
+  if(resolvedPath == nil) {
+    [NSPath autorelease];
+    [pool drain];
+    return FALSE;
   }
 
   const char *cString = [resolvedPath UTF8String];
@@ -92,5 +83,4 @@ int CheckMacAlias(const char *incoming_path, char *out_path) {
   [NSPath autorelease];
   [pool drain];
   return TRUE;
-
 }                               /* CheckMacAlias() */
