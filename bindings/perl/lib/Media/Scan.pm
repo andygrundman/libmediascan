@@ -137,12 +137,13 @@ sub new {
         $paths = [ $paths ];
     }
     
-    $opts->{loglevel}   ||= MS_LOG_ERR;
-    $opts->{async}      ||= 0;
-    $opts->{flags}      ||= MS_USE_EXTENSION | MS_FULL_SCAN;
-    $opts->{paths}        = $paths;
-    $opts->{ignore}     ||= [];
-    $opts->{thumbnails} ||= [];
+    $opts->{loglevel}    ||= MS_LOG_ERR;
+    $opts->{async}       ||= 0;
+    $opts->{flags}       ||= MS_USE_EXTENSION | MS_FULL_SCAN;
+    $opts->{paths}         = $paths;
+    $opts->{ignore}      ||= [];
+    $opts->{ignore_dirs} ||= [];
+    $opts->{thumbnails}  ||= [];
     
     if ( ref $opts->{ignore} ne 'ARRAY' ) {
         die "ignore must be an array reference";
