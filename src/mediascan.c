@@ -705,7 +705,8 @@ void ms_async_process(MediaScan *s) {
 
     // Pull events from the thread's queue, events contain their type
     // and a data pointer (Result/Error/Progress) for that callback
-    while ((type = thread_get_next_event(s->thread, &data))) {
+    // A callback may call ms_destroy, so we check for s->thread every time through the loop
+    while (s->thread != NULL && (type = thread_get_next_event(s->thread, &data))) {
       LOG_DEBUG("Got thread event, type %d @ %p\n", type, data);
       switch (type) {
         case EVENT_TYPE_RESULT:
