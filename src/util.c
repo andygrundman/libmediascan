@@ -17,6 +17,7 @@
 #pragma warning( disable: 4996 )
 #endif
 
+#include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 #include <libmediascan.h>

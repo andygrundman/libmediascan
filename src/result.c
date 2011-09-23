@@ -298,7 +298,7 @@ static int scan_video(MediaScanResult *r) {
       LOG_INFO("Forcing format: %s\n", iformat->name);
   }
 
-  if ((AVError = av_open_input_file(&avf, r->path, iformat, 0, NULL)) != 0) {
+  if ((AVError = avformat_open_input(&avf, r->path, iformat, NULL)) != 0) {
     r->error = error_create(r->path, MS_ERROR_FILE, "[libavformat] Unable to open file for reading");
     r->error->averror = AVError;
     ret = 0;

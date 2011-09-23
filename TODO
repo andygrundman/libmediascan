@@ -24,3 +24,5 @@ Result should include a flag for indicating if the file is new, has changed, or 
 Perl: would_scan($file) - calls through to should_scan function
 
 Support defining ignore lists on a per-directory basis
+
+Clean up mediascan_linux/unix/macos/win32

@@ -171,11 +171,11 @@ static void register_codecs(void) {
 }                               /* register_codecs() */
 
 #define REGISTER_DEMUXER(X,x) { \
-    extern AVInputFormat ff_##x##_demuxer; \
+  extern AVInputFormat ff_##x##_demuxer; \
 	av_register_input_format(&ff_##x##_demuxer); }
 #define REGISTER_PROTOCOL(X,x) { \
-    extern URLProtocol ff_##x##_protocol; \
-    av_register_protocol2(&ff_##x##_protocol, sizeof(ff_##x##_protocol)); }
+  extern URLProtocol ff_##x##_protocol; \
+  av_register_protocol2(&ff_##x##_protocol, sizeof(ff_##x##_protocol)); }
 
 ///-------------------------------------------------------------------------------------------------
 ///  Registers the formats for FFmpeg.
@@ -910,9 +910,6 @@ int _should_scan(MediaScan *s, const char *path) {
 ///-------------------------------------------------------------------------------------------------
 
 int _should_scan_dir(MediaScan *s, const char *path) {
-  char *p = NULL;
-  char *found = NULL;
-
   if (s->nignore_sdirs) {
     // Check for ignored substring
     int i;

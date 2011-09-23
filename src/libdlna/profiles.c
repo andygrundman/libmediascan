@@ -289,7 +289,7 @@ dlna_guess_media_profile (dlna_t *dlna, const char *filename)
   if (!dlna->inited)
     dlna = dlna_init ();
   
-  if (av_open_input_file (&ctx, filename, NULL, 0, NULL) != 0)
+  if (avformat_open_input (&ctx, filename, NULL, NULL) != 0)
   {
     if (dlna->verbosity)
       fprintf (stderr, "can't open file: %s\n", filename);

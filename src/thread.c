@@ -149,7 +149,7 @@ MediaScanThread *thread_create(void *(*func) (void *), thread_data_type *thread_
     goto fail;
   }
 
-  LOG_DEBUG("Thread %x started\n", t->tid);
+  LOG_DEBUG("Thread %p started\n", t->tid);
   goto out;
 
 fail:
@@ -253,7 +253,7 @@ void thread_stop(MediaScanThread *t) {
   if (t->tid.p) {               // XXX needed?
 #endif
 
-    LOG_DEBUG("Waiting for thread %x to stop...\n", t->tid);
+    LOG_DEBUG("Waiting for thread %p to stop...\n", t->tid);
     pthread_join(t->tid, NULL);
 
 #ifndef WIN32

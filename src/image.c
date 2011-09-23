@@ -2,6 +2,7 @@
 
 #include <libmediascan.h>
 #include <stdlib.h>
+#include <string.h>
 
 
 #ifdef WIN32
