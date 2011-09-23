@@ -63,10 +63,14 @@ am__libmediascan_la_SOURCES_DIST = audio.c buffer.c mediascan.c \
 	image.c image_jpeg.c image_png.c image_bmp.c image_gif.c \
 	thumb.c thread.c database.c mediascan_macos.m \
 	NSString+SymlinksAndAliases.m tag.c tag_item.c \
-	libdlna/av_mpeg1.c libdlna/av_mpeg2.c \
-	libdlna/av_mpeg4_part10.c libdlna/av_mpeg4_part2.c \
-	libdlna/av_wmv9.c libdlna/containers.c libdlna/profiles.c \
-	jenkins/lookup3.c mediascan_linux.c
+	libdlna/audio_aac.c libdlna/audio_ac3.c libdlna/audio_amr.c \
+	libdlna/audio_atrac3.c libdlna/audio_g726.c \
+	libdlna/audio_lpcm.c libdlna/audio_mp1.c libdlna/audio_mp2.c \
+	libdlna/audio_mp3.c libdlna/audio_wma.c libdlna/av_mpeg1.c \
+	libdlna/av_mpeg2.c libdlna/av_mpeg4_part10.c \
+	libdlna/av_mpeg4_part2.c libdlna/av_wmv9.c \
+	libdlna/containers.c libdlna/profiles.c jenkins/lookup3.c \
+	mediascan_linux.c
 @LINUX_FALSE@am_libmediascan_la_OBJECTS = libmediascan_la-audio.lo \
 @LINUX_FALSE@	libmediascan_la-buffer.lo \
 @LINUX_FALSE@	libmediascan_la-mediascan.lo \
@@ -86,6 +90,16 @@ am__libmediascan_la_SOURCES_DIST = audio.c buffer.c mediascan.c \
 @LINUX_FALSE@	libmediascan_la-NSString+SymlinksAndAliases.lo \
 @LINUX_FALSE@	libmediascan_la-tag.lo \
 @LINUX_FALSE@	libmediascan_la-tag_item.lo \
+@LINUX_FALSE@	libmediascan_la-audio_aac.lo \
+@LINUX_FALSE@	libmediascan_la-audio_ac3.lo \
+@LINUX_FALSE@	libmediascan_la-audio_amr.lo \
+@LINUX_FALSE@	libmediascan_la-audio_atrac3.lo \
+@LINUX_FALSE@	libmediascan_la-audio_g726.lo \
+@LINUX_FALSE@	libmediascan_la-audio_lpcm.lo \
+@LINUX_FALSE@	libmediascan_la-audio_mp1.lo \
+@LINUX_FALSE@	libmediascan_la-audio_mp2.lo \
+@LINUX_FALSE@	libmediascan_la-audio_mp3.lo \
+@LINUX_FALSE@	libmediascan_la-audio_wma.lo \
 @LINUX_FALSE@	libmediascan_la-av_mpeg1.lo \
 @LINUX_FALSE@	libmediascan_la-av_mpeg2.lo \
 @LINUX_FALSE@	libmediascan_la-av_mpeg4_part10.lo \
@@ -110,6 +124,16 @@ am__libmediascan_la_SOURCES_DIST = audio.c buffer.c mediascan.c \
 @LINUX_TRUE@	libmediascan_la-thumb.lo libmediascan_la-thread.lo \
 @LINUX_TRUE@	libmediascan_la-database.lo libmediascan_la-tag.lo \
 @LINUX_TRUE@	libmediascan_la-tag_item.lo \
+@LINUX_TRUE@	libmediascan_la-audio_aac.lo \
+@LINUX_TRUE@	libmediascan_la-audio_ac3.lo \
+@LINUX_TRUE@	libmediascan_la-audio_amr.lo \
+@LINUX_TRUE@	libmediascan_la-audio_atrac3.lo \
+@LINUX_TRUE@	libmediascan_la-audio_g726.lo \
+@LINUX_TRUE@	libmediascan_la-audio_lpcm.lo \
+@LINUX_TRUE@	libmediascan_la-audio_mp1.lo \
+@LINUX_TRUE@	libmediascan_la-audio_mp2.lo \
+@LINUX_TRUE@	libmediascan_la-audio_mp3.lo \
+@LINUX_TRUE@	libmediascan_la-audio_wma.lo \
 @LINUX_TRUE@	libmediascan_la-av_mpeg1.lo \
 @LINUX_TRUE@	libmediascan_la-av_mpeg2.lo \
 @LINUX_TRUE@	libmediascan_la-av_mpeg4_part10.lo \
@@ -275,14 +299,18 @@ lib_LTLIBRARIES = libmediascan.la
 @LINUX_FALSE@libmediascan_la_SOURCES = audio.c buffer.c mediascan.c mediascan_unix.c progress.c result.c error.c video.c util.c \
 @LINUX_FALSE@  image.c image_jpeg.c image_png.c image_bmp.c image_gif.c thumb.c thread.c database.c mediascan_macos.m NSString+SymlinksAndAliases.m \
 @LINUX_FALSE@  tag.c tag_item.c \
-@LINUX_FALSE@  libdlna/av_mpeg1.c libdlna/av_mpeg2.c libdlna/av_mpeg4_part10.c \
+@LINUX_FALSE@  libdlna/audio_aac.c libdlna/audio_ac3.c libdlna/audio_amr.c libdlna/audio_atrac3.c \
+@LINUX_FALSE@  libdlna/audio_g726.c libdlna/audio_lpcm.c libdlna/audio_mp1.c libdlna/audio_mp2.c libdlna/audio_mp3.c \
+@LINUX_FALSE@  libdlna/audio_wma.c libdlna/av_mpeg1.c libdlna/av_mpeg2.c libdlna/av_mpeg4_part10.c \
 @LINUX_FALSE@  libdlna/av_mpeg4_part2.c libdlna/av_wmv9.c libdlna/containers.c libdlna/profiles.c \
 @LINUX_FALSE@  jenkins/lookup3.c
 
 @LINUX_TRUE@libmediascan_la_SOURCES = audio.c buffer.c mediascan.c mediascan_unix.c mediascan_linux.c progress.c result.c error.c video.c util.c \
 @LINUX_TRUE@  image.c image_jpeg.c image_png.c image_bmp.c image_gif.c thumb.c thread.c database.c \
 @LINUX_TRUE@  tag.c tag_item.c \
-@LINUX_TRUE@  libdlna/av_mpeg1.c libdlna/av_mpeg2.c libdlna/av_mpeg4_part10.c \
+@LINUX_TRUE@  libdlna/audio_aac.c libdlna/audio_ac3.c libdlna/audio_amr.c libdlna/audio_atrac3.c \
+@LINUX_TRUE@  libdlna/audio_g726.c libdlna/audio_lpcm.c libdlna/audio_mp1.c libdlna/audio_mp2.c libdlna/audio_mp3.c \
+@LINUX_TRUE@  libdlna/audio_wma.c libdlna/av_mpeg1.c libdlna/av_mpeg2.c libdlna/av_mpeg4_part10.c \
 @LINUX_TRUE@  libdlna/av_mpeg4_part2.c libdlna/av_wmv9.c libdlna/containers.c libdlna/profiles.c \
 @LINUX_TRUE@  jenkins/lookup3.c
 
@@ -368,6 +396,16 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmediascan_la-NSString+SymlinksAndAliases.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmediascan_la-audio.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmediascan_la-audio_aac.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmediascan_la-audio_ac3.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmediascan_la-audio_amr.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmediascan_la-audio_atrac3.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmediascan_la-audio_g726.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmediascan_la-audio_lpcm.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmediascan_la-audio_mp1.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmediascan_la-audio_mp2.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmediascan_la-audio_mp3.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmediascan_la-audio_wma.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmediascan_la-av_mpeg1.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmediascan_la-av_mpeg2.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmediascan_la-av_mpeg4_part10.Plo@am__quote@
@@ -550,6 +588,76 @@ libmediascan_la-tag_item.lo: tag_item.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tag_item.c' object='libmediascan_la-tag_item.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmediascan_la_CFLAGS) $(CFLAGS) -c -o libmediascan_la-tag_item.lo `test -f 'tag_item.c' || echo '$(srcdir)/'`tag_item.c
+
+libmediascan_la-audio_aac.lo: libdlna/audio_aac.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmediascan_la_CFLAGS) $(CFLAGS) -MT libmediascan_la-audio_aac.lo -MD -MP -MF $(DEPDIR)/libmediascan_la-audio_aac.Tpo -c -o libmediascan_la-audio_aac.lo `test -f 'libdlna/audio_aac.c' || echo '$(srcdir)/'`libdlna/audio_aac.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libmediascan_la-audio_aac.Tpo $(DEPDIR)/libmediascan_la-audio_aac.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='libdlna/audio_aac.c' object='libmediascan_la-audio_aac.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmediascan_la_CFLAGS) $(CFLAGS) -c -o libmediascan_la-audio_aac.lo `test -f 'libdlna/audio_aac.c' || echo '$(srcdir)/'`libdlna/audio_aac.c
+
+libmediascan_la-audio_ac3.lo: libdlna/audio_ac3.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmediascan_la_CFLAGS) $(CFLAGS) -MT libmediascan_la-audio_ac3.lo -MD -MP -MF $(DEPDIR)/libmediascan_la-audio_ac3.Tpo -c -o libmediascan_la-audio_ac3.lo `test -f 'libdlna/audio_ac3.c' || echo '$(srcdir)/'`libdlna/audio_ac3.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libmediascan_la-audio_ac3.Tpo $(DEPDIR)/libmediascan_la-audio_ac3.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='libdlna/audio_ac3.c' object='libmediascan_la-audio_ac3.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmediascan_la_CFLAGS) $(CFLAGS) -c -o libmediascan_la-audio_ac3.lo `test -f 'libdlna/audio_ac3.c' || echo '$(srcdir)/'`libdlna/audio_ac3.c
+
+libmediascan_la-audio_amr.lo: libdlna/audio_amr.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmediascan_la_CFLAGS) $(CFLAGS) -MT libmediascan_la-audio_amr.lo -MD -MP -MF $(DEPDIR)/libmediascan_la-audio_amr.Tpo -c -o libmediascan_la-audio_amr.lo `test -f 'libdlna/audio_amr.c' || echo '$(srcdir)/'`libdlna/audio_amr.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libmediascan_la-audio_amr.Tpo $(DEPDIR)/libmediascan_la-audio_amr.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='libdlna/audio_amr.c' object='libmediascan_la-audio_amr.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmediascan_la_CFLAGS) $(CFLAGS) -c -o libmediascan_la-audio_amr.lo `test -f 'libdlna/audio_amr.c' || echo '$(srcdir)/'`libdlna/audio_amr.c
+
+libmediascan_la-audio_atrac3.lo: libdlna/audio_atrac3.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmediascan_la_CFLAGS) $(CFLAGS) -MT libmediascan_la-audio_atrac3.lo -MD -MP -MF $(DEPDIR)/libmediascan_la-audio_atrac3.Tpo -c -o libmediascan_la-audio_atrac3.lo `test -f 'libdlna/audio_atrac3.c' || echo '$(srcdir)/'`libdlna/audio_atrac3.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libmediascan_la-audio_atrac3.Tpo $(DEPDIR)/libmediascan_la-audio_atrac3.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='libdlna/audio_atrac3.c' object='libmediascan_la-audio_atrac3.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmediascan_la_CFLAGS) $(CFLAGS) -c -o libmediascan_la-audio_atrac3.lo `test -f 'libdlna/audio_atrac3.c' || echo '$(srcdir)/'`libdlna/audio_atrac3.c
+
+libmediascan_la-audio_g726.lo: libdlna/audio_g726.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmediascan_la_CFLAGS) $(CFLAGS) -MT libmediascan_la-audio_g726.lo -MD -MP -MF $(DEPDIR)/libmediascan_la-audio_g726.Tpo -c -o libmediascan_la-audio_g726.lo `test -f 'libdlna/audio_g726.c' || echo '$(srcdir)/'`libdlna/audio_g726.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libmediascan_la-audio_g726.Tpo $(DEPDIR)/libmediascan_la-audio_g726.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='libdlna/audio_g726.c' object='libmediascan_la-audio_g726.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmediascan_la_CFLAGS) $(CFLAGS) -c -o libmediascan_la-audio_g726.lo `test -f 'libdlna/audio_g726.c' || echo '$(srcdir)/'`libdlna/audio_g726.c
+
+libmediascan_la-audio_lpcm.lo: libdlna/audio_lpcm.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmediascan_la_CFLAGS) $(CFLAGS) -MT libmediascan_la-audio_lpcm.lo -MD -MP -MF $(DEPDIR)/libmediascan_la-audio_lpcm.Tpo -c -o libmediascan_la-audio_lpcm.lo `test -f 'libdlna/audio_lpcm.c' || echo '$(srcdir)/'`libdlna/audio_lpcm.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libmediascan_la-audio_lpcm.Tpo $(DEPDIR)/libmediascan_la-audio_lpcm.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='libdlna/audio_lpcm.c' object='libmediascan_la-audio_lpcm.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmediascan_la_CFLAGS) $(CFLAGS) -c -o libmediascan_la-audio_lpcm.lo `test -f 'libdlna/audio_lpcm.c' || echo '$(srcdir)/'`libdlna/audio_lpcm.c
+
+libmediascan_la-audio_mp1.lo: libdlna/audio_mp1.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmediascan_la_CFLAGS) $(CFLAGS) -MT libmediascan_la-audio_mp1.lo -MD -MP -MF $(DEPDIR)/libmediascan_la-audio_mp1.Tpo -c -o libmediascan_la-audio_mp1.lo `test -f 'libdlna/audio_mp1.c' || echo '$(srcdir)/'`libdlna/audio_mp1.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libmediascan_la-audio_mp1.Tpo $(DEPDIR)/libmediascan_la-audio_mp1.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='libdlna/audio_mp1.c' object='libmediascan_la-audio_mp1.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmediascan_la_CFLAGS) $(CFLAGS) -c -o libmediascan_la-audio_mp1.lo `test -f 'libdlna/audio_mp1.c' || echo '$(srcdir)/'`libdlna/audio_mp1.c
+
+libmediascan_la-audio_mp2.lo: libdlna/audio_mp2.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmediascan_la_CFLAGS) $(CFLAGS) -MT libmediascan_la-audio_mp2.lo -MD -MP -MF $(DEPDIR)/libmediascan_la-audio_mp2.Tpo -c -o libmediascan_la-audio_mp2.lo `test -f 'libdlna/audio_mp2.c' || echo '$(srcdir)/'`libdlna/audio_mp2.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libmediascan_la-audio_mp2.Tpo $(DEPDIR)/libmediascan_la-audio_mp2.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='libdlna/audio_mp2.c' object='libmediascan_la-audio_mp2.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmediascan_la_CFLAGS) $(CFLAGS) -c -o libmediascan_la-audio_mp2.lo `test -f 'libdlna/audio_mp2.c' || echo '$(srcdir)/'`libdlna/audio_mp2.c
+
+libmediascan_la-audio_mp3.lo: libdlna/audio_mp3.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmediascan_la_CFLAGS) $(CFLAGS) -MT libmediascan_la-audio_mp3.lo -MD -MP -MF $(DEPDIR)/libmediascan_la-audio_mp3.Tpo -c -o libmediascan_la-audio_mp3.lo `test -f 'libdlna/audio_mp3.c' || echo '$(srcdir)/'`libdlna/audio_mp3.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libmediascan_la-audio_mp3.Tpo $(DEPDIR)/libmediascan_la-audio_mp3.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='libdlna/audio_mp3.c' object='libmediascan_la-audio_mp3.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmediascan_la_CFLAGS) $(CFLAGS) -c -o libmediascan_la-audio_mp3.lo `test -f 'libdlna/audio_mp3.c' || echo '$(srcdir)/'`libdlna/audio_mp3.c
+
+libmediascan_la-audio_wma.lo: libdlna/audio_wma.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmediascan_la_CFLAGS) $(CFLAGS) -MT libmediascan_la-audio_wma.lo -MD -MP -MF $(DEPDIR)/libmediascan_la-audio_wma.Tpo -c -o libmediascan_la-audio_wma.lo `test -f 'libdlna/audio_wma.c' || echo '$(srcdir)/'`libdlna/audio_wma.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libmediascan_la-audio_wma.Tpo $(DEPDIR)/libmediascan_la-audio_wma.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='libdlna/audio_wma.c' object='libmediascan_la-audio_wma.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmediascan_la_CFLAGS) $(CFLAGS) -c -o libmediascan_la-audio_wma.lo `test -f 'libdlna/audio_wma.c' || echo '$(srcdir)/'`libdlna/audio_wma.c
 
 libmediascan_la-av_mpeg1.lo: libdlna/av_mpeg1.c
 @am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmediascan_la_CFLAGS) $(CFLAGS) -MT libmediascan_la-av_mpeg1.lo -MD -MP -MF $(DEPDIR)/libmediascan_la-av_mpeg1.Tpo -c -o libmediascan_la-av_mpeg1.lo `test -f 'libdlna/av_mpeg1.c' || echo '$(srcdir)/'`libdlna/av_mpeg1.c
