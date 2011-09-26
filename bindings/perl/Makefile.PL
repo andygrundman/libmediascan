@@ -140,10 +140,10 @@ for my $incdir ( $ffmpeg_inc, @check ) {
                 $MYEXTLIB .= $ffmpeg_inc . '/../lib/libavutil$(LIB_EXT) ';
             }
             
-            push @LIBS, '-lm -lbz2 -lz';
+            push @LIBS, '-lm -lz';
         }
         else {
-            push @LIBS, '-lavformat -lavcodec -lm -lbz2 -lz -lswscale -lavutil';
+            push @LIBS, '-lavformat -lavcodec -lm -lz -lswscale -lavutil';
         }
         
         print "Using ffmpeg from $ffmpeg_inc\n";

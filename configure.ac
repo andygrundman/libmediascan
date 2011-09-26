@@ -21,7 +21,6 @@ AM_PROG_CC_C_O
 # Checks for libraries.
 AC_SEARCH_LIBS([pthread_create], [pthread])
 AC_SEARCH_LIBS([zlibVersion], [z])
-AC_SEARCH_LIBS([BZ2_bzDecompressInit], [bz2])
 AC_SEARCH_LIBS([jpeg_read_header], [jpeg], [], [], [-ljpeg])
 AC_SEARCH_LIBS([png_create_read_struct], [png], [], [], [-lpng])
 AC_SEARCH_LIBS([DGifOpen], [gif], [], [], [-lgif])
