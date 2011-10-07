@@ -36,11 +36,14 @@ CODE:
 OUTPUT:
   RETVAL
 
-int
+SV *
 size(MediaScanResult *r)
 CODE:
 {
-  RETVAL = (int)r->size;
+  char string[25];
+  STRLEN length;
+  length = sprintf(string, "%llu", r->size);
+  RETVAL = newSVpvn(string, length);
 }
 OUTPUT:
   RETVAL

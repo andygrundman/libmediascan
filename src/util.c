@@ -43,7 +43,7 @@ uint32_t HashFile(const char *file, int *mtime, uint64_t *size) {
   char fileData[MAX_PATH_STR_LEN];
 
 #ifndef WIN32
-  struct stat buf;
+  struct stat64 buf;
 #else
   BOOL fOk;
   WIN32_FILE_ATTRIBUTE_DATA fileInfo;
@@ -56,9 +56,9 @@ uint32_t HashFile(const char *file, int *mtime, uint64_t *size) {
   fOk = GetFileAttributesEx(file, GetFileExInfoStandard, (void *)&fileInfo);
 
   *mtime = fileInfo.ftLastWriteTime.dwLowDateTime;
-  *size = (uint64_t)fileInfo.nFileSizeLow;
+  *size = (uint64_t)fileInfo.nFileSizeLow; // XXX large files
 #else
-  if (stat(file, &buf) != -1) {
+  if (stat64(file, &buf) != -1) {
     *mtime = (int)buf.st_mtime;
     *size = (uint64_t)buf.st_size;
   }
