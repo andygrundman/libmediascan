@@ -18,6 +18,9 @@ AC_PROG_CC([clang gcc])
 AC_PROG_OBJC([gcc objcc objc])
 AM_PROG_CC_C_O
 
+# 64-bit file size support
+AC_SYS_LARGEFILE
+
 # Checks for libraries.
 AC_SEARCH_LIBS([pthread_create], [pthread])
 AC_SEARCH_LIBS([zlibVersion], [z])
