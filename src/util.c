@@ -15,6 +15,7 @@
 // If we are on MSVC, disable some stupid MSVC warnings
 #ifdef _MSC_VER
 #pragma warning( disable: 4996 )
+#define snprintf _snprintf
 #endif
 
 #include <ctype.h>
@@ -56,7 +57,7 @@ uint32_t HashFile(const char *file, int *mtime, uint64_t *size) {
   fOk = GetFileAttributesEx(file, GetFileExInfoStandard, (void *)&fileInfo);
 
   *mtime = fileInfo.ftLastWriteTime.dwLowDateTime;
-  *size = (uint64_t)fileInfo.nFileSizeLow; // XXX large files
+  *size = ((uint64_t)fileInfo.nFileSizeHigh << 32) | fileInfo.nFileSizeLow;
 #else
   if (stat64(file, &buf) != -1) {
     *mtime = (int)buf.st_mtime;
