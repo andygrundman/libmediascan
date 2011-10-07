@@ -11,8 +11,8 @@
 // This is needed to enable stat64(), which we use because some systems don't properly support 64-bit stat()
 #define _LARGEFILE64_SOURCE
 
-#ifdef __APPLE__
-// OSX handles 64-bit via stat()
+#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__APPLE__)
+// OSX/BSD handles 64-bit via stat()
 # define STAT_TYPE struct stat
 # define STAT_FUNC stat
 #else
