@@ -11,6 +11,16 @@
 // This is needed to enable stat64(), which we use because some systems don't properly support 64-bit stat()
 #define _LARGEFILE64_SOURCE
 
+#ifdef __APPLE__
+// OSX handles 64-bit via stat()
+# define STAT_TYPE struct stat
+# define STAT_FUNC stat
+#else
+// Linux and maybe others need stat64()
+# define STAT_TYPE struct stat64
+# define STAT_FUNC stat64
+#endif
+
 #include <pthread.h>
 #include <sys/stat.h>
 #include <errno.h>
@@ -48,7 +58,7 @@ uint32_t HashFile(const char *file, int *mtime, uint64_t *size) {
   char fileData[MAX_PATH_STR_LEN];
 
 #ifndef WIN32
-  struct stat64 buf;
+  STAT_TYPE buf;
 #else
   BOOL fOk;
   WIN32_FILE_ATTRIBUTE_DATA fileInfo;
@@ -63,7 +73,7 @@ uint32_t HashFile(const char *file, int *mtime, uint64_t *size) {
   *mtime = fileInfo.ftLastWriteTime.dwLowDateTime;
   *size = ((uint64_t)fileInfo.nFileSizeHigh << 32) | fileInfo.nFileSizeLow;
 #else
-  if (stat64(file, &buf) != -1) {
+  if (STAT_FUNC(file, &buf) != -1) {
     *mtime = (int)buf.st_mtime;
     *size = (uint64_t)buf.st_size;
   }
