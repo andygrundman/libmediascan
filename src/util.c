@@ -7,6 +7,12 @@
 #ifdef WIN32
 #include "win32/include/win32config.h"
 #else
+
+// These are needed for stat64() to work properly on at least Linux
+#define __USE_LARGEFILE64
+#define _LARGEFILE_SOURCE
+#define _LARGEFILE64_SOURCE
+
 #include <pthread.h>
 #include <sys/stat.h>
 #include <errno.h>
