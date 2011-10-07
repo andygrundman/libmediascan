@@ -8,9 +8,7 @@
 #include "win32/include/win32config.h"
 #else
 
-// These are needed for stat64() to work properly on at least Linux
-#define __USE_LARGEFILE64
-#define _LARGEFILE_SOURCE
+// This is needed to enable stat64(), which we use because some systems don't properly support 64-bit stat()
 #define _LARGEFILE64_SOURCE
 
 #include <pthread.h>
