@@ -1096,6 +1096,11 @@ void ms_scan(MediaScan *s) {
     LOG_ERROR("Result callback not set, aborting scan\n");
     goto out;
   }
+  
+  if (s->npaths == 0) {
+    LOG_ERROR("No paths set, aborting scan\n");
+    goto out;
+  }
 
   if (s->async) {
     thread_data_type *thread_data;
