@@ -101,8 +101,12 @@ static const struct {
 	{ "mov",											"video/x-quicktime" },
 
 // http://tools.ietf.org/html/rfc2046
-  { "mpg,mpeg,mp1,mp2,mlv,mpv", "video/mpeg" },
+  { "mpg,mpeg,mpe,mp1,mp2,m1v,m2v,mpv,vob", "video/mpeg" },
   { "mp3,mla,m2a,mpa",          "audio/mpeg" },
+  
+// http://www.rfc-editor.org/rfc/rfc3555.txt
+  { "m2t,m2ts,mp2t,mts,ts",     "video/mp2t" },
+  { "m2p,mp2p,ps,pes",          "video/mp2p" },
 
 // http://support.microsoft.com/kb/288102
   { "asf,asx",									"video/x-ms-asf" },
@@ -123,7 +127,7 @@ static const struct {
   { "ra,ram",										"audio/vnd.rn-realaudio" },
 
 // http://en.wikipedia.org/wiki/WebM
-  { "webm",											"audio/webm" },
+  { "webm",											"video/webm" },
 
 // http://www.iana.org/assignments/media-types/video/quicktime
   { "qt",												"video/quicktime" },
@@ -131,13 +135,25 @@ static const struct {
 // http://tools.ietf.org/html/rfc4337
   { "mp4,m4p,m4b,m4r,m4v",			"video/mp4" },
   { "m4a",											"audio/mp4" },
+  
+// http://tools.ietf.org/html/rfc3839
+  { "3gp,3gpp",                 "video/3gpp" },
+  
+// http://tools.ietf.org/html/rfc4393
+  { "3g2,3gp2",                 "video/3gpp2" },
 
 // http://tools.ietf.org/html/rfc2361
-// Note: This one is kind of complicated as there are many different kinds of AVI formats. 
-// Instead of just specifying video/vnd.avi and trying to figure out the codec, we are just
-// going to specify video/avi, which isn't really what is specified by IETF but is much
-// more straightforward. Other options would be: video/msvideo, video/x-msvideo
-  { "avi",											"video/avi"    },
+// video/divx is needed for PS3 to play AVI files at least
+// Other options would be: video/avi, video/msvideo, video/x-msvideo
+  { "avi,divx,xvid",						"video/divx" },
+  
+  { "flv",                      "video/x-flv" },
+  
+// http://www.filesuffix.com/extension/hdmov.html
+  { "hdmov",                    "video/quicktime" },
+  
+// http://www.webmaster-toolkit.com/mime-types.shtml
+  { "mjpg",                     "video/x-motion-jpeg" },
 
 	// http://tools.ietf.org/html/rfc2045
   { "gif",											"image/gif"    },
