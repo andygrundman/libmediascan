@@ -1198,6 +1198,8 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type) {
   else {
     strcpy(tmp_full_path, full_path);
   }
+#else
+  strcpy(tmp_full_path, full_path); //Some reasonable default for other OS (e.g. FreeBSD)
 #endif
 
   // Check if the file has been recently scanned
