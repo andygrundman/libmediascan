@@ -1169,7 +1169,7 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type) {
 
 #if defined(__APPLE__)
   if (isAlias(full_path)) {
-    LOG_INFO("File is a mac alias\n");
+    LOG_INFO("File  %s is a mac alias\n", full_path);
     // Check if this file is a shortcut and if so resolve it
     if (!CheckMacAlias(full_path, tmp_full_path)) {
       LOG_ERROR("Failure to follow symlink or alias, skipping file\n");
@@ -1179,9 +1179,9 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type) {
   else {
     strcpy(tmp_full_path, full_path);
   }
-#elif defined(__linux__)
+#elif defined(__linux__) || defined(__sun__)
   if (isAlias(full_path)) {
-    LOG_INFO("File is a linux symlink\n");
+    LOG_INFO("File %s is a unix symlink\n", full_path);
     // Check if this file is a shortcut and if so resolve it
     FollowLink(full_path, tmp_full_path);
   }
@@ -1212,8 +1212,8 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type) {
   // Setup DBT values
   memset(&key, 0, sizeof(DBT));
   memset(&data, 0, sizeof(DBT));
-  key.data = (char *)tmp_full_path;
-  key.size = strlen(tmp_full_path) + 1;
+  key.data = (char *)full_path;
+  key.size = strlen(full_path) + 1;
   data.data = &hash;
   data.size = sizeof(uint32_t);
 
@@ -1251,7 +1251,7 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type) {
     return;
 
   r->type = type;
-  r->path = strdup(tmp_full_path);
+  r->path = strdup(full_path);
 
   if (result_scan(r)) {
     // These were determined by HashFile

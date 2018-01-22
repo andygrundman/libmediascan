@@ -29,7 +29,7 @@
 ///-------------------------------------------------------------------------------------------------
 
 void recurse_dir(MediaScan *s, const char *path, int recurse_count) {
-  char *dir, *p;
+  char *dir, *realdir, *p;
   char tmp_full_path[MAX_PATH_STR_LEN];
   DIR *dirp;
   struct dirent *dp;
@@ -85,11 +85,14 @@ void recurse_dir(MediaScan *s, const char *path, int recurse_count) {
       goto out;
     }
   }
-#elif defined(__linux__)
+#elif defined(__linux__) || defined(__sun__)
   if (isAlias(dir)) {
     FollowLink(dir, redirect_dir);
     LOG_INFO("Resolving symlink %s to %s\n", dir, redirect_dir);
-    strcpy(dir, redirect_dir);
+    realdir = redirect_dir;
+  }
+  else {
+    realdir = dir;
   }
 #endif
 
@@ -110,16 +113,20 @@ void recurse_dir(MediaScan *s, const char *path, int recurse_count) {
       if (unlikely(s->_want_abort))
         break;
 
+      // Construct full path
+      //*tmp_full_path = 0;
+      strcpy(tmp_full_path, dir);
+      strcat(tmp_full_path, "/");
+      strcat(tmp_full_path, name);
+
       // XXX some platforms may be missing d_type/DT_DIR
+#if defined(__APPLE__) || defined(__linux__)
       if (dp->d_type == DT_DIR) {
+#elif defined(__sun__)
+      if (PathIsDirectory(tmp_full_path)) {
+#endif
         // Add to list of subdirectories we need to recurse into
         struct dirq_entry *subdir_entry = malloc(sizeof(struct dirq_entry));
-
-        // Construct full path
-        //*tmp_full_path = 0;
-        strcpy(tmp_full_path, dir);
-        strcat(tmp_full_path, "/");
-        strcat(tmp_full_path, name);
 
         if (_should_scan_dir(s, tmp_full_path)) {
           subdir_entry->dir = strdup(tmp_full_path);
@@ -161,20 +168,20 @@ void recurse_dir(MediaScan *s, const char *path, int recurse_count) {
             }
 
           }
-#elif defined(__linux__)
+#elif defined(__linux__) || defined(__sun__)
           if (isAlias(name)) {
             char full_name[MAX_PATH_STR_LEN];
 
-            printf("Linux Alias detected\n");
+            printf("Unix alias detected for %s\n", name);
 
             strcpy(full_name, dir);
-            strcat(full_name, "\\");
+            strcat(full_name, "/");
             strcat(full_name, name);
             FollowLink(full_name, redirect_dir);
             if (PathIsDirectory(redirect_dir)) {
               struct dirq_entry *subdir_entry = malloc(sizeof(struct dirq_entry));
 
-              subdir_entry->dir = strdup(redirect_dir);
+              subdir_entry->dir = strdup(full_name);
               SIMPLEQ_INSERT_TAIL(subdirq, subdir_entry, entries);
 
               LOG_INFO(" subdir: %s\n", tmp_full_path);

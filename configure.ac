@@ -50,11 +50,15 @@ CFLAGS="-I$bdbdir/include $CFLAGS"
 
 case "$target_os" in
 	*darwin*)
-AM_CONDITIONAL(LINUX, false)
+AM_CONDITIONAL(DARWIN, true)
 LDFLAGS="-framework CoreFoundation -framework CoreServices -framework Carbon -L$bdbdir/lib $LDFLAGS"
 ;;
-	*)
+        *linux*)
 AM_CONDITIONAL(LINUX, true)
+LDFLAGS="-L$bdbdir/lib $LDFLAGS"
+;;
+	*solaris*)
+AM_CONDITIONAL(SOLARIS, true)
 LDFLAGS="-L$bdbdir/lib $LDFLAGS"
 ;;
 esac	
