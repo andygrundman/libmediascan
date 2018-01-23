@@ -53,12 +53,12 @@ case "$target_os" in
 AM_CONDITIONAL(DARWIN, true)
 LDFLAGS="-framework CoreFoundation -framework CoreServices -framework Carbon -L$bdbdir/lib $LDFLAGS"
 ;;
-        *linux*)
-AM_CONDITIONAL(LINUX, true)
+	*solaris*)
+AM_CONDITIONAL(SUN, true)
 LDFLAGS="-L$bdbdir/lib $LDFLAGS"
 ;;
-	*solaris*)
-AM_CONDITIONAL(SOLARIS, true)
+        *linuxbsd*)
+AM_CONDITIONAL(LINUXBSD, true)
 LDFLAGS="-L$bdbdir/lib $LDFLAGS"
 ;;
 esac	

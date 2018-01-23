@@ -1,6 +1,6 @@
 lib_LTLIBRARIES = libmediascan.la
 
-if LINUX
+if LINUXBSD
 
 libmediascan_la_SOURCES = audio.c buffer.c mediascan.c mediascan_unix.c mediascan_linux.c progress.c result.c error.c video.c util.c \
   image.c image_jpeg.c image_png.c image_bmp.c image_gif.c thumb.c thread.c database.c \
@@ -11,9 +11,9 @@ libmediascan_la_SOURCES = audio.c buffer.c mediascan.c mediascan_unix.c mediasca
   libdlna/av_mpeg4_part2.c libdlna/av_wmv9.c libdlna/containers.c libdlna/profiles.c \
   jenkins/lookup3.c
 
-else if SOLARIS
+else if SUN
 
-libmediascan_la_SOURCES = audio.c buffer.c mediascan.c mediascan_unix.c mediascan_sunos.c progress.c result.c error.c video.c util.c \
+libmediascan_la_SOURCES = audio.c buffer.c mediascan.c mediascan_unix.c mediascan_sun.c progress.c result.c error.c video.c util.c \
   image.c image_jpeg.c image_png.c image_bmp.c image_gif.c thumb.c thread.c database.c \
   tag.c tag_item.c \
   libdlna/audio_aac.c libdlna/audio_ac3.c libdlna/audio_amr.c libdlna/audio_atrac3.c \
