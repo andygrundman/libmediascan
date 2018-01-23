@@ -5,7 +5,7 @@ use Config;
 if ( $Config{myarchname} =~ /i386/ ) {    
     # Read OS version
     my $ver = `sw_vers -productVersion`;
-    my ($osx_ver) = $ver =~ /(10\.[567])/;
+    my ($osx_ver) = $ver =~ /(10\.(?:[5679]|1[0]))/;
     if ($osx_ver eq '10.5' ) {
         $arch = "-arch i386 -arch ppc -isysroot /Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.4";
     }
@@ -21,6 +21,12 @@ if ( $Config{myarchname} =~ /i386/ ) {
     }
     elsif ( $osx_ver eq '10.7' ) {
         $arch = "-arch x86_64 -isysroot /Developer/SDKs/MacOSX10.6.sdk -mmacosx-version-min=10.6";
+    }
+    elsif ( $osx_ver eq '10.9' ) {
+        $arch = "-arch x86_64 -mmacosx-version-min=10.9";
+    }
+    elsif ( $osx_ver eq '10.10' ) {
+        $arch = "-arch x86_64 -mmacosx-version-min=10.10";
     }
     else {
         die "Unsupported OSX version $osx_ver\n";
