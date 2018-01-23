@@ -1,13 +1,13 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
+AC_CANONICAL_SYSTEM
 AC_PREREQ([2.68])
-AC_INIT([libmediascan],[0.1],[andy@hybridized.org])
-AM_INIT_AUTOMAKE([-Wall -Werror])
+AC_INIT([libmediascan],[0.2],[andy@hybridized.org])
+AM_INIT_AUTOMAKE([-Wall -Werror subdir-objects])
+AM_PROG_AR([ar gar])
 LT_PREREQ([2.4])
 LT_INIT
-
-AC_CANONICAL_SYSTEM
 
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([src/mediascan.c])

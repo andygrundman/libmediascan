@@ -12,10 +12,15 @@ aclocal.m4
 autom4te.cache
 compile
 config.h
+config.h.in~
 config.log
 config.status
+configure.scan
 stamp-*
-m4/*
+m4
+ar-lib
+libemdiascan-*
+test-driver
 
 # Mac files
 .DS_Store

@@ -1068,7 +1068,7 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type) {
   else {
     strcpy(tmp_full_path, full_path);
   }
-#elif defined(__unix__)
+#elif defined(__unix__) || defined(__unix)
   if (isAlias(full_path)) {
     LOG_INFO("File %s is a unix symlink\n", full_path);
     // Check if this file is a shortcut and if so resolve it

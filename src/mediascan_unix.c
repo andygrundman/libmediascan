@@ -85,7 +85,7 @@ void recurse_dir(MediaScan *s, const char *path, int recurse_count) {
       goto out;
     }
   }
-#elif defined(__unix__)
+#elif defined(__unix__) || defined(__unix)
   if (isAlias(dir)) {
     FollowLink(dir, redirect_dir);
     LOG_INFO("Resolving symlink %s to %s\n", dir, redirect_dir);
@@ -168,7 +168,7 @@ void recurse_dir(MediaScan *s, const char *path, int recurse_count) {
             }
 
           }
-#elif defined(__unix__)
+#elif defined(__unix__) || defined(__unix)
           if (isAlias(name)) {
             char full_name[MAX_PATH_STR_LEN];
 
