@@ -1,5 +1,6 @@
 use strict;
 
+use Config;
 use ExtUtils::MakeMaker qw(WriteMakefile);
 use File::Spec::Functions;
 use Getopt::Long;
@@ -8,7 +9,7 @@ my (@INC, @LIBPATH, @LIBS);
 my ($FFMPEG, $LMS, $EXIF, $JPEG, $PNG, $GIF, $BDB, $MYEXTLIB);
 
 my ($help, $ffmpeg_inc, $ffmpeg_lib, $lms_inc, $lms_lib, $exif_inc, $exif_lib);
-my ($jpeg_inc, $jpeg_lib, $png_inc, $png_lib, $gif_inc, $gif_lib, $gif_lib_name);
+my ($jpeg_inc, $jpeg_lib, $png_inc, $png_lib, $gif_inc, $gif_lib);
 my ($bdb_inc, $bdb_lib);
 my $static;
 
@@ -83,9 +84,9 @@ for my $incdir ( $lms_inc, @check ) {
         $LMS = 1;
         $lms_inc = $incdir;
 
-        push @INC, '-I' . $lms_inc;
+        unshift @INC, '-I' . $lms_inc;
         if ($lms_lib) {
-            push @LIBPATH, '-L' . $lms_lib;
+            unshift @LIBPATH, '-L' . $lms_lib;
         }
 
         if ($static) {
@@ -97,7 +98,7 @@ for my $incdir ( $lms_inc, @check ) {
             }
         }
         else {
-            push @LIBS, '-lmediascan';
+            unshift @LIBS, '-lmediascan';
         }
 
         print "Using libmediascan from $lms_inc\n";
@@ -121,9 +122,9 @@ for my $incdir ( $ffmpeg_inc, @check ) {
         $FFMPEG = 1;
         $ffmpeg_inc = $incdir;
         
-        push @INC, '-I' . $ffmpeg_inc;
+        unshift @INC, '-I' . $ffmpeg_inc;
         if ($ffmpeg_lib) {
-            push @LIBPATH, '-L' . $ffmpeg_lib;
+            unshift @LIBPATH, '-L' . $ffmpeg_lib;
         }
         
         if ($static) {
@@ -161,9 +162,9 @@ for my $incdir ( $exif_inc, @check ) {
         $EXIF = 1;
         $exif_inc = $incdir;
         
-        push @INC, '-I' . $exif_inc;
+        unshift @INC, '-I' . $exif_inc;
         if ($exif_lib) {
-            push @LIBPATH, '-L' . $exif_lib;
+            unshift @LIBPATH, '-L' . $exif_lib;
         }
         
         if ($static) {
@@ -195,9 +196,9 @@ for my $incdir ( $jpeg_inc, @check ) {
         $JPEG = 1;
         $jpeg_inc = $incdir;
         
-        push @INC, '-I' . $jpeg_inc;
+        unshift @INC, '-I' . $jpeg_inc;
         if ($jpeg_lib) {
-            push @LIBPATH, '-L' . $jpeg_lib;
+            unshift @LIBPATH, '-L' . $jpeg_lib;
         }
         
         if ($static) {
@@ -227,9 +228,9 @@ for my $incdir ( $png_inc, @check ) {
         $PNG = 1;
         $png_inc = $incdir;
         
-        push @INC, '-I' . $png_inc;
+        unshift @INC, '-I' . $png_inc;
         if ($png_lib) {
-            push @LIBPATH, '-L' . $png_lib;
+            unshift @LIBPATH, '-L' . $png_lib;
         }
         
         if ($static) {
@@ -253,42 +254,29 @@ if ( !$PNG ) {
     die "libpng not found, please install it and try again. Checked for png.h in: " . join(", ", $png_inc, @check) . "\n";
 }
 
-# Look for libgif
+# Look for giflib
 for my $incdir ( $gif_inc, @check ) {
     if ( $incdir && -e catfile($incdir, 'gif_lib.h') ) {
         $GIF = 1;
         $gif_inc = $incdir;
         
-        push @INC, '-I' . $gif_inc;
+        unshift @INC, '-I' . $gif_inc;
         if ($gif_lib) {
-            push @LIBPATH, '-L' . $gif_lib;
-        }
-        
-        # Look for libgif or libungif as a fallback
-        $gif_lib_name = 'gif';
-        for my $libdir ( $gif_lib, map { (my $p = $_) =~ s,/include,/lib,; $p } @check ) {
-            if ( glob("$libdir/libgif*") ) {
-                $gif_lib_name = 'gif';
-                last;
-            }
-            elsif ( glob("$libdir/libungif*") ) {
-                $gif_lib_name = 'ungif';
-                last;
-            }
+            unshift @LIBPATH, '-L' . $gif_lib;
         }
         
         if ($static) {
             if ($gif_lib) {
-                $MYEXTLIB .= $gif_lib . '/' . "lib${gif_lib_name}\$(LIB_EXT) ";
+                $MYEXTLIB .= $gif_lib . '/' . "libgif\$(LIB_EXT) ";
             }
             else {
-                $MYEXTLIB .= $gif_inc . "/../lib/lib${gif_lib_name}\$(LIB_EXT) ";
+                $MYEXTLIB .= $gif_inc . "/../lib/libgif\$(LIB_EXT) ";
             }
         }
         else {
-            push @LIBS, "-l${gif_lib_name}";
+            push @LIBS, "-lgif";
         }
-        
+
         print "Using libgif from $gif_inc\n";
         last;
     }
@@ -299,14 +287,14 @@ if ( !$GIF ) {
 }
 
 # Look for bdb
-for my $incdir ( $bdb_inc, '/usr/local/BerkeleyDB.5.1/include', @check ) {
+for my $incdir ( $bdb_inc, @check ) {
     if ( $incdir && -e catfile($incdir, 'db.h') ) {
         $BDB = 1;
         $bdb_inc = $incdir;
 
-        push @INC, '-I' . $bdb_inc;
+        unshift @INC, '-I' . $bdb_inc;
         if ($bdb_lib) {
-            push @LIBPATH, '-L' . $bdb_lib;
+            unshift @LIBPATH, '-L' . $bdb_lib;
         }
 
         if ($static) {
@@ -345,13 +333,25 @@ my %opts = (
     PREREQ_PM         => {
         'Test::Warn' => 0,
     },
-    ABSTRACT_FROM     => 'lib/Media/Scan.pm',
-    AUTHOR            => 'Andy Grundman <andy@slimdevices.com>',
+    ABSTRACT          => 'Library for scanning audio/video/image file metadata',
+    AUTHOR            => 'Andy Grundman <andy@hybridized.org>',
     INC               => join(' ', @INC),
     LIBS              => [ join(' ', @LIBPATH, @LIBS) ],
     DEFINE            => $DEFINES,
     MYEXTLIB          => $MYEXTLIB,
     depend            => { 'Scan.c' => "$xs_files" },
+    META_MERGE => {
+        'meta-spec' => { version => 2 },
+        resources => {
+            repository => {
+                type => 'git',
+                url  => 'https://github.com/andygrundman/libmediascan.git',
+                web  => 'https://github.com/andygrundman/libmediascan',
+            },
+        },
+    },
+    MIN_PERL_VERSION => 5.008,
+    LICENSE => 'gpl_2',
 );
 
 if ( $^O =~ /Win32/i ) {

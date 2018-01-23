@@ -64,7 +64,7 @@ MediaScanImage *video_create_image_from_frame(MediaScanVideo *v, MediaScanResult
   int no_keyframe_found = 0;
   int skipped_frames = 0;
 
-  if ((avcodec_open(codecs->vc, codec)) < 0) {
+  if ((avcodec_open2(codecs->vc, codec, NULL)) < 0) {
     LOG_ERROR("Couldn't open video codec %s for thumbnail creation\n", codec->name);
     goto err;
   }
@@ -165,7 +165,7 @@ MediaScanImage *video_create_image_from_frame(MediaScanVideo *v, MediaScanResult
     // use swscale to convert from source format to RGBA in our buffer with no resizing
     // XXX what scaler is fastest here when not actually resizing?
     swsc = sws_getContext(i->width, i->height, codecs->vc->pix_fmt,
-                          i->width, i->height, PIX_FMT_RGB24, SWS_FAST_BILINEAR, NULL, NULL, NULL);
+                          i->width, i->height, AV_PIX_FMT_RGB24, SWS_FAST_BILINEAR, NULL, NULL, NULL);
     if (!swsc) {
       LOG_ERROR("Unable to get swscale context\n");
       goto err;
@@ -179,7 +179,7 @@ MediaScanImage *video_create_image_from_frame(MediaScanVideo *v, MediaScanResult
 
     // XXX There is probably a way to get sws_scale to write directly to i->_pixbuf in our RGBA format
 
-    rgb_bufsize = avpicture_get_size(PIX_FMT_RGB24, i->width, i->height);
+    rgb_bufsize = avpicture_get_size(AV_PIX_FMT_RGB24, i->width, i->height);
     rgb_buffer = av_malloc(rgb_bufsize);
     if (!rgb_buffer) {
       LOG_ERROR("Couldn't allocate an RGB video buffer\n");
@@ -188,7 +188,7 @@ MediaScanImage *video_create_image_from_frame(MediaScanVideo *v, MediaScanResult
     }
     LOG_MEM("new rgb_buffer of size %d @ %p\n", rgb_bufsize, rgb_buffer);
 
-    avpicture_fill((AVPicture *)frame_rgb, rgb_buffer, PIX_FMT_RGB24, i->width, i->height);
+    avpicture_fill((AVPicture *)frame_rgb, rgb_buffer, AV_PIX_FMT_RGB24, i->width, i->height);
 
     // Convert image to RGB24
     sws_scale(swsc, frame->data, frame->linesize, 0, i->height, frame_rgb->data, frame_rgb->linesize);

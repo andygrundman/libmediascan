@@ -465,7 +465,7 @@ probe_mpeg_ts (AVFormatContext *ctx,
   int i;
   
   /* check for MPEG-2 MP@LL profile */
-  if (codecs->ac->codec_id == CODEC_ID_AAC)
+  if (codecs->ac->codec_id == AV_CODEC_ID_AAC)
   {
     /* 352x288 only */
     if (codecs->vc->width != 352 && codecs->vc->height != 288)
@@ -554,7 +554,7 @@ probe_mpeg_ts (AVFormatContext *ctx,
   if (codecs->vc->bit_rate + codecs->ac->bit_rate > 19392700)
     return NULL; 
 
-  if (codecs->ac->codec_id != CODEC_ID_AC3)
+  if (codecs->ac->codec_id != AV_CODEC_ID_AC3)
     return NULL;
 
   /* 48 KHz only */
@@ -634,7 +634,7 @@ probe_mpeg2 (AVFormatContext *ctx,
     return NULL;
   
   /* check for MPEG-2 video codec */
-  if (codecs->vc->codec_id != CODEC_ID_MPEG2VIDEO)
+  if (codecs->vc->codec_id != AV_CODEC_ID_MPEG2VIDEO)
     return NULL;
 
   switch (st)

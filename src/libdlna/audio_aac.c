@@ -315,7 +315,7 @@ audio_profile_guess_aac_priv (AVCodecContext *ac, aac_object_type_t type)
     return AUDIO_PROFILE_INVALID;
 
   /* check for AAC variants codec */
-  if (ac->codec_id != CODEC_ID_AAC)
+  if (ac->codec_id != AV_CODEC_ID_AAC)
     return AUDIO_PROFILE_INVALID;
   
   switch (type)

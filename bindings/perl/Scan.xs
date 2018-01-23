@@ -259,6 +259,8 @@ _on_finish(MediaScan *s, void *userdata)
 
 MODULE = Media::Scan		PACKAGE = Media::Scan		
 
+PROTOTYPES: ENABLE
+
 void
 xs_new(SV *self)
 CODE:

@@ -47,7 +47,7 @@ audio_is_valid_mp3_common (AVCodecContext *ac)
     return 0;
 
   /* check for MP3 codec */
-  if (ac->codec_id != CODEC_ID_MP3)
+  if (ac->codec_id != AV_CODEC_ID_MP3)
     return 0;
   
   /* only mono and stereo are supported */

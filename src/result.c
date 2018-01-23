@@ -407,8 +407,8 @@ static int scan_video(MediaScanResult *r) {
       a->codec = codecs->ac->codec_name;
     }
     // Special case for handling MP1 audio streams which FFMPEG can't identify a codec for
-    else if (codecs->ac->codec_id == CODEC_ID_MP1) {
-      a->codec = CODEC_MP1;
+    else if (codecs->ac->codec_id == AV_CODEC_ID_MP1) {
+      a->codec = AV_CODEC_ID_MP1;
     }
     else {
       a->codec = "Unknown";

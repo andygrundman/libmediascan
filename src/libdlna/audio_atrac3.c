@@ -39,7 +39,7 @@ audio_profile_guess_atrac (AVCodecContext *ac)
     return AUDIO_PROFILE_INVALID;
 
 #if LIBAVCODEC_VERSION_INT >= ((51<<16)+(40<<8)+4)
-  if (ac->codec_id == CODEC_ID_ATRAC3)
+  if (ac->codec_id == AV_CODEC_ID_ATRAC3)
     return AUDIO_PROFILE_ATRAC;
 #endif
 

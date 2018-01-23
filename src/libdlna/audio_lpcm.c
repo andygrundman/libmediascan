@@ -50,8 +50,8 @@ audio_profile_guess_lpcm (AVCodecContext *ac)
     return AUDIO_PROFILE_INVALID;
 
   /* check for 16-bit signed network-endian PCM codec  */
-  if (ac->codec_id != CODEC_ID_PCM_S16BE &&
-      ac->codec_id != CODEC_ID_PCM_S16LE)
+  if (ac->codec_id != AV_CODEC_ID_PCM_S16BE &&
+      ac->codec_id != AV_CODEC_ID_PCM_S16LE)
     return AUDIO_PROFILE_INVALID;
 
   /* supported channels: mono or stereo */

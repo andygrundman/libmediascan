@@ -55,7 +55,7 @@ audio_profile_guess_wma (AVCodecContext *ac)
     return ap;
 
   /* check for WMA codec */
-  if (ac->codec_id != CODEC_ID_WMAV1 && ac->codec_id != CODEC_ID_WMAV2)
+  if (ac->codec_id != AV_CODEC_ID_WMAV1 && ac->codec_id != AV_CODEC_ID_WMAV2)
     return ap;
 
   if (ac->sample_rate <= 48000)
