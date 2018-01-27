@@ -1,9 +1,10 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_CANONICAL_SYSTEM
 AC_PREREQ([2.68])
-AC_INIT([libmediascan],[0.2],[andy@hybridized.org])
+AC_INIT([libmediascan],[0.2])
+AC_CANONICAL_SYSTEM
+AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE([-Wall -Werror subdir-objects])
 AM_PROG_AR([ar gar])
 LT_PREREQ([2.4])
@@ -57,7 +58,11 @@ LDFLAGS="-framework CoreFoundation -framework CoreServices -framework Carbon -L$
 AM_CONDITIONAL(SUN, true)
 LDFLAGS="-L$bdbdir/lib $LDFLAGS"
 ;;
-        *linuxbsd*)
+        *linux*)
+AM_CONDITIONAL(LINUXBSD, true)
+LDFLAGS="-L$bdbdir/lib $LDFLAGS"
+;;
+        *bsd*)
 AM_CONDITIONAL(LINUXBSD, true)
 LDFLAGS="-L$bdbdir/lib $LDFLAGS"
 ;;
