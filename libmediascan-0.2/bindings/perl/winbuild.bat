@@ -1,1 +1,0 @@
-perl Makefile.PL --with-ffmpeg-includes=C:\MinGW\msys\1.0\local\include --with-ffmpeg-libs=C:\MinGW\msys\1.0\local\lib --with-exif-includes=C:\MinGW\msys\1.0\local\include --with-jpeg-includes=E:\workspace\scan\win32\jpeg-8a --with-png-includes=E:\workspace\scan\win32\libpng-1.5.2 --with-gif-includes=E:\workspace\scan\win32\giflib-4.1.6\lib
