@@ -14,8 +14,8 @@ my ($bdb_inc, $bdb_lib);
 my $static;
 
 my $DEFINES = '-O2';
-$DEFINES .= ' -Wall' unless $^O =~ /sun|solaris|Win32/i;
-$DEFINES .= ' -Wno-unused-value -Wno-format-security' unless $^O =~ /Win32|sun|solaris/i;
+$DEFINES .= ' -Wall' unless $^O =~ /Win32/i;
+$DEFINES .= ' -Wno-unused-value -Wno-format-security' unless $^O =~ /Win32/i;
 $DEFINES .= ' /D "PTW32_STATIC_LIB" /D "HAVE_CONFIG_H" /D "WIN32"' if $^O =~ /Win32/i;
 
 my $result = GetOptions(
