@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <libmediascan.h>
 #include <errno.h>
+#include <string.h>
 
 #define LINK_NONE 		0
 #define LINK_ALIAS 		1
@@ -37,7 +38,7 @@ int FollowLink(const char *incoming_path, char *out_path) {
     buf[len] = '\0';
 
     // Check if this is a relative path
-    if (buf[0] != '/')
+    if (buf[0] != '/') {
         char buf2[MAX_PATH_STR_LEN];
         strcpy(buf2, incoming_path);
         rval = strrchr(buf2, '/');
