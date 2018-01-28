@@ -31,12 +31,10 @@ int isAlias(const char *incoming_path) {
 int FollowLink(const char *incoming_path, char *out_path) {
 
   char buf[MAX_PATH_STR_LEN];
-//char buf2[MAX_PATH_STR_LEN];
   ssize_t len;
 
   if ((len = readlink(incoming_path, buf, MAX_PATH_STR_LEN - 1)) != -1) {
     buf[len] = '\0';
-//    strcpy(buf2, buf);
 
     // Check if this is a relative path
     if (buf[0] == '.')
@@ -46,7 +44,7 @@ int FollowLink(const char *incoming_path, char *out_path) {
   }
   else {
     strcpy(out_path, "");
-    printf("readlink %s failed: %d\n", incoming_path, errno);
+    LOG_ERROR("readlink %s failed: %d\n", incoming_path, errno);
   }
 
   return LINK_SYMLINK;
