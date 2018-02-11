@@ -192,7 +192,7 @@ static void image_jpeg_buf_src(MediaScanImage *i, MediaScanResult *r) {
   src->jsrc.bytes_in_buffer = buffer_len(src->buf);
   src->jsrc.next_input_byte = (JOCTET *)buffer_ptr(src->buf);
 
-  LOG_DEBUG("Init JPEG buffer src, %ld bytes in buffer\n", src->jsrc.bytes_in_buffer);
+  LOG_DEBUG("Init JPEG buffer src, %d bytes in buffer\n", src->jsrc.bytes_in_buffer);
 }
 
 // Destination manager to copy compressed data to a buffer
@@ -242,7 +242,7 @@ static void buf_dst_mgr_term(j_compress_ptr cinfo) {
   LOG_MEM("destroy JPEG buf @ %p\n", dst->buf);
   free(dst->buf);
 
-  LOG_MEM("buf_dst_mgr_term, copied final %ld bytes (total bytes %d)\n", sz, buffer_len(dst->dbuf));
+  LOG_MEM("buf_dst_mgr_term, copied final %d bytes (total bytes %d)\n", sz, buffer_len(dst->dbuf));
 }
 
 static void image_jpeg_buf_dest(j_compress_ptr cinfo, struct buf_dst_mgr *dst) {

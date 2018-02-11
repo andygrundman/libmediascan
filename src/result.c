@@ -323,7 +323,7 @@ static int scan_video(MediaScanResult *r) {
 
   r->_avf = (void *)avf;
 
-  if ((AVError = av_find_stream_info(avf)) < 0) {
+  if ((AVError = avformat_find_stream_info(avf, NULL)) < 0) {
     r->error = error_create(r->path, MS_ERROR_READ, "[libavformat] Unable to find stream info");
     r->error->averror = AVError;
     ret = 0;
@@ -632,7 +632,7 @@ void result_destroy(MediaScanResult *r) {
     tag_destroy(r->_tag);
 
   if (r->_avf) {
-    av_close_input_file(r->_avf);
+    avformat_close_input(r->_avf);
   }
 
   if (r->_fp)

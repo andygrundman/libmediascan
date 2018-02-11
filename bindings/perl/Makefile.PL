@@ -358,7 +358,7 @@ if ( $^O =~ /Win32/i ) {
     $opts{LDDLFLAGS} = '-dll -nologo -nodefaultlib -opt:ref,icf  -libpath:"C:\Perl\lib\CORE" -machine:x86 -manifest -ManifestFile:$@.manifest';
 }
 else {
-    $opts{LDDLFLAGS} = '-Wl,-shared';
+    $opts{LDDLFLAGS} = '-shared';
 }
 
 WriteMakefile(%opts);
