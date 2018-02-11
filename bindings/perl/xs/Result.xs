@@ -42,7 +42,7 @@ CODE:
 {
   char string[25];
   STRLEN length;
-  length = sprintf(string, "%llu", r->size);
+  length = sprintf(string, "%" PRIu64, r->size);
   RETVAL = newSVpvn(string, length);
 }
 OUTPUT:
