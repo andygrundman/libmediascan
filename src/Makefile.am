@@ -11,7 +11,9 @@ libmediascan_la_sources_linuxbsd = audio.c buffer.c mediascan.c mediascan_unix.c
   libdlna/av_mpeg4_part2.c libdlna/av_wmv9.c libdlna/containers.c libdlna/profiles.c \
   jenkins/lookup3.c
 
-else if SUN
+endif
+
+if SUN
 
 libmediascan_la_sources_sun = audio.c buffer.c mediascan.c mediascan_unix.c mediascan_sun.c progress.c result.c error.c video.c util.c \
   image.c image_jpeg.c image_png.c image_bmp.c image_gif.c thumb.c thread.c database.c \
@@ -22,7 +24,9 @@ libmediascan_la_sources_sun = audio.c buffer.c mediascan.c mediascan_unix.c medi
   libdlna/av_mpeg4_part2.c libdlna/av_wmv9.c libdlna/containers.c libdlna/profiles.c \
   jenkins/lookup3.c
 
-else if DARWIN
+endif
+
+if DARWIN
 
 libmediascan_la_sources_darwin = audio.c buffer.c mediascan.c mediascan_unix.c progress.c result.c error.c video.c util.c \
   image.c image_jpeg.c image_png.c image_bmp.c image_gif.c thumb.c thread.c database.c mediascan_macos.m NSString+SymlinksAndAliases.m \

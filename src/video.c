@@ -69,7 +69,7 @@ MediaScanImage *video_create_image_from_frame(MediaScanVideo *v, MediaScanResult
     goto err;
   }
 
-  frame = avcodec_alloc_frame();
+  frame = av_frame_alloc();
   if (!frame) {
     LOG_ERROR("Couldn't allocate a video frame\n");
     goto err;
@@ -121,26 +121,26 @@ MediaScanImage *video_create_image_from_frame(MediaScanVideo *v, MediaScanResult
 
     // Skip frame if it's not from the video stream
     if (!no_keyframe_found && packet.stream_index != codecs->vsid) {
-      av_free_packet(&packet);
+      av_packet_unref(&packet);
       skipped_frames++;
       continue;
     }
 
     // Skip non-key-frames
     if (!no_keyframe_found && !(packet.flags & AV_PKT_FLAG_KEY)) {
-      av_free_packet(&packet);
+      av_packet_unref(&packet);
       skipped_frames++;
       continue;
     }
 
     // Skip invalid packets, not sure why this isn't an error from av_read_frame
     if (packet.pos < 0) {
-      av_free_packet(&packet);
+      av_packet_unref(&packet);
       skipped_frames++;
       continue;
     }
 
-    LOG_DEBUG("Using video packet: pos %lld size %d, stream_index %d, duration %d\n",
+    LOG_DEBUG("Using video packet: pos %lld size %d, stream_index %d, duration %lld\n",
               packet.pos, packet.size, packet.stream_index, packet.duration);
 
     if ((ret = avcodec_decode_video2(codecs->vc, frame, &got_picture, &packet)) < 0) {
@@ -156,7 +156,7 @@ MediaScanImage *video_create_image_from_frame(MediaScanVideo *v, MediaScanResult
       }
       if (!no_keyframe_found) {
         // Try next frame
-        av_free_packet(&packet);
+        av_packet_unref(&packet);
         skipped_frames++;
         continue;
       }
@@ -171,7 +171,7 @@ MediaScanImage *video_create_image_from_frame(MediaScanVideo *v, MediaScanResult
       goto err;
     }
 
-    frame_rgb = avcodec_alloc_frame();
+    frame_rgb = av_frame_alloc();
     if (!frame_rgb) {
       LOG_ERROR("Couldn't allocate a video frame\n");
       goto err;
@@ -221,7 +221,7 @@ err:
 
 out:
   sws_freeContext(swsc);
-  av_free_packet(&packet);
+  av_packet_unref(&packet);
   if (frame)
     av_free(frame);
 

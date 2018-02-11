@@ -1056,7 +1056,7 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type) {
     return;
   }
 
-#if defined(__APPLE__)
+#if (defined(__APPLE__) && defined(__MACH__))
   if (isAlias(full_path)) {
     LOG_INFO("File  %s is a mac alias\n", full_path);
     // Check if this file is a shortcut and if so resolve it

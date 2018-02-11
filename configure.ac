@@ -52,23 +52,31 @@ CFLAGS="-I$bdbdir/include $CFLAGS"
 case "$target_os" in
 	*darwin*)
 AM_CONDITIONAL(DARWIN, true)
+AM_CONDITIONAL(LINUXBSD, false)
+AM_CONDITIONAL(SUN, false)
 LDFLAGS="-framework CoreFoundation -framework CoreServices -framework Carbon -L$bdbdir/lib $LDFLAGS"
 ;;
 	*solaris*)
+AM_CONDITIONAL(DARWIN, false)
+AM_CONDITIONAL(LINUXBSD, false)
 AM_CONDITIONAL(SUN, true)
 LDFLAGS="-L$bdbdir/lib $LDFLAGS"
 ;;
         *linux*)
+AM_CONDITIONAL(DARWIN, false)
 AM_CONDITIONAL(LINUXBSD, true)
+AM_CONDITIONAL(SUN, false)
 LDFLAGS="-L$bdbdir/lib $LDFLAGS"
 ;;
         *bsd*)
+AM_CONDITIONAL(DARWIN, false)
 AM_CONDITIONAL(LINUXBSD, true)
+AM_CONDITIONAL(SUN, false)
 LDFLAGS="-L$bdbdir/lib $LDFLAGS"
 ;;
 esac	
 
-AC_SEARCH_LIBS([db_create], [db], [] ,[AC_MSG_ERROR(cannot find libdb.so in $bdbdir/lib)])
+AC_SEARCH_LIBS([db_create], [db], [], [AC_MSG_ERROR(cannot find libdb in $bdbdir/lib)])
 AC_CHECK_HEADERS([db.h], [] ,[AC_MSG_ERROR(cannot find db.h in $bdbdir/include)])
 
 # Checks for typedefs, structures, and compiler characteristics.

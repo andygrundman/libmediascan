@@ -29,7 +29,10 @@
 ///-------------------------------------------------------------------------------------------------
 
 void recurse_dir(MediaScan *s, const char *path, int recurse_count) {
-  char *dir, *realdir, *p;
+  char *dir, *p;
+#if defined(__unix__) || defined(__unix)
+//  char *realdir;
+#endif
   char tmp_full_path[MAX_PATH_STR_LEN];
   DIR *dirp;
   struct dirent *dp;
@@ -74,7 +77,7 @@ void recurse_dir(MediaScan *s, const char *path, int recurse_count) {
 
   LOG_INFO("Recursed into %s\n", dir);
 
-#if defined(__APPLE__)
+#if (defined(__APPLE__) && defined(__MACH__))
   if (isAlias(dir)) {
     if (CheckMacAlias(dir, redirect_dir)) {
       LOG_INFO("Resolving Alias %s to %s\n", dir, redirect_dir);
@@ -85,14 +88,14 @@ void recurse_dir(MediaScan *s, const char *path, int recurse_count) {
       goto out;
     }
   }
-#elif defined(__unix__) || defined(__unix)
+#elif (defined(__unix__) || defined(__unix))
   if (isAlias(dir)) {
     FollowLink(dir, redirect_dir);
     LOG_INFO("Resolving symlink %s to %s\n", dir, redirect_dir);
-    realdir = redirect_dir;
+//    realdir = redirect_dir;
   }
   else {
-    realdir = dir;
+//    realdir = dir;
   }
 #endif
 
@@ -120,7 +123,7 @@ void recurse_dir(MediaScan *s, const char *path, int recurse_count) {
       strcat(tmp_full_path, name);
 
       // XXX some platforms may be missing d_type/DT_DIR
-#if defined(__APPLE__) || defined(__linux__)
+#if (defined(__APPLE__) && defined(__MACH__)) || (defined(__unix__) || defined(__unix)) && !defined(__sun__)
       if (dp->d_type == DT_DIR) {
 #elif defined(__sun__)
       if (PathIsDirectory(tmp_full_path)) {
@@ -147,7 +150,7 @@ void recurse_dir(MediaScan *s, const char *path, int recurse_count) {
           struct fileq_entry *entry;
 
           // Check if this file is a shortcut and if so resolve it
-#if defined(__APPLE__)
+#if (defined(__APPLE__) && defined(__MACH__))
           if (isAlias(name)) {
             char full_name[MAX_PATH_STR_LEN];
 
@@ -168,7 +171,7 @@ void recurse_dir(MediaScan *s, const char *path, int recurse_count) {
             }
 
           }
-#elif defined(__unix__) || defined(__unix)
+#elif (defined(__unix__) || defined(__unix))
           if (isAlias(name)) {
             char full_name[MAX_PATH_STR_LEN];
 

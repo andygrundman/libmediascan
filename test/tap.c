@@ -247,7 +247,7 @@ cendtodo () {
 #include <sys/mman.h>
 #include <regex.h>
 
-#ifdef __APPLE__
+#if (defind(__APPLE__) && defined(__MACH__))
 #define MAP_ANONYMOUS MAP_ANON
 #endif
 

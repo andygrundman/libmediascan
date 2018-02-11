@@ -75,7 +75,7 @@ int image_gif_load(MediaScanImage *i) {
   GifByteType *ExtData;
   SavedImage *sp;
   SavedImage temp_save;
-  int BackGround = 0;
+//  int BackGround = 0;
   int trans_index = 0;          // transparent index if any
   ColorMapObject *ColorMap;
   GifColorType *ColorMapEntry;
@@ -106,7 +106,7 @@ int image_gif_load(MediaScanImage *i) {
         i->width = sp->ImageDesc.Width;
         i->height = sp->ImageDesc.Height;
 
-        BackGround = g->gif->SBackGroundColor;  // XXX needed?
+//        BackGround = g->gif->SBackGroundColor;  // XXX needed?
         ColorMap = g->gif->Image.ColorMap ? g->gif->Image.ColorMap : g->gif->SColorMap;
 
         if (ColorMap == NULL) {
