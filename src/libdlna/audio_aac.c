@@ -24,6 +24,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <unistd.h>
 
 // If we are on MSVC, disable some stupid MSVC warnings
 #ifdef _MSC_VER
