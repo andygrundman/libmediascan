@@ -46,39 +46,6 @@
 
 const char CODEC_MP1[] = "mp1";
 
-// *INDENT-OFF*
-static type_ext audio_types[] = {
-/*
-  {"mp4", {"mp4", "m4a", "m4b", "m4p", "m4v", "m4r", "k3g", "skm", "3gp", "3g2", "mov", 0}},
-  {"aac", {"aac", 0}},
-  {"mp3", {"mp3", "mp2", 0}},
-  {"ogg", {"ogg", "oga", 0}},
-  {"mpc", {"mpc", "mp+", "mpp", 0}},
-  {"ape", {"ape", "apl", 0}},
-  {"flc", {"flc", "flac", "fla", 0}},
-  {"asf", {"wma", "asf", "wmv", 0}},
-*/
-  {"wav", {"wav", "aif", "aiff", 0}},
-//  {"wvp", {"wv", 0}},
-  {0, {0, 0}}
-};
-
-static type_handler audio_handlers[] = {
-/*
-  { "mp4", get_mp4tags, 0, mp4_find_frame, mp4_find_frame_return_info },
-  { "aac", get_aacinfo, 0, 0, 0 },
-  { "mp3", get_mp3tags, get_mp3fileinfo, mp3_find_frame, 0 },
-  { "ogg", get_ogg_metadata, 0, ogg_find_frame, 0 },
-  { "mpc", get_ape_metadata, get_mpcfileinfo, 0, 0 },
-  { "ape", get_ape_metadata, get_macfileinfo, 0, 0 },
-  { "flc", get_flac_metadata, 0, flac_find_frame, 0 },
-  { "asf", get_asf_metadata, 0, asf_find_frame, 0 },
-  { "wav", wav_scan },
-  { "wvp", get_ape_metadata, get_wavpack_info, 0 },
-*/
-  {NULL, 0}
-};
-
 // MIME type extension mappings
 static const struct {
   const char *extensions;
@@ -372,14 +339,14 @@ static int scan_video(MediaScanResult *r) {
     v->_codecs = (void *)codecs;
     v->_avc = (void *)c;
   }
-  else if (codecs->vc->codec_name[0] != '\0') {
-    v->codec = codecs->vc->codec_name;
+  else if (codecs->vc->codec_id != '\0') {
+    v->codec = avcodec_get_name(codecs->vc->codec_id);
   }
   else {
     char codec_tag_string[128];
 
     // Check for DRM files and ignore them
-    av_get_codec_tag_string(codec_tag_string, sizeof(codec_tag_string), codecs->vc->codec_tag);
+    av_fourcc_make_string( codec_tag_string, codecs->vc->codec_tag);
     if (!strcmp("drmi", codec_tag_string)) {
       r->error = error_create(r->path, MS_ERROR_READ, "Skipping DRM-protected video file");
       ret = 0;
@@ -403,12 +370,12 @@ static int scan_video(MediaScanResult *r) {
     if (ac) {
       a->codec = ac->name;
     }
-    else if (codecs->ac->codec_name[0] != '\0') {
-      a->codec = codecs->ac->codec_name;
+    else if (codecs->ac->codec_id != '\0') {
+      a->codec = avcodec_get_name(codecs->ac->codec_id);
     }
     // Special case for handling MP1 audio streams which FFMPEG can't identify a codec for
     else if (codecs->ac->codec_id == AV_CODEC_ID_MP1) {
-      a->codec = AV_CODEC_ID_MP1;
+      a->codec = avcodec_get_name(AV_CODEC_ID_MP1);
     }
     else {
       a->codec = "Unknown";
@@ -667,7 +634,7 @@ void ms_dump_result(MediaScanResult *r) {
   LOG_OUTPUT("%s\n", r->path);
   LOG_OUTPUT("  MIME type:    %s\n", r->mime_type);
   LOG_OUTPUT("  DLNA profile: %s\n", r->dlna_profile);
-  LOG_OUTPUT("  File size:    %llu\n", r->size);
+  LOG_OUTPUT("  File size:    %"PRIu64"\n", r->size);
   LOG_OUTPUT("  Modified:     %d\n", r->mtime);
   if (r->bitrate)
     LOG_OUTPUT("  Bitrate:      %d bps\n", r->bitrate);

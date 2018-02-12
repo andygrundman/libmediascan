@@ -205,7 +205,7 @@ err:
 
 out:
   if (temp_save.ExtensionBlocks)
-    FreeExtension(&temp_save);
+    GifFreeExtensions(&temp_save.ExtensionBlockCount, &temp_save.ExtensionBlocks );
 
   return ret;
 }

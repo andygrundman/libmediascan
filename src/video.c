@@ -13,6 +13,7 @@
 #endif
 
 #include <libavformat/avformat.h>
+#include <libavutil/imgutils.h>
 #include <libswscale/swscale.h>
 
 #ifdef _MSC_VER
@@ -56,7 +57,7 @@ MediaScanImage *video_create_image_from_frame(MediaScanVideo *v, MediaScanResult
   AVFrame *frame = NULL;
   AVPacket packet;
   struct SwsContext *swsc = NULL;
-  int got_picture;
+  int got_picture = 0;
   int64_t duration_tb = ((double)avf->duration / AV_TIME_BASE) / av_q2d(codecs->vs->time_base);
   uint8_t *src;
   int x, y;
@@ -140,10 +141,10 @@ MediaScanImage *video_create_image_from_frame(MediaScanVideo *v, MediaScanResult
       continue;
     }
 
-    LOG_DEBUG("Using video packet: pos %lld size %d, stream_index %d, duration %lld\n",
+    LOG_DEBUG("Using video packet: pos %"PRIi64" size %d, stream_index %d, duration %"PRIi64"\n",
               packet.pos, packet.size, packet.stream_index, packet.duration);
 
-    if ((ret = avcodec_decode_video2(codecs->vc, frame, &got_picture, &packet)) < 0) {
+    if (((ret = avcodec_send_packet(codecs->vc, &packet)) < 0) || ((ret = avcodec_receive_frame(codecs->vc, frame)) < 0)) {
       LOG_ERROR("Error decoding video frame for thumbnail: %s\n", v->path);
       print_averror(ret);
       goto err;
@@ -179,8 +180,8 @@ MediaScanImage *video_create_image_from_frame(MediaScanVideo *v, MediaScanResult
 
     // XXX There is probably a way to get sws_scale to write directly to i->_pixbuf in our RGBA format
 
-    rgb_bufsize = avpicture_get_size(AV_PIX_FMT_RGB24, i->width, i->height);
-    rgb_buffer = av_malloc(rgb_bufsize);
+    rgb_bufsize = av_image_get_buffer_size(AV_PIX_FMT_RGB24, i->width, i->height, 1);
+    rgb_buffer = (uint8_t*)av_malloc(rgb_bufsize);
     if (!rgb_buffer) {
       LOG_ERROR("Couldn't allocate an RGB video buffer\n");
       av_free(frame_rgb);
@@ -188,10 +189,10 @@ MediaScanImage *video_create_image_from_frame(MediaScanVideo *v, MediaScanResult
     }
     LOG_MEM("new rgb_buffer of size %d @ %p\n", rgb_bufsize, rgb_buffer);
 
-    avpicture_fill((AVPicture *)frame_rgb, rgb_buffer, AV_PIX_FMT_RGB24, i->width, i->height);
+    av_image_fill_arrays( frame_rgb->data, frame_rgb->linesize, rgb_buffer, AV_PIX_FMT_RGB24, i->width, i->height, 1);
 
     // Convert image to RGB24
-    sws_scale(swsc, frame->data, frame->linesize, 0, i->height, frame_rgb->data, frame_rgb->linesize);
+    sws_scale(swsc, (const uint8_t *const *)frame->data, frame->linesize, 0, i->height, frame_rgb->data, frame_rgb->linesize);
 
     // Allocate space for our version of the image
     image_alloc_pixbuf(i, i->width, i->height);
