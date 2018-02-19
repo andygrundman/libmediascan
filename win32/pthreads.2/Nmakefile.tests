@@ -1,8 +1,8 @@
 /* for running tests */
-CCFLAGS 	= -g 
+CCFLAGS 	= -g
 _MT		== 1
 _timeb	== timeb
-_ftime	== ftime 
+_ftime	== ftime
 
 .SOURCE:	tests
 /*

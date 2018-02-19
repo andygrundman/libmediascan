@@ -7,19 +7,19 @@
 CFG=pthread - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
-!MESSAGE 
+!MESSAGE
 !MESSAGE NMAKE /f "pthread.mak".
-!MESSAGE 
+!MESSAGE
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
-!MESSAGE 
+!MESSAGE
 !MESSAGE NMAKE /f "pthread.mak" CFG="pthread - Win32 Debug"
-!MESSAGE 
+!MESSAGE
 !MESSAGE Possible choices for configuration are:
-!MESSAGE 
+!MESSAGE
 !MESSAGE "pthread - Win32 Release" (based on "Win32 (x86) Dynamic-Link Library")
 !MESSAGE "pthread - Win32 Debug" (based on "Win32 (x86) Dynamic-Link Library")
-!MESSAGE 
+!MESSAGE
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
@@ -83,7 +83,7 @@ LINK32=link.exe
 # ADD LINK32 kernel32.lib user32.lib ws2_32.lib /nologo /dll /map /debug /machine:I386 /out:".\pthreadVC2.dll" /pdbtype:sept
 # SUBTRACT LINK32 /pdb:none
 
-!ENDIF 
+!ENDIF
 
 # Begin Target
 
@@ -134,7 +134,7 @@ SOURCE=.\version.rc
 # ADD BASE RSC /l 0xc09
 # ADD RSC /l 0x409 /i "." /d "PTW32_RC_MSC"
 
-!ENDIF 
+!ENDIF
 
 # End Source File
 # End Group

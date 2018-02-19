@@ -341,7 +341,7 @@ public:
 	{
 		return (const Db *)db->api_internal;
 	}
-	
+
 	u_int32_t get_create_flags() const
 	{
 		return construct_flags_;
@@ -1043,9 +1043,9 @@ private:
 	// We use a TAILQ to store this object's kids of DbTxn objects, and
 	// each kid has a "parent_txn_" to point to this DbTxn object.
 	//
-	// If imp_ has a parent transaction which is not wrapped by DbTxn 
-	// class, parent_txn_ will be NULL since we don't need to maintain 
-	// this parent-kid relationship. This relationship only helps to 
+	// If imp_ has a parent transaction which is not wrapped by DbTxn
+	// class, parent_txn_ will be NULL since we don't need to maintain
+	// this parent-kid relationship. This relationship only helps to
 	// delete unresolved kids when the parent is resolved.
 	DbTxn *parent_txn_;
 

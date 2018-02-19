@@ -59,7 +59,7 @@ if test "x$enable_x11" != "xno" ; then
                  COMPILABLE_EXTRAS="${COMPILABLE_EXTRAS} gif2x11${EXEEXT}"],, $X_LIBS))
 fi
 
-DEVS="${GL_S_LIB} ${X11_LIB}" 
+DEVS="${GL_S_LIB} ${X11_LIB}"
 AC_SUBST(DEVS)
 AC_SUBST(COMPILABLE_EXTRAS)
 AC_SUBST(GL_S_LIB)

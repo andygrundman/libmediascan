@@ -312,7 +312,7 @@ clean-examplePROGRAMS:
 	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
 	echo " rm -f" $$list; \
 	rm -f $$list
-AutomatedTest$(EXEEXT): $(AutomatedTest_OBJECTS) $(AutomatedTest_DEPENDENCIES) 
+AutomatedTest$(EXEEXT): $(AutomatedTest_OBJECTS) $(AutomatedTest_DEPENDENCIES)
 	@rm -f AutomatedTest$(EXEEXT)
 	$(AutomatedTest_LINK) $(AutomatedTest_OBJECTS) $(AutomatedTest_LDADD) $(LIBS)
 

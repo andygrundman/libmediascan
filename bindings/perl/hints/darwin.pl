@@ -2,7 +2,7 @@
 
 use Config;
 
-if ( $Config{myarchname} =~ /i386/ ) {    
+if ( $Config{myarchname} =~ /i386/ ) {
     # Read OS version
     my $ver = `sw_vers -productVersion`;
     my ($osx_ver) = $ver =~ /(10\.(?:[5679]|1[0]))/;
@@ -31,22 +31,22 @@ if ( $Config{myarchname} =~ /i386/ ) {
     else {
         die "Unsupported OSX version $osx_ver\n";
     }
-    
+
     print "Adding $arch\n";
-    
+
     my $ccflags   = $Config{ccflags};
     my $ldflags   = $Config{ldflags};
     my $lddlflags = $Config{lddlflags};
-    
+
     # Remove extra -arch flags from these
     $ccflags  =~ s/-arch\s+\w+//g;
     $ldflags  =~ s/-arch\s+\w+//g;
     $lddlflags =~ s/-arch\s+\w+//g;
-    
+
     # LMS requires some frameworks
     $ldflags .= " -framework CoreFoundation -framework CoreServices -framework Carbon";
     $lddlflags .= " -framework CoreFoundation -framework CoreServices -framework Carbon";
-    
+
     $self->{CCFLAGS} = "$arch -I/usr/include $ccflags";
     $self->{LDFLAGS} = "$arch -L/usr/lib $ldflags";
     $self->{LDDLFLAGS} = "$arch -L/usr/lib $lddlflags";

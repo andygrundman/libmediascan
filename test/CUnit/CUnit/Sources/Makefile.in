@@ -310,11 +310,11 @@ OBJECT_FILES_SHARED = \
 TEST_OBJECTS = $(TEST_OBJECT_FILES)
 SUBDIRS = $(COMPILE_DIRS)
 lib_LTLIBRARIES = libcunit.la
-libcunit_la_SOURCES = 
+libcunit_la_SOURCES =
 libcunit_la_LIBADD = $(OBJECT_FILES_SHARED)
 libcunit_la_LDFLAGS = -version-info @LIBTOOL_CURRENT@:@LIBTOOL_REVISION@:@LIBTOOL_AGE@
 @ENABLE_TEST_TRUE@noinst_LIBRARIES = libcunit_test.a
-@ENABLE_TEST_TRUE@libcunit_test_a_SOURCES = 
+@ENABLE_TEST_TRUE@libcunit_test_a_SOURCES =
 @ENABLE_TEST_TRUE@libcunit_test_a_LIBADD = $(TEST_OBJECTS)
 all: all-recursive
 
@@ -352,7 +352,7 @@ $(am__aclocal_m4_deps):
 
 clean-noinstLIBRARIES:
 	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
-libcunit_test.a: $(libcunit_test_a_OBJECTS) $(libcunit_test_a_DEPENDENCIES) 
+libcunit_test.a: $(libcunit_test_a_OBJECTS) $(libcunit_test_a_DEPENDENCIES)
 	-rm -f libcunit_test.a
 	$(libcunit_test_a_AR) libcunit_test.a $(libcunit_test_a_OBJECTS) $(libcunit_test_a_LIBADD)
 	$(RANLIB) libcunit_test.a
@@ -387,7 +387,7 @@ clean-libLTLIBRARIES:
 	  echo "rm -f \"$${dir}/so_locations\""; \
 	  rm -f "$${dir}/so_locations"; \
 	done
-libcunit.la: $(libcunit_la_OBJECTS) $(libcunit_la_DEPENDENCIES) 
+libcunit.la: $(libcunit_la_OBJECTS) $(libcunit_la_DEPENDENCIES)
 	$(libcunit_la_LINK) -rpath $(libdir) $(libcunit_la_OBJECTS) $(libcunit_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:

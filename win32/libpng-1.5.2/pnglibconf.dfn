@@ -68,7 +68,7 @@ PNG_DEFN_MAGIC-#define PNG_@@@MAX_GAMMA_8 11-PNG_DEFN_END
 #ifdef PNG_CALLOC_SUPPORTED
 PNG_DEFN_MAGIC-#define PNG_@@@CALLOC_SUPPORTED PNG_CALLOC_SUPPORTED-PNG_DEFN_END
 #else /*default*/
-# define PNG_CALLOC_SUPPORTED 
+# define PNG_CALLOC_SUPPORTED
 PNG_DEFN_MAGIC-#define PNG_@@@CALLOC_SUPPORTED -PNG_DEFN_END
 #endif
 
@@ -259,8 +259,8 @@ PNG_DEFN_MAGIC-/@@@* end of settings */-PNG_DEFN_END
 PNG_DEFN_MAGIC-/@@@* options */-PNG_DEFN_END
 
 /* option: INFO_IMAGE enabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -291,8 +291,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@INFO_IMAGE@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: HANDLE_AS_UNKNOWN enabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -323,8 +323,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@HANDLE_AS_UNKNOWN@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: POINTER_INDEXING enabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -355,8 +355,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@POINTER_INDEXING@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: WARNINGS enabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -387,8 +387,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@WARNINGS@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: FLOATING_ARITHMETIC enabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -419,8 +419,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@FLOATING_ARITHMETIC@@@_SUPPORTED*/-PNG_DEFN_EN
 #endif
 
 /* option: WRITE enabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -452,7 +452,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@WRITE@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: WRITE_INTERLACING enabled
  *   requires:   WRITE
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -487,7 +487,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@WRITE_INTERLACING@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: WRITE_16BIT enabled
  *   requires:   WRITE
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -521,8 +521,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@WRITE_16BIT@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: EASY_ACCESS enabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -553,8 +553,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@EASY_ACCESS@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: ALIGN_MEMORY enabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -586,7 +586,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@ALIGN_MEMORY@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: WRITE_WEIGHTED_FILTER enabled
  *   requires:   WRITE
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -621,7 +621,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@WRITE_WEIGHTED_FILTER@@@_SUPPORTED*/-PNG_DEFN_
 
 /* option: WRITE_UNKNOWN_CHUNKS enabled
  *   requires:   WRITE
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -655,8 +655,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@WRITE_UNKNOWN_CHUNKS@@@_SUPPORTED*/-PNG_DEFN_E
 #endif
 
 /* option: USER_LIMITS enabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -687,8 +687,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@USER_LIMITS@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: FIXED_POINT enabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -719,8 +719,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@FIXED_POINT@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: ERROR_NUMBERS disabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -746,8 +746,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@ERROR_NUMBERS@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: ERROR_TEXT enabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -778,8 +778,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@ERROR_TEXT@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: READ enabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -811,7 +811,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_16_TO_8_ACCURATE_SCALE disabled
  *   requires:   READ
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -840,8 +840,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_16_TO_8_ACCURATE_SCALE@@@_SUPPORTED*/-PNG
 #endif
 
 /* option: BENIGN_ERRORS enabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -872,8 +872,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@BENIGN_ERRORS@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: SETJMP enabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -905,7 +905,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@SETJMP@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: WRITE_FLUSH enabled
  *   requires:   WRITE
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -939,8 +939,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@WRITE_FLUSH@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: MNG_FEATURES enabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -971,8 +971,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@MNG_FEATURES@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: FLOATING_POINT enabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -1003,8 +1003,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@FLOATING_POINT@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: INCH_CONVERSIONS enabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -1035,8 +1035,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@INCH_CONVERSIONS@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: STDIO enabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -1068,7 +1068,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@STDIO@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_UNKNOWN_CHUNKS enabled
  *   requires:   READ
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -1102,8 +1102,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_UNKNOWN_CHUNKS@@@_SUPPORTED*/-PNG_DEFN_EN
 #endif
 
 /* option: USER_MEM enabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -1134,8 +1134,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@USER_MEM@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: IO_STATE enabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -1167,7 +1167,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@IO_STATE@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: SET_USER_LIMITS enabled
  *   requires:   USER_LIMITS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -1202,7 +1202,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@SET_USER_LIMITS@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_ANCILLARY_CHUNKS enabled
  *   requires:   READ
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -1236,8 +1236,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_ANCILLARY_CHUNKS@@@_SUPPORTED*/-PNG_DEFN_
 #endif
 
 /* option: WRITE_INT_FUNCTIONS disabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: WRITE */
 #undef PNG_on
 #define PNG_on 1
@@ -1267,7 +1267,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@WRITE_INT_FUNCTIONS@@@_SUPPORTED*/-PNG_DEFN_EN
 
 /* option: WRITE_ANCILLARY_CHUNKS enabled
  *   requires:   WRITE
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -1302,7 +1302,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@WRITE_ANCILLARY_CHUNKS@@@_SUPPORTED*/-PNG_DEFN
 
 /* option: WRITE_FILTER enabled
  *   requires:   WRITE
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -1336,8 +1336,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@WRITE_FILTER@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: SET_CHUNK_CACHE_LIMIT disabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: SET_USER_LIMITS */
 #undef PNG_on
 #define PNG_on 1
@@ -1367,7 +1367,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@SET_CHUNK_CACHE_LIMIT@@@_SUPPORTED*/-PNG_DEFN_
 
 /* option: WRITE_iCCP enabled
  *   requires:   WRITE_ANCILLARY_CHUNKS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -1402,7 +1402,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@WRITE_iCCP@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_TRANSFORMS enabled
  *   requires:   READ
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -1437,7 +1437,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_TRANSFORMS@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_GAMMA enabled
  *   requires:   READ_TRANSFORMS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -1472,7 +1472,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_GAMMA@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_bKGD enabled
  *   requires:   READ_ANCILLARY_CHUNKS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -1506,8 +1506,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_bKGD@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: UNKNOWN_CHUNKS disabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: READ_UNKNOWN_CHUNKS */
 #undef PNG_on
 #define PNG_on 1
@@ -1537,7 +1537,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@UNKNOWN_CHUNKS@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_sCAL enabled
  *   requires:   READ_ANCILLARY_CHUNKS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -1572,7 +1572,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_sCAL@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: WRITE_hIST enabled
  *   requires:   WRITE_ANCILLARY_CHUNKS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -1607,7 +1607,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@WRITE_hIST@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_OPT_PLTE enabled
  *   requires:   READ_ANCILLARY_CHUNKS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -1641,8 +1641,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_OPT_PLTE@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: SET_CHUNK_MALLOC_LIMIT disabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: SET_USER_LIMITS */
 #undef PNG_on
 #define PNG_on 1
@@ -1672,7 +1672,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@SET_CHUNK_MALLOC_LIMIT@@@_SUPPORTED*/-PNG_DEFN
 
 /* option: WRITE_gAMA enabled
  *   requires:   WRITE_ANCILLARY_CHUNKS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -1707,7 +1707,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@WRITE_gAMA@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_GRAY_TO_RGB enabled
  *   requires:   READ_TRANSFORMS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -1742,7 +1742,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_GRAY_TO_RGB@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: WRITE_pCAL enabled
  *   requires:   WRITE_ANCILLARY_CHUNKS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -1777,7 +1777,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@WRITE_pCAL@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_INVERT_ALPHA enabled
  *   requires:   READ_TRANSFORMS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -1812,7 +1812,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_INVERT_ALPHA@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: WRITE_TRANSFORMS enabled
  *   requires:   WRITE
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -1847,7 +1847,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@WRITE_TRANSFORMS@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_sBIT enabled
  *   requires:   READ_ANCILLARY_CHUNKS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -1882,7 +1882,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_sBIT@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_PACK enabled
  *   requires:   READ_TRANSFORMS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -1917,7 +1917,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_PACK@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: WRITE_SWAP enabled
  *   requires:   WRITE_TRANSFORMS WRITE_16BIT
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -1955,7 +1955,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@WRITE_SWAP@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_cHRM enabled
  *   requires:   READ_ANCILLARY_CHUNKS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -1990,7 +1990,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_cHRM@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: WRITE_tIME enabled
  *   requires:   WRITE_ANCILLARY_CHUNKS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -2024,8 +2024,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@WRITE_tIME@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: READ_INTERLACING disabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: READ */
 #undef PNG_on
 #define PNG_on 1
@@ -2055,7 +2055,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_INTERLACING@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_tRNS enabled
  *   requires:   READ_ANCILLARY_CHUNKS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -2090,7 +2090,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_tRNS@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: WRITE_pHYs enabled
  *   requires:   WRITE_ANCILLARY_CHUNKS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -2125,7 +2125,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@WRITE_pHYs@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: WRITE_INVERT enabled
  *   requires:   WRITE_TRANSFORMS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -2160,7 +2160,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@WRITE_INVERT@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_RGB_TO_GRAY enabled
  *   requires:   READ_TRANSFORMS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -2195,7 +2195,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_RGB_TO_GRAY@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: WRITE_sRGB enabled
  *   requires:   WRITE_ANCILLARY_CHUNKS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -2230,7 +2230,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@WRITE_sRGB@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_oFFs enabled
  *   requires:   READ_ANCILLARY_CHUNKS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -2265,7 +2265,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_oFFs@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: WRITE_FILLER enabled
  *   requires:   WRITE_TRANSFORMS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -2300,7 +2300,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@WRITE_FILLER@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: WRITE_TEXT enabled
  *   requires:   WRITE_ANCILLARY_CHUNKS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -2335,7 +2335,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@WRITE_TEXT@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: WRITE_SHIFT enabled
  *   requires:   WRITE_TRANSFORMS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -2370,7 +2370,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@WRITE_SHIFT@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: PROGRESSIVE_READ enabled
  *   requires:   READ
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -2405,7 +2405,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@PROGRESSIVE_READ@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_SHIFT enabled
  *   requires:   READ_TRANSFORMS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -2440,7 +2440,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_SHIFT@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: CONVERT_tIME enabled
  *   requires:   WRITE_ANCILLARY_CHUNKS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -2475,7 +2475,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@CONVERT_tIME@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_USER_TRANSFORM enabled
  *   requires:   READ_TRANSFORMS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -2510,7 +2510,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_USER_TRANSFORM@@@_SUPPORTED*/-PNG_DEFN_EN
 
 /* option: READ_INT_FUNCTIONS enabled
  *   requires:   READ
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -2545,7 +2545,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_INT_FUNCTIONS@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_USER_CHUNKS enabled
  *   requires:   READ
- *   if:      
+ *   if:
  *   enabled-by: READ_UNKNOWN_CHUNKS */
 #undef PNG_on
 #define PNG_on 1
@@ -2583,7 +2583,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_USER_CHUNKS@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_hIST enabled
  *   requires:   READ_ANCILLARY_CHUNKS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -2618,7 +2618,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_hIST@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_16BIT enabled
  *   requires:   READ
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -2653,7 +2653,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_16BIT@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_SWAP_ALPHA enabled
  *   requires:   READ_TRANSFORMS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -2688,7 +2688,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_SWAP_ALPHA@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_COMPOSITE_NODIV enabled
  *   requires:   READ
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -2723,7 +2723,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_COMPOSITE_NODIV@@@_SUPPORTED*/-PNG_DEFN_E
 
 /* option: SEQUENTIAL_READ enabled
  *   requires:   READ
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -2758,7 +2758,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@SEQUENTIAL_READ@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_BACKGROUND enabled
  *   requires:   READ_TRANSFORMS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -2793,7 +2793,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_BACKGROUND@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_QUANTIZE enabled
  *   requires:   READ
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -2828,7 +2828,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_QUANTIZE@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_iCCP enabled
  *   requires:   READ_ANCILLARY_CHUNKS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -2863,7 +2863,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_iCCP@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_STRIP_ALPHA enabled
  *   requires:   READ_TRANSFORMS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -2898,7 +2898,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_STRIP_ALPHA@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_PACKSWAP enabled
  *   requires:   READ_TRANSFORMS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -2933,7 +2933,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_PACKSWAP@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_sRGB enabled
  *   requires:   READ_ANCILLARY_CHUNKS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -2968,7 +2968,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_sRGB@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: WRITE_tEXt enabled
  *   requires:   WRITE_ANCILLARY_CHUNKS WRITE_TEXT
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -3006,7 +3006,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@WRITE_tEXt@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_gAMA enabled
  *   requires:   READ_ANCILLARY_CHUNKS
- *   if:      
+ *   if:
  *   enabled-by: READ_GAMMA */
 #undef PNG_on
 #define PNG_on 1
@@ -3043,8 +3043,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_gAMA@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: ok_math disabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: FLOATING_POINT FIXED_POINT */
 #undef PNG_on
 #define PNG_on 1
@@ -3077,7 +3077,7 @@ PNG_DEFN_MAGIC-ERROR: ok_math not enabled: requires:, enabled by: FLOATING_POINT
 
 /* option: READ_pCAL enabled
  *   requires:   READ_ANCILLARY_CHUNKS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -3112,7 +3112,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_pCAL@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: WRITE_sPLT enabled
  *   requires:   WRITE_ANCILLARY_CHUNKS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -3147,7 +3147,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@WRITE_sPLT@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_SWAP enabled
  *   requires:   READ_TRANSFORMS READ_16BIT
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -3185,7 +3185,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_SWAP@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_tIME enabled
  *   requires:   READ_ANCILLARY_CHUNKS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -3220,7 +3220,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_tIME@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_pHYs enabled
  *   requires:   READ_ANCILLARY_CHUNKS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -3255,7 +3255,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_pHYs@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: WRITE_SWAP_ALPHA enabled
  *   requires:   WRITE_TRANSFORMS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -3290,7 +3290,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@WRITE_SWAP_ALPHA@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: TIME_RFC1123 enabled
  *   requires:   STDIO
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -3325,7 +3325,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@TIME_RFC1123@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_TEXT enabled
  *   requires:   READ_ANCILLARY_CHUNKS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -3360,7 +3360,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_TEXT@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: WRITE_BGR enabled
  *   requires:   WRITE_TRANSFORMS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -3394,8 +3394,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@WRITE_BGR@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: USER_CHUNKS disabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: READ_USER_CHUNKS */
 #undef PNG_on
 #define PNG_on 1
@@ -3425,7 +3425,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@USER_CHUNKS@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: CONSOLE_IO enabled
  *   requires:   STDIO
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -3460,7 +3460,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@CONSOLE_IO@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: WRITE_PACK enabled
  *   requires:   WRITE_TRANSFORMS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -3495,7 +3495,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@WRITE_PACK@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_FILLER enabled
  *   requires:   READ_TRANSFORMS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -3530,7 +3530,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_FILLER@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: WRITE_bKGD enabled
  *   requires:   WRITE_ANCILLARY_CHUNKS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -3565,7 +3565,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@WRITE_bKGD@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: WRITE_tRNS enabled
  *   requires:   WRITE_ANCILLARY_CHUNKS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -3600,7 +3600,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@WRITE_tRNS@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_sPLT enabled
  *   requires:   READ_ANCILLARY_CHUNKS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -3635,7 +3635,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_sPLT@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: WRITE_sCAL enabled
  *   requires:   WRITE_ANCILLARY_CHUNKS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -3670,7 +3670,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@WRITE_sCAL@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: WRITE_oFFs enabled
  *   requires:   WRITE_ANCILLARY_CHUNKS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -3705,7 +3705,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@WRITE_oFFs@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_tEXt enabled
  *   requires:   READ_ANCILLARY_CHUNKS READ_TEXT
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -3743,7 +3743,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_tEXt@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: WRITE_sBIT enabled
  *   requires:   WRITE_ANCILLARY_CHUNKS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -3778,7 +3778,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@WRITE_sBIT@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_INVERT enabled
  *   requires:   READ_TRANSFORMS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -3813,7 +3813,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_INVERT@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_16_TO_8 enabled
  *   requires:   READ_TRANSFORMS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -3848,7 +3848,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_16_TO_8@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: WRITE_cHRM enabled
  *   requires:   WRITE_ANCILLARY_CHUNKS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -3882,8 +3882,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@WRITE_cHRM@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: 16BIT disabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: READ_16BIT WRITE_16BIT */
 #undef PNG_on
 #define PNG_on 1
@@ -3916,7 +3916,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@16BIT@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: WRITE_USER_TRANSFORM enabled
  *   requires:   WRITE_TRANSFORMS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -3951,7 +3951,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@WRITE_USER_TRANSFORM@@@_SUPPORTED*/-PNG_DEFN_E
 
 /* option: READ_BGR enabled
  *   requires:   READ_TRANSFORMS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -3986,7 +3986,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_BGR@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: WRITE_PACKSWAP enabled
  *   requires:   WRITE_TRANSFORMS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -4021,7 +4021,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@WRITE_PACKSWAP@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: WRITE_INVERT_ALPHA enabled
  *   requires:   WRITE_TRANSFORMS
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -4055,8 +4055,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@WRITE_INVERT_ALPHA@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: sCAL disabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: READ_sCAL WRITE_sCAL */
 #undef PNG_on
 #define PNG_on 1
@@ -4089,7 +4089,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@sCAL@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: WRITE_zTXt enabled
  *   requires:   WRITE_ANCILLARY_CHUNKS WRITE_TEXT
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -4126,7 +4126,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@WRITE_zTXt@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: USER_TRANSFORM_INFO enabled
- *   requires:  
+ *   requires:
  *   if:       READ_USER_TRANSFORM WRITE_USER_TRANSFORM
  *   enabled-by: */
 #undef PNG_on
@@ -4169,8 +4169,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@USER_TRANSFORM_INFO@@@_SUPPORTED*/-PNG_DEFN_EN
 #endif
 
 /* option: sBIT disabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: READ_sBIT WRITE_sBIT */
 #undef PNG_on
 #define PNG_on 1
@@ -4202,8 +4202,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@sBIT@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: cHRM disabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: READ_cHRM WRITE_cHRM */
 #undef PNG_on
 #define PNG_on 1
@@ -4235,8 +4235,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@cHRM@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: bKGD disabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: READ_bKGD WRITE_bKGD */
 #undef PNG_on
 #define PNG_on 1
@@ -4268,8 +4268,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@bKGD@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: tRNS disabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: READ_tRNS WRITE_tRNS */
 #undef PNG_on
 #define PNG_on 1
@@ -4302,7 +4302,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@tRNS@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: WRITE_iTXt enabled
  *   requires:   WRITE_ANCILLARY_CHUNKS WRITE_TEXT
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -4339,8 +4339,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@WRITE_iTXt@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: oFFs disabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: READ_oFFs WRITE_oFFs */
 #undef PNG_on
 #define PNG_on 1
@@ -4373,7 +4373,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@oFFs@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_EXPAND_16 enabled
  *   requires:   READ_TRANSFORMS READ_16BIT
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -4410,7 +4410,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_EXPAND_16@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: USER_TRANSFORM_PTR enabled
- *   requires:  
+ *   requires:
  *   if:       READ_USER_TRANSFORM WRITE_USER_TRANSFORM
  *   enabled-by: */
 #undef PNG_on
@@ -4453,8 +4453,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@USER_TRANSFORM_PTR@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: hIST disabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: READ_hIST WRITE_hIST */
 #undef PNG_on
 #define PNG_on 1
@@ -4486,8 +4486,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@hIST@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: iCCP disabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: READ_iCCP WRITE_iCCP */
 #undef PNG_on
 #define PNG_on 1
@@ -4519,8 +4519,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@iCCP@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: sRGB disabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: READ_sRGB WRITE_sRGB */
 #undef PNG_on
 #define PNG_on 1
@@ -4553,7 +4553,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@sRGB@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_zTXt enabled
  *   requires:   READ_ANCILLARY_CHUNKS READ_TEXT
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -4590,8 +4590,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_zTXt@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: gAMA disabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: READ_gAMA WRITE_gAMA */
 #undef PNG_on
 #define PNG_on 1
@@ -4623,8 +4623,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@gAMA@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: pCAL disabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: READ_pCAL WRITE_pCAL */
 #undef PNG_on
 #define PNG_on 1
@@ -4657,7 +4657,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@pCAL@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: CHECK_cHRM enabled
  *   requires:   cHRM
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -4691,8 +4691,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@CHECK_cHRM@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: tIME disabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: READ_tIME WRITE_tIME */
 #undef PNG_on
 #define PNG_on 1
@@ -4725,7 +4725,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@tIME@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_EXPAND enabled
  *   requires:   READ_TRANSFORMS
- *   if:      
+ *   if:
  *   enabled-by: READ_EXPAND_16 */
 #undef PNG_on
 #define PNG_on 1
@@ -4762,8 +4762,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_EXPAND@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: pHYs disabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: READ_pHYs WRITE_pHYs */
 #undef PNG_on
 #define PNG_on 1
@@ -4796,7 +4796,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@pHYs@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: READ_iTXt enabled
  *   requires:   READ_ANCILLARY_CHUNKS READ_TEXT
- *   if:      
+ *   if:
  *   enabled-by: */
 #undef PNG_on
 #define PNG_on 1
@@ -4833,8 +4833,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@READ_iTXt@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: TEXT disabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: READ_TEXT WRITE_TEXT */
 #undef PNG_on
 #define PNG_on 1
@@ -4867,7 +4867,7 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@TEXT@@@_SUPPORTED*/-PNG_DEFN_END
 
 /* option: SAVE_INT_32 enabled
  *   requires:   WRITE
- *   if:      
+ *   if:
  *   enabled-by: WRITE_oFFs WRITE_pCAL */
 #undef PNG_on
 #define PNG_on 1
@@ -4907,8 +4907,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@SAVE_INT_32@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: sPLT disabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: READ_sPLT WRITE_sPLT */
 #undef PNG_on
 #define PNG_on 1
@@ -4940,8 +4940,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@sPLT@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: tEXt disabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: READ_tEXt WRITE_tEXt */
 #undef PNG_on
 #define PNG_on 1
@@ -4973,8 +4973,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@tEXt@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: zTXt disabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: READ_zTXt WRITE_zTXt */
 #undef PNG_on
 #define PNG_on 1
@@ -5006,8 +5006,8 @@ PNG_DEFN_MAGIC-/@@@*#undef PNG_@@@zTXt@@@_SUPPORTED*/-PNG_DEFN_END
 #endif
 
 /* option: iTXt disabled
- *   requires:  
- *   if:      
+ *   requires:
+ *   if:
  *   enabled-by: READ_iTXt WRITE_iTXt */
 #undef PNG_on
 #define PNG_on 1

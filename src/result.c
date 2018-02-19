@@ -70,7 +70,7 @@ static const struct {
 // http://tools.ietf.org/html/rfc2046
   { "mpg,mpeg,mpe,mp1,mp2,m1v,m2v,mpv,vob", "video/mpeg" },
   { "mp3,mla,m2a,mpa",          "audio/mpeg" },
-  
+
 // http://www.rfc-editor.org/rfc/rfc3555.txt
   { "m2t,m2ts,mp2t,mts,ts",     "video/mp2t" },
   { "m2p,mp2p,ps,pes",          "video/mp2p" },
@@ -89,8 +89,8 @@ static const struct {
 
 // http://tools.ietf.org/html/rfc2361
   { "wav",											"audio/vnd.wave" },
-	
-// http://real.custhelp.com/cgi-bin/real.cfg/php/enduser/std_adp.php?p_faqid=2559&p_created=&p_sid=uz4Tpoti&p_lva=1085179956&p_sp=2559&p_li=cF9zcmNoPTEmcF9zb3J0X2J5PSZwX2dyaWRzb3J0PSZwX3Jvd19jbnQ9MSZwX3Byb2RzPTMsMTEmcF9jYXRzPSZwX3B2PTIuMTEmcF9jdj0mcF9zZWFyY2hfdHlwZT1hbnN3ZXJzLmFfaWQmcF9wYWdlPTEmcF9zZWFyY2hfdGV4dD0yNTU5cF9zcmNoPTEmcF9zb3J0X2J5PSZwX2dyaWRzb3J0PSZwX3Jvd19jbnQ9MyZwX3Byb2RzPTMsMTEmcF9jYXRzPSZwX3B2PTIuMTEmcF9jdj0mcF9zZWFyY2hfdHlwZT1hbnN3ZXJzLnNlYXJjaF9ubCZwX3BhZ2U9MSZwX3NlYXJjaF90ZXh0PU1JTUU*&p_prod_lvl1=3&p_prod_lvl2=11&tabName=tab0&p_topview=1
+
+//http://real.custhelp.com/cgi-bin/real.cfg/php/enduser/std_adp.php?p_faqid=2559&p_created=&p_sid=uz4Tpoti&p_lva=1085179956&p_sp=2559&p_li=cF9zcmNoPTEmcF9zb3J0X2J5PSZwX2dyaWRzb3J0PSZwX3Jvd19jbnQ9MSZwX3Byb2RzPTMsMTEmcF9jYXRzPSZwX3B2PTIuMTEmcF9jdj0mcF9zZWFyY2hfdHlwZT1hbnN3ZXJzLmFfaWQmcF9wYWdlPTEmcF9zZWFyY2hfdGV4dD0yNTU5cF9zcmNoPTEmcF9zb3J0X2J5PSZwX2dyaWRzb3J0PSZwX3Jvd19jbnQ9MyZwX3Byb2RzPTMsMTEmcF9jYXRzPSZwX3B2PTIuMTEmcF9jdj0mcF9zZWFyY2hfdHlwZT1hbnN3ZXJzLnNlYXJjaF9ubCZwX3BhZ2U9MSZwX3NlYXJjaF90ZXh0PU1JTUU*&p_prod_lvl1=3&p_prod_lvl2=11&tabName=tab0&p_topview=1
   { "ra,ram",										"audio/vnd.rn-realaudio" },
 
 // http://en.wikipedia.org/wiki/WebM
@@ -102,10 +102,10 @@ static const struct {
 // http://tools.ietf.org/html/rfc4337
   { "mp4,m4p,m4b,m4r,m4v",			"video/mp4" },
   { "m4a",											"audio/mp4" },
-  
+
 // http://tools.ietf.org/html/rfc3839
   { "3gp,3gpp",                 "video/3gpp" },
-  
+
 // http://tools.ietf.org/html/rfc4393
   { "3g2,3gp2",                 "video/3gpp2" },
 
@@ -113,12 +113,12 @@ static const struct {
 // video/divx is needed for PS3 to play AVI files at least
 // Other options would be: video/avi, video/msvideo, video/x-msvideo
   { "avi,divx,xvid",						"video/divx" },
-  
+
   { "flv",                      "video/x-flv" },
-  
+
 // http://www.filesuffix.com/extension/hdmov.html
   { "hdmov",                    "video/quicktime" },
-  
+
 // http://www.webmaster-toolkit.com/mime-types.shtml
   { "mjpg",                     "video/x-motion-jpeg" },
 
@@ -706,7 +706,7 @@ get_type_handler(char *ext, type_ext *types, type_handler *handlers)
   int typeindex = -1;
   int i, j;
   type_handler *hdl = NULL;
-  
+
   for (i = 0; typeindex == -1 && types[i].type; i++) {
     for (j = 0; typeindex == -1 && types[i].ext[j]; j++) {
 #ifdef _MSC_VER
@@ -719,18 +719,18 @@ get_type_handler(char *ext, type_ext *types, type_handler *handlers)
       }
     }
   }
-  
+
   LOG_DEBUG("typeindex: %d\n", typeindex);
-    
+
   if (typeindex > -1) {
     for (hdl = handlers; hdl->type; ++hdl)
       if (!strcmp(hdl->type, types[typeindex].type))
         break;
   }
-  
+
   if (hdl)
     LOG_DEBUG("type handler: %s\n", hdl->type);
-  
+
   return hdl;
 }
 
@@ -740,11 +740,11 @@ scan_audio(ScanData s)
   char *ext = strrchr(s->path, '.');
   if (ext == NULL)
     return;
-  
+
   type_handler *hdl = get_type_handler(ext + 1, audio_types, audio_handlers);
   if (hdl == NULL)
     return;
-  
+
   // Open the file unless we already have an open fd
   int opened = s->fp != NULL;
   if (!opened) {
@@ -761,7 +761,7 @@ scan_audio(ScanData s)
     fclose(s->fp);
     s->fp = NULL;
   }
-  
+
   return;
 }
 */

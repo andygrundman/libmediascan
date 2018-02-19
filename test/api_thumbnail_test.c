@@ -134,7 +134,7 @@ static void my_result_callback(MediaScan *s, MediaScanResult *r, void *userdata)
 	result_called = TRUE;
 } /* my_result_callback() */
 
-static void my_error_callback(MediaScan *s, MediaScanError *error, void *userdata) { 
+static void my_error_callback(MediaScan *s, MediaScanError *error, void *userdata) {
 	error_called = TRUE;
 } /* my_error_callback() */
 
@@ -159,7 +159,7 @@ static const struct {
   { "data\\image\\bmp\\8bit_os2.bmp",			"image/x-ms-bmp", "BMP", 4, 127, 64, TRUE,  "data\\image\\bmp\\thumb\\8bit_os2"  },
 
 	// Note: BMP RLE compression is not supported
-//  { "data\\image\\bmp\\8bit_rle.bmp",			"image/x-ms-bmp", "BMP", 4, 127, 64, FALSE, "data\\image\\bmp\\thumb\\8bit_rle"   }, 
+//  { "data\\image\\bmp\\8bit_rle.bmp",			"image/x-ms-bmp", "BMP", 4, 127, 64, FALSE, "data\\image\\bmp\\thumb\\8bit_rle"   },
 	{ "data\\image\\bmp\\16bit_555.bmp",		"image/x-ms-bmp", "BMP", 4, 127, 64, FALSE, "data\\image\\bmp\\thumb\\16bit_555"   },
   { "data\\image\\bmp\\16bit_565.bmp",		"image/x-ms-bmp", "BMP", 4, 127, 64, FALSE, "data\\image\\bmp\\thumb\\16bit_565"   },
   { "data\\image\\bmp\\24bit.bmp",				"image/x-ms-bmp", "BMP", 4, 127, 64, FALSE, "data\\image\\bmp\\thumb\\24bit"   },
@@ -226,16 +226,16 @@ void test_image_reading(void)	{
 	CU_ASSERT(s->on_result == my_result_callback);
 
 	CU_ASSERT(s->on_error == NULL);
-	ms_set_error_callback(s, my_error_callback); 
+	ms_set_error_callback(s, my_error_callback);
 	CU_ASSERT(s->on_error == my_error_callback);
 
-	for(i = 0; expected_results[i].filename; i++) 
+	for(i = 0; expected_results[i].filename; i++)
 	{
 		error_called = FALSE;
 		result_called = FALSE;
 
 		ms_scan_file(s, expected_results[i].filename, TYPE_IMAGE);
-	
+
 		if(expected_results[i].failure) {
 			CU_ASSERT(error_called);
 			continue;
@@ -366,7 +366,7 @@ void write_png_file(char* file_name) {
       png_write_row(png_ptr, (png_bytep) ptr);
     }
   }
-  else {                        // RGB  
+  else {                        // RGB
     for (y = 0; y < result._thumbs[0]->height; y++) {
       for (x = 0; x < result._thumbs[0]->width; x++) {
         ptr[x * 4] = COL_RED(result._thumbs[0]->_pixbuf[j]);
@@ -413,7 +413,7 @@ void test_thumbnailing(void)	{
 	CU_ASSERT(s->on_result == my_result_callback);
 
 	CU_ASSERT(s->on_error == NULL);
-	ms_set_error_callback(s, my_error_callback); 
+	ms_set_error_callback(s, my_error_callback);
 	CU_ASSERT(s->on_error == my_error_callback);
 
 	ms_add_thumbnail_spec(s, THUMB_PNG, 32,32, TRUE, 0, 90);
@@ -435,11 +435,11 @@ void generate_thumbnails()
 
 	MediaScan *s = ms_create();
 		ms_set_result_callback(s, my_result_callback);
-			ms_set_error_callback(s, my_error_callback); 
-			
+			ms_set_error_callback(s, my_error_callback);
+
 	ms_add_thumbnail_spec(s, THUMB_PNG, 32,32, TRUE, 0, 90);
 
-	for(i = 0; expected_results[i].filename; i++) 
+	for(i = 0; expected_results[i].filename; i++)
 	{
 		ms_scan_file(s, expected_results[i].filename, TYPE_IMAGE);
 
@@ -466,9 +466,9 @@ void generate_thumbnails()
 int setup_thumbnail_tests() {
 	CU_pSuite pSuite = NULL;
 
-	
 
-	// Note: Uncomment this to generate the thumbnails, they should be examined by eye to make sure they are good 
+
+	// Note: Uncomment this to generate the thumbnails, they should be examined by eye to make sure they are good
 	// before using them in tests.
 	// generate_thumbnails();
 

@@ -86,7 +86,7 @@ MediaScanImage *video_create_image_from_frame(MediaScanVideo *v, MediaScanResult
   // * Skip frames of all the same color (e.g. blank intro frames
   // * Use edge detection to skip blurry frames
   //   * http://code.google.com/p/fast-edge/
-  //   * http://en.wikipedia.org/wiki/Canny_edge_detector 
+  //   * http://en.wikipedia.org/wiki/Canny_edge_detector
   // * Use a frame some percentage into the video, what percentage?
   // * If really ambitious, use OpenCV for finding a frame with a face?
 

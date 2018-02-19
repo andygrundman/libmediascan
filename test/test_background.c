@@ -53,7 +53,7 @@ int copyfile(char *source, char *dest, int not_used)
          */
         pid_t ws = waitpid( pid, &childExitStatus, WNOHANG);
         if (ws == -1)
-        { 
+        {
         return FALSE;
         }
 
@@ -90,7 +90,7 @@ int deletefile(char *source)
          */
         pid_t ws = waitpid( pid, &childExitStatus, WNOHANG);
         if (ws == -1)
-        { 
+        {
         return FALSE;
         }
 
@@ -148,14 +148,14 @@ static void my_result_callback(MediaScan *s, MediaScanResult *r, void *userdata)
 	result_called++;
 } /* my_result_callback() */
 
-static void my_error_callback(MediaScan *s, MediaScanError *error, void *userdata) { 
+static void my_error_callback(MediaScan *s, MediaScanError *error, void *userdata) {
 
 
 fprintf(stderr, "my_error_callback, err=%d, averr=%d\n", error->error_code, error->averror);
 
 } /* my_error_callback() */
 
-static void my_finish_callback(MediaScan *s, void *userdata) { 
+static void my_finish_callback(MediaScan *s, void *userdata) {
   fprintf(stderr, "finish_callback\n");
 	finish_called = TRUE;
 } /* my_finish_callback() */
@@ -171,7 +171,7 @@ static void my_finish_callback(MediaScan *s, void *userdata) {
 ///-------------------------------------------------------------------------------------------------
 #define MAKE_PATH(str, path, file)  	{ strcpy((str), (path)); strcat((str), "\\"); strcat((str), (file)); }
 
-static void PathCopyFile(const char *file, const char *src_path, const char *dest_path) 
+static void PathCopyFile(const char *file, const char *src_path, const char *dest_path)
 {
 	char src[MAX_PATH_STR_LEN];
 	char dest[MAX_PATH_STR_LEN];
@@ -201,20 +201,20 @@ static void test_background_api(void)	{
 	// Do some setup for the test
 	CU_ASSERT( _mkdir(test_path) != -1 );
 	result_called = 0;
-	
+
 	CU_ASSERT(s->on_result == NULL);
 	ms_set_result_callback(s, my_result_callback);
 	CU_ASSERT(s->on_result == my_result_callback);
 
 	CU_ASSERT(s->on_error == NULL);
-	ms_set_error_callback(s, my_error_callback); 
+	ms_set_error_callback(s, my_error_callback);
 	CU_ASSERT(s->on_error == my_error_callback);
 
 	ms_watch_directory(s, test_path);
 	CU_ASSERT( result_called == 0 );
 	Sleep(1000); // Sleep 1 second
 	CU_ASSERT( result_called == 0 );
-	
+
 	// Now copy a small video file to the test directory
 	PathCopyFile(data_file1, data_path, test_path );
 
@@ -224,7 +224,7 @@ static void test_background_api(void)	{
 	// Now process the callbacks
 	ms_async_process(s);
 	CU_ASSERT( result_called == 1 );
-	
+
 	result_called = 0;
 
 	PathCopyFile(data_file2, data_path, test_path );
@@ -233,7 +233,7 @@ static void test_background_api(void)	{
 	// Now process the callbacks
 	ms_async_process(s);
 	CU_ASSERT( result_called == 1 );
-	
+
 	reset_bdb(s);
 	result_called = 0;
 
@@ -297,13 +297,13 @@ static void test_background_api2(void)	{
 	// Do some setup for the test
 	CU_ASSERT( _mkdir(test_path) != -1 );
 	result_called = 0;
-	
+
 	CU_ASSERT(s->on_result == NULL);
 	ms_set_result_callback(s, my_result_callback);
 	CU_ASSERT(s->on_result == my_result_callback);
 
 	CU_ASSERT(s->on_error == NULL);
-	ms_set_error_callback(s, my_error_callback); 
+	ms_set_error_callback(s, my_error_callback);
 	CU_ASSERT(s->on_error == my_error_callback);
 
 	ms_watch_directory(s, test_path);
@@ -350,7 +350,7 @@ static void test_background_api3(void)	{
 	CU_ASSERT(s->on_result == my_result_callback);
 
 	CU_ASSERT(s->on_error == NULL);
-	ms_set_error_callback(s, my_error_callback); 
+	ms_set_error_callback(s, my_error_callback);
 	CU_ASSERT(s->on_error == my_error_callback);
 
 	ms_watch_directory(s, test_path);
@@ -359,17 +359,17 @@ static void test_background_api3(void)	{
 	// Test a directory that looks like a mapped network drive but isn't
 	ms_errno = 0;
 	ms_watch_directory(s, test_path2);
-	CU_ASSERT(ms_errno == 0); 
+	CU_ASSERT(ms_errno == 0);
 
 	// Now test a mapped network drive
 	ms_errno = 0;
 	ms_watch_directory(s, test_path3);
-	CU_ASSERT(ms_errno == MSENO_ILLEGALPARAMETER); 
+	CU_ASSERT(ms_errno == MSENO_ILLEGALPARAMETER);
 
 	// Now test a NTFS mounted folder
 //	ms_errno = 0;
 //	ms_watch_directory(s, test_path4);
-//	CU_ASSERT(ms_errno == 0); 
+//	CU_ASSERT(ms_errno == 0);
 
 
 	ms_destroy(s);
@@ -394,7 +394,7 @@ static void test_win32_shortcuts(void)	{
 	CU_ASSERT(s->on_result == my_result_callback);
 
 	CU_ASSERT(s->on_error == NULL);
-	ms_set_error_callback(s, my_error_callback); 
+	ms_set_error_callback(s, my_error_callback);
 	CU_ASSERT(s->on_error == my_error_callback);
 
 	CU_ASSERT(s->npaths == 0);
@@ -430,7 +430,7 @@ static void test_win32_shortcut_recursion(void)	{
 	CU_ASSERT(s->on_result == my_result_callback);
 
 	CU_ASSERT(s->on_error == NULL);
-	ms_set_error_callback(s, my_error_callback); 
+	ms_set_error_callback(s, my_error_callback);
 	CU_ASSERT(s->on_error == my_error_callback);
 
 	CU_ASSERT(s->npaths == 0);
@@ -458,7 +458,7 @@ static void test_win32_shortcut_recursion(void)	{
 	CU_ASSERT(s->on_result == my_result_callback);
 
 	CU_ASSERT(s->on_error == NULL);
-	ms_set_error_callback(s, my_error_callback); 
+	ms_set_error_callback(s, my_error_callback);
 	CU_ASSERT(s->on_error == my_error_callback);
 
 	CU_ASSERT(s->npaths == 0);
@@ -486,7 +486,7 @@ static void test_win32_shortcut_recursion(void)	{
 	CU_ASSERT(s->on_result == my_result_callback);
 
 	CU_ASSERT(s->on_error == NULL);
-	ms_set_error_callback(s, my_error_callback); 
+	ms_set_error_callback(s, my_error_callback);
 	CU_ASSERT(s->on_error == my_error_callback);
 
 	CU_ASSERT(s->npaths == 0);
@@ -514,7 +514,7 @@ static void test_win32_shortcut_recursion(void)	{
 	CU_ASSERT(s->on_result == my_result_callback);
 
 	CU_ASSERT(s->on_error == NULL);
-	ms_set_error_callback(s, my_error_callback); 
+	ms_set_error_callback(s, my_error_callback);
 	CU_ASSERT(s->on_error == my_error_callback);
 
 	CU_ASSERT(s->npaths == 0);
@@ -550,7 +550,7 @@ static void test_juke(void)	{
 	CU_ASSERT(s->on_result == my_result_callback);
 
 	CU_ASSERT(s->on_error == NULL);
-	ms_set_error_callback(s, my_error_callback); 
+	ms_set_error_callback(s, my_error_callback);
 	CU_ASSERT(s->on_error == my_error_callback);
 
 	CU_ASSERT(s->npaths == 0);
@@ -588,10 +588,10 @@ static void test_juke_bad_file(void)	{
 	CU_ASSERT(s->on_result == my_result_callback);
 
 	CU_ASSERT(s->on_error == NULL);
-	ms_set_error_callback(s, my_error_callback); 
+	ms_set_error_callback(s, my_error_callback);
 	CU_ASSERT(s->on_error == my_error_callback);
 
-	ms_scan_file(s, test_path1, TYPE_VIDEO); 
+	ms_scan_file(s, test_path1, TYPE_VIDEO);
 	CU_ASSERT( result_called == 1 );
 
 	ms_destroy(s);
@@ -602,7 +602,7 @@ static void test_juke_bad_file(void)	{
 
 static void test_linux_shortcuts(void)	{
 	const char *test_path = "data/video/linuxshortcuts";
-	
+
 	// file is bars-mpeg4-aac.m4v
 	const char *test_file1 = "data/video/linuxshortcuts/dlna_abs.symlink";
 	const char *test_file2 = "data/video/linuxshortcuts/dlna_rel.symlink";
@@ -624,7 +624,7 @@ static void test_linux_shortcuts(void)	{
 	CU_ASSERT(s->on_result == my_result_callback);
 
 	CU_ASSERT(s->on_error == NULL);
-	ms_set_error_callback(s, my_error_callback); 
+	ms_set_error_callback(s, my_error_callback);
 	CU_ASSERT(s->on_error == my_error_callback);
 
 	CU_ASSERT(s->npaths == 0);
@@ -633,7 +633,7 @@ static void test_linux_shortcuts(void)	{
 
 	ms_scan(s);
 	CU_ASSERT( result_called == 5 );
-	
+
 	ms_destroy(s);
 	s = ms_create();
 
@@ -648,7 +648,7 @@ static void test_linux_shortcuts(void)	{
 	CU_ASSERT(s->on_result == my_result_callback);
 
 	CU_ASSERT(s->on_error == NULL);
-	ms_set_error_callback(s, my_error_callback); 
+	ms_set_error_callback(s, my_error_callback);
 	CU_ASSERT(s->on_error == my_error_callback);
 /*
 	CU_ASSERT(s->npaths == 0);
@@ -656,7 +656,7 @@ static void test_linux_shortcuts(void)	{
 	CU_ASSERT(s->npaths == 1);
 
 	ms_scan(s);
-	CU_ASSERT( result_called == 5 );	
+	CU_ASSERT( result_called == 5 );
 */
 //	if(isAlias(test_file1))
 //		printf("%s is a link\n", test_file1);
@@ -684,7 +684,7 @@ static void test_linux_shortcuts(void)	{
 
 static void test_mac_shortcuts(void)	{
 	const char *test_path = "data/video/macshortcuts";
-	
+
 	const char *test_file1 = "data/video/macshortcuts/avi_alias";
 	const char *test_file2 = "data/video/macshortcuts/dlna";
 	const char *test_file3 = "data/video/macshortcuts/dlna_link";
@@ -708,7 +708,7 @@ static void test_mac_shortcuts(void)	{
 	CU_ASSERT(s->on_result == my_result_callback);
 
 	CU_ASSERT(s->on_error == NULL);
-	ms_set_error_callback(s, my_error_callback); 
+	ms_set_error_callback(s, my_error_callback);
 	CU_ASSERT(s->on_error == my_error_callback);
 
 	CU_ASSERT(s->npaths == 0);
@@ -717,7 +717,7 @@ static void test_mac_shortcuts(void)	{
 
 	ms_scan(s);
 	CU_ASSERT( result_called == 5 );
-	
+
 	ms_destroy(s);
 	s = ms_create();
 
@@ -732,7 +732,7 @@ static void test_mac_shortcuts(void)	{
 	CU_ASSERT(s->on_result == my_result_callback);
 
 	CU_ASSERT(s->on_error == NULL);
-	ms_set_error_callback(s, my_error_callback); 
+	ms_set_error_callback(s, my_error_callback);
 	CU_ASSERT(s->on_error == my_error_callback);
 
 	CU_ASSERT(s->npaths == 0);
@@ -740,7 +740,7 @@ static void test_mac_shortcuts(void)	{
 	CU_ASSERT(s->npaths == 1);
 
 	ms_scan(s);
-	CU_ASSERT( result_called == 5 );	
+	CU_ASSERT( result_called == 5 );
 
 	//if(isAlias(test_file6))
 	//	printf("%s is a link\n", test_file6);
@@ -801,7 +801,7 @@ static void test_async_api(void)	{
 	CU_ASSERT(s->on_result == my_result_callback);
 
 	CU_ASSERT(s->on_error == NULL);
-	ms_set_error_callback(s, my_error_callback); 
+	ms_set_error_callback(s, my_error_callback);
 	CU_ASSERT(s->on_error == my_error_callback);
 
 	ms_scan(s);
@@ -904,7 +904,7 @@ win32_select(int nfds, fd_set* rd, fd_set* wr, fd_set* ex, const struct timeval*
     for (i = 0; i < nfds; i++) {
 		if (rd && FD_ISSET(i,rd)) {
 			fd = TO_SOCKET(i);
-			if (!FD_ISSET(fd, &nrd)) 
+			if (!FD_ISSET(fd, &nrd))
 				FD_CLR(i,rd);
 		}
 		if (wr && FD_ISSET(i,wr)) {
@@ -946,11 +946,11 @@ static void test_async_api2(void)	{
 	CU_ASSERT(s->on_result == my_result_callback);
 
 	CU_ASSERT(s->on_error == NULL);
-	ms_set_error_callback(s, my_error_callback); 
+	ms_set_error_callback(s, my_error_callback);
 	CU_ASSERT(s->on_error == my_error_callback);
 
 	CU_ASSERT(s->on_finish == NULL);
-	ms_set_finish_callback(s, my_finish_callback); 
+	ms_set_finish_callback(s, my_finish_callback);
 	CU_ASSERT(s->on_finish == my_finish_callback);
 
 
@@ -1009,21 +1009,21 @@ int setupbackground_tests() {
 
    /* add the tests to the background scanning suite */
    if (
-//   NULL == CU_add_test(pSuite, "Test background scanning API", test_background_api) 
-//   NULL == CU_add_test(pSuite, "Test background scanning Deletion", test_background_api2) 
+//   NULL == CU_add_test(pSuite, "Test background scanning API", test_background_api)
+//   NULL == CU_add_test(pSuite, "Test background scanning Deletion", test_background_api2)
 //#if defined(WIN32)
-//    NULL == CU_add_test(pSuite, "Test Async scanning API 2", test_async_api2) 
+//    NULL == CU_add_test(pSuite, "Test Async scanning API 2", test_async_api2)
 //#endif
-//   NULL == CU_add_test(pSuite, "Test edge cases of background scanning API", test_background_api3) 
-   NULL == CU_add_test(pSuite, "Test Juke DB", test_juke) 
-//   NULL == CU_add_test(pSuite, "Test a bad file in Juke", test_juke_bad_file)    
+//   NULL == CU_add_test(pSuite, "Test edge cases of background scanning API", test_background_api3)
+   NULL == CU_add_test(pSuite, "Test Juke DB", test_juke)
+//   NULL == CU_add_test(pSuite, "Test a bad file in Juke", test_juke_bad_file)
 #if defined(WIN32)
-//   NULL == CU_add_test(pSuite, "Test Win32 shortcuts", test_win32_shortcuts) 
-   //NULL == CU_add_test(pSuite, "Test Win32 shortcut infinite recursion", test_win32_shortcut_recursion) 
+//   NULL == CU_add_test(pSuite, "Test Win32 shortcuts", test_win32_shortcuts)
+   //NULL == CU_add_test(pSuite, "Test Win32 shortcut infinite recursion", test_win32_shortcut_recursion)
 #elif defined(__linux__)
-   NULL == CU_add_test(pSuite, "Test Linux shortcuts", test_linux_shortcuts) 
+   NULL == CU_add_test(pSuite, "Test Linux shortcuts", test_linux_shortcuts)
 #else
-   NULL == CU_add_test(pSuite, "Test Mac shortcuts", test_mac_shortcuts) 
+   NULL == CU_add_test(pSuite, "Test Mac shortcuts", test_mac_shortcuts)
 #endif
 	   )
    {

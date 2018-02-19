@@ -14,5 +14,5 @@ dist-hook:
 		$(distdir)/bindings/perl/*.bs \
 		$(distdir)/bindings/perl/*blib \
 		$(distdir)/bindings/perl/MANIFEST.SKIP
-	
+
 	rm -rf $(distdir)/test/data

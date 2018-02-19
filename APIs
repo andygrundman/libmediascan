@@ -12,12 +12,12 @@ $s = Media::Scan->new(
       { format => 'AUTO', width => 100, height => 100, keep_aspect => 1, bgcolor => 0xffffff, quality => 90 },
       ...
     ], # $result will contain generated thumbnail(s) of any/all images. For video, uses random(?) frame
-    
-      
+
+
     ### Callbacks
     on_file => sub {
       my $result = shift; # result object (see below)
-    
+
     },
     on_error => sub {
       my $error = shift; # string
@@ -35,7 +35,7 @@ my $h = AnyEvent->io( fh => $s->async_fd, poll => 'r', cb => sub {
 } );
 
 Media::Scan::Progress
-  
+
 
 Media::Scan::Image
   width() # width in pixels

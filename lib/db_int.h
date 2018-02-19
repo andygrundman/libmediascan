@@ -321,7 +321,7 @@ typedef struct __fn {
 #define	STAT_SET_VERB(env, cat, subcat, val, newval, id1, id2)	NOP_STATEMENT
 #endif
 
-/* 
+/*
  * These macros are used when an error condition is first noticed. They allow
  * one to be notified (via e.g. DTrace, SystemTap, ...) when an error occurs
  * deep inside DB, rather than when it is returned back through the API.
@@ -756,7 +756,7 @@ struct __env {
 	int (*dbt_usercopy)
 	    __P((DBT *, u_int32_t, void *, u_int32_t, u_int32_t));
 
-	int (*log_verify_wrap) __P((ENV *, const char *, u_int32_t,  
+	int (*log_verify_wrap) __P((ENV *, const char *, u_int32_t,
 	    const char *, const char *, time_t, time_t, u_int32_t,  u_int32_t,
 	    u_int32_t, u_int32_t, int, int));
 

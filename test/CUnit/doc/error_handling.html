@@ -134,12 +134,12 @@ The following error code values are defined:
 
 <H3 ID="erroraction">6.3. Behavior Upon Framework Errors</H3>
 The default behavior when an error condition is encountered is for the
-error code to be set and execution continued.  In this context, failed 
+error code to be set and execution continued.  In this context, failed
 assertions are not considered "framework errors".  All other error conditions
 including suite initialization or cleanup failures, inactive suites or tests
-which are run explicitly, etc. are included.  There may be times when clients 
-prefer for a test run to stop on a framework error, or even for the test 
-application to exit.  This behavior can be set by the user, for which the 
+which are run explicitly, etc. are included.  There may be times when clients
+prefer for a test run to stop on a framework error, or even for the test
+application to exit.  This behavior can be set by the user, for which the
 following functions are provided:
 <P CLASS="indent2">
   <CITE ID="setaction">void <B>CU_set_error_action</B>(CU_ErrorAction action)</CITE><BR />

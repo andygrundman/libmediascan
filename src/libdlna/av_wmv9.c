@@ -220,11 +220,11 @@ wmv_video_profile_get (AVStream *vs, AVCodecContext *vc)
   if (is_valid_wmv9_video_profile (wmv9_profile_main_medium,
                                    sizeof (wmv9_profile_main_medium), vs, vc))
     return WMV_VIDEO_PROFILE_MAIN_MEDIUM;
-  
+
   if (is_valid_wmv9_video_profile (wmv9_profile_main_high,
                                    sizeof (wmv9_profile_main_high), vs, vc))
     return WMV_VIDEO_PROFILE_MAIN_HIGH;
-  
+
   return WMV_VIDEO_PROFILE_INVALID;
 }
 
@@ -239,7 +239,7 @@ probe_wmv9 (AVFormatContext *ctx dlna_unused,
 
   if (!stream_ctx_is_av (codecs))
     return NULL;
-  
+
   /* need to be in ASF container only */
   if (st != CT_ASF)
     return NULL;
@@ -252,7 +252,7 @@ probe_wmv9 (AVFormatContext *ctx dlna_unused,
   vp = wmv_video_profile_get (codecs->vs, codecs->vc);
   if (vp == WMV_VIDEO_PROFILE_INVALID)
     return NULL;
-  
+
   /* get audio profile */
   ap = audio_profile_guess (codecs->ac);
   if (ap == AUDIO_PROFILE_INVALID)

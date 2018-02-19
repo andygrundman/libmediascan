@@ -41,7 +41,7 @@ audio_profile_guess_ac3 (AVCodecContext *ac)
   /* check for AC3 codec */
   if (ac->codec_id != AV_CODEC_ID_AC3)
     return AUDIO_PROFILE_INVALID;
-  
+
   /* supported channels: 1/0, 2/0, 3/0, 2/1, 3/1, 2/2, 3/2 */
   if (ac->channels > 5)
     return AUDIO_PROFILE_INVALID;
@@ -76,7 +76,7 @@ probe_ac3 (AVFormatContext *ctx dlna_unused,
   /* check for supported container */
   if (st != CT_AC3)
     return NULL;
-  
+
   switch (audio_profile_guess_ac3 (codecs->ac))
   {
   case AUDIO_PROFILE_AC3:
@@ -85,7 +85,7 @@ probe_ac3 (AVFormatContext *ctx dlna_unused,
   default:
     break;
   }
-  
+
   return NULL;
 }
 

@@ -69,16 +69,16 @@ WSADATA wsaData;
  Video support
  -------------
  We are only supporting a subset of FFmpeg's supported formats:
- 
+
  Containers:   MPEG-4, ASF, AVI, Matroska, VOB, FLV, WebM
  Video codecs: h.264, MPEG-1, MPEG-2, MPEG-4, Microsoft MPEG-4, WMV, VP6F (FLV), VP8
  Audio codecs: AAC, AC3, DTS, MP3, MP2, Vorbis, WMA
  Subtitles:    All
- 
+
  Audio support
  -------------
  TODO
- 
+
  Image support
  -------------
  Reading: JPEG, PNG, GIF, BMP
@@ -985,7 +985,7 @@ void ms_scan(MediaScan *s) {
     LOG_ERROR("Result callback not set, aborting scan\n");
     goto out;
   }
-  
+
   if (s->npaths == 0) {
     LOG_ERROR("No paths set, aborting scan\n");
     goto out;

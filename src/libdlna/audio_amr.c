@@ -55,7 +55,7 @@ audio_is_valid_amr (AVCodecContext *ac)
 
   if (ac->codec_id != AV_CODEC_ID_AMR_NB)
     return 0;
-  
+
   /* only mono is supported */
   if (ac->channels != 1)
     return 0;
@@ -91,7 +91,7 @@ audio_is_valid_amr_wb (AVCodecContext *ac)
 
   if (ac->codec_id != AV_CODEC_ID_AMR_WB)
     return 0;
-  
+
   /* valid sampling rates: 8, 16, 24, 32 and 48 kHz */
   if (ac->sample_rate != 8000 &&
       ac->sample_rate != 16000 &&
@@ -121,7 +121,7 @@ audio_profile_guess_amr (AVCodecContext *ac)
     return AUDIO_PROFILE_AMR;
   else if (audio_is_valid_amr_wb (ac))
     return AUDIO_PROFILE_AMR_WB;
-  
+
   return AUDIO_PROFILE_INVALID;
 }
 
@@ -136,14 +136,14 @@ probe_amr (AVFormatContext *ctx dlna_unused,
   /* check for supported container */
   if (st != CT_AMR && st != CT_3GP && st != CT_MP4)
     return NULL;
-  
+
   /* check for AMR NB/WB audio codec */
   if (audio_is_valid_amr (codecs->ac))
     return (st == CT_3GP) ? &three_gpp : &amr;
 
   if (audio_is_valid_amr_wb (codecs->ac))
     return &amr_wbplus;
-  
+
   return NULL;
 }
 

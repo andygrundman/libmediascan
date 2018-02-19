@@ -22,7 +22,7 @@
 
 - (NSString*) absolutePath: (NSString*)path
 {
-	NSString* straitPath = [path stringByStandardizingPath];	
+	NSString* straitPath = [path stringByStandardizingPath];
 	if ([straitPath isAbsolutePath] == FALSE)
 	{
 		NSFileManager *filemgr;
@@ -30,13 +30,13 @@
 
 		filemgr = [[NSFileManager alloc] init];
 		currentpath = [filemgr currentDirectoryPath];
-	
+
 		straitPath = [currentpath stringByAppendingPathComponent: path];
 		straitPath = [straitPath stringByStandardizingPath];
 
 		[filemgr autorelease];
 	}
-	
+
 	return straitPath;
 }
 
@@ -60,7 +60,7 @@
 	{
 		return nil;
 	}
-	
+
 	//
 	// Break into components. First component ("/") needs no resolution, so
 	// we only need to handle subsequent components.
@@ -99,7 +99,7 @@
 	NSString *path = self;
 	NSString *aliasTarget = nil;
 	struct stat fileInfo;
-	
+
 	//
 	// Use lstat to determine if the file is a symlink
 	//
@@ -108,7 +108,7 @@
 	{
 		return nil;
 	}
-	
+
 	//
 	// While the file is a symlink or we can resolve aliases in the path,
 	// keep resolving.
@@ -144,7 +144,7 @@
 			continue;
 		}
 	}
-	
+
 	return path;
 }
 
@@ -230,7 +230,7 @@
 - (NSString *)stringByConditionallyResolvingAlias
 {
 	NSString *resolvedPath = nil;
-	 
+
 	CFURLRef url = CFURLCreateWithFileSystemPath
 		(kCFAllocatorDefault, (CFStringRef)self, kCFURLPOSIXPathStyle, NO);
 	if (url != NULL)
@@ -255,7 +255,7 @@
 		}
 		CFRelease(url);
 	}
-	 
+
 	return resolvedPath;
 }
 

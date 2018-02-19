@@ -4,7 +4,7 @@ COMPILE_DIRS = CUnit doc Man Share
 
 if ENABLE_EXAMPLES
 EXAMPLE_COMPILE_DIR = Examples
-endif 
+endif
 
 COMPILE_DIRS += $(EXAMPLE_COMPILE_DIR)
 
@@ -53,7 +53,7 @@ RPMDIRS=BUILD SOURCES RPMS RPMS/i386 SRPMS SPECS
 clean-all: clean
 	rm -f ${SOURCE_GZIP_FILE} ${SOURCE_ZIP_FILE} ${SOURCE_TAR_FILE} *.rpm
 	rm -rf ${RPMDIRS} `find . -name "Temp"` `find . -name "Debug"`
-	for file in ${EXTRA_REMOVE}; do rm -f `find . -name "${file}"`; done	
+	for file in ${EXTRA_REMOVE}; do rm -f `find . -name "${file}"`; done
 
 distclean-all: distclean
 	rm -f ${SOURCE_GZIP_FILE} ${SOURCE_ZIP_FILE} ${SOURCE_TAR_FILE} *.rpm
@@ -88,7 +88,7 @@ rpm-package: gzip
 	echo "%changelog" >> ${PACKAGE_TMPSPEC} && \
 	cat ${CHANGELOG} >> ${PACKAGE_TMPSPEC} && \
 	export RPM_BUILD_ROOT=${RPM_BUILD_ROOT} && \
-	cp ${SOURCE_GZIP_FILE} ${RPM_SOURCE_DIR} 
+	cp ${SOURCE_GZIP_FILE} ${RPM_SOURCE_DIR}
 	${RPM} ${RPM_DEFINES} ${RPMFLAGS} -bb ${PACKAGE_TMPSPEC} && \
 	( (cp -f ${RPM_ATHLON} .) || (cp -f ${RPM_I386} .) || (cp -f ${RPM_I486} .) \
 	  || (cp -f ${RPM_I586} .) || (cp -f ${RPM_I686} .) \

@@ -52,9 +52,9 @@ my $c = 1;
             $cv->send;
         },
     } );
-    
+
     warn "Waiting on filehandle " . $s->async_fd . "\n";
-    
+
     #$s->async_process while(1);
 
     my $w = AnyEvent->io(

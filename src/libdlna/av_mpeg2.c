@@ -315,13 +315,13 @@ is_mpeg_ps_es_audio_stream_lpcm (AVFormatContext *ctx dlna_unused,
 {
   if (audio_profile_guess_lpcm (codecs->ac) != AUDIO_PROFILE_LPCM)
     return 0;
-  
+
   /* audio bit rate: 1.536 Mbps for stereo, 768 Kbps for mono */
   if (codecs->ac->channels == 2 && codecs->ac->bit_rate > 1536000)
     return 0;
   if (codecs->ac->channels == 1 && codecs->ac->bit_rate > 768000)
     return 0;
-  
+
   return 1;
 }
 
@@ -358,7 +358,7 @@ is_mpeg_ps_es_audio_stream_mp2 (AVFormatContext *ctx dlna_unused,
   if (codecs->ac->channels == 2 &&
       (codecs->ac->bit_rate < 64000 || codecs->ac->bit_rate > 384000))
     return 0;
-  
+
   return 1;
 }
 
@@ -463,7 +463,7 @@ probe_mpeg_ts (AVFormatContext *ctx,
 {
   int xac3 = 0; /* extended AC3 audio */
   int i;
-  
+
   /* check for MPEG-2 MP@LL profile */
   if (codecs->ac->codec_id == AV_CODEC_ID_AAC)
   {
@@ -545,14 +545,14 @@ probe_mpeg_ts (AVFormatContext *ctx,
      or HD (High-Definition) and only support AC3 as audio stream codec */
 
 // Note: Currently FFMPEG incorrectly calculates the total bit rate of some files.
-//		 This change just adds up the video stream and primary audio stream bit rates 
+//		 This change just adds up the video stream and primary audio stream bit rates
 //		 as an estimate
 //  if (ctx->bit_rate > 19392700)
-//    return NULL; 
+//    return NULL;
 
   /* maximum system bit rate is 19.3927 Mb/s */
   if (codecs->vc->bit_rate + codecs->ac->bit_rate > 19392700)
-    return NULL; 
+    return NULL;
 
   if (codecs->ac->codec_id != AV_CODEC_ID_AC3)
     return NULL;
@@ -632,7 +632,7 @@ probe_mpeg2 (AVFormatContext *ctx,
 {
   if (!stream_ctx_is_av (codecs))
     return NULL;
-  
+
   /* check for MPEG-2 video codec */
   if (codecs->vc->codec_id != AV_CODEC_ID_MPEG2VIDEO)
     return NULL;
@@ -650,7 +650,7 @@ probe_mpeg2 (AVFormatContext *ctx,
   default:
     break;
   }
-  
+
   return NULL;
 }
 

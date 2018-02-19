@@ -61,7 +61,7 @@ audio_profile_guess_lpcm (AVCodecContext *ac)
   /* supported sampling rate: 8 kHz -> 48 kHz */
   if (ac->sample_rate < 8000 || ac->sample_rate > 48000)
     return AUDIO_PROFILE_INVALID;
-  
+
   return AUDIO_PROFILE_LPCM;
 }
 
@@ -86,7 +86,7 @@ probe_lpcm (AVFormatContext *ctx dlna_unused,
   sprintf (mime, "%s;rate=%d;channels=%d",
            MIME_AUDIO_LPCM, codecs->ac->sample_rate, codecs->ac->channels);
   p.mime = strdup (mime);
-  
+
   return &p;
 }
 

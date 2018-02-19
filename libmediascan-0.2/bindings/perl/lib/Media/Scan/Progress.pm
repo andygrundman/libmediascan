@@ -6,7 +6,7 @@ use strict;
 
 sub as_hash {
     my $self = shift;
-    
+
     return {
         phase    => $self->phase,
         cur_item => $self->cur_item,

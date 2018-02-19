@@ -113,15 +113,15 @@ pthread_delay_np (const struct timespec *interval);
         The timespec structure contains the following two fields:
 
                 tv_sec is an integer number of seconds.
-                tv_nsec is an integer number of nanoseconds. 
+                tv_nsec is an integer number of nanoseconds.
 
         Return Values
 
         If an error condition occurs, this routine returns an integer value
         indicating the type of error. Possible return values are as follows:
 
-        0          Successful completion. 
-        [EINVAL]   The value specified by interval is invalid. 
+        0          Successful completion.
+        [EINVAL]   The value specified by interval is invalid.
 
 int
 pthread_num_processors_np
@@ -198,7 +198,7 @@ Thread priority
 
 	The following table shows the base priority levels for combinations
 	of priority class and priority value in Win32.
-	
+
 	 Process Priority Class               Thread Priority Level
 	 -----------------------------------------------------------------
 	 1 IDLE_PRIORITY_CLASS                THREAD_PRIORITY_IDLE
@@ -257,7 +257,7 @@ Thread priority
 	29 REALTIME_PRIORITY_CLASS             5
 	30 REALTIME_PRIORITY_CLASS             6
 	31 REALTIME_PRIORITY_CLASS            THREAD_PRIORITY_TIME_CRITICAL
-	
+
 	Windows NT:  Values -7, -6, -5, -4, -3, 3, 4, 5, and 6 are not supported.
 
 

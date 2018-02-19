@@ -4,22 +4,22 @@
 #include "common.h"
 
 #define TEST_COUNT 41
-  
+
 int
 main(int argc, char *argv[])
-{ 
+{
   plan(TEST_COUNT);
-  
+
   av_log_set_level(AV_LOG_ERROR);
-  
+
   // Get path to this binary
   char *bin = _findbin(argv[0]);
-  
+
   // Test scanning a single file
   {
     char *file = _abspath(bin, "../data/video/bars-vp6f-mp3.flv");
     ScanData s = mediascan_scan_file(file, 0);
-    
+
     ok(s->error == 0, "scan_file s->error ok");
     is(s->path, file, "scan_file s->path ok");
     ok(s->flags == 0, "scan_file s->flags ok");
@@ -27,7 +27,7 @@ main(int argc, char *argv[])
     is(s->type_name, "FLV format", "scan_file s->type_name ok");
     ok(s->bitrate == 507, "scan_file s->bitrate ok");
     ok(s->duration_ms == 6000, "scan_file s->duration_ms ok");
-    
+
     ok(s->nstreams == 2, "scan_file s->nstreams ok");
     ok(s->streams[0].type == TYPE_VIDEO, "scan_file s->streams[0].type ok");
     is(s->streams[0].codec_name, "vp6f", "scan_file s->streams[0].codec_name ok");
@@ -40,7 +40,7 @@ main(int argc, char *argv[])
     ok(s->streams[1].bitrate == 98, "scan_file s->streams[1].bitrate ok");
     ok(s->streams[1].samplerate == 44100, "scan_file s->streams[1].samplerate ok");
     ok(s->streams[1].channels == 2, "scan_file s->streams[1].channels ok");
-    
+
     // AVMetadata, XXX use our own Metadata stuff
     int i = 0;
     AVMetadataTag *tag = NULL;
@@ -92,29 +92,29 @@ main(int argc, char *argv[])
       }
       i++;
     }
-    
+
     mediascan_free_ScanData(s);
     free(file);
   }
-  
+
   // Non-media file extension
   {
     ScanData s = mediascan_scan_file(bin, 0);
     ok(s == NULL, "scan_file on non-media file ok");
   }
-  
+
   // Media extension but corrupt data
   {
     char *file = _abspath(bin, "../data/video/corrupt.mp4");
     ScanData s = mediascan_scan_file(file, 0);
-    
+
     ok(s->error == SCAN_FILE_OPEN, "scan_file on corrupt mp4 file ok");
-    
+
     mediascan_free_ScanData(s);
     free(file);
   }
-  
+
   free(bin);
-  
+
   return exit_status();
 }

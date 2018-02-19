@@ -53,7 +53,7 @@ probe_atrac3 (AVFormatContext *ctx dlna_unused,
 {
   if (!stream_ctx_is_audio (codecs))
     return NULL;
-  
+
   if (audio_profile_guess_atrac (codecs->ac) == AUDIO_PROFILE_ATRAC)
     return &atrac3;
 

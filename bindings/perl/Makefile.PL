@@ -121,12 +121,12 @@ for my $incdir ( $ffmpeg_inc, @check ) {
     if ( $incdir && -e catfile($incdir, 'libavformat', 'avformat.h') ) {
         $FFMPEG = 1;
         $ffmpeg_inc = $incdir;
-        
+
         unshift @INC, '-I' . $ffmpeg_inc;
         if ($ffmpeg_lib) {
             unshift @LIBPATH, '-L' . $ffmpeg_lib;
         }
-        
+
         if ($static) {
             if ($ffmpeg_lib) {
                 $MYEXTLIB .= $ffmpeg_lib . '/' . 'libavformat$(LIB_EXT) ';
@@ -140,13 +140,13 @@ for my $incdir ( $ffmpeg_inc, @check ) {
                 $MYEXTLIB .= $ffmpeg_inc . '/../lib/libswscale$(LIB_EXT) ';
                 $MYEXTLIB .= $ffmpeg_inc . '/../lib/libavutil$(LIB_EXT) ';
             }
-            
+
             push @LIBS, '-lm -lz';
         }
         else {
             push @LIBS, '-lavformat -lavcodec -lm -lz -lswscale -lavutil';
         }
-        
+
         print "Using ffmpeg from $ffmpeg_inc\n";
         last;
     }
@@ -161,12 +161,12 @@ for my $incdir ( $exif_inc, @check ) {
     if ( $incdir && -e catfile($incdir, 'libexif', 'exif-data.h') ) {
         $EXIF = 1;
         $exif_inc = $incdir;
-        
+
         unshift @INC, '-I' . $exif_inc;
         if ($exif_lib) {
             unshift @LIBPATH, '-L' . $exif_lib;
         }
-        
+
         if ($static) {
             if ($exif_lib) {
                 $MYEXTLIB .= $exif_lib . '/' . 'libexif$(LIB_EXT) ';
@@ -178,9 +178,9 @@ for my $incdir ( $exif_inc, @check ) {
         else {
             push @LIBS, '-lexif';
         }
-        
+
         push @LIBS, '-lintl'; # XXX only if logging is used for exif
-        
+
         print "Using libexif from $exif_inc\n";
         last;
     }
@@ -195,12 +195,12 @@ for my $incdir ( $jpeg_inc, @check ) {
     if ( $incdir && -e catfile($incdir, 'jpeglib.h') ) {
         $JPEG = 1;
         $jpeg_inc = $incdir;
-        
+
         unshift @INC, '-I' . $jpeg_inc;
         if ($jpeg_lib) {
             unshift @LIBPATH, '-L' . $jpeg_lib;
         }
-        
+
         if ($static) {
             if ($jpeg_lib) {
                 $MYEXTLIB .= $jpeg_lib . '/' . 'libjpeg$(LIB_EXT) ';
@@ -212,7 +212,7 @@ for my $incdir ( $jpeg_inc, @check ) {
         else {
             push @LIBS, '-ljpeg';
         }
-        
+
         print "Using libjpeg from $jpeg_inc\n";
         last;
     }
@@ -227,12 +227,12 @@ for my $incdir ( $png_inc, @check ) {
     if ( $incdir && -e catfile($incdir, 'png.h') ) {
         $PNG = 1;
         $png_inc = $incdir;
-        
+
         unshift @INC, '-I' . $png_inc;
         if ($png_lib) {
             unshift @LIBPATH, '-L' . $png_lib;
         }
-        
+
         if ($static) {
             if ($png_lib) {
                 $MYEXTLIB .= $png_lib . '/' . 'libpng$(LIB_EXT) ';
@@ -244,7 +244,7 @@ for my $incdir ( $png_inc, @check ) {
         else {
             push @LIBS, '-lpng';
         }
-        
+
         print "Using libpng from $png_inc\n";
         last;
     }
@@ -259,12 +259,12 @@ for my $incdir ( $gif_inc, @check ) {
     if ( $incdir && -e catfile($incdir, 'gif_lib.h') ) {
         $GIF = 1;
         $gif_inc = $incdir;
-        
+
         unshift @INC, '-I' . $gif_inc;
         if ($gif_lib) {
             unshift @LIBPATH, '-L' . $gif_lib;
         }
-        
+
         if ($static) {
             if ($gif_lib) {
                 $MYEXTLIB .= $gif_lib . '/' . "libgif\$(LIB_EXT) ";
@@ -355,10 +355,10 @@ my %opts = (
 );
 
 if ( $^O =~ /Win32/i ) {
-    $opts{LDDLFLAGS} = '-dll -nologo -nodefaultlib -opt:ref,icf  -libpath:"C:\Perl\lib\CORE" -machine:x86 -manifest -ManifestFile:$@.manifest';
+    $opts{LDDLFLAGS} = '-dll -nologo -nodefaultlib -opt:ref,icf  -libpath:"C:\Perl\lib\CORE" -machine:x86 -manifest -ManifestFile:$@.manifest -shared -Wl,-Bsymbolic';
 }
 else {
-    $opts{LDDLFLAGS} = '-shared';
+    $opts{LDDLFLAGS} = '-shared -Wl,-Bsymbolic';
 }
 
 WriteMakefile(%opts);

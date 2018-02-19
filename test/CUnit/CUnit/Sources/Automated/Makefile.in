@@ -242,7 +242,7 @@ clean-noinstLTLIBRARIES:
 	  echo "rm -f \"$${dir}/so_locations\""; \
 	  rm -f "$${dir}/so_locations"; \
 	done
-libcunitautomated.la: $(libcunitautomated_la_OBJECTS) $(libcunitautomated_la_DEPENDENCIES) 
+libcunitautomated.la: $(libcunitautomated_la_OBJECTS) $(libcunitautomated_la_DEPENDENCIES)
 	$(LINK)  $(libcunitautomated_la_OBJECTS) $(libcunitautomated_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:

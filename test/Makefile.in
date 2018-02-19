@@ -114,7 +114,7 @@ api_test_DEPENDENCIES = $(LMS_LTLIB)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
-am__v_lt_1 = 
+am__v_lt_1 =
 api_test_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(api_test_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
@@ -132,11 +132,11 @@ am__v_P_1 = :
 AM_V_GEN = $(am__v_GEN_@AM_V@)
 am__v_GEN_ = $(am__v_GEN_@AM_DEFAULT_V@)
 am__v_GEN_0 = @echo "  GEN     " $@;
-am__v_GEN_1 = 
+am__v_GEN_1 =
 AM_V_at = $(am__v_at_@AM_V@)
 am__v_at_ = $(am__v_at_@AM_DEFAULT_V@)
 am__v_at_0 = @
-am__v_at_1 = 
+am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -150,7 +150,7 @@ LTCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 AM_V_CC = $(am__v_CC_@AM_V@)
 am__v_CC_ = $(am__v_CC_@AM_DEFAULT_V@)
 am__v_CC_0 = @echo "  CC      " $@;
-am__v_CC_1 = 
+am__v_CC_1 =
 CCLD = $(CC)
 LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
@@ -158,7 +158,7 @@ LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
-am__v_CCLD_1 = 
+am__v_CCLD_1 =
 SOURCES = $(api_test_SOURCES) $(image_test_SOURCES)
 DIST_SOURCES = $(api_test_SOURCES) $(image_test_SOURCES)
 am__can_run_installinfo = \
@@ -526,7 +526,7 @@ api_test_LDADD = $(LMS_LTLIB) -lcunit
 
 #video_dlna_test_SOURCES = tap.c video_dlna_test.c test.c test_background.c
 #video_dlna_test_CFLAGS = $(LMS_INCLUDE)
-#video_dlna_test_LDADD = $(LMS_LTLIB) -lcunit -ldb 
+#video_dlna_test_LDADD = $(LMS_LTLIB) -lcunit -ldb
 image_test_SOURCES = tap.c image_test.c
 image_test_CFLAGS = $(LMS_INCLUDE)
 image_test_LDADD = $(LMS_LTLIB) -lcunit -ldb
@@ -575,11 +575,11 @@ clean-checkPROGRAMS:
 	echo " rm -f" $$list; \
 	rm -f $$list
 
-api_test$(EXEEXT): $(api_test_OBJECTS) $(api_test_DEPENDENCIES) $(EXTRA_api_test_DEPENDENCIES) 
+api_test$(EXEEXT): $(api_test_OBJECTS) $(api_test_DEPENDENCIES) $(EXTRA_api_test_DEPENDENCIES)
 	@rm -f api_test$(EXEEXT)
 	$(AM_V_CCLD)$(api_test_LINK) $(api_test_OBJECTS) $(api_test_LDADD) $(LIBS)
 
-image_test$(EXEEXT): $(image_test_OBJECTS) $(image_test_DEPENDENCIES) $(EXTRA_image_test_DEPENDENCIES) 
+image_test$(EXEEXT): $(image_test_OBJECTS) $(image_test_DEPENDENCIES) $(EXTRA_image_test_DEPENDENCIES)
 	@rm -f image_test$(EXEEXT)
 	$(AM_V_CCLD)$(image_test_LINK) $(image_test_OBJECTS) $(image_test_LDADD) $(LIBS)
 
