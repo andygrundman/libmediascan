@@ -18,7 +18,7 @@ static char *
 _findbin(const char *cmd)
 {
   char *buf;
-  
+
   if (cmd[0] == '/') {
     buf = strdup(cmd);
   }
@@ -28,7 +28,7 @@ _findbin(const char *cmd)
     strcat(buf, "/");
     strcat(buf, cmd);
   }
-  
+
   return buf;
 }
 
@@ -37,14 +37,14 @@ _abspath(const char *bin, const char *path)
 {
   char *buf = (char *)malloc(1024);
   char *last_slash = strrchr(bin, '/') + 1;
-  
+
   char *s = (char *)&bin[0];
   char *d = &buf[0];
   while (s != last_slash)
     *d++ = *s++;
-  
+
   strcat(buf, path);
-  
+
   return buf;
 }
 

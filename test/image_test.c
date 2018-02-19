@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
   char *bin;
   char *dir;
 
-  plan(TEST_COUNT);  
+  plan(TEST_COUNT);
   ms_set_log_level(DEBUG);
 
   // Get path to this binary
@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
   // Scan all image files
   {
     MediaScan *s = ms_create();
-    ms_add_path(s, dir);    
+    ms_add_path(s, dir);
     ms_add_ignore_extension(s, "AUDIO");
     //ms_add_ignore_extension(s, "IMAGE");
     ms_add_ignore_extension(s, "VIDEO");
@@ -72,9 +72,9 @@ int main(int argc, char *argv[])
 
     ms_destroy(s);
   }
-  
+
   //free(dir);
   free(bin);
- 
+
   return exit_status();
 }

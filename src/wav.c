@@ -231,13 +231,13 @@ _parse_wav_list(ScanData s, Buffer *buf, uint32_t chunk_size)
 {
   char type_id[5];
   uint32_t pos = 4;
-  
+
   strncpy( type_id, (char *)buffer_ptr(buf), 4 );
   type_id[4] = '\0';
   buffer_consume(buf, 4);
-  
+
   LOG_DEBUG("  LIST type %s\n", type_id);
-  
+
   if ( !strcmp( type_id, "adtl" ) ) {
     // XXX need test file
     PerlIO_printf(PerlIO_stderr(), "Unhandled LIST type adtl\n");
@@ -250,37 +250,37 @@ _parse_wav_list(ScanData s, Buffer *buf, uint32_t chunk_size)
       SV *key;
       SV *value;
       unsigned char *bptr;
-      
+
       key = newSVpvn( buffer_ptr(buf), 4 );
       buffer_consume(buf, 4);
       pos += 4;
-      
+
       len = buffer_get_int_le(buf);
-      
+
       // Bug 12250, apparently some WAV files don't use the padding byte
       // so we can't read them.
       if ( len > chunk_size - pos ) {
         PerlIO_printf(PerlIO_stderr(), "Invalid data in WAV LIST INFO chunk (len %d > chunk_size - pos %d)\n", len, chunk_size - pos);
         break;
       }
-      
+
       pos += 4 + len;
-      
+
       // Bug 14946, Strip any nulls from the end of the value
       bptr = buffer_ptr(buf);
       while ( len && bptr[len - 1] == '\0' ) {
         len--;
         nulls++;
       }
-          
+
       value = newSVpvn( buffer_ptr(buf), len );
       buffer_consume(buf, len + nulls);
-      
+
       LOG_DEBUG("    %s / %s (%d + %d nulls)\n", SvPVX(key), SvPVX(value), len, nulls);
-      
+
       my_hv_store_ent( tags, key, value );
       SvREFCNT_dec(key);
-      
+
       // Handle padding
       if ( (len + nulls) % 2 ) {
         buffer_consume(buf, 1);
@@ -324,31 +324,31 @@ static void
 _parse_aiff(ScanData s, Buffer *buf)
 {
   uint32_t offset = 12;
-  
+
   while ( offset < file_size - 8 ) {
     char chunk_id[5];
     int chunk_size;
-    
+
     // Verify we have at least 8 bytes
     if ( !_check_buf(infile, buf, 8, WAV_BLOCK_SIZE) ) {
       return;
     }
-    
+
     strncpy( chunk_id, (char *)buffer_ptr(buf), 4 );
     chunk_id[4] = '\0';
     buffer_consume(buf, 4);
-    
+
     chunk_size = buffer_get_int(buf);
-    
+
     // Adjust for padding
     if ( chunk_size % 2 ) {
       chunk_size++;
     }
-    
+
     offset += 8;
-    
+
     LOG_DEBUG("%s size %d\n", chunk_id, chunk_size);
-    
+
     // Seek past SSND, everything else we parse
     // XXX: Are there other large chunks we should ignore?
     if ( !strcmp( chunk_id, "SSND" ) ) {
@@ -359,27 +359,27 @@ _parse_aiff(ScanData s, Buffer *buf)
       if ( file_size > offset + chunk_size ) {
         PerlIO_seek(infile, offset + chunk_size, SEEK_SET);
       }
-      
+
       buffer_clear(buf);
     }
     else if ( !strcmp( chunk_id, "id3 " ) || !strcmp( chunk_id, "ID3 " ) || !strcmp( chunk_id, "ID32" ) ) {
       // Read header to verify version
       unsigned char *bptr = buffer_ptr(buf);
-      
+
       if (
         (bptr[0] == 'I' && bptr[1] == 'D' && bptr[2] == '3') &&
         bptr[3] < 0xff && bptr[4] < 0xff &&
         bptr[6] < 0x80 && bptr[7] < 0x80 && bptr[8] < 0x80 && bptr[9] < 0x80
-      ) {        
+      ) {
         // Start parsing ID3 from offset
         parse_id3(infile, file, info, tags, offset, file_size);
       }
-      
+
       // Seen ID3 chunks with the chunk size in little-endian instead of big-endian
       if (chunk_size < 0 || offset + chunk_size > file_size) {
         break;
       }
-      
+
       // Seek past ID3 and clear buffer
       LOG_DEBUG("Seeking past ID3 to %d\n", offset + chunk_size);
       PerlIO_seek(infile, offset + chunk_size, SEEK_SET);
@@ -390,7 +390,7 @@ _parse_aiff(ScanData s, Buffer *buf)
       if ( !_check_buf(infile, buf, chunk_size, WAV_BLOCK_SIZE) ) {
         return;
       }
-      
+
       if ( !strcmp( chunk_id, "COMM" ) ) {
         _parse_aiff_comm(buf, chunk_size, info);
       }
@@ -402,7 +402,7 @@ _parse_aiff(ScanData s, Buffer *buf)
         buffer_consume(buf, chunk_size);
       }
     }
-    
+
     offset += chunk_size;
   }
 }
@@ -414,20 +414,20 @@ _parse_aiff_comm(ScanData s, Buffer *buf, uint32_t chunk_size)
   uint32_t frames = buffer_get_int(buf);
   uint16_t bits_per_sample = buffer_get_short(buf);
   double samplerate = buffer_get_ieee_float(buf);
-  
+
   my_hv_store( info, "channels", newSVuv(channels) );
   my_hv_store( info, "bits_per_sample", newSVuv(bits_per_sample) );
   my_hv_store( info, "samplerate", newSVuv(samplerate) );
-  
+
   my_hv_store( info, "bitrate", newSVuv( samplerate * channels * bits_per_sample ) );
   my_hv_store( info, "song_length_ms", newSVuv( ((frames * 1.0) / samplerate) * 1000 ) );
   my_hv_store( info, "block_align", newSVuv( channels * bits_per_sample / 8 ) );
-  
+
   if (chunk_size > 18) {
     // AIFC extra data
     my_hv_store( info, "compression_type", newSVpvn( buffer_ptr(buf), 4 ) );
     buffer_consume(buf, 4);
-    
+
     my_hv_store( info, "compression_name", newSVpvn( buffer_ptr(buf), chunk_size - 22 ) );
     buffer_consume(buf, chunk_size - 22);
   }

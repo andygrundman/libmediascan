@@ -15,7 +15,7 @@
 *		136 W. Canon Perdido Suite A
 *		Santa Barbara, CA 93101
 *
-*	Licensed under the terms laid out in the libungif 
+*	Licensed under the terms laid out in the libungif
 *	COPYING file.
 *
 *********************************************************/
@@ -31,9 +31,9 @@ typedef struct GifFileType GifFileType;			// Opaque to avoid namespace collision
 // (to avoid dynamic allocation)
 typedef struct tagbmi256
 {
-    BITMAPINFO bmi; 
+    BITMAPINFO bmi;
     RGBQUAD    fill[255];
-} BMI256; 
+} BMI256;
 
 // Win32 Class for wrapping libgif functionality
 class CGIFWin

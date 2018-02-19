@@ -113,8 +113,8 @@ int TouchFile(const char *fileName) {
 
   GetSystemTime(&st);           // Gets the current system time
   SystemTimeToFileTime(&st, &ft); // Converts the current system time to file time format
-  f = SetFileTime(hFile,        // Sets last-write time of the file 
-                  (LPFILETIME) NULL,  // to the converted current system time 
+  f = SetFileTime(hFile,        // Sets last-write time of the file
+                  (LPFILETIME) NULL,  // to the converted current system time
                   (LPFILETIME) NULL, &ft);
 
   CloseHandle(hFile);

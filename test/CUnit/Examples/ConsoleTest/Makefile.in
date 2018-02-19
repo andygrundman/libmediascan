@@ -312,7 +312,7 @@ clean-examplePROGRAMS:
 	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
 	echo " rm -f" $$list; \
 	rm -f $$list
-ConsoleTest$(EXEEXT): $(ConsoleTest_OBJECTS) $(ConsoleTest_DEPENDENCIES) 
+ConsoleTest$(EXEEXT): $(ConsoleTest_OBJECTS) $(ConsoleTest_DEPENDENCIES)
 	@rm -f ConsoleTest$(EXEEXT)
 	$(ConsoleTest_LINK) $(ConsoleTest_OBJECTS) $(ConsoleTest_LDADD) $(LIBS)
 

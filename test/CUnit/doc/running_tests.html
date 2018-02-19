@@ -79,12 +79,12 @@
 
 <H3 ID="overview">5.2. Running Tests in CUnit</H3>
 CUnit supports running all tests in all registered suites, but individual tests
-or suites can also be run.  During each run, the framework keeps track of the 
+or suites can also be run.  During each run, the framework keeps track of the
 number of suites, tests, and assertions run, passed, and failed.  Note that the
 previous results are cleared each time a test run is initiated (even if it fails).
-Individual suites or tests can be <A HREF="managing_tests.html#activation">deactivated</A> 
+Individual suites or tests can be <A HREF="managing_tests.html#activation">deactivated</A>
 if the client wishes to exclude them from a particular test run.  However, it is
-a <A HREF="error_handling.html#errorhandling">framework error</A> to deactivate a 
+a <A HREF="error_handling.html#errorhandling">framework error</A> to deactivate a
 suite or test and then explicitly request that it be run.
 <P />
 While CUnit provides primitive functions for running suites and tests, most
@@ -136,7 +136,7 @@ and suites can also be reported to an XML file.
 The following functions comprise the automated interface API:
 
 <P ID="auto-run" CLASS="indent2"><CITE>void <B>CU_automated_run_tests</B>(void)</CITE></P>
-<P CLASS="indent5">Runs all tests in all registered (and active) suites.  Test results 
+<P CLASS="indent5">Runs all tests in all registered (and active) suites.  Test results
 are output to a file named <I>ROOT-Results.xml</I>.  The filename <I>ROOT</I> can
 be set using <A HREF="#auto-setroot">CU_set_output_filename()</A>, or else the default
 <I>CUnitAutomated-Results.xml</I> is used.  Note that if a distict filename <I>ROOT</I>
@@ -177,18 +177,18 @@ most flexibility to clients desiring simplified access to the CUnit API.
 The following public functions are provided:
 
 <P ID="basic-runall" CLASS="indent2"><CITE>CU_ErrorCode <B>CU_basic_run_tests</B>(void)</CITE></P>
-<P CLASS="indent5">Runs all tests in all registered suites.  Only active 
+<P CLASS="indent5">Runs all tests in all registered suites.  Only active
 suites are executed, and it is not considered an error if inactive suites
-are encountered and skipped.  Returns the 1st error code occurring during 
-the test run.  The type of output is controlled by the current run mode, 
+are encountered and skipped.  Returns the 1st error code occurring during
+the test run.  The type of output is controlled by the current run mode,
 which can be set using <A HREF="#basic-setmode">CU_basic_set_mode()</A>.
 
 <P ID="basic-runsuite" CLASS="indent2"><CITE>CU_ErrorCode <B>CU_basic_run_suite</B>(CU_pSuite pSuite)</CITE></P>
 <P CLASS="indent5">Runs all tests in single specified suite.  Returns the 1st
 error code occurring during the test run.  <CITE>CU_basic_run_suite</CITE> itself
-sets <CITE>CUE_NOSUITE</CITE> if pSuite is <CODE>NULL</CODE> and 
+sets <CITE>CUE_NOSUITE</CITE> if pSuite is <CODE>NULL</CODE> and
 <CITE>CUE_SUITE_INACTIVE</CITE> if pSuite is not active for execution.
-The type of output is controlled by the current run mode, which can be set using 
+The type of output is controlled by the current run mode, which can be set using
 <A HREF="#basic-setmode">CU_basic_set_mode()</A>.
 
 <P ID="basic-runtest" CLASS="indent2"><CITE>CU_ErrorCode <B>CU_basic_run_test</B>(CU_pSuite pSuite, CU_pTest pTest)</CITE></P>
@@ -197,8 +197,8 @@ error code occurring during the test run.  <CITE>CU_basic_run_test</CITE> itself
 sets <CITE>CUE_NOSUITE</CITE> if pSuite is <CODE>NULL</CODE>, <CITE>CUE_NOTEST</CITE>
 if pTest is <CODE>NULL</CODE>, <CITE>CUE_SUITE_INACTIVE</CITE> if pSuite is not
 active, <CITE>CUE_TEST_NOT_IN_SUITE</CITE> if pTest is not a registered test in
-pSuite, and <CITE>CUE_TEST_INACTIVE</CITE> if pTest is not active.  The type of 
-output is controlled by the current run mode, which can be set using 
+pSuite, and <CITE>CUE_TEST_INACTIVE</CITE> if pTest is not active.  The type of
+output is controlled by the current run mode, which can be set using
 <A HREF="#basic-setmode">CU_basic_set_mode()</A>.
 
 <P ID="basic-setmode" CLASS="indent2"><CITE>void <B>CU_basic_set_mode</B>(CU_BasicRunMode mode)</CITE></P>
@@ -238,24 +238,24 @@ and tests, and viewing test results.  To start a console session, use
 <H3 ID="curses">5.6. Interactive Curses Mode</H3>
 The curses interface is interactive.  All the client needs to do is
 initiate the curses session, and the user controls the test run
-interactively.  This include selection & running of registered suites 
-and tests, and viewing test results.  Use of this interface requires 
-linking the ncurses library into the application.  To start a curses 
+interactively.  This include selection & running of registered suites
+and tests, and viewing test results.  Use of this interface requires
+linking the ncurses library into the application.  To start a curses
 session, use
 <P ID="curses-run" CLASS="indent2"><CITE>void <B>CU_curses_run_tests</B>(void)</CITE></P>
 
 <H3 ID="modifying">5.7. Modifying General Runtime Behavior</H3>
-The following functions allow the client to modify the behavior of the 
+The following functions allow the client to modify the behavior of the
 framework during a test run:
 <P ID="modifying-inactive" CLASS="indent2"><CITE>
   void <B>CU_set_fail_on_inactive</B>(CU_BOOL new_inactive)<BR />
   CU_BOOL <B>CU_get_fail_on_inactive</B>(void)<BR />
-</CITE></P>                                                 
+</CITE></P>
 <P CLASS="indent5">The default runtime behavior is for inactive suites and
-tests to be reported as failures.  This is so the client is aware that their 
+tests to be reported as failures.  This is so the client is aware that their
 test structure has been partially deactivated.  If the client prefers to have
 inactive suites and tests ignored, the behavior can be modified using these
-functions.  A value of <CODE>CU_FALSE</CODE> indicates that the framework 
+functions.  A value of <CODE>CU_FALSE</CODE> indicates that the framework
 will ignore inactive entities; <CODE>CU_TRUE</CODE> will have them treated as
 failures.</P>
 
@@ -277,13 +277,13 @@ Functions for accessing the test results are:
   unsigned int <B>CU_get_number_of_asserts</B>(void)<BR />
   unsigned int <B>CU_get_number_of_successes</B>(void)<BR />
   unsigned int <B>CU_get_number_of_failures</B>(void)
-</CITE></P>                                                 
+</CITE></P>
 <P CLASS="indent5">These functions report the number of suites, tests, and
 assertions that ran or failed during the last run.  A suite is considered failed
 if its initialization or cleanup function returned non-<CODE>NULL</CODE>, or if
 it was inactive and the framework was set to <A href="#modifying-inactive">treat
-inactive suites/tests as failures</A>.  A test fails if any of its assertions 
-failed or if it was inactive under the same conditions.  The last 3 functions 
+inactive suites/tests as failures</A>.  A test fails if any of its assertions
+failed or if it was inactive under the same conditions.  The last 3 functions
 all refer to individual assertions.  An inactive suite (or test) is not counted
 among the number of suites (tests) run.  A consequence of this is that a suite
 (or test) can fail even though it is not reported as having been run.

@@ -303,7 +303,7 @@ The following functions are implemented:
 
 
 The following functions are not implemented:
-      
+
       ---------------------------
       RealTime Scheduling
       ---------------------------
@@ -321,12 +321,12 @@ The following functions are not implemented:
 
       ---------------------------
       Stdio
-      --------------------------- 
+      ---------------------------
       flockfile
       ftrylockfile
       funlockfile
       getc_unlocked
-      getchar_unlocked	
+      getchar_unlocked
       putc_unlocked
       putchar_unlocked
 
@@ -338,7 +338,7 @@ The following functions are not implemented:
       getgrnam_r
       getpwuid_r
       getpwnam_r
-      
+
       ---------------------------
       Signals
       ---------------------------
@@ -349,17 +349,17 @@ The following functions are not implemented:
       ---------------------------
       General
       ---------------------------
-      sysconf      
+      sysconf
 
 The library includes two non-API functions for creating cancellation
 points in applications and libraries:
-      
+
       pthreadCancelableWait
       pthreadCancelableTimedWait
 
-      
+
 Availability
------------- 
+------------
 
 The prebuilt DLL, export libs (for both MSVC and Mingw32), and the header
 files (pthread.h, semaphore.h, sched.h) are available along with the
@@ -378,21 +378,21 @@ The pre-built DLL, export libraries and include files can be found at:
 	ftp://sources.redhat.com/pub/pthreads-win32/dll-latest
 
 
-      
-Mailing List 
-------------  
-      
+
+Mailing List
+------------
+
 There is a mailing list for discussing pthreads on Win32. To join,
 send email to:
 
 	pthreads-win32-subscribe@sourceware.cygnus.com
-      
+
 
 Application Development Environments
 ------------------------------------
 
 See the README file for more information.
-      
+
 MSVC:
 MSVC using SEH works. Distribute pthreadVSE.dll with your application.
 MSVC using C++ EH works. Distribute pthreadVCE.dll with your application.

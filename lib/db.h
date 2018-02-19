@@ -1548,7 +1548,7 @@ struct __db {
 	int  (*get_bt_compare)
 		__P((DB *, int (**)(DB *, const DBT *, const DBT *)));
 	int  (*get_bt_compress) __P((DB *,
-		int (**)(DB *, 
+		int (**)(DB *,
 		const DBT *, const DBT *, const DBT *, const DBT *, DBT *),
 		int (**)(DB *, const DBT *, const DBT *, DBT *, DBT *, DBT *)));
 	int  (*get_bt_minkey) __P((DB *, u_int32_t *));
@@ -1576,7 +1576,7 @@ struct __db {
 	int  (*get_h_nelem) __P((DB *, u_int32_t *));
 	int  (*get_lorder) __P((DB *, int *));
 	DB_MPOOLFILE *(*get_mpf) __P((DB *));
-	void (*get_msgcall) __P((DB *, 
+	void (*get_msgcall) __P((DB *,
 	    void (**)(const DB_ENV *, const char *)));
 	void (*get_msgfile) __P((DB *, FILE **));
 	int  (*get_multiple) __P((DB *));
@@ -2249,7 +2249,7 @@ struct __db_env {
 					 * off_t because its size depends on
 					 * build settings.
 					 */
-        db_timeout_t	envreg_timeout; /* DB_REGISTER wait timeout */ 
+        db_timeout_t	envreg_timeout; /* DB_REGISTER wait timeout */
 
 #define	DB_ENV_AUTO_COMMIT	0x00000001 /* DB_AUTO_COMMIT */
 #define	DB_ENV_CDB_ALLDB	0x00000002 /* CDB environment wide locking */

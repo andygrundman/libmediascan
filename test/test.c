@@ -76,7 +76,7 @@ static void my_result_callback(MediaScan *s, MediaScanResult *r, void *userdata)
 	result_called = TRUE;
 }
 
-static void my_error_callback(MediaScan *s, MediaScanError *error, void *userdata) { 
+static void my_error_callback(MediaScan *s, MediaScanError *error, void *userdata) {
 
 } /* my_error_callback() */
 
@@ -95,7 +95,7 @@ void test_ms_scan(void){
 	#else
 	const char dir[MAX_PATH_STR_LEN] = "data/video/dlna";
 	#endif
-	
+
 	MediaScan *s = ms_create();
 
 	CU_ASSERT_FATAL(s != NULL);
@@ -111,7 +111,7 @@ void test_ms_scan(void){
 	CU_ASSERT(s->on_result == my_result_callback);
 
 	CU_ASSERT(s->on_error == NULL);
-	ms_set_error_callback(s, my_error_callback); 
+	ms_set_error_callback(s, my_error_callback);
 	CU_ASSERT(s->on_error == my_error_callback);
 
 	ms_scan(s);
@@ -143,7 +143,7 @@ void test_ms_scan_2(void)
 	CU_ASSERT(s->on_result == my_result_callback);
 
 	CU_ASSERT(s->on_error == NULL);
-	ms_set_error_callback(s, my_error_callback); 
+	ms_set_error_callback(s, my_error_callback);
 	CU_ASSERT(s->on_error == my_error_callback);
 
 	ms_scan(s);
@@ -221,7 +221,7 @@ void test_ms_scan_4(void)	{
 	CU_ASSERT(s->on_result == my_result_callback);
 
 	CU_ASSERT(s->on_error == NULL);
-	ms_set_error_callback(s, my_error_callback); 
+	ms_set_error_callback(s, my_error_callback);
 	CU_ASSERT(s->on_error == my_error_callback);
 
 	// Okay this is the test, try to scan a non-exsistent directory structure
@@ -240,11 +240,11 @@ void test_ms_scan_4(void)	{
 
 void test_ms_scan_5(void)	{
 		#define NUM_STRINGS 3
-	
+
 	int i = 0;
-	char in_dir[NUM_STRINGS][MAX_PATH_STR_LEN] = 
+	char in_dir[NUM_STRINGS][MAX_PATH_STR_LEN] =
 		{ "data", "data/", "data\\" };
-	char out_dir[NUM_STRINGS][MAX_PATH_STR_LEN] = 
+	char out_dir[NUM_STRINGS][MAX_PATH_STR_LEN] =
 		{ "data", "data/", "data\\" };
 
 	MediaScan *s = ms_create();
@@ -264,7 +264,7 @@ void test_ms_scan_5(void)	{
 	CU_ASSERT(s->on_result == my_result_callback);
 
 	CU_ASSERT(s->on_error == NULL);
-	ms_set_error_callback(s, my_error_callback); 
+	ms_set_error_callback(s, my_error_callback);
 	CU_ASSERT(s->on_error == my_error_callback);
 
 	// Run the scan
@@ -283,7 +283,7 @@ static void my_progress_callback_6(MediaScan *s, MediaScanProgress *progress, vo
 //    ok(progress->dir_total == 3, "final progress callback dir_total is %d", progress->dir_total);
 //    ok(progress->file_total == 22, "final progress callback file_total is %d", progress->file_total);
 //  }
-//  
+//
 	if(s->progress->cur_item != NULL)
 		progress_called = TRUE;
 
@@ -318,14 +318,14 @@ void test_ms_scan_6(void)	{
 	CU_ASSERT(s->on_result == my_result_callback);
 
 	CU_ASSERT(s->on_error == NULL);
-	ms_set_error_callback(s, my_error_callback); 
+	ms_set_error_callback(s, my_error_callback);
 	CU_ASSERT(s->on_error == my_error_callback);
 
 	CU_ASSERT(s->on_progress == NULL);
-	ms_set_progress_callback(s, my_progress_callback_6); 
+	ms_set_progress_callback(s, my_progress_callback_6);
 	CU_ASSERT(s->on_progress == my_progress_callback_6);
-	
-	
+
+
 	CU_ASSERT(s->progress->interval == 1); // Verify that the progress interval is set to 1
 
 	ms_set_progress_interval(s, 60);
@@ -348,13 +348,13 @@ void test_ms_scan_6(void)	{
 	s->progress->_last_update_ts = 0;
 	ms_scan(s);
 	CU_ASSERT(progress_called == FALSE);
-	
+
 	#ifdef WIN32
 	Sleep(61); // wait 61ms
 	#else
 	sleep(1);
 	#endif;
-	
+
 	ms_scan(s);
 	CU_ASSERT(progress_called == TRUE);
 
@@ -369,7 +369,7 @@ static	void my_result_callback_1(MediaScan *s, MediaScanResult *result, void *us
 static int error_called = FALSE;
 static MediaScanError error;
 
-static void my_error_callback_1(MediaScan *s, MediaScanError *error, void *userdata) { 
+static void my_error_callback_1(MediaScan *s, MediaScanError *error, void *userdata) {
 	error_called = TRUE;
 	memcpy(&error, error, sizeof(MediaScanError));
 } /* my_error_callback() */
@@ -390,7 +390,7 @@ void test_ms_file_scan_1(void)	{
 	char invalid_file[MAX_PATH_STR_LEN] = "data/video/notafile.m4v";
 #endif
 	MediaScan *s = ms_create();
-	
+
 	CU_ASSERT_FATAL(s != NULL);
 
 	// Check null mediascan oject
@@ -414,7 +414,7 @@ void test_ms_file_scan_1(void)	{
 
 	// Set up an error callback
 	CU_ASSERT(s->on_error == NULL);
-	ms_set_error_callback(s, my_error_callback); 
+	ms_set_error_callback(s, my_error_callback);
 	CU_ASSERT(s->on_error == my_error_callback);
 
 	// Now scan an invalid file, with an error handler
@@ -441,7 +441,7 @@ void test_ms_file_asf_audio(void)	{
 	char asf_file[MAX_PATH_STR_LEN] = "data/audio/wmv92-with-audio.wmv";
 #endif
 	MediaScan *s = ms_create();
-	
+
 	CU_ASSERT_FATAL(s != NULL);
 
 	CU_ASSERT(s->on_result == NULL);
@@ -450,7 +450,7 @@ void test_ms_file_asf_audio(void)	{
 
 	// Set up an error callback
 	CU_ASSERT(s->on_error == NULL);
-	ms_set_error_callback(s, my_error_callback); 
+	ms_set_error_callback(s, my_error_callback);
 	CU_ASSERT(s->on_error == my_error_callback);
 
 	// Now scan a valid video file, with an error handler
@@ -497,7 +497,7 @@ void test_ms_large_directory(void)	{
 	CU_ASSERT(s->on_result == my_result_callback);
 
 	CU_ASSERT(s->on_error == NULL);
-	ms_set_error_callback(s, my_error_callback); 
+	ms_set_error_callback(s, my_error_callback);
 	CU_ASSERT(s->on_error == my_error_callback);
 
 	ms_scan(s);
@@ -508,7 +508,7 @@ void test_ms_large_directory(void)	{
 #ifndef WIN32
 void TouchFile(const char *filename) {
   struct timeval now;
-  
+
   gettimeofday(&now, NULL);
   utimes(filename  , &now);
 }
@@ -533,7 +533,7 @@ void test_ms_db(void)	{
 	CU_ASSERT(s->on_result == my_result_callback);
 
 	CU_ASSERT(s->on_error == NULL);
-	ms_set_error_callback(s, my_error_callback); 
+	ms_set_error_callback(s, my_error_callback);
 	CU_ASSERT(s->on_error == my_error_callback);
 
 	ms_errno = 0;
@@ -602,14 +602,14 @@ int run_unit_tests()
 	   NULL == CU_add_test(pSuite, "Test of misc functions", test_ms_misc_functions) ||
   	   NULL == CU_add_test(pSuite, "Simple test of ASF audio file", test_ms_file_asf_audio) ||
    	   NULL == CU_add_test(pSuite, "Test Berkeley database functionality", test_ms_db)
-			 
+
 	   )
    {
       CU_cleanup_registry();
       return CU_get_error();
    }
 #endif
-	 
+
 //   setupbackground_tests();
    setupdefect_tests();
 //   setupimage_tests();

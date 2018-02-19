@@ -310,7 +310,7 @@ clean-examplePROGRAMS:
 	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
 	echo " rm -f" $$list; \
 	rm -f $$list
-CursesTest$(EXEEXT): $(CursesTest_OBJECTS) $(CursesTest_DEPENDENCIES) 
+CursesTest$(EXEEXT): $(CursesTest_OBJECTS) $(CursesTest_DEPENDENCIES)
 	@rm -f CursesTest$(EXEEXT)
 	$(CursesTest_LINK) $(CursesTest_OBJECTS) $(CursesTest_LDADD) $(LIBS)
 

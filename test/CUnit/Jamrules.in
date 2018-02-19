@@ -19,7 +19,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #---------------------------------------------------------------------------
 
-# On Linux, basic build options are set by configure.  
+# On Linux, basic build options are set by configure.
 # See else clause below for other platforms.
 if $(OS) = LINUX || $(UNIX)
 {
@@ -28,7 +28,7 @@ if $(OS) = LINUX || $(UNIX)
   RELEASE = @RELEASE@ ;
   VERSION_MAJOR = @VERSION_MAJOR@ ;
   VERSION_MINOR = @VERSION_MINOR@ ;
-  
+
   # root of install path
   prefix = @prefix@ ;
 
@@ -40,20 +40,20 @@ if $(OS) = LINUX || $(UNIX)
   if @BUILD_CONSOLE@ = TRUE
     { BUILD_CONSOLE = 1 ; }
   if @BUILD_CURSES@ != FALSE
-  { 
-    BUILD_CURSES = 1 ; 
+  {
+    BUILD_CURSES = 1 ;
     SYS_LIBS = -l@CURSES_LIB@ ;
   }
 #  BUILD_WINDOWS = 1 ;
-  
+
   # choice of whether to build examples
   if @BUILD_EXAMPLES@ = TRUE
     { BUILD_EXAMPLES = 1 ; }
-  
+
   # choice of whether to build test program
   if @BUILD_TEST@ = TRUE
     { BUILD_TEST = 1 ; }
-  
+
   # choice of whether to build shared library
   if @ENABLE_SHARED@ = TRUE
     { BUILD_SHARED_LIB = 1 ; }
@@ -79,7 +79,7 @@ if $(OS) = LINUX || $(UNIX)
 else
 {
   SLASH = \\ ;
-  
+
   # Version number set manually so may be out-of-date
   VERSION = 2.1 ;
   RELEASE = 0 ;
@@ -90,24 +90,24 @@ else
   prefix = c:\\dev\\CUnit_install ;
 
   # Comment to not include interface in library
-  BUILD_AUTOMATED = 1 ; 
-  BUILD_BASIC = 1 ; 
-  BUILD_CONSOLE = 1 ; 
-#  BUILD_CURSES = 1 ; 
+  BUILD_AUTOMATED = 1 ;
+  BUILD_BASIC = 1 ;
+  BUILD_CONSOLE = 1 ;
+#  BUILD_CURSES = 1 ;
   BUILD_WINDOWS = 1 ;
-    
+
   # Comment to not build examples
-  BUILD_EXAMPLES = 1 ; 
-  
+  BUILD_EXAMPLES = 1 ;
+
   # Comment to not build test program
-  BUILD_TEST = 1 ; 
-  
+  BUILD_TEST = 1 ;
+
   # Comment to not build CUnit shared library
-  BUILD_SHARED_LIB = 1 ; 
+  BUILD_SHARED_LIB = 1 ;
 
   # Comment to not build CUnit static library
-  BUILD_STATIC_LIB = 1 ; 
-  
+  BUILD_STATIC_LIB = 1 ;
+
   # Comment to compile with debugging & assertions enabled
   NODEBUG = 1 ;
 

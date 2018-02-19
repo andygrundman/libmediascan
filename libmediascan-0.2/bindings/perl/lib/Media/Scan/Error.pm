@@ -6,7 +6,7 @@ use strict;
 
 sub as_hash {
     my $self = shift;
-    
+
     return {
         error_code   => $self->error_code,
         averror      => $self->averror,

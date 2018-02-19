@@ -91,7 +91,7 @@ dlna_dms_description_get (const char *friendly_name,
       !cms_scpd_url || !cms_control_url || !cms_event_url ||
       !cds_scpd_url || !cds_control_url || !cds_event_url)
     return NULL;
-  
+
   len = strlen (UPNP_DMS_DESCRIPTION) + strlen (friendly_name)
     + strlen (manufacturer) + strlen (manufacturer_url)
     + strlen (model_description) + strlen (model_name)

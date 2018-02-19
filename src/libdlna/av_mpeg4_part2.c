@@ -59,7 +59,7 @@ static const struct {
   { AV_CODEC_ID_MSMPEG4V3,                 MPEG4_VCODEC_P2 },
   { -1, 0 }
 };
-   
+
 typedef enum {
   MPEG4_VIDEO_PROFILE_INVALID,
   MPEG4_VIDEO_PROFILE_H263,
@@ -741,7 +741,7 @@ static const struct {
     MPEG4_VIDEO_PROFILE_P2_ASP_L4, AUDIO_PROFILE_MP2 },
   { &mpeg4_p2_ts_co_mpeg2_l2_iso, CT_MPEG_TRANSPORT_STREAM,
     MPEG4_VIDEO_PROFILE_P2_ASP_L4, AUDIO_PROFILE_MP2 },
-  
+
   /* ASF Container */
   { &mpeg4_p2_asf_sp_g726, CT_ASF,
     MPEG4_VIDEO_PROFILE_P2_SP_L3, AUDIO_PROFILE_G726 },
@@ -754,12 +754,12 @@ static const struct {
   { &mpeg4_h263_3gpp_p0_l10_amr_wbplus, CT_3GP,
     MPEG4_VIDEO_PROFILE_H263, AUDIO_PROFILE_AMR_WB },
   { &mpeg4_p2_3gpp_sp_l0b_aac, CT_3GP,
-    MPEG4_VIDEO_PROFILE_P2_SP_L0B, AUDIO_PROFILE_AAC },   
+    MPEG4_VIDEO_PROFILE_P2_SP_L0B, AUDIO_PROFILE_AAC },
   { &mpeg4_p2_3gpp_sp_l0b_amr, CT_3GP,
     MPEG4_VIDEO_PROFILE_P2_SP_L0B, AUDIO_PROFILE_AMR },
   { &mpeg4_h263_3gpp_p3_l10_amr, CT_3GP,
     MPEG4_VIDEO_PROFILE_H263, AUDIO_PROFILE_AMR },
-  
+
   { NULL, 0, 0, 0 }
 };
 
@@ -770,7 +770,7 @@ mpeg4_get_vcodec (AVCodecContext *vc)
 
   if (!vc)
     return MPEG4_VCODEC_INVALID;
-  
+
   for (i = 0; avf_vcodec_mapping[i].codec_id != -1; i++)
     if (vc->codec_id == avf_vcodec_mapping[i].codec_id)
       return avf_vcodec_mapping[i].type;
@@ -883,7 +883,7 @@ probe_mpeg4_part2 (AVFormatContext *ctx,
 
   if (!stream_ctx_is_av (codecs))
     return NULL;
-  
+
   vctype = mpeg4_get_vcodec (codecs->vc);
   if (vctype == MPEG4_VCODEC_INVALID)
     return NULL;
@@ -906,7 +906,7 @@ probe_mpeg4_part2 (AVFormatContext *ctx,
   vp = mpeg4_video_get_profile (vctype, codecs->vs, codecs->vc);
   if (vp == MPEG4_VIDEO_PROFILE_INVALID)
     return NULL;
-  
+
   /* check for valid audio profile */
   ap = audio_profile_guess (codecs->ac);
   if (ap == AUDIO_PROFILE_INVALID)
@@ -917,14 +917,14 @@ probe_mpeg4_part2 (AVFormatContext *ctx,
     ap = AUDIO_PROFILE_AAC;
   if (ap == AUDIO_PROFILE_AAC_HE_L2_320)
     ap =  AUDIO_PROFILE_AAC_HE_L2;
-  
+
   /* find profile according to container type, video and audio profiles */
   for (i = 0; mpeg4_profiles_mapping[i].profile; i++)
     if (mpeg4_profiles_mapping[i].st == st &&
         mpeg4_profiles_mapping[i].vp == vp &&
         mpeg4_profiles_mapping[i].ap == ap)
       return mpeg4_profiles_mapping[i].profile;
- 
+
   return NULL;
 }
 

@@ -22,8 +22,8 @@
 #ifndef _PROFILES_H_
 #define _PROFILES_H_
 
-#ifdef _MSC_VER 
-#pragma warning( disable: 4244 ) 
+#ifdef _MSC_VER
+#pragma warning( disable: 4244 )
 #endif
 
 #include <libavcodec/avcodec.h>
@@ -77,7 +77,7 @@ typedef struct av_codecs_s {
   AVStream *as;
   AVCodecContext *ac;
   int asid;
-  
+
   /* video stream and codec */
   AVStream *vs;
   AVCodecContext *vc;
@@ -105,7 +105,7 @@ typedef enum {
   AUDIO_PROFILE_AAC,
   AUDIO_PROFILE_AAC_320,
   AUDIO_PROFILE_AAC_MULT5,
-  AUDIO_PROFILE_AAC_BSAC,  
+  AUDIO_PROFILE_AAC_BSAC,
   AUDIO_PROFILE_AAC_BSAC_MULT5,
   AUDIO_PROFILE_AAC_HE_L2,
   AUDIO_PROFILE_AAC_HE_L2_320,
@@ -115,16 +115,16 @@ typedef enum {
   AUDIO_PROFILE_AAC_HE_V2_L2_320,
   AUDIO_PROFILE_AAC_HE_V2_L3,
   AUDIO_PROFILE_AAC_HE_V2_MULT5,
-  AUDIO_PROFILE_AAC_LTP,  
+  AUDIO_PROFILE_AAC_LTP,
   AUDIO_PROFILE_AAC_LTP_MULT5,
   AUDIO_PROFILE_AAC_LTP_MULT7,
-  
+
   AUDIO_PROFILE_AC3,
   AUDIO_PROFILE_AC3_EXTENDED,
-  
+
   AUDIO_PROFILE_AMR,
   AUDIO_PROFILE_AMR_WB,
-  
+
   AUDIO_PROFILE_ATRAC,
 
   AUDIO_PROFILE_G726,

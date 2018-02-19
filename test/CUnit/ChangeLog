@@ -17,10 +17,10 @@
   - Changed test run behavior so suite is run even if it has
     no tests - user may expect init & cleanup functions to
     be run as long as suite is active.
-  - Modified console:  suites/tests selected by number, 
+  - Modified console:  suites/tests selected by number,
     inactive tests/suites reported, added help function,
     added option menu.
-  - Modified curses:  suites/tests selected by number, 
+  - Modified curses:  suites/tests selected by number,
     inactive tests/suites reported, added help function,
     added option menu.
   - Modified automated:  inactive suites/tests reported.
@@ -83,7 +83,7 @@
 * Sat Oct 02 2004 Jerry St.Clair <jds2@users.sourceforge.net>
   - Bug fix: update pReg after registry intialization in
     TestDB.c::test_CU_add_test().
-    
+
 * Sun Sep 26 2004 Jerry St.Clair <jds2@users.sourceforge.net>
   - Bug fixes found in internal unit testing.
   - Update Linux build files.
@@ -242,19 +242,19 @@
 * Sun Feb 03 2002 Anil Kumar <anilsaharan@users.sourceforge.net>
 - Made modifications for moving RPM Creation in the root directory.
 - Cleaned up configure.in for checks not required and added some additonal header and library checks.
-- Made separate options for gzip, tar, zip and rpm creation in root directory. 
+- Made separate options for gzip, tar, zip and rpm creation in root directory.
 - Fixed Workspace file for Windows Build.
 
 * Sun Dec 23 2001 Anil Kumar <anilsaharan@users.sourceforge.net>
 - Made modifications for change in Directory Structure and Linking Options.
-- Included GPL Headers in all the files. 
+- Included GPL Headers in all the files.
 
 * Sun Nov 25 2001 Anil Kumar <anilsaharan@users.sourceforge.net>
 - Added Curses based interface to the Package.
 - Modified some options for the Console Based Interface.
 
 * Sun Oct 28 2001 Anil Kumar <anilsaharan@users.sourceforge.net>
-- Integrated RPM creation in the package configuration. 
+- Integrated RPM creation in the package configuration.
 
 * Sun Oct 21 2001 Anil Kumar <anilsaharan@users.sourceforge.net>
 - Added a few Error Codes and respective description.

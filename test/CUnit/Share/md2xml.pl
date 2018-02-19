@@ -18,7 +18,7 @@ use constant STATUS_INDEX => 6;
 my @mem_list;
 
 sub BuildDataList {
-	
+
 	open(LIST_FD, $ARGV[0]) or die "Failed to Open file $ARGV[0]";
 	while (!eof(LIST_FD)) {
 		my $line = <LIST_FD>;

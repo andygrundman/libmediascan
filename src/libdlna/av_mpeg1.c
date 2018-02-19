@@ -40,7 +40,7 @@ probe_mpeg1 (AVFormatContext *ctx dlna_unused,
 {
   if (!stream_ctx_is_av (codecs))
     return NULL;
-  
+
   /* check for MPEG-1 video codec */
   if (codecs->vc->codec_id != AV_CODEC_ID_MPEG1VIDEO)
     return NULL;
@@ -74,7 +74,7 @@ probe_mpeg1 (AVFormatContext *ctx dlna_unused,
   /* check for MPEG-1 Layer-2 audio codec */
   if (codecs->ac->codec_id != AV_CODEC_ID_MP2)
     return NULL;
-  
+
   /* supported channels: stereo only */
   if (codecs->ac->channels != 2)
     return NULL;

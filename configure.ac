@@ -74,7 +74,7 @@ AM_CONDITIONAL(LINUXBSD, true)
 AM_CONDITIONAL(SUN, false)
 LDFLAGS="-L$bdbdir/lib $LDFLAGS"
 ;;
-esac	
+esac
 
 AC_SEARCH_LIBS([db_create], [db], [], [AC_MSG_ERROR(cannot find libdb in $bdbdir/lib)])
 AC_CHECK_HEADERS([db.h], [] ,[AC_MSG_ERROR(cannot find db.h in $bdbdir/include)])

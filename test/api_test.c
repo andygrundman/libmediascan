@@ -92,14 +92,14 @@ void check_mimetypes(int argc, char *argv[]) {
   bin = _findbin(argv[0]);
   dir = _abspath(bin, "../data/video/dlna"); // because binary is in .libs dir
 #endif
-  
+
   s = ms_create();
   ms_add_path(s, dir);
   ms_set_result_callback(s, my_result_callback2);
   ms_set_error_callback(s, my_error_callback);
-  ms_scan(s);    
+  ms_scan(s);
   ms_destroy(s);
-  
+
   free(dir);
 
 #ifndef WIN32
@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
   char *bin;
   char *dir;
 
-  plan(TEST_COUNT);  
+  plan(TEST_COUNT);
   ms_set_log_level(ERR);
 
   // Get path to this binary
@@ -157,46 +157,46 @@ int main(int argc, char *argv[])
     ok(s->on_result == NULL, "ms_create s->on_result == NULL");
     ok(s->on_error == NULL, "ms_create s->on_error == NULL");
     ok(s->on_progress == NULL, "ms_create s->on_progress == NULL");
-    
+
     ms_add_path(s, dir);
     ok(s->npaths == 1, "ms_add_path s->npaths == 1");
     is(s->paths[0], dir, "ms_add_path s->paths[0] is %s", dir);
-    
+
     ms_add_ignore_extension(s, "mp3");
     ms_add_ignore_extension(s, "mp4");
     ok(s->nignore_exts == 2, "ms_add_ignore_extension s->nignore_exts == 2");
     is(s->ignore_exts[0], "mp3", "ms_add_ignore_extension s->ignore_exts[0] is mp3");
     is(s->ignore_exts[1], "mp4", "ms_add_ignore_extension s->ignore_exts[1] is mp4");
-    
+
     ms_set_async(s, 1);
     ok(s->async == 1, "ms_set_async s->async == 1");
-    
+
     ms_set_async(s, 0);
     ok(s->async == 0, "ms_set_async s->async == 0");
-    
+
     ms_set_result_callback(s, my_result_callback);
     ok(s->on_result == my_result_callback, "ms_set_result_callback s->on_result ok");
-    
+
     ms_set_error_callback(s, my_error_callback);
     ok(s->on_error == my_error_callback, "ms_set_error_callback s->on_error ok");
-    
+
     ms_set_progress_callback(s, my_progress_callback);
     ms_set_progress_interval(s, 60);
     ok(s->progress->interval == 60, "ms_set_progress_interval s->progress_interval ok");
     ok(s->on_progress == my_progress_callback, "ms_set_progress_callback s->on_progress ok");
-    
+
     ms_scan(s);
-    
+
     ms_destroy(s);
   }
-  
+
   free(dir);
   free(bin);
   */
- 
+
   ms_set_log_level(INFO);
   run_unit_tests();
-  // 
+  //
   //check_mimetypes(argc, argv);
 
 

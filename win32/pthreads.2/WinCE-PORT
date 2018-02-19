@@ -1,5 +1,5 @@
 NOTE: The comments in this file relate to the original WinCE port
-done by Tristan Savatier. The semaphore routines have been 
+done by Tristan Savatier. The semaphore routines have been
 completely rewritten since (2005-04-25), having been progressively
 broken more and more by changes to the library. All of the semaphore
 routines implemented for W9x/WNT/2000 and up should now also work for
@@ -155,8 +155,8 @@ int
 ptw32_processInitialize (void)
 {
 	if (ptw32_processInitialized) {
-		/* 
-		 * ignore if already initialized. this is useful for 
+		/*
+		 * ignore if already initialized. this is useful for
 		 * programs that uses a non-dll pthread
 		 * library. such programs must call ptw32_processInitialize() explicitely,
 		 * since this initialization routine is automatically called only when

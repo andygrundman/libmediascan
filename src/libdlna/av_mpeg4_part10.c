@@ -867,7 +867,7 @@ static const struct {
     AVC_VIDEO_PROFILE_MP_SD, AUDIO_PROFILE_ATRAC },
   { &avc_mp4_mp_sd_bsac, CT_MP4,
     AVC_VIDEO_PROFILE_MP_SD, AUDIO_PROFILE_AAC_BSAC },
-  
+
   { &avc_mp4_bl_l3l_sd_aac, CT_MP4,
     AVC_VIDEO_PROFILE_BL_L3L_SD, AUDIO_PROFILE_AAC },
   { &avc_mp4_bl_l3l_sd_heaac, CT_MP4,
@@ -892,10 +892,10 @@ static const struct {
     AVC_VIDEO_PROFILE_BL_CIF30, AUDIO_PROFILE_AAC_BSAC },
   { &avc_mp4_bl_cif30_bsac_mult5, CT_MP4,
     AVC_VIDEO_PROFILE_BL_CIF30, AUDIO_PROFILE_AAC_BSAC_MULT5 },
-  
+
   { &avc_mp4_bl_l2_cif30_aac, CT_MP4,
     AVC_VIDEO_PROFILE_BL_L2_CIF30, AUDIO_PROFILE_AAC },
-  
+
   { &avc_mp4_bl_cif15_heaac, CT_MP4,
     AVC_VIDEO_PROFILE_BL_CIF15, AUDIO_PROFILE_AAC_HE_L2 },
   { &avc_mp4_bl_cif15_amr, CT_MP4,
@@ -1106,7 +1106,7 @@ static const struct {
     AVC_VIDEO_PROFILE_BL_CIF15, AUDIO_PROFILE_AAC_BSAC },
   { &avc_ts_bl_cif15_bsac_iso, CT_MPEG_TRANSPORT_STREAM,
     AVC_VIDEO_PROFILE_BL_CIF15, AUDIO_PROFILE_AAC_BSAC },
-  
+
   /* 3GPP Container */
   { &avc_3gpp_bl_cif30_amr_wbplus, CT_3GP,
     AVC_VIDEO_PROFILE_BL_CIF30, AUDIO_PROFILE_AMR_WB },
@@ -1124,7 +1124,7 @@ static const struct {
     AVC_VIDEO_PROFILE_BL_QCIF15, AUDIO_PROFILE_AMR_WB },
   { &avc_3gpp_bl_qcif15_amr, CT_3GP,
     AVC_VIDEO_PROFILE_BL_QCIF15, AUDIO_PROFILE_AMR },
-  
+
   { NULL, 0, 0, 0 }
 };
 
@@ -1152,7 +1152,7 @@ avc_video_get_profile (AVFormatContext *ctx, AVStream *vs, AVCodecContext *vc)
   if (vc->bit_rate <= 384000 && ctx->bit_rate <= 600000 &&
       vc->width == 320 && vc->height == 240)
     return AVC_VIDEO_PROFILE_BL_L12_CIF15;
-  
+
   /* CIF */
   if (is_valid_video_profile (profile_cif_res,
                               sizeof (profile_cif_res), vc))
@@ -1165,35 +1165,35 @@ avc_video_get_profile (AVFormatContext *ctx, AVStream *vs, AVCodecContext *vc)
       else
         return AVC_VIDEO_PROFILE_BL_L1B_QCIF;
     }
-    
+
     /* CIF15 */
     if (ctx->bit_rate <= 520000) /* 520 kbps max system bitrate */
       return AVC_VIDEO_PROFILE_BL_CIF15_520;
     if (ctx->bit_rate <= 540000) /* 540 kbps max system bitrate */
       return AVC_VIDEO_PROFILE_BL_CIF15_540;
-    
+
     /* 384 kbps max video bitrate */
     if (vc->bit_rate <= 384000 && ctx->bit_rate <= 600000)
       return AVC_VIDEO_PROFILE_BL_CIF15;
-    
+
     /* CIF30 */
     if (ctx->bit_rate <= 940000) /* 940 kbps max system bitrate */
       return AVC_VIDEO_PROFILE_BL_CIF30_940;
     if (ctx->bit_rate <= 1300000) /* 1.3 Mbps kbps max system bitrate */
       return AVC_VIDEO_PROFILE_BL_L2_CIF30;
-    
+
     /* 2 Mbps max video bitrate */
-    if (vc->bit_rate <= 2000000 && ctx->bit_rate <= 3000000) 
+    if (vc->bit_rate <= 2000000 && ctx->bit_rate <= 3000000)
       return AVC_VIDEO_PROFILE_BL_CIF30;
   }
-  
+
   /* SD */
   if (vc->bit_rate <= 4000000 /* 4 Mbps max */
       && is_valid_video_profile (profile_mp_l3_sd_res,
                                  sizeof (profile_mp_l3_sd_res), vc))
     return AVC_VIDEO_PROFILE_BL_L3_SD;
   /* what is BL_L3L ?? */
-  
+
   if (vc->bit_rate <= 10000000 /* 10 Mbps max */
       && is_valid_video_profile (profile_mp_sd_res,
                                  sizeof (profile_mp_sd_res), vc))
@@ -1213,7 +1213,7 @@ avc_video_get_profile (AVFormatContext *ctx, AVStream *vs, AVCodecContext *vc)
     if (vc->height == 1080 || vc->height == 720 || vc->height == 480)
       return AVC_VIDEO_PROFILE_MP_HD;
   }
-  
+
   return AVC_VIDEO_PROFILE_INVALID;
 }
 
@@ -1225,7 +1225,7 @@ probe_avc (AVFormatContext *ctx,
   avc_video_profile_t vp;
   audio_profile_t ap;
   int i;
-  
+
   if (!stream_ctx_is_av (codecs))
     return NULL;
 
@@ -1261,14 +1261,14 @@ probe_avc (AVFormatContext *ctx,
     ap = AUDIO_PROFILE_AAC;
   if (ap == AUDIO_PROFILE_AAC_HE_L2_320)
     ap =  AUDIO_PROFILE_AAC_HE_L2;
-  
+
   /* find profile according to container type, video and audio profiles */
   for (i = 0; avc_profiles_mapping[i].profile; i++)
     if (avc_profiles_mapping[i].st == st &&
         avc_profiles_mapping[i].vp == vp &&
         avc_profiles_mapping[i].ap == ap)
       return avc_profiles_mapping[i].profile;
-  
+
   return NULL;
 }
 

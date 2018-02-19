@@ -96,7 +96,7 @@ static inline fixed_t fixed_mul(fixed_t x, fixed_t y) {
 	shrd eax, edx, fracbits
   }
   // *INDENT-ON*
-  // eax is returned automatically 
+  // eax is returned automatically
 }
 #else // Other non-gcc platform
 static inline fixed_t fixed_mul(fixed_t x, fixed_t y) {
