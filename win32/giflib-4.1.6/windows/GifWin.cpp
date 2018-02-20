@@ -21,7 +21,7 @@
 *		136 W. Canon Perdido Suite A
 *		Santa Barbara, CA 93101
 *
-*	Licensed under the terms laid out in the libungif 
+*	Licensed under the terms laid out in the libungif
 *	COPYING file.
 *
 *********************************************************/
@@ -74,7 +74,7 @@ extern "C"
 									// what was there prior to rendering the graphic.
 
 
-// Initialize BITMAPINFO 
+// Initialize BITMAPINFO
 LOCAL void InitBitmapInfo(LPBITMAPINFO pBMI, int cx, int cy)
 {
     ::ZeroMemory(pBMI, sizeof(BITMAPINFOHEADER));
@@ -162,11 +162,11 @@ CGIFWin::CGIFWin()
 
 	//
 	// Per Section 11 of GIF spec:
-	// If no color table is available at all, the decoder is free to use a 
-	// system color table or a table of its own. In that case, the decoder 
-	// may use a color table with as many colors as its hardware is able 
+	// If no color table is available at all, the decoder is free to use a
+	// system color table or a table of its own. In that case, the decoder
+	// may use a color table with as many colors as its hardware is able
 	// to support; it is recommended that such a table have black and
-	// white as its first two entries, so that monochrome images can be 
+	// white as its first two entries, so that monochrome images can be
 	// rendered adequately.
 	//
 	const RGBQUAD rgbWhite = { 255, 255, 255, 0 };
@@ -458,20 +458,20 @@ LOCAL GifByteType szNetscape20ext[] = "\x0bNETSCAPE2.0";
 //  Appendix E. Interlaced Images.
 //
 //  The rows of an Interlaced images are arranged in the following order:
-//  
+//
 //        Group 1 : Every 8th. row, starting with row 0.              (Pass 1)
 //        Group 2 : Every 8th. row, starting with row 4.              (Pass 2)
 //        Group 3 : Every 4th. row, starting with row 2.              (Pass 3)
 //        Group 4 : Every 2nd. row, starting with row 1.              (Pass 4)
-//  
+//
 const int InterlacedOffset[] = { 0, 4, 2, 1 }; /* The way Interlaced image should. */
 const int InterlacedJumps[] = { 8, 8, 4, 2 };    /* be read - offsets and jumps... */
 //
 //  The Following example illustrates how the rows of an interlaced image are
 //  ordered.
-//  
+//
 //        Row Number                                        Interlace Pass
-//  
+//
 //   0    -----------------------------------------       1
 //   1    -----------------------------------------                         4
 //   2    -----------------------------------------                   3
@@ -533,7 +533,7 @@ int CGIFWin::NextImage()
 	do {
 		int i, ExtCode;
 
-		if (DGifGetRecordType(m_pGifFile, &RecordType) == GIF_ERROR) 
+		if (DGifGetRecordType(m_pGifFile, &RecordType) == GIF_ERROR)
 		{
 			break;
 		}
@@ -653,7 +653,7 @@ int CGIFWin::NextImage()
 			{
 				TRACE("GIF89 graphics control");
 				ASSERT( pExtension[0] == 4 );
-				// 
+				//
 				int flag = pExtension[1];
 				delay  = MAKEWORD(pExtension[2], pExtension[3]);
 				transparent = (flag & GIF_TRANSPARENT) ? pExtension[4] : GIF_NOT_TRANSPARENT;

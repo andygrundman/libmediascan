@@ -258,7 +258,7 @@ $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 
 clean-noinstLIBRARIES:
 	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
-libgetarg.a: $(libgetarg_a_OBJECTS) $(libgetarg_a_DEPENDENCIES) 
+libgetarg.a: $(libgetarg_a_OBJECTS) $(libgetarg_a_DEPENDENCIES)
 	-rm -f libgetarg.a
 	$(libgetarg_a_AR) libgetarg.a $(libgetarg_a_OBJECTS) $(libgetarg_a_LIBADD)
 	$(RANLIB) libgetarg.a
@@ -289,7 +289,7 @@ clean-libLTLIBRARIES:
 	  echo "rm -f \"$${dir}/so_locations\""; \
 	  rm -f "$${dir}/so_locations"; \
 	done
-libgif.la: $(libgif_la_OBJECTS) $(libgif_la_DEPENDENCIES) 
+libgif.la: $(libgif_la_OBJECTS) $(libgif_la_DEPENDENCIES)
 	$(libgif_la_LINK) -rpath $(libdir) $(libgif_la_OBJECTS) $(libgif_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:

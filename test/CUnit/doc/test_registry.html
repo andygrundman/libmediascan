@@ -74,9 +74,9 @@ manipulate the registry when necessary.
 before use.  The user should call <CITE>CU_initialize_registry()</CITE>
 before calling any other CUnit functions.  Failure to do so will
 likely result in a crash.  If this function is called more than once,
-any existing registry will be cleaned up (i.e. destroyed!) before 
+any existing registry will be cleaned up (i.e. destroyed!) before
 creating the new registry.  This function may not be called during a
-test run (i.e. from a test function or suite initialization/cleanup 
+test run (i.e. from a test function or suite initialization/cleanup
 function).
 <BR /><BR />
 An error status code is returned:
@@ -93,8 +93,8 @@ An error status code is returned:
 </TABLE>
 </P>
 <P CLASS="indent2"><CITE>CU_BOOL <B>CU_registry_initialized</B>(void)</CITE></P>
-<P CLASS="indent5">This function can be used to check whether the registry has 
-been initialized.  This may be useful if the registry setup is distributed over 
+<P CLASS="indent5">This function can be used to check whether the registry has
+been initialized.  This may be useful if the registry setup is distributed over
 multiple files that need to make sure the registry is ready for test registration.
 </P>
 
@@ -112,7 +112,7 @@ error condition.  <I>Note that this function will destroy all
 suites (and associated tests) in the registry.</I> Pointers to
 registered suites and tests should not be dereferenced after
 cleaning up the registry.  This function may not be called during a
-test run (i.e. from a test function or suite initialization/cleanup 
+test run (i.e. from a test function or suite initialization/cleanup
 function).
 <BR /><BR />
 Calling <CITE>CU_cleanup_registry()</CITE> will only affect the internal
@@ -148,8 +148,8 @@ to destroy the old registry</I></B>.  This can be done explictly by
 calling <A HREF="#destroy">CU_destroy_existing_registry()</A> for the
 returned pointer.  Alternatively, the registry can be made active using
 <A HREF="#setreg">CU_set_registry()</A> and destroyed implicitly when
-<A HREF="#cleanup">CU_cleanup_registry()</A> is called. Care should be 
-taken not to explicitly destroy a registry that is set as the active one.  
+<A HREF="#cleanup">CU_cleanup_registry()</A> is called. Care should be
+taken not to explicitly destroy a registry that is set as the active one.
 This can result in multiple frees of the same memory and a likely crash.
 </P>
 <P CLASS="indent2"><CITE ID="create">CU_pTestRegistry <B>CU_create_new_registry</B>(void)</CITE></P>
@@ -160,8 +160,8 @@ mechanisms described previously.
 </P>
 <P CLASS="indent2"><CITE ID="destroy">void <B>CU_destroy_existing_registry</B>(CU_pTestRegistry* ppRegistry)</CITE></P>
 <P CLASS="indent5">Destroys and frees all memory for the specified test
-registry, including any registered suites and tests.  This function 
-should not be called for a registry which is set as the active test 
+registry, including any registered suites and tests.  This function
+should not be called for a registry which is set as the active test
 registry (e.g. a  <CITE>CU_pTestRegistry</CITE> pointer retrieved using
 <A HREF="#getreg">CU_get_registry()</A>).  This will result in a
 multiple free of the same memory when

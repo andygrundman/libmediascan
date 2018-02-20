@@ -56,7 +56,7 @@ dlna_register_profile (dlna_t *dlna, dlna_registered_profile_t *profile)
 
   if (!dlna->inited)
     dlna = dlna_init ();
-  
+
   p = &dlna->first_profile;
   while (*p != NULL)
   {
@@ -73,10 +73,10 @@ dlna_register_all_media_profiles (dlna_t *dlna)
 {
   if (!dlna)
     return;
-  
+
   if (!dlna->inited)
     dlna = dlna_init ();
-  
+
 //  dlna_register_profile (dlna, &dlna_profile_image_jpeg);
 //  dlna_register_profile (dlna, &dlna_profile_image_png);
   dlna_register_profile (dlna, &dlna_profile_audio_ac3);
@@ -98,10 +98,10 @@ dlna_register_media_profile (dlna_t *dlna, dlna_media_profile_t profile)
 {
   if (!dlna)
     return;
-  
+
   if (!dlna->inited)
     dlna = dlna_init ();
-  
+
   switch (profile)
   {
 /*
@@ -162,7 +162,7 @@ dlna_init (void)
   dlna->inited = 1;
   dlna->verbosity = 0;
   dlna->first_profile = NULL;
-  
+
   /* register all FFMPEG demuxers */
   av_register_all ();
 
@@ -206,7 +206,7 @@ av_profile_get_codecs (AVFormatContext *ctx)
   av_codecs_t *codecs = NULL;
   unsigned int i;
   int audio_stream = -1, video_stream = -1;
- 
+
   codecs = malloc (sizeof (av_codecs_t));
 
   for (i = 0; i < ctx->nb_streams; i++)
@@ -243,7 +243,7 @@ av_profile_get_codecs (AVFormatContext *ctx)
     free (codecs);
     return NULL;
   }
-  
+
   return codecs;
 }
 
@@ -274,7 +274,7 @@ match_file_extension (const char *filename, const char *extensions)
       p++;
     }
   }
-  
+
   return 0;
 }
 
@@ -289,10 +289,10 @@ dlna_guess_media_profile (dlna_t *dlna, const char *filename)
 
   if (!dlna)
     return NULL;
-  
+
   if (!dlna->inited)
     dlna = dlna_init ();
-  
+
   if (avformat_open_input (&ctx, filename, NULL, NULL) != 0)
   {
     if (dlna->verbosity)
@@ -318,12 +318,12 @@ dlna_guess_media_profile (dlna_t *dlna, const char *filename)
 
   /* check for container type */
   st = stream_get_container (ctx);
-  
+
   p = dlna->first_profile;
   while (p)
   {
     dlna_profile_t *prof;
-    
+
     if (dlna->check_extensions)
     {
       if (p->extensions)
@@ -336,7 +336,7 @@ dlna_guess_media_profile (dlna_t *dlna, const char *filename)
         }
       }
     }
-    
+
     prof = p->probe (ctx, st, codecs);
     if (prof)
     {
@@ -447,7 +447,7 @@ dlna_write_protocol_info (dlna_protocol_info_type_t type,
 
   strcat (protocol, p->mime);
   strcat (protocol, ":");
-  
+
   sprintf (dlna_info, "%s=%d;%s=%d;%s=%.2x;%s=%s;%s=%.8x%.24x",
            "DLNA.ORG_PS", speed, "DLNA.ORG_CI", ci,
            "DLNA.ORG_OP", op, "DLNA.ORG_PN", p->id,
@@ -461,7 +461,7 @@ audio_profile_t
 audio_profile_guess (AVCodecContext *ac)
 {
   audio_profile_t ap = AUDIO_PROFILE_INVALID;
-  
+
   if (!ac)
     return ap;
 

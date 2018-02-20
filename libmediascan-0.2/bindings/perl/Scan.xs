@@ -52,7 +52,7 @@ s_pipe (int filedes [2])
   SOCKET listener;
   SOCKET sock [2] = { -1, -1 };
 
-  if ((listener = socket (AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET) 
+  if ((listener = socket (AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
     return -1;
 
   addr.sin_family = AF_INET;
@@ -68,7 +68,7 @@ s_pipe (int filedes [2])
   if (listen (listener, 1))
     goto fail;
 
-  if ((sock [0] = socket (AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET) 
+  if ((sock [0] = socket (AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
     goto fail;
 
   if (connect (sock [0], (struct sockaddr *)&addr, addr_size))
@@ -131,40 +131,40 @@ _on_result(MediaScan *s, MediaScanResult *result, void *userdata)
   HV *selfh = (HV *)userdata;
   SV *obj = NULL;
   SV *callback = NULL;
-  
+
   if (!my_hv_exists(selfh, "on_result"))
     return;
-  
+
   callback = *(my_hv_fetch(selfh, "on_result"));
   obj = newRV_noinc(newSVpvn("", 0));
-  
+
   switch (result->type) {
     case TYPE_VIDEO:
       sv_bless(obj, gv_stashpv("Media::Scan::Video", 0));
       break;
-    
+
     case TYPE_AUDIO:
       sv_bless(obj, gv_stashpv("Media::Scan::Audio", 0));
       break;
-    
+
     case TYPE_IMAGE:
       sv_bless(obj, gv_stashpv("Media::Scan::Image", 0));
       break;
-    
+
     default:
       break;
   }
-  
+
   xs_object_magic_attach_struct(aTHX_ SvRV(obj), (void *)result);
-  
+
   {
     dSP;
     PUSHMARK(SP);
     XPUSHs(obj);
     PUTBACK;
-    
+
     call_sv(callback, G_VOID | G_DISCARD | G_EVAL);
-    
+
     SPAGAIN;
     if (SvTRUE(ERRSV)) {
       warn("Error in on_result callback (ignored): %s", SvPV_nolen(ERRSV));
@@ -179,22 +179,22 @@ _on_error(MediaScan *s, MediaScanError *error, void *userdata)
   HV *selfh = (HV *)userdata;
   SV *obj = NULL;
   SV *callback = NULL;
-  
+
   if (!my_hv_exists(selfh, "on_error"))
     return;
-  
+
   callback = *(my_hv_fetch(selfh, "on_error"));
   obj = newRV_noinc(newSVpvn("", 0));
   sv_bless(obj, gv_stashpv("Media::Scan::Error", 0));
   xs_object_magic_attach_struct(aTHX_ SvRV(obj), (void *)error);
-  
+
   {
     dSP;
     PUSHMARK(SP);
     XPUSHs(obj);
     PUTBACK;
     call_sv(callback, G_VOID | G_DISCARD | G_EVAL);
-    
+
     SPAGAIN;
     if (SvTRUE(ERRSV)) {
       warn("Error in on_error callback (ignored): %s", SvPV_nolen(ERRSV));
@@ -209,22 +209,22 @@ _on_progress(MediaScan *s, MediaScanProgress *progress, void *userdata)
   HV *selfh = (HV *)userdata;
   SV *obj = NULL;
   SV *callback = NULL;
-  
+
   if (!my_hv_exists(selfh, "on_progress"))
     return;
-  
+
   callback = *(my_hv_fetch(selfh, "on_progress"));
   obj = newRV_noinc(newSVpvn("", 0));
   sv_bless(obj, gv_stashpv("Media::Scan::Progress", 0));
   xs_object_magic_attach_struct(aTHX_ SvRV(obj), (void *)progress);
-  
+
   {
     dSP;
     PUSHMARK(SP);
     XPUSHs(obj);
     PUTBACK;
     call_sv(callback, G_VOID | G_DISCARD | G_EVAL);
-    
+
     SPAGAIN;
     if (SvTRUE(ERRSV)) {
       warn("Error in on_progress callback (ignored): %s", SvPV_nolen(ERRSV));
@@ -257,7 +257,7 @@ _on_finish(MediaScan *s, void *userdata)
   }
 }
 
-MODULE = Media::Scan		PACKAGE = Media::Scan		
+MODULE = Media::Scan		PACKAGE = Media::Scan
 
 PROTOTYPES: ENABLE
 
@@ -292,10 +292,10 @@ CODE:
   HV *selfh = (HV *)SvRV(self);
   AV *paths, *ignore, *ignore_dirs, *thumbnails;
   int async;
-  
+
   // Set log level
   ms_set_log_level( SvIV(*(my_hv_fetch(selfh, "loglevel"))) );
-  
+
   // Set paths to scan
   paths = (AV *)SvRV(*(my_hv_fetch(selfh, "paths")));
   for (i = 0; i < av_len(paths) + 1; i++) {
@@ -303,7 +303,7 @@ CODE:
     if (path != NULL && SvPOK(*path))
       ms_add_path(s, SvPVX(*path));
   }
-  
+
   // Set extensions to ignore
   ignore = (AV *)SvRV(*(my_hv_fetch(selfh, "ignore")));
   for (i = 0; i < av_len(ignore) + 1; i++) {
@@ -311,7 +311,7 @@ CODE:
     if (ext != NULL && SvPOK(*ext))
       ms_add_ignore_extension(s, SvPVX(*ext));
   }
-  
+
   // Set dirs to ignore
   ignore_dirs = (AV *)SvRV(*(my_hv_fetch(selfh, "ignore_dirs")));
   for (i = 0; i < av_len(ignore_dirs) + 1; i++) {
@@ -319,7 +319,7 @@ CODE:
     if (str != NULL && SvPOK(*str))
       ms_add_ignore_directory_substring(s, SvPVX(*str));
   }
-  
+
   // Set thumbnail specs
   // Array of hashes: { format => 'AUTO|JPEG|PNG', width => 100, height => 100, keep_aspect => 1, bgcolor => 0xffffff, quality => 90 },
   thumbnails = (AV *)SvRV(*(my_hv_fetch(selfh, "thumbnails")));
@@ -327,7 +327,7 @@ CODE:
     SV **spec_sv = av_fetch(thumbnails, i, 0);
     if (spec_sv != NULL && SvROK(*spec_sv)) {
       HV *spec = (HV *)SvRV(*spec_sv);
-      
+
       // Defaults
       enum thumb_format format = THUMB_AUTO;
       int width = 0;
@@ -335,7 +335,7 @@ CODE:
       int keep_aspect = 1;
       uint32_t bgcolor = 0;
       int quality = 90;
-      
+
       if (my_hv_exists(spec, "format")) {
         SV *f = *(my_hv_fetch(spec, "format"));
         if (SvPOK(f)) {
@@ -368,11 +368,11 @@ CODE:
         if (SvIOK(u))
           quality = SvUV(u);
       }
-      
+
       ms_add_thumbnail_spec(s, format, width, height, keep_aspect, bgcolor, quality);
     }
   }
-  
+
   // Set async or sync operation
   async = SvIV(*(my_hv_fetch(selfh, "async")));
   ms_set_async(s, async ? 1 : 0);
@@ -380,13 +380,13 @@ CODE:
 #ifdef _WIN32
   if (async) {
     int respipe[2];
-    
+
     if (s_pipe(respipe) != 0)
       croak("Unable to create Win32 pipes");
-    
+
     respipe[0] = S_TO_HANDLE(respipe[0]);
     respipe[1] = S_TO_HANDLE(respipe[1]);
-    
+
     ms_set_async_pipe(s, respipe);
   }
 #endif
@@ -397,7 +397,7 @@ CODE:
     if (cachedir != NULL && SvPOK(*cachedir))
       ms_set_cachedir(s, SvPVX(*cachedir));
   }
-  
+
   // Set flags
   if (my_hv_exists(selfh, "flags")) {
     SV **flags = my_hv_fetch(selfh, "flags");
@@ -410,9 +410,9 @@ CODE:
   ms_set_error_callback(s, _on_error);
   ms_set_progress_callback(s, _on_progress);
   ms_set_finish_callback(s, _on_finish);
-  
+
   ms_set_userdata(s, (void *)selfh);
-  
+
   ms_scan(s);
 }
 

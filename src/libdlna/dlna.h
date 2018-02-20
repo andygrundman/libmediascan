@@ -265,7 +265,7 @@ char * dlna_write_protocol_info (dlna_protocol_info_type_t type,
  * @param[in] cds_scpd_url       UPnP ContentDirectory service SCPD URL.
  * @param[in] cds_control_url    UPnP ContentDirectory service control URL.
  * @param[in] cds_event_url      UPnP ContentDirectory service event URL.
- * 
+ *
  * @return                       The DMS device description string.
  */
 char *

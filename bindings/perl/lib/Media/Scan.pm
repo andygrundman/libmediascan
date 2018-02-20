@@ -132,11 +132,11 @@ to this callback, eventually a scanning summary and overall stats might be inclu
 
 sub new {
     my ( $class, $paths, $opts ) = @_;
-    
+
     if ( ref $paths ne 'ARRAY' ) {
         $paths = [ $paths ];
     }
-    
+
     $opts->{loglevel}    ||= MS_LOG_ERR;
     $opts->{async}       ||= 0;
     $opts->{flags}       ||= MS_USE_EXTENSION | MS_FULL_SCAN;
@@ -144,17 +144,17 @@ sub new {
     $opts->{ignore}      ||= [];
     $opts->{ignore_dirs} ||= [];
     $opts->{thumbnails}  ||= [];
-    
+
     if ( ref $opts->{ignore} ne 'ARRAY' ) {
         die "ignore must be an array reference";
     }
-    
+
     my $self = bless $opts, $class;
-    
+
     $self->xs_new();
-    
+
     $self->xs_scan();
-    
+
     return $self;
 }
 

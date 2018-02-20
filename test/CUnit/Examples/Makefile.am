@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-EXAMPLE_DIRS = . 
+EXAMPLE_DIRS = .
 
 if ENABLE_BASIC
 BASIC_EXAMPLE_DIRS = BasicTest

@@ -222,7 +222,7 @@ libcunitfmk_la_SOURCES = $(SHARED_SOURCES)
 @ENABLE_TEST_TRUE@	Util_test.o
 
 @ENABLE_TEST_TRUE@noinst_LIBRARIES = libcunittestfmk.a
-@ENABLE_TEST_TRUE@libcunittestfmk_a_SOURCES = 
+@ENABLE_TEST_TRUE@libcunittestfmk_a_SOURCES =
 @ENABLE_TEST_TRUE@libcunittestfmk_a_LIBADD = $(TEST_OBJECTS)
 all: all-am
 
@@ -261,7 +261,7 @@ $(am__aclocal_m4_deps):
 
 clean-noinstLIBRARIES:
 	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
-libcunittestfmk.a: $(libcunittestfmk_a_OBJECTS) $(libcunittestfmk_a_DEPENDENCIES) 
+libcunittestfmk.a: $(libcunittestfmk_a_OBJECTS) $(libcunittestfmk_a_DEPENDENCIES)
 	-rm -f libcunittestfmk.a
 	$(libcunittestfmk_a_AR) libcunittestfmk.a $(libcunittestfmk_a_OBJECTS) $(libcunittestfmk_a_LIBADD)
 	$(RANLIB) libcunittestfmk.a
@@ -274,7 +274,7 @@ clean-noinstLTLIBRARIES:
 	  echo "rm -f \"$${dir}/so_locations\""; \
 	  rm -f "$${dir}/so_locations"; \
 	done
-libcunitfmk.la: $(libcunitfmk_la_OBJECTS) $(libcunitfmk_la_DEPENDENCIES) 
+libcunitfmk.la: $(libcunitfmk_la_OBJECTS) $(libcunitfmk_la_DEPENDENCIES)
 	$(LINK)  $(libcunitfmk_la_OBJECTS) $(libcunitfmk_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:

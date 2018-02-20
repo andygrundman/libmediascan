@@ -50,7 +50,7 @@ audio_profile_t
 audio_profile_guess_wma (AVCodecContext *ac)
 {
   audio_profile_t ap = AUDIO_PROFILE_INVALID;
-  
+
   if (!ac)
     return ap;
 
@@ -94,7 +94,7 @@ probe_wma (AVFormatContext *ctx dlna_unused,
   /* check for supported container */
   if (st != CT_ASF)
     return NULL;
-  
+
   switch (audio_profile_guess_wma (codecs->ac))
   {
   case AUDIO_PROFILE_WMA_BASELINE:

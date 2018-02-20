@@ -50,7 +50,7 @@ mpeg_find_container_type (const char *filename)
 
   /* read file header */
   fd = open (filename, O_RDONLY);
-  read (fd, buffer, 2 * MPEG_TS_PACKET_LENGTH_DLNA); 
+  read (fd, buffer, 2 * MPEG_TS_PACKET_LENGTH_DLNA);
   close (fd);
 
   /* check for MPEG-TS container */
@@ -109,7 +109,7 @@ stream_get_container (AVFormatContext *ctx)
 #ifdef HAVE_DEBUG
   fprintf (stderr, "Found container: %s\n", ctx->iformat->name);
 #endif /* HAVE_DEBUG */
-  
+
   for (i = 0; avf_format_mapping[i].name; i++)
     if (!strcmp (ctx->iformat->name, avf_format_mapping[i].name))
     {

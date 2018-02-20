@@ -375,7 +375,7 @@ int image_png_compress(MediaScanImage *i, MediaScanThumbSpec *spec) {
       png_write_row(png_ptr, (png_bytep) ptr);
     }
   }
-  else {                        // RGB  
+  else {                        // RGB
     for (y = 0; y < spec->height; y++) {
       for (x = 0; x < spec->width; x++) {
         ptr[x * 4] = COL_RED(i->_pixbuf[j]);

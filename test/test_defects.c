@@ -53,7 +53,7 @@ int copyfile(char *source, char *dest, int not_used)
          */
         pid_t ws = waitpid( pid, &childExitStatus, WNOHANG);
         if (ws == -1)
-        { 
+        {
         return FALSE;
         }
 
@@ -90,7 +90,7 @@ int deletefile(char *source)
          */
         pid_t ws = waitpid( pid, &childExitStatus, WNOHANG);
         if (ws == -1)
-        { 
+        {
         return FALSE;
         }
 
@@ -153,14 +153,14 @@ static void my_result_callback(MediaScan *s, MediaScanResult *r, void *userdata)
 
 } /* my_result_callback() */
 
-static void my_error_callback(MediaScan *s, MediaScanError *error, void *userdata) { 
+static void my_error_callback(MediaScan *s, MediaScanError *error, void *userdata) {
 
 
 fprintf(stderr, "my_error_callback, err=%d, averr=%d\n", error->error_code, error->averror);
 
 } /* my_error_callback() */
 
-static void my_finish_callback(MediaScan *s, void *userdata) { 
+static void my_finish_callback(MediaScan *s, void *userdata) {
   fprintf(stderr, "finish_callback\n");
 	finish_called = TRUE;
 } /* my_finish_callback() */
@@ -186,7 +186,7 @@ static void test_defect_21069(void)	{
 	CU_ASSERT(s->on_result == my_result_callback);
 
 	CU_ASSERT(s->on_error == NULL);
-	ms_set_error_callback(s, my_error_callback); 
+	ms_set_error_callback(s, my_error_callback);
 	CU_ASSERT(s->on_error == my_error_callback);
 
 	CU_ASSERT(s->npaths == 0);
@@ -194,7 +194,7 @@ static void test_defect_21069(void)	{
 	CU_ASSERT(s->npaths == 1);
 
 	ms_scan(s);
-	CU_ASSERT( result_called == 2 );	
+	CU_ASSERT( result_called == 2 );
 
 	ms_destroy(s);
 
@@ -224,7 +224,7 @@ static void test_defect_19701(void)	{
 	CU_ASSERT(s->on_result == my_result_callback);
 
 	CU_ASSERT(s->on_error == NULL);
-	ms_set_error_callback(s, my_error_callback); 
+	ms_set_error_callback(s, my_error_callback);
 	CU_ASSERT(s->on_error == my_error_callback);
 
 	CU_ASSERT(s->npaths == 0);
@@ -232,7 +232,7 @@ static void test_defect_19701(void)	{
 	CU_ASSERT(s->npaths == 1);
 
 	ms_scan(s);
-	CU_ASSERT( result_called == 3 );	
+	CU_ASSERT( result_called == 3 );
 
 	ms_destroy(s);
 
@@ -261,7 +261,7 @@ static void test_defect_21070(void)	{
 	CU_ASSERT(s->on_result == my_result_callback);
 
 	CU_ASSERT(s->on_error == NULL);
-	ms_set_error_callback(s, my_error_callback); 
+	ms_set_error_callback(s, my_error_callback);
 	CU_ASSERT(s->on_error == my_error_callback);
 
 	CU_ASSERT(s->npaths == 0);
@@ -269,7 +269,7 @@ static void test_defect_21070(void)	{
 	CU_ASSERT(s->npaths == 1);
 
 	ms_scan(s);
-	CU_ASSERT( result_called == 1 );	
+	CU_ASSERT( result_called == 1 );
 
 	ms_destroy(s);
 
@@ -298,7 +298,7 @@ static void test_defect_21416(void)	{
 	CU_ASSERT(s->on_result == my_result_callback);
 
 	CU_ASSERT(s->on_error == NULL);
-	ms_set_error_callback(s, my_error_callback); 
+	ms_set_error_callback(s, my_error_callback);
 	CU_ASSERT(s->on_error == my_error_callback);
 
 	CU_ASSERT(s->npaths == 0);
@@ -306,7 +306,7 @@ static void test_defect_21416(void)	{
 	CU_ASSERT(s->npaths == 1);
 
 	ms_scan(s);
-	CU_ASSERT( result_called == 1 );	
+	CU_ASSERT( result_called == 1 );
 
 	ms_destroy(s);
 
@@ -335,7 +335,7 @@ static void test_defect_21352(void)	{
 	CU_ASSERT(s->on_result == my_result_callback);
 
 	CU_ASSERT(s->on_error == NULL);
-	ms_set_error_callback(s, my_error_callback); 
+	ms_set_error_callback(s, my_error_callback);
 	CU_ASSERT(s->on_error == my_error_callback);
 
 	CU_ASSERT(s->npaths == 0);
@@ -343,7 +343,7 @@ static void test_defect_21352(void)	{
 	CU_ASSERT(s->npaths == 1);
 
 	ms_scan(s);
-	CU_ASSERT( result_called == 0 );	
+	CU_ASSERT( result_called == 0 );
 
 	ms_destroy(s);
 
@@ -372,7 +372,7 @@ static void test_defect_21660(void)	{
 	CU_ASSERT(s->on_result == my_result_callback);
 
 	CU_ASSERT(s->on_error == NULL);
-	ms_set_error_callback(s, my_error_callback); 
+	ms_set_error_callback(s, my_error_callback);
 	CU_ASSERT(s->on_error == my_error_callback);
 
 	CU_ASSERT(s->npaths == 0);
@@ -380,7 +380,7 @@ static void test_defect_21660(void)	{
 	CU_ASSERT(s->npaths == 1);
 
 	ms_scan(s);
-	CU_ASSERT( result_called == 0 );	
+	CU_ASSERT( result_called == 0 );
 
 	ms_destroy(s);
 
@@ -423,7 +423,7 @@ static void test_defect__bugzilla_17564(void)	{
 	CU_ASSERT(s->on_result == my_result_callback);
 
 	CU_ASSERT(s->on_error == NULL);
-	ms_set_error_callback(s, my_error_callback); 
+	ms_set_error_callback(s, my_error_callback);
 	CU_ASSERT(s->on_error == my_error_callback);
 
 	CU_ASSERT(s->npaths == 0);
@@ -438,7 +438,7 @@ static void test_defect__bugzilla_17564(void)	{
 	printf("\n\n\n\n path %d \n\n\n\n", strlen(test_path_dest));
 
 	ms_scan(s);
-	CU_ASSERT( result_called == 1 );	
+	CU_ASSERT( result_called == 1 );
 
 	ms_destroy(s);
 
@@ -475,13 +475,13 @@ int setupdefect_tests() {
    /* add the tests to the background scanning suite */
    if (
 //      NULL == CU_add_test(pSuite, "Test defect 21069", test_defect_21069) ||
-//      NULL == CU_add_test(pSuite, "Test defect 19701", test_defect_19701) || 
+//      NULL == CU_add_test(pSuite, "Test defect 19701", test_defect_19701) ||
 //      NULL == CU_add_test(pSuite, "Test defect 21070", test_defect_21070) ||
 //      NULL == CU_add_test(pSuite, "Test defect 21416", test_defect_21416) ||
 //      NULL == CU_add_test(pSuite, "Test defect 21352", test_defect_21352) ||
 //      NULL == CU_add_test(pSuite, "Test defect 21660", test_defect_21660) ||
-      NULL == CU_add_test(pSuite, "Test defect Bugzilla 17564", test_defect__bugzilla_17564) 
-	  
+      NULL == CU_add_test(pSuite, "Test defect Bugzilla 17564", test_defect__bugzilla_17564)
+
 	   )
    {
       CU_cleanup_registry();

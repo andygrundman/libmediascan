@@ -25,7 +25,7 @@ int isAlias(const char *incoming_path) {
   struct stat fileInfo;
   CFStringRef cfPath = NULL;
   CFURLRef url = NULL;
-  
+
   //CFStringRef in_path = CFStringCreateWithCString(NULL, incoming_path, kCFStringEncodingMacRoman);
 
 // Use lstat to determine if the file is a directory or symlink
@@ -35,7 +35,7 @@ int isAlias(const char *incoming_path) {
     link_type = LINK_NONE;
     goto exit;
   }
- 
+
   if (S_ISLNK(fileInfo.st_mode)) {
     link_type = LINK_SYMLINK;
   }
@@ -46,7 +46,7 @@ int isAlias(const char *incoming_path) {
 
     if (url != NULL) {
       FSRef fsRef;
-      
+
       if (CFURLGetFSRef(url, &fsRef)) {
         Boolean targetIsFolder, wasAliased;
         OSErr err = FSResolveAliasFile(&fsRef, true, &targetIsFolder, &wasAliased);
@@ -55,20 +55,20 @@ int isAlias(const char *incoming_path) {
         else
     		  link_type = LINK_NONE;
       }
-      
+
       CFRelease(url);
     }
-    
+
     CFRelease(cfPath);
   }
 
-exit:   
+exit:
   return link_type;
 }                               /* isAlias() */
 
 int CheckMacAlias(const char *incoming_path, char *out_path) {
   NSAutoreleasePool *pool =[[NSAutoreleasePool alloc] init];
-  NSString *NSPath = [[NSString alloc] initWithUTF8String:incoming_path]; 
+  NSString *NSPath = [[NSString alloc] initWithUTF8String:incoming_path];
   NSString *resolvedPath = [NSPath stringByResolvingSymlinksAndAliases];
   LOG_DEBUG("CheckMacAlias: %s => %s\n", [NSPath UTF8String], [resolvedPath UTF8String]);
   if(resolvedPath == nil) {
@@ -79,7 +79,7 @@ int CheckMacAlias(const char *incoming_path, char *out_path) {
 
   const char *cString = [resolvedPath UTF8String];
   strncpy(out_path, cString, PATH_MAX);
-  
+
   [NSPath autorelease];
   [pool drain];
   return TRUE;

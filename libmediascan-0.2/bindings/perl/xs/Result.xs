@@ -119,7 +119,7 @@ CODE:
   int count = ms_result_get_tag_count(r);
   RETVAL = newHV();
   sv_2mortal((SV*)RETVAL);
-  
+
   for (i = 0; i < count; i++) {
     const char *key, *value;
     ms_result_get_tag(r, i, &key, &value);

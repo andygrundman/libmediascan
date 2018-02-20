@@ -313,7 +313,7 @@ clean-examplePROGRAMS:
 	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
 	echo " rm -f" $$list; \
 	rm -f $$list
-BasicTest$(EXEEXT): $(BasicTest_OBJECTS) $(BasicTest_DEPENDENCIES) 
+BasicTest$(EXEEXT): $(BasicTest_OBJECTS) $(BasicTest_DEPENDENCIES)
 	@rm -f BasicTest$(EXEEXT)
 	$(BasicTest_LINK) $(BasicTest_OBJECTS) $(BasicTest_LDADD) $(LIBS)
 

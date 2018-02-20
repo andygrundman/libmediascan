@@ -449,7 +449,7 @@ void ms_set_userdata(MediaScan *s, void *data);
  * If async mode is enabled, this call will return immediately. You must
  * obtain the file descriptor using ms_async_fd and this must be checked using
  * an event loop or select(). When the fd becomes readable you must call
- * ms_async_process to trigger any necessary callbacks. 
+ * ms_async_process to trigger any necessary callbacks.
  */
 void ms_scan(MediaScan *s);
 

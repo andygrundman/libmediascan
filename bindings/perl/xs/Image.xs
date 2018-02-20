@@ -17,8 +17,8 @@ CODE:
 }
 OUTPUT:
   RETVAL
-  
-  
+
+
 int
 height(MediaScanResult *r)
 CODE:

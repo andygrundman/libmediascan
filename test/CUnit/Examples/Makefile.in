@@ -283,7 +283,7 @@ $(am__aclocal_m4_deps):
 
 clean-noinstLIBRARIES:
 	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
-libcunitexamples.a: $(libcunitexamples_a_OBJECTS) $(libcunitexamples_a_DEPENDENCIES) 
+libcunitexamples.a: $(libcunitexamples_a_OBJECTS) $(libcunitexamples_a_DEPENDENCIES)
 	-rm -f libcunitexamples.a
 	$(libcunitexamples_a_AR) libcunitexamples.a $(libcunitexamples_a_OBJECTS) $(libcunitexamples_a_LIBADD)
 	$(RANLIB) libcunitexamples.a

@@ -48,7 +48,7 @@ static void my_result_callback(MediaScan *s, MediaScanResult *r, void *userdata)
 	result_called++;
 } /* my_result_callback() */
 
-static void my_error_callback(MediaScan *s, MediaScanError *error, void *userdata) { 
+static void my_error_callback(MediaScan *s, MediaScanError *error, void *userdata) {
 
 } /* my_error_callback() */
 
@@ -100,7 +100,7 @@ static void test_image_scanning(void)	{
 	CU_ASSERT(s->on_result == my_result_callback);
 
 	CU_ASSERT(s->on_error == NULL);
-	ms_set_error_callback(s, my_error_callback); 
+	ms_set_error_callback(s, my_error_callback);
 	CU_ASSERT(s->on_error == my_error_callback);
 
 	ms_scan_file(s, file01, TYPE_UNKNOWN);
@@ -240,7 +240,7 @@ int setupimage_tests() {
    }
 
    /* add the tests to the background scanning suite */
-   if (NULL == CU_add_test(pSuite, "Test Image Scanning", test_image_scanning) 
+   if (NULL == CU_add_test(pSuite, "Test Image Scanning", test_image_scanning)
  	   )
    {
       CU_cleanup_registry();

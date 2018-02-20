@@ -283,7 +283,7 @@ clean-testPROGRAMS:
 	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
 	echo " rm -f" $$list; \
 	rm -f $$list
-test_cunit$(EXEEXT): $(test_cunit_OBJECTS) $(test_cunit_DEPENDENCIES) 
+test_cunit$(EXEEXT): $(test_cunit_OBJECTS) $(test_cunit_DEPENDENCIES)
 	@rm -f test_cunit$(EXEEXT)
 	$(test_cunit_LINK) $(test_cunit_OBJECTS) $(test_cunit_LDADD) $(LIBS)
 

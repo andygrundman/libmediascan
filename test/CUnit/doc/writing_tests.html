@@ -48,20 +48,20 @@ integers might look like:
 <H3 ID="assertions">2.2. CUnit Assertions</H3>
 CUnit provides a set of assertions for testing logical conditions.  The
 success or failure of these assertions is tracked by the framework,
-and can be viewed when a test run is complete.  
+and can be viewed when a test run is complete.
 <P />
 Each assertion tests a single logical condition, and fails if the
-condition evaluates to <CODE>CU_FALSE</CODE>.  Upon assertion failure, 
-the test function continues unless the user chooses the 'xxx_FATAL' version 
-of an assertion.  In that case, the test function is aborted and returns 
-immediately.  <B>FATAL versions of assertions should be used with caution!</B>  
+condition evaluates to <CODE>CU_FALSE</CODE>.  Upon assertion failure,
+the test function continues unless the user chooses the 'xxx_FATAL' version
+of an assertion.  In that case, the test function is aborted and returns
+immediately.  <B>FATAL versions of assertions should be used with caution!</B>
 There is no opportunity for the test function to clean up after itself once a
-FATAL assertion fails.  The normal <A HREF="managing_tests.html#addsuite">suite 
+FATAL assertion fails.  The normal <A HREF="managing_tests.html#addsuite">suite
 cleanup function</A> is not affected, however, and will be run in either case.
 <P />
-There are also special "assertions" for registering a 
-<A HREF="#pass">pass</A> or <A HREF="#fail">fail</A> with the framework 
-without performing a logical test.  These are useful for testing flow 
+There are also special "assertions" for registering a
+<A HREF="#pass">pass</A> or <A HREF="#fail">fail</A> with the framework
+without performing a logical test.  These are useful for testing flow
 of control or other conditions not requiring a logical test:
 <PRE><CODE>
     void test_longjmp(void)

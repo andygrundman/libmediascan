@@ -182,7 +182,7 @@ void WatchDirectory(void *thread_data) {
   }
 */
 
-  // Run until we are told to stop. It is important to let the thread clean up after itself so 
+  // Run until we are told to stop. It is important to let the thread clean up after itself so
   // there is shutdown code at the bottom of this function.
   while (ThreadRunning) {
 
@@ -242,7 +242,7 @@ void WatchDirectory(void *thread_data) {
               break;
 
             case FILE_ACTION_MODIFIED:
-              LOG_INFO("	file was modified\n");  // This can be a change in the time stamp or attributes."; 
+              LOG_INFO("	file was modified\n");  // This can be a change in the time stamp or attributes.";
               // We get notifications even while a file is being copied. This will wait 60 seconds for the file to finish.
               if (WaitForFile(full_path, 10)) {
                 ms_scan_file(s, full_path, TYPE_UNKNOWN);
@@ -252,11 +252,11 @@ void WatchDirectory(void *thread_data) {
               }
 
               break;
-/*            case FILE_ACTION_RENAMED_OLD_NAME: 
-								LOG_INFO("	file was renamed and this is the old name\n"); 
+/*            case FILE_ACTION_RENAMED_OLD_NAME:
+								LOG_INFO("	file was renamed and this is the old name\n");
               break;
-            case FILE_ACTION_RENAMED_NEW_NAME: 
-								LOG_INFO("	file was renamed and this is the new name\n"); 
+            case FILE_ACTION_RENAMED_NEW_NAME:
+								LOG_INFO("	file was renamed and this is the new name\n");
               break;
 */ }
 
@@ -286,7 +286,7 @@ void WatchDirectory(void *thread_data) {
 
       case WAIT_TIMEOUT:
 
-        // A timeout occurred, this would happen if some value other 
+        // A timeout occurred, this would happen if some value other
         // than INFINITE is used in the Wait call and no changes occur.
         // In a single-threaded environment you might not want an
         // INFINITE wait.

@@ -76,18 +76,18 @@ int DecodeGif(const u8 *userData, u8 ScreenBuff[160][240], u16* Palette)
     GifByteType *Extension;
     GifFileType *GifFile;
     ColorMapObject *ColorMap;
-    
+
     if ((GifFile = DGifOpen(userData, readFunc)) == NULL) {
 	PrintGifError();
 	return EXIT_FAILURE;
     }
-    
+
     for (i = 0; i < GifFile->SWidth; i++)  /* Set its color to BackGround. */
 	ScreenBuff[0][i] = GifFile->SBackGroundColor;
     for (i = 1; i < GifFile->SHeight; i++) {
 	memcpy(ScreenBuff[i], ScreenBuff[0], GifFile->SWidth);
     }
-    
+
     /* Scan the content of the GIF file and load the image(s) in: */
     do {
 	if (DGifGetRecordType(GifFile, &RecordType) == GIF_ERROR) {
@@ -104,12 +104,12 @@ int DecodeGif(const u8 *userData, u8 ScreenBuff[160][240], u16* Palette)
 	    Col = GifFile->Image.Left;
 	    Width = GifFile->Image.Width;
 	    Height = GifFile->Image.Height;
-	    
+
 	    // Update Color map
 	    ColorMap = (GifFile->Image.ColorMap
 		? GifFile->Image.ColorMap
 		: GifFile->SColorMap);
-	    
+
 #ifdef _WIN32
 	    ZeroMemory(pBMI, sizeof(BITMAPINFOHEADER) + 256*sizeof(RGBQUAD));
 	    pBMI->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
@@ -184,13 +184,13 @@ int DecodeGif(const u8 *userData, u8 ScreenBuff[160][240], u16* Palette)
 	}
     }
     while (RecordType != TERMINATE_RECORD_TYPE);
-    
+
     /* Close file when done */
     if (DGifCloseFile(GifFile) == GIF_ERROR) {
 	PrintGifError();
 	return EXIT_FAILURE;
     }
-    
+
     return 0;
 }
 
@@ -207,12 +207,12 @@ int WaitInput(void)
     do
     {
         keys = ~REG_KEYINPUT;
-	
+
 	if (keys & KEY_B)
 	{
 	    REG_BG2PA = 0x0080;
 	    REG_BG2PD = 0x0080;
-	    
+
 	    if (keys & KEY_RIGHT)
 	    {
 		if (x < 240)
@@ -247,18 +247,18 @@ int WaitInput(void)
 	while (REG_VCOUNT != 160);
     }
     while ((keys & (KEY_A|KEY_L|KEY_R)) == 0);
-    
+
     if (keys & KEY_L)
 	if (n > 0) --n; else n = 2;
     else
 	if (n < 2) ++n; else n = 0;
-    
+
     return keys;
 }
 
 int main(void)
 {
-    SetMode(4 | BG2_ENABLE); /* Enable mode 4 and turn on background 2. */ 
+    SetMode(4 | BG2_ENABLE); /* Enable mode 4 and turn on background 2. */
     do
     {
 	memset(MODE3_FB, 0, 240*160*sizeof(short));

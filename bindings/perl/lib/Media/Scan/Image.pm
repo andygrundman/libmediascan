@@ -7,7 +7,7 @@ use base qw(Media::Scan::Result);
 
 sub as_hash {
     my $self = shift;
-    
+
     return {
         %{ $self->SUPER::as_hash() },
         codec  => $self->codec,

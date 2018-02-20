@@ -14,7 +14,7 @@ on a uni-processor system.
 
 Bug fixes
 ---------
-Sem_destroy could return EBUSY even though no threads were waiting on the 
+Sem_destroy could return EBUSY even though no threads were waiting on the
 semaphore. Other races around invalidating semaphore structs (internally)
 have been removed as well.
 
@@ -240,7 +240,7 @@ hanging due to starvation. See comments in pthread_once.c.
 Momentary priority boosting is used to ensure that, after a
 once_routine is cancelled, the thread that will run the
 once_routine is not starved by higher priority waiting threads at
-critical times. Priority boosting occurs only AFTER a once_routine 
+critical times. Priority boosting occurs only AFTER a once_routine
 cancellation, and is applied only to that once_control. The
 once_routine is run at the thread's normal base priority.
 
@@ -304,7 +304,7 @@ Version 1.4.0 back-ports the new functionality included in this
 release. Please distribute DLLs built from that version with updates
 to applications built on pthreads-win32 version 1.x.x.
 
-The package naming has changed, replacing the snapshot date with 
+The package naming has changed, replacing the snapshot date with
 the version number + descriptive information. E.g. this
 release is "pthreads-w32-2-0-0-release".
 
@@ -1037,7 +1037,7 @@ SNAPSHOT 1999-11-02
 
 Bugs fixed:
 -       ctime_r macro had an incorrect argument (Erik Hensema),
--       threads were not being created 
+-       threads were not being created
         PTHREAD_CANCEL_DEFERRED. This should have
         had little effect as deferred is the only
         supported type. (Ross Johnson).

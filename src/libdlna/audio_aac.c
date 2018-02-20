@@ -227,7 +227,7 @@ typedef enum {
 /* HeAACv2 (a.ka.a AACplus v2) is HeAACv1 + Parametric Stereo (PS) */
 
 typedef enum {
-  AAC_INVALID   =  0, 
+  AAC_INVALID   =  0,
   AAC_MAIN      =  1, /* AAC Main */
   AAC_LC        =  2, /* AAC Low complexity */
   AAC_SSR       =  3, /* AAC SSR */
@@ -295,17 +295,17 @@ static aac_object_type_t
 aac_object_type_get (uint8_t *data, int len)
 {
   uint8_t t = AAC_INVALID;
-  
+
   if (!data || len < 1)
     goto aac_object_type_error;
 
   t = data[0] >> 3; /* Get 5 first bits */
-  
+
  aac_object_type_error:
 #ifdef HAVE_DEBUG
     fprintf (stderr, "AAC Object Type: %d\n", t);
 #endif /* HAVE_DEBUG */
-  
+
   return t;
 }
 
@@ -318,7 +318,7 @@ audio_profile_guess_aac_priv (AVCodecContext *ac, aac_object_type_t type)
   /* check for AAC variants codec */
   if (ac->codec_id != AV_CODEC_ID_AAC)
     return AUDIO_PROFILE_INVALID;
-  
+
   switch (type)
   {
   /* AAC Low Complexity variants */
@@ -408,7 +408,7 @@ audio_profile_guess_aac_priv (AVCodecContext *ac, aac_object_type_t type)
 
       break;
     }
-    
+
     break;
   }
 
@@ -446,7 +446,7 @@ audio_profile_guess_aac_priv (AVCodecContext *ac, aac_object_type_t type)
 
     break;
   }
-  
+
   case AAC_BSAC_ER:
   {
     if (ac->sample_rate < 16000 || ac->sample_rate > 48000)
@@ -459,14 +459,14 @@ audio_profile_guess_aac_priv (AVCodecContext *ac, aac_object_type_t type)
       return AUDIO_PROFILE_AAC_BSAC;
     else if (ac->channels <= 6)
       return AUDIO_PROFILE_AAC_BSAC_MULT5;
- 
+
     break;
   }
 
   default:
     break;
   }
-  
+
   return AUDIO_PROFILE_INVALID;
 }
 
@@ -474,7 +474,7 @@ audio_profile_t
 audio_profile_guess_aac (AVCodecContext *ac)
 {
   aac_object_type_t type;
-  
+
   if (!ac)
     return AUDIO_PROFILE_INVALID;
 
@@ -491,16 +491,16 @@ aac_adts_object_type_get (AVFormatContext *ctx)
 
   if (!ctx)
     return t;
-  
+
   fd = open (ctx->filename, O_RDONLY);
   read (fd, buf, sizeof (buf) - 1);
   t = (buf[2] & 0xC0) >> 6;
   close (fd);
-  
+
 #ifdef HAVE_DEBUG
     fprintf (stderr, "AAC Object Type: %d\n", t);
 #endif /* HAVE_DEBUG */
-  
+
   return t;
 }
 
@@ -510,7 +510,7 @@ aac_get_format (AVFormatContext *ctx)
   int fd;
   unsigned char buf[4];
   aac_container_type_t ct = AAC_MUXED;
-  
+
   if (!ctx)
     return ct;
 
@@ -550,7 +550,7 @@ probe_mpeg4 (AVFormatContext *ctx,
   }
   else
     ap = audio_profile_guess_aac (codecs->ac);
-  
+
   if (ap == AUDIO_PROFILE_INVALID)
     return NULL;
 
@@ -559,7 +559,7 @@ probe_mpeg4 (AVFormatContext *ctx,
     if (aac_profiles_mapping[i].ct == ct &&
         aac_profiles_mapping[i].ap == ap)
       return aac_profiles_mapping[i].profile;
-  
+
   return NULL;
 }
 

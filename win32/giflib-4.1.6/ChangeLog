@@ -110,19 +110,19 @@
 
 = giflib-4.1.4 =
 
-2005-10-09 Toshio Kuratomi <toshio@tiki-lounge.com> - r94    
+2005-10-09 Toshio Kuratomi <toshio@tiki-lounge.com> - r94
     * Sync with libungif r93.
     * ChangeLog: Update to r92.
     * NEWS: Update with combined libungif/giflib changes.
-    
-2005-10-09 Toshio Kuratomi <toshio@tiki-lounge.com> - r92    
+
+2005-10-09 Toshio Kuratomi <toshio@tiki-lounge.com> - r92
     * lib/gif_lib.h: Change GifPrefixType to unsigned.
-    
-2005-10-09 Toshio Kuratomi <toshio@tiki-lounge.com> - r91    
+
+2005-10-09 Toshio Kuratomi <toshio@tiki-lounge.com> - r91
     * ChangeLog: Update to r90.
     * NEWS: Update on GBA and Windows fixes.
-    
-2005-10-06 Toshio Kuratomi <toshio@tiki-lounge.com> - r90    
+
+2005-10-06 Toshio Kuratomi <toshio@tiki-lounge.com> - r90
     Changes from Lennie Araki:
     * gba/giftest.mak: Prefix the names of defines for the GBA build with _GBA.
     * lib/dgif_lib.c, lib/gif_lib_private.h, lib/gif_err.c:
@@ -137,11 +137,11 @@
         respectively.
       - Fix a problem with the API on _WIN32.  DrawText conflicts with the
         Windows API.  Call it DrawGifText instead.
-      
-2005-09-27 Toshio Kuratomi <toshio@tiki-lounge.com> - r86    
+
+2005-09-27 Toshio Kuratomi <toshio@tiki-lounge.com> - r86
     * Sync with libungif r85.
-    
-2005-09-27 Toshio Kuratomi <toshio@tiki-lounge.com> - r82    
+
+2005-09-27 Toshio Kuratomi <toshio@tiki-lounge.com> - r82
     * AUTHORS: Add Daniel Eisenbud.  Obscure email addresses.
     * libungif.spec: Bump to version 4.1.4.
     * configure.ac: Bump to 4.1.4.  No longer check for ranlib.
@@ -154,30 +154,30 @@
     * lib/dev2gif.c: Fix redefinition problem on IRIX.
     * NEWS: Update to 4.1.4
     * util/gifcomb.c: Set a olorMap to NULL.
-    
-2004-07-11 Toshio Kuratomi <toshio@tiki-lounge.com> - r79    
+
+2004-07-11 Toshio Kuratomi <toshio@tiki-lounge.com> - r79
     * gif2iris.c: Fixes from Georg Schwarz <geos[AT]epost.de>.
       - stdlib.h is available and needs to be included on IRIX.
       - ColorMapSize was being set from non-existent variables.
-    
-2004-05-29 Toshio Kuratomi <toshio@tiki-lounge.com> - r76    
+
+2004-05-29 Toshio Kuratomi <toshio@tiki-lounge.com> - r76
     * Sync with libungif-4.1.3.
 
-2004-05-29 Toshio Kuratomi <toshio@tiki-lounge.com> - r74    
+2004-05-29 Toshio Kuratomi <toshio@tiki-lounge.com> - r74
     * ChangeLog, prop=lastlog: Sync with the subversion logs.
-    
-2004-05-29 Toshio Kuratomi <toshio@tiki-lounge.com> - r73    
+
+2004-05-29 Toshio Kuratomi <toshio@tiki-lounge.com> - r73
     * test-unx: Add a test of extension code.
     * lib/egif_lib.c: Remove a debugging statement
-    
-2004-05-29 Toshio Kuratomi <toshio@tiki-lounge.com> - r72    
+
+2004-05-29 Toshio Kuratomi <toshio@tiki-lounge.com> - r72
     * Makefile.am, doc/Makefile.am, pic/Makefile.am: Change wildcarded entries
       into explicit filenames so make distcheck will succeed.
-    
-2004-05-29 Toshio Kuratomi <toshio@tiki-lounge.com> - r71    
+
+2004-05-29 Toshio Kuratomi <toshio@tiki-lounge.com> - r71
     * ChangeLog, prop=lastlog: Sync the ChangeLog for the release.
-    
-2004-05-29 Toshio Kuratomi <toshio@tiki-lounge.com> - r70    
+
+2004-05-29 Toshio Kuratomi <toshio@tiki-lounge.com> - r70
     * AUTHORS: Add Lennie Araki to the list of contributers.
     * windows: The windows subdirectory and all files under it are contributions
       from Lennie Araki to provide a nice interface on MS Windows.
@@ -186,8 +186,8 @@
       so people know they should use it instead of EGifPutExtension.
     * Makefile.am: Mark the windows files to be distributed.
     * NEWS: Complete the NEWS item for 4.1.3.
-    
-2004-05-29 Toshio Kuratomi <toshio@tiki-lounge.com> - r69    
+
+2004-05-29 Toshio Kuratomi <toshio@tiki-lounge.com> - r69
     * libungif.spec: Some updates from the latest RedHat spec.
     * configure.ac: Bump version to 4.1.3.
     * lib/gifalloc.c: Add to my comments on ESR's note about Extension blocks.
@@ -197,7 +197,7 @@
       - EGifPutExtension{First,Next,Last}: Changed fwrites to WRITE so any
         user defined write function will get called properly.
       - EGifPutExtensionLast: if the Extension block is empty (Zero length)
-        then don't attempt to output a last extension block, just output the 
+        then don't attempt to output a last extension block, just output the
         block terminator.
       - EGifPutExtension: Comment that this function does not work when there
         are multiple subblocks in an Extension block.  Use the functions
@@ -209,32 +209,32 @@
     * NEWS: Begin writing an entry for 4.1.3.
     * util/icon2gif.c: Few casting fixes to make gcc -Wall happy.
     * util/gif2ps.c: printf format string corrections.
-    
-2004-05-26 Toshio Kuratomi <toshio@tiki-lounge.com> - r67    
+
+2004-05-26 Toshio Kuratomi <toshio@tiki-lounge.com> - r67
     * Clean up some typos.
-    
+
 2004-05-25 Toshio Kuratomi <toshio@tiki-lounge.com> - r66
     * Sync with libungif-4.1.2.
 
-2004-03-03 Toshio Kuratomi <toshio@tiki-lounge.com> - r64    
+2004-03-03 Toshio Kuratomi <toshio@tiki-lounge.com> - r64
     Last minute updates to the release notes in various files.
 
-2004-03-03 Toshio Kuratomi <toshio@tiki-lounge.com> - r63    
+2004-03-03 Toshio Kuratomi <toshio@tiki-lounge.com> - r63
     * Set property lastlog to remind me when I last synced the ChangeLog
 
-2004-03-03 Toshio Kuratomi <toshio@tiki-lounge.com> - r62    
+2004-03-03 Toshio Kuratomi <toshio@tiki-lounge.com> - r62
     * ChangeLog: Update
 
-2004-03-03 Toshio Kuratomi <toshio@tiki-lounge.com> - r61    
+2004-03-03 Toshio Kuratomi <toshio@tiki-lounge.com> - r61
     * configure.ac: Bump version to 4.1.2
-    
-2004-02-22 Toshio Kuratomi <toshio@tiki-lounge.com> - r59    
+
+2004-02-22 Toshio Kuratomi <toshio@tiki-lounge.com> - r59
     * configure.ac, lib/Makefile.am: Bump version.  Forgot to do this for 4.1.1...
 
-2004-02-22 Toshio Kuratomi <toshio@tiki-lounge.com> - r58    
+2004-02-22 Toshio Kuratomi <toshio@tiki-lounge.com> - r58
     * TODO: Take out -Wall as that's all ready now.
 
-2004-02-22 Toshio Kuratomi <toshio@tiki-lounge.com> - r57    
+2004-02-22 Toshio Kuratomi <toshio@tiki-lounge.com> - r57
     Merge changes to the code from branch indent-audit r55
     * README: MakeExtension deprecation note.
     * TODO: Bunch of things I need to fix or check that I saw while doing the
@@ -272,23 +272,23 @@
     * lib/gif_lib_private.h: indent changes
     * lib/gif_font.c: indent changes
     * lib/gif_err.c: indent changes
-    
-2004-02-22 Toshio Kuratomi <toshio@tiki-lounge.com> - r56    
+
+2004-02-22 Toshio Kuratomi <toshio@tiki-lounge.com> - r56
     * lib/Makefile.am, util/Makefile.am: Add -Wall to the compilation flags so
       we can keep the code from acquiring too much bad style.
-    
-2004-02-20 Toshio Kuratomi <toshio@tiki-lounge.com> - r46    
+
+2004-02-20 Toshio Kuratomi <toshio@tiki-lounge.com> - r46
     * egif_lib.c: Note for a bug fix (Can wait until after indent because
       there's no patch.)
     * gif_lib.h, dev2gif.c: Change int type to explicit long type in
       DumpScreen2Gif.
     * util/gifinto.c: Give the fprintf back its %d format.
       GifFile->ImageCount is used as the Image number.
-    
-2004-02-20 Toshio Kuratomi <toshio@tiki-lounge.com> - r45    
+
+2004-02-20 Toshio Kuratomi <toshio@tiki-lounge.com> - r45
     * README: add varargs to the deprecation list
 
-2004-02-20 Toshio Kuratomi <toshio@tiki-lounge.com> - r44    
+2004-02-20 Toshio Kuratomi <toshio@tiki-lounge.com> - r44
     * test-unx: Quote the program names.
     * lib/dgif_lib.c:
       - Make sure memory was allocated for the colormap
@@ -299,17 +299,17 @@
     * lib/qprintf.c, lib/getarg.c: Update the varargs code.  Some users reported
       that not all systems can handle the hybridized varargs parameter lists
       we had.  Need to use old-style declarations instead.
-    
-2004-02-20 Toshio Kuratomi <toshio@tiki-lounge.com> - r43    
+
+2004-02-20 Toshio Kuratomi <toshio@tiki-lounge.com> - r43
     * NEWS: Note bugfixes and deprecations
     * README: Deprecation list is now being compiled in this file.
     * TODO: Notes about interlace bug, -Wall status, merging of old bug status
-    
-2004-02-19 Toshio Kuratomi <toshio@tiki-lounge.com> - r42    
+
+2004-02-19 Toshio Kuratomi <toshio@tiki-lounge.com> - r42
     * Makefile.am: Disable testing for now because gif2x11 is broken so none
       of the tests _appear_ to complete successfully.
-    
-2004-02-19 Toshio Kuratomi <toshio@tiki-lounge.com> - r38    
+
+2004-02-19 Toshio Kuratomi <toshio@tiki-lounge.com> - r38
     Merge -Wall fixes from branches/Wall-audit r29
     * configure.ac:
       - Make the stdarg vs varargs check simpler by relying on
@@ -329,25 +329,25 @@
           gif_lib_private.h
     * gif_lib.h, gif_lib_private.h: Moved the VersionStr into gif_lib_private.h
       and made it a #define instead of a static char *.
-    
-2004-02-19 Toshio Kuratomi <toshio@tiki-lounge.com> - r37    
+
+2004-02-19 Toshio Kuratomi <toshio@tiki-lounge.com> - r37
     Deprecation notes
 
-2004-02-19 Toshio Kuratomi <toshio@tiki-lounge.com> - r36    
+2004-02-19 Toshio Kuratomi <toshio@tiki-lounge.com> - r36
     Add notes about security things to do and giflib syncing
 
-2004-02-18 Toshio Kuratomi <toshio@tiki-lounge.com> - r32  
+2004-02-18 Toshio Kuratomi <toshio@tiki-lounge.com> - r32
   * TODO: Add notes about how to go about syncing Wall-audit and indent changes
     into giflib.  It won't be pretty.
   * svn:ignore: Change the tarball names from libungif to giflib
 
-2004-02-18 Toshio Kuratomi <toshio@tiki-lounge.com> - r31  
+2004-02-18 Toshio Kuratomi <toshio@tiki-lounge.com> - r31
   Add config.h include to gif_hash.c
 
-2004-02-17 Toshio Kuratomi <toshio@tiki-lounge.com> - r30  
+2004-02-17 Toshio Kuratomi <toshio@tiki-lounge.com> - r30
   Sync up with libungif 4.1.1
 
-2004-02-17 Toshio Kuratomi <toshio@tiki-lounge.com> - r26    
+2004-02-17 Toshio Kuratomi <toshio@tiki-lounge.com> - r26
     Updated ChangeLog
 
 2004-02-17 Toshio Kuratomi <toshio@tiki-lounge.com>
@@ -362,7 +362,7 @@
 	  (In reality, I don't think new software uses libungif, so there may never
 	  be a 5.0 release.)
 	* lib/gif_lib.h: Change version from 4.0 to 4.1
-	* NEWS: add deprecation warning for the qprintf stuff: GifQuietPrint var and 
+	* NEWS: add deprecation warning for the qprintf stuff: GifQuietPrint var and
 	  GifQprintf function.
 
 2004-02-16 Toshio Kuratomi <toshio@tiki-lounge.com>
@@ -410,28 +410,28 @@
 2004-02-15 Toshio Kuratomi <toshio@tiki-lounge.com>
 	Import of version 4.1.0b1
 
-2004-02-15 Toshio Kuratomi <toshio@tiki-lounge.com> - r10  
+2004-02-15 Toshio Kuratomi <toshio@tiki-lounge.com> - r10
   Import giflib 4.1.0
 
-2004-02-15 Toshio Kuratomi <toshio@tiki-lounge.com> - r9  
+2004-02-15 Toshio Kuratomi <toshio@tiki-lounge.com> - r9
   Copy the 4.1.0 libungif release to be the base of the 4.1.0 giflib release.
 
-2004-02-15 Toshio Kuratomi <toshio@tiki-lounge.com> - r7  
+2004-02-15 Toshio Kuratomi <toshio@tiki-lounge.com> - r7
   Release 4.1.0
 
-2004-02-15 Toshio Kuratomi <toshio@tiki-lounge.com> - r6  
+2004-02-15 Toshio Kuratomi <toshio@tiki-lounge.com> - r6
   Import of version 4.1.0
 
-2004-02-15 Toshio Kuratomi <toshio@tiki-lounge.com> - r5  
+2004-02-15 Toshio Kuratomi <toshio@tiki-lounge.com> - r5
   Set ignore patterns on the project directories.
 
-2004-02-15 Toshio Kuratomi <toshio@tiki-lounge.com> - r3  
+2004-02-15 Toshio Kuratomi <toshio@tiki-lounge.com> - r3
   Remove a Makefile.in that was left in in the first commit.
 
-2004-02-14 Toshio Kuratomi <toshio@tiki-lounge.com> - r2  
+2004-02-14 Toshio Kuratomi <toshio@tiki-lounge.com> - r2
   Commit revision 3.1.0 to subversion
 
-2004-02-14 Toshio Kuratomi <toshio@tiki-lounge.com> - r1  
+2004-02-14 Toshio Kuratomi <toshio@tiki-lounge.com> - r1
   Initial SVN Repository Layout
 
 2000  6 Feb Toshio Kuratomi <badger@prtr-13.ucsc.edu>
@@ -539,7 +539,7 @@
         * libungif.spec: Rename to giflib.spec and change to reflect giflib
           rather than libungif.
         * UNCOMPRESSED_GIF: Removed from this branch.
-        * PATENT_PROBLEMS: Add file explaining Unisys's patent claims. 
+        * PATENT_PROBLEMS: Add file explaining Unisys's patent claims.
         * Makefile.am: Replace libungif with giflib.
         * README: Adapted language to giflib.
         * lib/Makefile.am: Changed references to libungif to libgif.
@@ -641,7 +641,7 @@
         * lib/egif_lib.c: Remove all references to the hash functions.
         * lib/Makefile.am: Remove gif_hash.c gif_hash.h from the source files.
         * libungif.lsm: added this file
- 
+
 1998 7 Sep  Toshio Kuratomi <badger@prtr-13.ucsc.edu>
         * lib/dgif_lib.c, lib/gif_lib.h: (DGifOpen) Add callback to read gif
           image through user supplied function (Peter Mehlitz).
