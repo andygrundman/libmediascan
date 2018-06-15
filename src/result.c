@@ -46,39 +46,6 @@
 
 const char CODEC_MP1[] = "mp1";
 
-// *INDENT-OFF*
-static type_ext audio_types[] = {
-/*
-  {"mp4", {"mp4", "m4a", "m4b", "m4p", "m4v", "m4r", "k3g", "skm", "3gp", "3g2", "mov", 0}},
-  {"aac", {"aac", 0}},
-  {"mp3", {"mp3", "mp2", 0}},
-  {"ogg", {"ogg", "oga", 0}},
-  {"mpc", {"mpc", "mp+", "mpp", 0}},
-  {"ape", {"ape", "apl", 0}},
-  {"flc", {"flc", "flac", "fla", 0}},
-  {"asf", {"wma", "asf", "wmv", 0}},
-*/
-  {"wav", {"wav", "aif", "aiff", 0}},
-//  {"wvp", {"wv", 0}},
-  {0, {0, 0}}
-};
-
-static type_handler audio_handlers[] = {
-/*
-  { "mp4", get_mp4tags, 0, mp4_find_frame, mp4_find_frame_return_info },
-  { "aac", get_aacinfo, 0, 0, 0 },
-  { "mp3", get_mp3tags, get_mp3fileinfo, mp3_find_frame, 0 },
-  { "ogg", get_ogg_metadata, 0, ogg_find_frame, 0 },
-  { "mpc", get_ape_metadata, get_mpcfileinfo, 0, 0 },
-  { "ape", get_ape_metadata, get_macfileinfo, 0, 0 },
-  { "flc", get_flac_metadata, 0, flac_find_frame, 0 },
-  { "asf", get_asf_metadata, 0, asf_find_frame, 0 },
-  { "wav", wav_scan },
-  { "wvp", get_ape_metadata, get_wavpack_info, 0 },
-*/
-  {NULL, 0}
-};
-
 // MIME type extension mappings
 static const struct {
   const char *extensions;
@@ -103,7 +70,7 @@ static const struct {
 // http://tools.ietf.org/html/rfc2046
   { "mpg,mpeg,mpe,mp1,mp2,m1v,m2v,mpv,vob", "video/mpeg" },
   { "mp3,mla,m2a,mpa",          "audio/mpeg" },
-  
+ 
 // http://www.rfc-editor.org/rfc/rfc3555.txt
   { "m2t,m2ts,mp2t,mts,ts",     "video/mp2t" },
   { "m2p,mp2p,ps,pes",          "video/mp2p" },
@@ -122,8 +89,7 @@ static const struct {
 
 // http://tools.ietf.org/html/rfc2361
   { "wav",											"audio/vnd.wave" },
-	
-// http://real.custhelp.com/cgi-bin/real.cfg/php/enduser/std_adp.php?p_faqid=2559&p_created=&p_sid=uz4Tpoti&p_lva=1085179956&p_sp=2559&p_li=cF9zcmNoPTEmcF9zb3J0X2J5PSZwX2dyaWRzb3J0PSZwX3Jvd19jbnQ9MSZwX3Byb2RzPTMsMTEmcF9jYXRzPSZwX3B2PTIuMTEmcF9jdj0mcF9zZWFyY2hfdHlwZT1hbnN3ZXJzLmFfaWQmcF9wYWdlPTEmcF9zZWFyY2hfdGV4dD0yNTU5cF9zcmNoPTEmcF9zb3J0X2J5PSZwX2dyaWRzb3J0PSZwX3Jvd19jbnQ9MyZwX3Byb2RzPTMsMTEmcF9jYXRzPSZwX3B2PTIuMTEmcF9jdj0mcF9zZWFyY2hfdHlwZT1hbnN3ZXJzLnNlYXJjaF9ubCZwX3BhZ2U9MSZwX3NlYXJjaF90ZXh0PU1JTUU*&p_prod_lvl1=3&p_prod_lvl2=11&tabName=tab0&p_topview=1
+
   { "ra,ram",										"audio/vnd.rn-realaudio" },
 
 // http://en.wikipedia.org/wiki/WebM
@@ -135,10 +101,10 @@ static const struct {
 // http://tools.ietf.org/html/rfc4337
   { "mp4,m4p,m4b,m4r,m4v",			"video/mp4" },
   { "m4a",											"audio/mp4" },
-  
+ 
 // http://tools.ietf.org/html/rfc3839
   { "3gp,3gpp",                 "video/3gpp" },
-  
+ 
 // http://tools.ietf.org/html/rfc4393
   { "3g2,3gp2",                 "video/3gpp2" },
 
@@ -733,7 +699,7 @@ get_type_handler(char *ext, type_ext *types, type_handler *handlers)
   int typeindex = -1;
   int i, j;
   type_handler *hdl = NULL;
-  
+ 
   for (i = 0; typeindex == -1 && types[i].type; i++) {
     for (j = 0; typeindex == -1 && types[i].ext[j]; j++) {
 #ifdef _MSC_VER
@@ -746,18 +712,18 @@ get_type_handler(char *ext, type_ext *types, type_handler *handlers)
       }
     }
   }
-  
+ 
   LOG_DEBUG("typeindex: %d\n", typeindex);
-    
+
   if (typeindex > -1) {
     for (hdl = handlers; hdl->type; ++hdl)
       if (!strcmp(hdl->type, types[typeindex].type))
         break;
   }
-  
+ 
   if (hdl)
     LOG_DEBUG("type handler: %s\n", hdl->type);
-  
+ 
   return hdl;
 }
 
@@ -767,11 +733,11 @@ scan_audio(ScanData s)
   char *ext = strrchr(s->path, '.');
   if (ext == NULL)
     return;
-  
+ 
   type_handler *hdl = get_type_handler(ext + 1, audio_types, audio_handlers);
   if (hdl == NULL)
     return;
-  
+ 
   // Open the file unless we already have an open fd
   int opened = s->fp != NULL;
   if (!opened) {
@@ -788,7 +754,7 @@ scan_audio(ScanData s)
     fclose(s->fp);
     s->fp = NULL;
   }
-  
+
   return;
 }
 */
