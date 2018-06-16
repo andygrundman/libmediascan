@@ -357,9 +357,10 @@ my %opts = (
 if ( $^O =~ /Win32/i ) {
     $opts{LDDLFLAGS} = '-dll -nologo -nodefaultlib -opt:ref,icf  -libpath:"C:\Perl\lib\CORE" -machine:x86 -manifest -ManifestFile:$@.manifest -shared -WL,-Bsymbolic';
 }
-elsif ($^O =~ /SunOS/i ) {
+elsif ($^O =~ /sun|solaris/i ) {
     $opts{LDDLFLAGS} = '-shared';
 }
+else {
     $opts{LDDLFLAGS} = '-shared -Wl,-Bsymbolic';
 }
 
