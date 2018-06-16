@@ -355,10 +355,12 @@ my %opts = (
 );
 
 if ( $^O =~ /Win32/i ) {
-    $opts{LDDLFLAGS} = '-dll -nologo -nodefaultlib -opt:ref,icf  -libpath:"C:\Perl\lib\CORE" -machine:x86 -manifest -ManifestFile:$@.manifest';
+    $opts{LDDLFLAGS} = '-dll -nologo -nodefaultlib -opt:ref,icf  -libpath:"C:\Perl\lib\CORE" -machine:x86 -manifest -ManifestFile:$@.manifest -shared -WL,-Bsymbolic';
 }
-else {
-    $opts{LDDLFLAGS} = '-Wl,-shared';
+elsif ($^O =~ /SunOS/i ) {
+    $opts{LDDLFLAGS} = '-shared';
+}
+    $opts{LDDLFLAGS} = '-shared -Wl,-Bsymbolic';
 }
 
 WriteMakefile(%opts);
