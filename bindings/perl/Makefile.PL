@@ -9,7 +9,7 @@ my (@INC, @LIBPATH, @LIBS);
 my ($FFMPEG, $LMS, $EXIF, $JPEG, $PNG, $GIF, $BDB, $MYEXTLIB);
 
 my ($help, $ffmpeg_inc, $ffmpeg_lib, $lms_inc, $lms_lib, $exif_inc, $exif_lib);
-my ($jpeg_inc, $jpeg_lib, $png_inc, $png_lib, $gif_inc, $gif_lib);
+my ($omit_intl, $jpeg_inc, $jpeg_lib, $png_inc, $png_lib, $gif_inc, $gif_lib);
 my ($bdb_inc, $bdb_lib);
 my $static;
 
@@ -26,6 +26,7 @@ my $result = GetOptions(
     "with-lms-libs=s"        => \$lms_lib,
     "with-exif-includes=s"   => \$exif_inc,
     "with-exif-libs=s"       => \$exif_lib,
+    "omit-intl"              => \$omit_intl,
     "with-jpeg-includes=s"   => \$jpeg_inc,
     "with-jpeg-libs=s"       => \$jpeg_lib,
     "with-png-includes=s"    => \$png_inc,
@@ -50,6 +51,7 @@ Options:
     --with-lms-libs           Path to directory containing libmediascan
     --with-exif-includes      Path to directory containing libexif/exif-data.h
     --with-exif-libs          Path to directory containing libexif
+    --omit-intl               Do not link the module with the intl library
     --with-jpeg-includes      Path to directory containing jpeglib.h
     --with-jpeg-libs          Path to directory containing libjpeg
     --with-png-includes       Path to directory containing png.h
@@ -179,7 +181,9 @@ for my $incdir ( $exif_inc, @check ) {
             push @LIBS, '-lexif';
         }
 
-        push @LIBS, '-lintl'; # XXX only if logging is used for exif
+	if (!$omit_intl) {
+            push @LIBS, '-lintl'; # XXX only if logging is used for exif
+        }
 
         print "Using libexif from $exif_inc\n";
         last;
