@@ -492,7 +492,7 @@ aac_adts_object_type_get (AVFormatContext *ctx)
   if (!ctx)
     return t;
   
-  fd = open (ctx->filename, O_RDONLY);
+  fd = open (ctx->url, O_RDONLY);
   read (fd, buf, sizeof (buf) - 1);
   t = (buf[2] & 0xC0) >> 6;
   close (fd);
@@ -514,7 +514,7 @@ aac_get_format (AVFormatContext *ctx)
   if (!ctx)
     return ct;
 
-  fd = open (ctx->filename, O_RDONLY);
+  fd = open (ctx->url, O_RDONLY);
   read (fd, buf, sizeof (buf) - 1);
   if ((buf[0] == 0xFF) && ((buf[1] & 0xF6) == 0xF0))
   {

@@ -117,9 +117,9 @@ stream_get_container (AVFormatContext *ctx)
       {
       case CT_FF_MPEG:
       case CT_FF_MPEG_TS:
-        return mpeg_find_container_type (ctx->filename);
+        return mpeg_find_container_type (ctx->url);
       case CT_MOV:
-        return mov_find_container_type (ctx->filename);
+        return mov_find_container_type (ctx->url);
       default:
         return avf_format_mapping[i].type;
       }

@@ -109,7 +109,6 @@ static void _init(void) {
   if (Initialized)
     return;
 
-  av_register_all();
 #ifdef WIN32
   pthread_win32_process_attach_np();
   pthread_win32_thread_attach_np();

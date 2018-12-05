@@ -164,7 +164,6 @@ dlna_init (void)
   dlna->first_profile = NULL;
   
   /* register all FFMPEG demuxers */
-  av_register_all ();
 
   return dlna;
 }

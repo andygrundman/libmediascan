@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <libmediascan.h>
 #include <errno.h>
+#include <string.h>
 
 #define LINK_NONE 		0
 #define LINK_ALIAS 		1
@@ -64,4 +65,5 @@ int PathIsDirectory(const char *dir) {
   if (S_ISDIR(st_buf.st_mode)) {
     return 1;                   //return true if path is a directory
   }
+  return 0; 			//return false if we can't tell
 }                               /* PathIsDirectory() */
