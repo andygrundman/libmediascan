@@ -361,23 +361,5 @@ my %opts = (
 if ( $^O =~ /Win32/i ) {
     $opts{LDDLFLAGS} = '-dll -nologo -nodefaultlib -opt:ref,icf  -libpath:"C:\Perl\lib\CORE" -machine:x86 -manifest -ManifestFile:$@.manifest -shared -Wl,-Bsymbolic';
 }
-elsif ($^O =~ /sun|solaris/i ) {
-    # Look for gld in path
-    my $linker_name = "gld";  # we need the gnu linker on Solaris/Illumos.
-
-    for my $path ( split /:/, $ENV{PATH} ) {
-        if ( -f "$path/$linker_name" && -x _ ) {
-            $opts{LD} = 'gld';
-            $opts{LDDLFLAGS} = '-shared -Bsymbolic';
-            last;
-        }
-    }
-    if ( $opts{LD} !=~ $linker_name ) {
-        die "No gnu linker ('$linker_name') found in PATH. Install it and put it into PATH. For changing the linker set LD and LDDLFLAGS. \n";
-    }
-}
-else {
-    $opts{LDDLFLAGS} = '-shared -Wl,-Bsymbolic';
-}
 
 WriteMakefile(%opts);
