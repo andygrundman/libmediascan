@@ -359,7 +359,7 @@ my %opts = (
 );
 
 if ( $^O =~ /Win32/i ) {
-    $opts{LDDLFLAGS} = '-dll -nologo -nodefaultlib -opt:ref,icf  -libpath:"C:\Perl\lib\CORE" -machine:x86 -manifest -ManifestFile:$@.manifest -shared -Wl,-Bsymbolic';
+    $opts{LDDLFLAGS} = '-dll -nologo -nodefaultlib -opt:ref,icf  -libpath:"C:\Perl\lib\CORE" -machine:x86 -manifest -ManifestFile:$@.manifest';
 }
 
 WriteMakefile(%opts);
