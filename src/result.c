@@ -263,10 +263,11 @@ static int scan_video(MediaScanResult *r) {
   av_codecs_t *codecs = NULL;
   int AVError = 0;
   int ret = 1;
+  void *i = 0;
 
   if (r->flags & MS_USE_EXTENSION) {
     // Set AVInputFormat based on file extension to avoid guessing
-    while ((iformat = av_iformat_next(iformat))) {
+    while ((iformat = (AVInputFormat *)av_demuxer_iterate(&i))) {
       if (av_match_ext(r->path, iformat->name))
         break;
 
@@ -289,7 +290,7 @@ static int scan_video(MediaScanResult *r) {
 
   r->_avf = (void *)avf;
 
-  if ((AVError = av_find_stream_info(avf)) < 0) {
+  if ((AVError = avformat_find_stream_info(avf, NULL)) < 0) {
     r->error = error_create(r->path, MS_ERROR_READ, "[libavformat] Unable to find stream info");
     r->error->averror = AVError;
     ret = 0;
@@ -338,11 +339,14 @@ static int scan_video(MediaScanResult *r) {
     v->_codecs = (void *)codecs;
     v->_avc = (void *)c;
   }
+  else if (codecs->vc->codec_id != '\0') {
+    v->codec = avcodec_get_name(codecs->vc->codec_id);
+  }
   else {
     char codec_tag_string[128];
 
     // Check for DRM files and ignore them
-    av_get_codec_tag_string(codec_tag_string, sizeof(codec_tag_string), codecs->vc->codec_tag);
+    av_fourcc_make_string(codec_tag_string, codecs->vc->codec_tag);
     if (!strcmp("drmi", codec_tag_string)) {
       r->error = error_create(r->path, MS_ERROR_READ, "Skipping DRM-protected video file");
       ret = 0;
@@ -366,9 +370,12 @@ static int scan_video(MediaScanResult *r) {
     if (ac) {
       a->codec = ac->name;
     }
+    else if (codecs->ac->codec_id != '\0') {
+      a->codec = avcodec_get_name(codecs->ac->codec_id);
+    }
     // Special case for handling MP1 audio streams which FFMPEG can't identify a codec for
     else if (codecs->ac->codec_id == AV_CODEC_ID_MP1) {
-      a->codec = AV_CODEC_ID_MP1;
+      a->codec = avcodec_get_name(AV_CODEC_ID_MP1);
     }
     else {
       a->codec = "Unknown";
@@ -592,7 +599,7 @@ void result_destroy(MediaScanResult *r) {
     tag_destroy(r->_tag);
 
   if (r->_avf) {
-    av_close_input_file(r->_avf);
+    avformat_close_input(r->_avf);
   }
 
   if (r->_fp)
@@ -627,7 +634,7 @@ void ms_dump_result(MediaScanResult *r) {
   LOG_OUTPUT("%s\n", r->path);
   LOG_OUTPUT("  MIME type:    %s\n", r->mime_type);
   LOG_OUTPUT("  DLNA profile: %s\n", r->dlna_profile);
-  LOG_OUTPUT("  File size:    %llu\n", r->size);
+  LOG_OUTPUT("  File size:    %"PRIu64"\n", r->size);
   LOG_OUTPUT("  Modified:     %d\n", r->mtime);
   if (r->bitrate)
     LOG_OUTPUT("  Bitrate:      %d bps\n", r->bitrate);
