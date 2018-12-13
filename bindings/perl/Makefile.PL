@@ -5,7 +5,7 @@ use ExtUtils::MakeMaker qw(WriteMakefile);
 use File::Spec::Functions;
 use Getopt::Long;
 
-my (@INC, @LIBPATH, @LIBS);
+my (@INC, @LDDLFLAGS, @LIBPATH, @LIBS);
 my ($FFMPEG, $LMS, $EXIF, $JPEG, $PNG, $GIF, $BDB, $MYEXTLIB);
 
 my ($help, $ffmpeg_inc, $ffmpeg_lib, $lms_inc, $lms_lib, $exif_inc, $exif_lib);
@@ -322,6 +322,16 @@ if ( !$BDB ) {
     die "BerkeleyDB not found, please install it and try again. Checked for db.h in: " . join(", ", $bdb_inc, @check) . "\n";
 }
 
+if ( $^O =~ /sun|solaris/i ) {
+    my $perlarchpath = $Config{archlib} . '/CORE';
+    unshift @LIBPATH, '-L' . $perlarchpath;
+    my $extralibs = '-lsocket -lperl';
+    unshift @LIBS, $extralibs;
+}
+
+push @LDDLFLAGS, $Config{lddlflags};
+unshift @LDDLFLAGS, '-Wl,-Bsymbolic' unless $^O =~ /sun|solaris|Darwin/i;
+
 MAKEFILE:
 
 if ( $^O =~ /Win32/i ) {
@@ -340,6 +350,7 @@ my %opts = (
     ABSTRACT          => 'Library for scanning audio/video/image file metadata',
     AUTHOR            => 'Andy Grundman <andy@hybridized.org>',
     INC               => join(' ', @INC),
+    LDDLFLAGS         => join(' ', @LDDLFLAGS),
     LIBS              => [ join(' ', @LIBPATH, @LIBS) ],
     DEFINE            => $DEFINES,
     MYEXTLIB          => $MYEXTLIB,
@@ -359,10 +370,7 @@ my %opts = (
 );
 
 if ( $^O =~ /Win32/i ) {
-    $opts{LDDLFLAGS} = '-dll -nologo -nodefaultlib -opt:ref,icf  -libpath:"C:\Perl\lib\CORE" -machine:x86 -manifest -ManifestFile:$@.manifest';
-}
-else {
-    $opts{LDDLFLAGS} = '-Wl,-shared';
+    $opts{LDDLFLAGS} = '-dll -nologo -nodefaultlib -opt:ref,icf  -libpath:"C:\Perl\lib\CORE" -machine:x86 -manifest -ManifestFile:$@.manifest -shared -Wl,-Bsymbolic';
 }
 
 WriteMakefile(%opts);
