@@ -322,6 +322,13 @@ if ( !$BDB ) {
     die "BerkeleyDB not found, please install it and try again. Checked for db.h in: " . join(", ", $bdb_inc, @check) . "\n";
 }
 
+if ( $^O =~ /sun|solaris/i ) {
+    my $perlarchpath = $Config{archlib} . '/CORE';
+    unshift @LIBPATH, '-L' . $perlarchpath;
+    my $extralibs = '-lsocket -lperl';
+    unshift @LIBS, $extralibs;
+}
+
 MAKEFILE:
 
 if ( $^O =~ /Win32/i ) {
@@ -359,7 +366,7 @@ my %opts = (
 );
 
 if ( $^O =~ /Win32/i ) {
-    $opts{LDDLFLAGS} = '-dll -nologo -nodefaultlib -opt:ref,icf  -libpath:"C:\Perl\lib\CORE" -machine:x86 -manifest -ManifestFile:$@.manifest';
+    $opts{LDDLFLAGS} = '-dll -nologo -nodefaultlib -opt:ref,icf  -libpath:"C:\Perl\lib\CORE" -machine:x86 -manifest -ManifestFile:$@.manifest -shared -Wl,-Bsymbolic';
 }
 
 WriteMakefile(%opts);
