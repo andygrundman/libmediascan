@@ -5,7 +5,7 @@ use ExtUtils::MakeMaker qw(WriteMakefile);
 use File::Spec::Functions;
 use Getopt::Long;
 
-my (@INC, @LIBPATH, @LIBS);
+my (@INC, @LDDLFLAGS, @LIBPATH, @LIBS);
 my ($FFMPEG, $LMS, $EXIF, $JPEG, $PNG, $GIF, $BDB, $MYEXTLIB);
 
 my ($help, $ffmpeg_inc, $ffmpeg_lib, $lms_inc, $lms_lib, $exif_inc, $exif_lib);
@@ -329,6 +329,9 @@ if ( $^O =~ /sun|solaris/i ) {
     unshift @LIBS, $extralibs;
 }
 
+push @LDDLFLAGS, $Config{lddlflags};
+unshift @LDDLFLAGS, '-Wl,-Bsymbolic';
+
 MAKEFILE:
 
 if ( $^O =~ /Win32/i ) {
@@ -347,6 +350,7 @@ my %opts = (
     ABSTRACT          => 'Library for scanning audio/video/image file metadata',
     AUTHOR            => 'Andy Grundman <andy@hybridized.org>',
     INC               => join(' ', @INC),
+    LDDLFLAGS         => join(' ', @LDDLFLAGS),
     LIBS              => [ join(' ', @LIBPATH, @LIBS) ],
     DEFINE            => $DEFINES,
     MYEXTLIB          => $MYEXTLIB,
