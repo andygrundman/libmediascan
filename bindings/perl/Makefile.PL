@@ -330,7 +330,7 @@ if ( $^O =~ /sun|solaris/i ) {
 }
 
 push @LDDLFLAGS, $Config{lddlflags};
-unshift @LDDLFLAGS, '-Wl,-Bsymbolic';
+unshift @LDDLFLAGS, '-Wl,-Bsymbolic' unless $^O =~ /Darwin/i;
 
 MAKEFILE:
 
