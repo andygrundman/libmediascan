@@ -330,7 +330,7 @@ if ( $^O =~ /sun|solaris/i ) {
 }
 
 push @LDDLFLAGS, $Config{lddlflags};
-unshift @LDDLFLAGS, '-Wl,-Bsymbolic' unless $^O =~ /Darwin/i;
+unshift @LDDLFLAGS, '-Wl,-Bsymbolic' unless ( $^O =~ /Darwin/i or $^O =~ /sun|solaris/i );
 
 MAKEFILE:
 
@@ -370,7 +370,7 @@ my %opts = (
 );
 
 if ( $^O =~ /Win32/i ) {
-    $opts{LDDLFLAGS} = '-dll -nologo -nodefaultlib -opt:ref,icf  -libpath:"C:\Perl\lib\CORE" -machine:x86 -manifest -ManifestFile:$@.manifest -shared -Wl,-Bsymbolic';
+    $opts{LDDLFLAGS} = '-dll -nologo -nodefaultlib -opt:ref,icf -libpath:"C:\Perl\lib\CORE" -machine:x86 -manifest -ManifestFile:$@.manifest -shared -Wl,-Bsymbolic';
 }
 
 WriteMakefile(%opts);
