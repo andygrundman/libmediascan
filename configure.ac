@@ -1,9 +1,9 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.68])
-AC_INIT([libmediascan],[0.3])
-AC_CANONICAL_SYSTEM
+AC_PREREQ([2.69])
+AC_INIT([libmediascan],[0.2])
+AC_CANONICAL_TARGET
 AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE([-Wall -Werror subdir-objects])
 AM_PROG_AR([ar gar])

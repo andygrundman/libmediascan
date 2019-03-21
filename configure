@@ -633,10 +633,10 @@ ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
-LINUXBSD_FALSE
-LINUXBSD_TRUE
 SUN_FALSE
 SUN_TRUE
+LINUXBSD_FALSE
+LINUXBSD_TRUE
 DARWIN_FALSE
 DARWIN_TRUE
 am__fastdepOBJC_FALSE
@@ -2591,7 +2591,6 @@ test -n "$target_alias" &&
   test "$program_prefix$program_suffix$program_transform_name" = \
     NONENONEs,x,x, &&
   program_prefix=${target_alias}-
-
 ac_aux_dir=
 for ac_dir in . "$srcdir"/.; do
   if test -f "$ac_dir/install-sh"; then
@@ -14133,9 +14132,41 @@ else
   DARWIN_FALSE=
 fi
 
+ if false; then
+  LINUXBSD_TRUE=
+  LINUXBSD_FALSE='#'
+else
+  LINUXBSD_TRUE='#'
+  LINUXBSD_FALSE=
+fi
+
+ if false; then
+  SUN_TRUE=
+  SUN_FALSE='#'
+else
+  SUN_TRUE='#'
+  SUN_FALSE=
+fi
+
 LDFLAGS="-framework CoreFoundation -framework CoreServices -framework Carbon -L$bdbdir/lib $LDFLAGS"
 ;;
 	*solaris*)
+ if false; then
+  DARWIN_TRUE=
+  DARWIN_FALSE='#'
+else
+  DARWIN_TRUE='#'
+  DARWIN_FALSE=
+fi
+
+ if false; then
+  LINUXBSD_TRUE=
+  LINUXBSD_FALSE='#'
+else
+  LINUXBSD_TRUE='#'
+  LINUXBSD_FALSE=
+fi
+
  if true; then
   SUN_TRUE=
   SUN_FALSE='#'
@@ -14147,6 +14178,14 @@ fi
 LDFLAGS="-L$bdbdir/lib $LDFLAGS"
 ;;
         *linux*)
+ if false; then
+  DARWIN_TRUE=
+  DARWIN_FALSE='#'
+else
+  DARWIN_TRUE='#'
+  DARWIN_FALSE=
+fi
+
  if true; then
   LINUXBSD_TRUE=
   LINUXBSD_FALSE='#'
@@ -14155,15 +14194,39 @@ else
   LINUXBSD_FALSE=
 fi
 
+ if false; then
+  SUN_TRUE=
+  SUN_FALSE='#'
+else
+  SUN_TRUE='#'
+  SUN_FALSE=
+fi
+
 LDFLAGS="-L$bdbdir/lib $LDFLAGS"
 ;;
         *bsd*)
+ if false; then
+  DARWIN_TRUE=
+  DARWIN_FALSE='#'
+else
+  DARWIN_TRUE='#'
+  DARWIN_FALSE=
+fi
+
  if true; then
   LINUXBSD_TRUE=
   LINUXBSD_FALSE='#'
 else
   LINUXBSD_TRUE='#'
   LINUXBSD_FALSE=
+fi
+
+ if false; then
+  SUN_TRUE=
+  SUN_FALSE='#'
+else
+  SUN_TRUE='#'
+  SUN_FALSE=
 fi
 
 LDFLAGS="-L$bdbdir/lib $LDFLAGS"
@@ -14225,7 +14288,7 @@ if test "$ac_res" != no; then :
   test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
 
 else
-  as_fn_error $? "cannot find libdb.so in $bdbdir/lib" "$LINENO" 5
+  as_fn_error $? "cannot find libdb in $bdbdir/lib" "$LINENO" 5
 fi
 
 for ac_header in db.h
@@ -14565,16 +14628,48 @@ if test -z "${DARWIN_TRUE}" && test -z "${DARWIN_FALSE}"; then
   as_fn_error $? "conditional \"DARWIN\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
+if test -z "${LINUXBSD_TRUE}" && test -z "${LINUXBSD_FALSE}"; then
+  as_fn_error $? "conditional \"LINUXBSD\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
 if test -z "${SUN_TRUE}" && test -z "${SUN_FALSE}"; then
   as_fn_error $? "conditional \"SUN\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
-if test -z "${LINUXBSD_TRUE}" && test -z "${LINUXBSD_FALSE}"; then
-  as_fn_error $? "conditional \"LINUXBSD\" was never defined.
+if test -z "${DARWIN_TRUE}" && test -z "${DARWIN_FALSE}"; then
+  as_fn_error $? "conditional \"DARWIN\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${LINUXBSD_TRUE}" && test -z "${LINUXBSD_FALSE}"; then
   as_fn_error $? "conditional \"LINUXBSD\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${SUN_TRUE}" && test -z "${SUN_FALSE}"; then
+  as_fn_error $? "conditional \"SUN\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${DARWIN_TRUE}" && test -z "${DARWIN_FALSE}"; then
+  as_fn_error $? "conditional \"DARWIN\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${LINUXBSD_TRUE}" && test -z "${LINUXBSD_FALSE}"; then
+  as_fn_error $? "conditional \"LINUXBSD\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${SUN_TRUE}" && test -z "${SUN_FALSE}"; then
+  as_fn_error $? "conditional \"SUN\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${DARWIN_TRUE}" && test -z "${DARWIN_FALSE}"; then
+  as_fn_error $? "conditional \"DARWIN\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${LINUXBSD_TRUE}" && test -z "${LINUXBSD_FALSE}"; then
+  as_fn_error $? "conditional \"LINUXBSD\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${SUN_TRUE}" && test -z "${SUN_FALSE}"; then
+  as_fn_error $? "conditional \"SUN\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 
