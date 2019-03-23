@@ -18,9 +18,11 @@ config.status
 configure.scan
 stamp-*
 m4
-ar-lib
 libemdiascan-*
-test-driver
+libtool
+Makefile.in
+src/jenkins/.dirstamp
+src/libdlna/.dirstamp
 
 # Mac files
 .DS_Store
