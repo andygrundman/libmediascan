@@ -11,7 +11,8 @@
 // This is needed to enable stat64(), which we use because some systems don't properly support 64-bit stat()
 #define _LARGEFILE64_SOURCE
 
-#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__APPLE__)
+#include <sys/param.h>
+#if defined(BSD) || (defined(__APPLE__) && defined(__MACH__))
 // OSX/BSD handles 64-bit via stat()
 # define STAT_TYPE struct stat
 # define STAT_FUNC stat
@@ -84,7 +85,7 @@ uint32_t HashFile(const char *file, int *mtime, uint64_t *size) {
 
   // Generate a hash of the full file path, modified time, and file size
   memset(fileData, 0, sizeof(fileData));
-  snprintf(fileData, sizeof(fileData) - 1, "%s%d%llu", file, *mtime, *size);
+  snprintf(fileData, sizeof(fileData) - 1, "%s%d%lu", file, *mtime, *size);
   hash = hashlittle(fileData, strlen(fileData), 0);
 
   return hash;

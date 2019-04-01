@@ -47,11 +47,9 @@ int image_gif_read_header(MediaScanImage *i, MediaScanResult *r, int is_gif89) {
 
   g->buf = (Buffer *)r->_buf;
   g->fp = r->_fp;
-
-  g->gif = DGifOpen(i, image_gif_read_buf);
+  g->gif = DGifOpen(i, image_gif_read_buf, NULL);
 
   if (g->gif == NULL) {
-    PrintGifError();
     LOG_ERROR("Unable to open GIF file (%s)\n", i->path);
     image_gif_destroy(i);
     return 0;
@@ -73,10 +71,11 @@ int image_gif_load(MediaScanImage *i) {
   int x, y, ofs;
   GifRecordType RecordType;
   GifPixelType *line = NULL;
+  int ExtFunction = 0;
   GifByteType *ExtData;
   SavedImage *sp;
   SavedImage temp_save;
-  int BackGround = 0;
+//  int BackGround = 0;
   int trans_index = 0;          // transparent index if any
   ColorMapObject *ColorMap;
   GifColorType *ColorMapEntry;
@@ -91,7 +90,6 @@ int image_gif_load(MediaScanImage *i) {
 
   do {
     if (DGifGetRecordType(g->gif, &RecordType) == GIF_ERROR) {
-      PrintGifError();
       LOG_ERROR("Unable to read GIF file (%s)\n", i->path);
       goto err;
     }
@@ -99,7 +97,6 @@ int image_gif_load(MediaScanImage *i) {
     switch (RecordType) {
       case IMAGE_DESC_RECORD_TYPE:
         if (DGifGetImageDesc(g->gif) == GIF_ERROR) {
-          PrintGifError();
           LOG_ERROR("Unable to read GIF file (%s)\n", i->path);
           goto err;
         }
@@ -109,7 +106,7 @@ int image_gif_load(MediaScanImage *i) {
         i->width = sp->ImageDesc.Width;
         i->height = sp->ImageDesc.Height;
 
-        BackGround = g->gif->SBackGroundColor;  // XXX needed?
+//        BackGround = g->gif->SBackGroundColor;  // XXX needed?
         ColorMap = g->gif->Image.ColorMap ? g->gif->Image.ColorMap : g->gif->SColorMap;
 
         if (ColorMap == NULL) {
@@ -130,7 +127,6 @@ int image_gif_load(MediaScanImage *i) {
             for (x = InterlacedOffset[j]; x < i->height; x += InterlacedJumps[j]) {
               ofs = x * i->width;
               if (DGifGetLine(g->gif, line, 0) != GIF_OK) {
-                PrintGifError();
                 LOG_ERROR("Unable to read GIF file (%s)\n", i->path);
                 goto err;
               }
@@ -148,7 +144,6 @@ int image_gif_load(MediaScanImage *i) {
           ofs = 0;
           for (x = 0; x < i->height; x++) {
             if (DGifGetLine(g->gif, line, 0) != GIF_OK) {
-              PrintGifError();
               LOG_ERROR("Unable to read GIF file (%s)\n", i->path);
               goto err;
             }
@@ -166,13 +161,12 @@ int image_gif_load(MediaScanImage *i) {
         break;
 
       case EXTENSION_RECORD_TYPE:
-        if (DGifGetExtension(g->gif, &temp_save.Function, &ExtData) == GIF_ERROR) {
-          PrintGifError();
+        if (DGifGetExtension(g->gif, &ExtFunction, &ExtData) == GIF_ERROR) {
           LOG_ERROR("Image::Scale unable to read GIF file (%s)\n", i->path);
           goto err;
         }
 
-        if (temp_save.Function == 0xF9) { // transparency info
+        if (ExtFunction == 0xF9) { // transparency info
           if (ExtData[1] & 1)
             trans_index = ExtData[4];
           else
@@ -183,19 +177,17 @@ int image_gif_load(MediaScanImage *i) {
 
         while (ExtData != NULL) {
           /* Create an extension block with our data */
-          if (AddExtensionBlock(&temp_save, ExtData[0], &ExtData[1]) == GIF_ERROR) {
-            PrintGifError();
+          if (GifAddExtensionBlock(&g->gif->ExtensionBlockCount, &g->gif->ExtensionBlocks, ExtFunction, ExtData[0], &ExtData[1]) == GIF_ERROR) {
             LOG_ERROR("Unable to read GIF file (%s)\n", i->path);
             goto err;
           }
 
           if (DGifGetExtensionNext(g->gif, &ExtData) == GIF_ERROR) {
-            PrintGifError();
             LOG_ERROR("Unable to read GIF file (%s)\n", i->path);
             goto err;
           }
 
-          temp_save.Function = 0;
+          ExtFunction = 0;
         }
         break;
 
@@ -213,7 +205,7 @@ err:
 
 out:
   if (temp_save.ExtensionBlocks)
-    FreeExtension(&temp_save);
+    GifFreeExtensions(&temp_save.ExtensionBlockCount, &temp_save.ExtensionBlocks );
 
   return ret;
 }
@@ -222,8 +214,7 @@ void image_gif_destroy(MediaScanImage *i) {
   if (i->_gif) {
     GIFData *g = (GIFData *)i->_gif;
 
-    if (DGifCloseFile(g->gif) != GIF_OK) {
-      PrintGifError();
+    if (DGifCloseFile(g->gif, NULL) != GIF_OK) {
       LOG_ERROR("Unable to close GIF file (%s)\n", i->path);
     }
 

@@ -31,15 +31,27 @@ int isAlias(const char *incoming_path) {
 
 int FollowLink(const char *incoming_path, char *out_path) {
 
-  char buf[MAX_PATH_STR_LEN];
+  char buf[MAX_PATH_STR_LEN], *rval;
   ssize_t len;
 
   if ((len = readlink(incoming_path, buf, MAX_PATH_STR_LEN - 1)) != -1) {
     buf[len] = '\0';
 
     // Check if this is a relative path
-    if (buf[0] == '.')
-      realpath(buf, out_path);
+    if (buf[0] != '/') {
+        char buf2[MAX_PATH_STR_LEN];
+        strcpy(buf2, incoming_path);
+        rval = strrchr(buf2, '/');
+        if (rval != NULL) {
+            rval++;
+            strcpy(rval, buf);
+            rval = realpath(buf2, out_path);
+            LOG_INFO("realpath(%s), returned %s, gave %s\n", buf2, rval == NULL?"NULL":"Ptr", out_path);
+        }
+        else {
+            LOG_INFO("No \"/\" in %s\n", buf2);
+        }
+    }
     else
       strcpy(out_path, buf);
   }
@@ -58,12 +70,8 @@ int PathIsDirectory(const char *dir) {
   if (stat(dir, &st_buf) == -1)
     return 0;
 
-  // Get the status of the file
-  if (S_ISREG(st_buf.st_mode)) {
-    return 0;                   //return false if path is a regular file
-  }
   if (S_ISDIR(st_buf.st_mode)) {
     return 1;                   //return true if path is a directory
   }
-  return 0; 			//return false if we can't tell
+  return 0;
 }                               /* PathIsDirectory() */

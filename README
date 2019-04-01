@@ -19,6 +19,11 @@ The basic goals of libmediascan are:
 Longer-term plans:
 * Explore asynchronous scanning using threads.
 
-The library depends on FFmpeg to handle video files, libjpeg/libpng/libgif for
-image and thumbnail support, and libexif for JPEG tags.
+The library depends on FFmpeg to handle video files, libjpeg/libpng/libgif
+for image and thumbnail support, Berkeley db for metadata, and libexif for
+JPEG tags.
+
+NOTE:
+Due to major API shifts, only FFmpeg version 4.1 and above is supported.
+Due to major API shifts, only libgif version 5.1.4 and above is supported.
 

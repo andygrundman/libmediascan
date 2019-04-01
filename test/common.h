@@ -48,7 +48,7 @@ _abspath(const char *bin, const char *path)
   return buf;
 }
 
-#ifdef __APPLE__
+#if (defined(__APPLE__) && defined(__MACH__))
 
 #define LINK_NONE 		0
 #define LINK_ALIAS 		1

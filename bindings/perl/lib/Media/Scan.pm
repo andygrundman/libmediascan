@@ -24,7 +24,7 @@ use constant MS_INCLUDE_DELETED => 1 << 3;
 use constant MS_WATCH_CHANGES   => 1 << 4;
 use constant MS_CLEARDB         => 1 << 5;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 our @EXPORT = qw(
     MS_LOG_ERR MS_LOG_WARN MS_LOG_INFO MS_LOG_DEBUG MS_LOG_MEMORY

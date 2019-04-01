@@ -245,7 +245,7 @@ probe_wmv9 (AVFormatContext *ctx dlna_unused,
     return NULL;
 
   /* check for WMV3 (Simple and Main profiles) video codec */
-  if (codecs->vc->codec_id != CODEC_ID_WMV3)
+  if (codecs->vc->codec_id != AV_CODEC_ID_WMV3)
     return NULL;
 
   /* get video profile */

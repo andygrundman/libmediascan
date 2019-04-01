@@ -39,7 +39,7 @@ audio_profile_guess_ac3 (AVCodecContext *ac)
     return AUDIO_PROFILE_INVALID;
 
   /* check for AC3 codec */
-  if (ac->codec_id != CODEC_ID_AC3)
+  if (ac->codec_id != AV_CODEC_ID_AC3)
     return AUDIO_PROFILE_INVALID;
   
   /* supported channels: 1/0, 2/0, 3/0, 2/1, 3/1, 2/2, 3/2 */

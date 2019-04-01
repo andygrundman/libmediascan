@@ -1230,7 +1230,7 @@ probe_avc (AVFormatContext *ctx,
     return NULL;
 
   /* check for H.264/AVC codec */
-  if (codecs->vc->codec_id != CODEC_ID_H264)
+  if (codecs->vc->codec_id != AV_CODEC_ID_H264)
     return NULL;
 
   /* check for a supported container */

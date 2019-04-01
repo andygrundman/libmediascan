@@ -42,7 +42,7 @@ probe_mpeg1 (AVFormatContext *ctx dlna_unused,
     return NULL;
   
   /* check for MPEG-1 video codec */
-  if (codecs->vc->codec_id != CODEC_ID_MPEG1VIDEO)
+  if (codecs->vc->codec_id != AV_CODEC_ID_MPEG1VIDEO)
     return NULL;
 
   /* video bitrate must be CBR at 1,151,929.1 bps */
@@ -72,7 +72,7 @@ probe_mpeg1 (AVFormatContext *ctx dlna_unused,
     return NULL;
 
   /* check for MPEG-1 Layer-2 audio codec */
-  if (codecs->ac->codec_id != CODEC_ID_MP2)
+  if (codecs->ac->codec_id != AV_CODEC_ID_MP2)
     return NULL;
   
   /* supported channels: stereo only */

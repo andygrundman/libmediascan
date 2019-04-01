@@ -1,20 +1,21 @@
 use strict;
 
+use Config;
 use ExtUtils::MakeMaker qw(WriteMakefile);
 use File::Spec::Functions;
 use Getopt::Long;
 
-my (@INC, @LIBPATH, @LIBS);
+my (@INC, @LDDLFLAGS, @LIBPATH, @LIBS);
 my ($FFMPEG, $LMS, $EXIF, $JPEG, $PNG, $GIF, $BDB, $MYEXTLIB);
 
 my ($help, $ffmpeg_inc, $ffmpeg_lib, $lms_inc, $lms_lib, $exif_inc, $exif_lib);
-my ($jpeg_inc, $jpeg_lib, $png_inc, $png_lib, $gif_inc, $gif_lib, $gif_lib_name);
+my ($omit_intl, $jpeg_inc, $jpeg_lib, $png_inc, $png_lib, $gif_inc, $gif_lib);
 my ($bdb_inc, $bdb_lib);
 my $static;
 
 my $DEFINES = '-O2';
 $DEFINES .= ' -Wall' unless $^O =~ /sun|solaris|Win32/i;
-$DEFINES .= ' -Wno-unused-value -Wno-format-security' unless $^O =~ /Win32|sun|solaris/i;
+$DEFINES .= ' -Wno-unused-value -Wno-format-security' unless $^O =~ /sun|solaris|Win32/i;
 $DEFINES .= ' /D "PTW32_STATIC_LIB" /D "HAVE_CONFIG_H" /D "WIN32"' if $^O =~ /Win32/i;
 
 my $result = GetOptions(
@@ -25,6 +26,7 @@ my $result = GetOptions(
     "with-lms-libs=s"        => \$lms_lib,
     "with-exif-includes=s"   => \$exif_inc,
     "with-exif-libs=s"       => \$exif_lib,
+    "omit-intl"              => \$omit_intl,
     "with-jpeg-includes=s"   => \$jpeg_inc,
     "with-jpeg-libs=s"       => \$jpeg_lib,
     "with-png-includes=s"    => \$png_inc,
@@ -49,6 +51,7 @@ Options:
     --with-lms-libs           Path to directory containing libmediascan
     --with-exif-includes      Path to directory containing libexif/exif-data.h
     --with-exif-libs          Path to directory containing libexif
+    --omit-intl               Do not link the module with the intl library
     --with-jpeg-includes      Path to directory containing jpeglib.h
     --with-jpeg-libs          Path to directory containing libjpeg
     --with-png-includes       Path to directory containing png.h
@@ -83,9 +86,9 @@ for my $incdir ( $lms_inc, @check ) {
         $LMS = 1;
         $lms_inc = $incdir;
 
-        push @INC, '-I' . $lms_inc;
+        unshift @INC, '-I' . $lms_inc;
         if ($lms_lib) {
-            push @LIBPATH, '-L' . $lms_lib;
+            unshift @LIBPATH, '-L' . $lms_lib;
         }
 
         if ($static) {
@@ -97,7 +100,7 @@ for my $incdir ( $lms_inc, @check ) {
             }
         }
         else {
-            push @LIBS, '-lmediascan';
+            unshift @LIBS, '-lmediascan';
         }
 
         print "Using libmediascan from $lms_inc\n";
@@ -120,12 +123,12 @@ for my $incdir ( $ffmpeg_inc, @check ) {
     if ( $incdir && -e catfile($incdir, 'libavformat', 'avformat.h') ) {
         $FFMPEG = 1;
         $ffmpeg_inc = $incdir;
-        
-        push @INC, '-I' . $ffmpeg_inc;
+
+        unshift @INC, '-I' . $ffmpeg_inc;
         if ($ffmpeg_lib) {
-            push @LIBPATH, '-L' . $ffmpeg_lib;
+            unshift @LIBPATH, '-L' . $ffmpeg_lib;
         }
-        
+
         if ($static) {
             if ($ffmpeg_lib) {
                 $MYEXTLIB .= $ffmpeg_lib . '/' . 'libavformat$(LIB_EXT) ';
@@ -139,13 +142,13 @@ for my $incdir ( $ffmpeg_inc, @check ) {
                 $MYEXTLIB .= $ffmpeg_inc . '/../lib/libswscale$(LIB_EXT) ';
                 $MYEXTLIB .= $ffmpeg_inc . '/../lib/libavutil$(LIB_EXT) ';
             }
-            
+
             push @LIBS, '-lm -lz';
         }
         else {
             push @LIBS, '-lavformat -lavcodec -lm -lz -lswscale -lavutil';
         }
-        
+
         print "Using ffmpeg from $ffmpeg_inc\n";
         last;
     }
@@ -160,12 +163,12 @@ for my $incdir ( $exif_inc, @check ) {
     if ( $incdir && -e catfile($incdir, 'libexif', 'exif-data.h') ) {
         $EXIF = 1;
         $exif_inc = $incdir;
-        
-        push @INC, '-I' . $exif_inc;
+
+        unshift @INC, '-I' . $exif_inc;
         if ($exif_lib) {
-            push @LIBPATH, '-L' . $exif_lib;
+            unshift @LIBPATH, '-L' . $exif_lib;
         }
-        
+
         if ($static) {
             if ($exif_lib) {
                 $MYEXTLIB .= $exif_lib . '/' . 'libexif$(LIB_EXT) ';
@@ -177,9 +180,11 @@ for my $incdir ( $exif_inc, @check ) {
         else {
             push @LIBS, '-lexif';
         }
-        
-        push @LIBS, '-lintl'; # XXX only if logging is used for exif
-        
+
+	if (!$omit_intl) {
+            push @LIBS, '-lintl'; # XXX only if logging is used for exif
+        }
+
         print "Using libexif from $exif_inc\n";
         last;
     }
@@ -194,12 +199,12 @@ for my $incdir ( $jpeg_inc, @check ) {
     if ( $incdir && -e catfile($incdir, 'jpeglib.h') ) {
         $JPEG = 1;
         $jpeg_inc = $incdir;
-        
-        push @INC, '-I' . $jpeg_inc;
+
+        unshift @INC, '-I' . $jpeg_inc;
         if ($jpeg_lib) {
-            push @LIBPATH, '-L' . $jpeg_lib;
+            unshift @LIBPATH, '-L' . $jpeg_lib;
         }
-        
+
         if ($static) {
             if ($jpeg_lib) {
                 $MYEXTLIB .= $jpeg_lib . '/' . 'libjpeg$(LIB_EXT) ';
@@ -211,7 +216,7 @@ for my $incdir ( $jpeg_inc, @check ) {
         else {
             push @LIBS, '-ljpeg';
         }
-        
+
         print "Using libjpeg from $jpeg_inc\n";
         last;
     }
@@ -226,12 +231,12 @@ for my $incdir ( $png_inc, @check ) {
     if ( $incdir && -e catfile($incdir, 'png.h') ) {
         $PNG = 1;
         $png_inc = $incdir;
-        
-        push @INC, '-I' . $png_inc;
+
+        unshift @INC, '-I' . $png_inc;
         if ($png_lib) {
-            push @LIBPATH, '-L' . $png_lib;
+            unshift @LIBPATH, '-L' . $png_lib;
         }
-        
+
         if ($static) {
             if ($png_lib) {
                 $MYEXTLIB .= $png_lib . '/' . 'libpng$(LIB_EXT) ';
@@ -243,7 +248,7 @@ for my $incdir ( $png_inc, @check ) {
         else {
             push @LIBS, '-lpng';
         }
-        
+
         print "Using libpng from $png_inc\n";
         last;
     }
@@ -253,42 +258,29 @@ if ( !$PNG ) {
     die "libpng not found, please install it and try again. Checked for png.h in: " . join(", ", $png_inc, @check) . "\n";
 }
 
-# Look for libgif
+# Look for giflib
 for my $incdir ( $gif_inc, @check ) {
     if ( $incdir && -e catfile($incdir, 'gif_lib.h') ) {
         $GIF = 1;
         $gif_inc = $incdir;
-        
-        push @INC, '-I' . $gif_inc;
+
+        unshift @INC, '-I' . $gif_inc;
         if ($gif_lib) {
-            push @LIBPATH, '-L' . $gif_lib;
+            unshift @LIBPATH, '-L' . $gif_lib;
         }
-        
-        # Look for libgif or libungif as a fallback
-        $gif_lib_name = 'gif';
-        for my $libdir ( $gif_lib, map { (my $p = $_) =~ s,/include,/lib,; $p } @check ) {
-            if ( glob("$libdir/libgif*") ) {
-                $gif_lib_name = 'gif';
-                last;
-            }
-            elsif ( glob("$libdir/libungif*") ) {
-                $gif_lib_name = 'ungif';
-                last;
-            }
-        }
-        
+
         if ($static) {
             if ($gif_lib) {
-                $MYEXTLIB .= $gif_lib . '/' . "lib${gif_lib_name}\$(LIB_EXT) ";
+                $MYEXTLIB .= $gif_lib . '/' . "libgif\$(LIB_EXT) ";
             }
             else {
-                $MYEXTLIB .= $gif_inc . "/../lib/lib${gif_lib_name}\$(LIB_EXT) ";
+                $MYEXTLIB .= $gif_inc . "/../lib/libgif\$(LIB_EXT) ";
             }
         }
         else {
-            push @LIBS, "-l${gif_lib_name}";
+            push @LIBS, "-lgif";
         }
-        
+
         print "Using libgif from $gif_inc\n";
         last;
     }
@@ -299,14 +291,14 @@ if ( !$GIF ) {
 }
 
 # Look for bdb
-for my $incdir ( $bdb_inc, '/usr/local/BerkeleyDB.5.1/include', @check ) {
+for my $incdir ( $bdb_inc, @check ) {
     if ( $incdir && -e catfile($incdir, 'db.h') ) {
         $BDB = 1;
         $bdb_inc = $incdir;
 
-        push @INC, '-I' . $bdb_inc;
+        unshift @INC, '-I' . $bdb_inc;
         if ($bdb_lib) {
-            push @LIBPATH, '-L' . $bdb_lib;
+            unshift @LIBPATH, '-L' . $bdb_lib;
         }
 
         if ($static) {
@@ -330,6 +322,16 @@ if ( !$BDB ) {
     die "BerkeleyDB not found, please install it and try again. Checked for db.h in: " . join(", ", $bdb_inc, @check) . "\n";
 }
 
+if ( $^O =~ /sun|solaris/i ) {
+    my $perlarchpath = $Config{archlib} . '/CORE';
+    unshift @LIBPATH, '-L' . $perlarchpath;
+    my $extralibs = '-lsocket -lperl';
+    unshift @LIBS, $extralibs;
+}
+
+push @LDDLFLAGS, $Config{lddlflags};
+unshift @LDDLFLAGS, '-Wl,-Bsymbolic' unless $^O =~ /sun|solaris|Darwin/i;
+
 MAKEFILE:
 
 if ( $^O =~ /Win32/i ) {
@@ -345,17 +347,30 @@ my %opts = (
     PREREQ_PM         => {
         'Test::Warn' => 0,
     },
-    ABSTRACT_FROM     => 'lib/Media/Scan.pm',
-    AUTHOR            => 'Andy Grundman <andy@slimdevices.com>',
+    ABSTRACT          => 'Library for scanning audio/video/image file metadata',
+    AUTHOR            => 'Andy Grundman <andy@hybridized.org>',
     INC               => join(' ', @INC),
+    LDDLFLAGS         => join(' ', @LDDLFLAGS),
     LIBS              => [ join(' ', @LIBPATH, @LIBS) ],
     DEFINE            => $DEFINES,
     MYEXTLIB          => $MYEXTLIB,
     depend            => { 'Scan.c' => "$xs_files" },
+    META_MERGE => {
+        'meta-spec' => { version => 2 },
+        resources => {
+            repository => {
+                type => 'git',
+                url  => 'https://github.com/andygrundman/libmediascan.git',
+                web  => 'https://github.com/andygrundman/libmediascan',
+            },
+        },
+    },
+    MIN_PERL_VERSION => 5.008,
+    LICENSE => 'gpl_2',
 );
 
 if ( $^O =~ /Win32/i ) {
-    $opts{LDDLFLAGS} = '-dll -nologo -nodefaultlib -opt:ref,icf  -libpath:"C:\Perl\lib\CORE" -machine:x86 -manifest -ManifestFile:$@.manifest';
+    $opts{LDDLFLAGS} = '-dll -nologo -nodefaultlib -opt:ref,icf  -libpath:"C:\Perl\lib\CORE" -machine:x86 -manifest -ManifestFile:$@.manifest -shared -Wl,-Bsymbolic';
 }
 
 WriteMakefile(%opts);

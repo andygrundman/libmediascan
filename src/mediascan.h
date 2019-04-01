@@ -168,4 +168,6 @@ int parse_lnk(const char *path, LPTSTR szTarget, SIZE_T cchTarget);
 
 #endif // WIN32
 
+int PathIsDirectory(const char *dir);
+
 #endif // MEDIASCAN_H

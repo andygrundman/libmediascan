@@ -92,116 +92,6 @@ static const char *VideoExts =
 static const char *ImageExts = ",jpg,png,gif,bmp,jpeg,jpe,";
 static const char *LnkExts = ",lnk,";
 
-#define REGISTER_DECODER(X,x) { \
-          extern AVCodec ff_##x##_decoder; \
-		  avcodec_register(&ff_##x##_decoder); }
-
-#define REGISTER_PARSER(X,x) { \
-          extern AVCodecParser ff_##x##_parser; \
-		  av_register_codec_parser(&ff_##x##_parser); }
-
-///-------------------------------------------------------------------------------------------------
-///  Register codecs to be used with ffmpeg.
-///
-/// @author Andy Grundman
-/// @date 03/15/2011
-///
-/// ### remarks .
-///-------------------------------------------------------------------------------------------------
-
-static void register_codecs(void) {
-  // Video codecs
-  REGISTER_DECODER(H263, h263);
-  REGISTER_DECODER(H264, h264);
-  REGISTER_DECODER(MPEG1VIDEO, mpeg1video);
-  REGISTER_DECODER(MPEG2VIDEO, mpeg2video);
-  REGISTER_DECODER(MPEG4, mpeg4);
-  REGISTER_DECODER(MSMPEG4V1, msmpeg4v1);
-  REGISTER_DECODER(MSMPEG4V2, msmpeg4v2);
-  REGISTER_DECODER(MSMPEG4V3, msmpeg4v3);
-  REGISTER_DECODER(VP6, vp6);
-  REGISTER_DECODER(VP6F, vp6f);
-  REGISTER_DECODER(VP8, vp8);
-  REGISTER_DECODER(WMV1, wmv1);
-  REGISTER_DECODER(WMV2, wmv2);
-  REGISTER_DECODER(WMV3, wmv3);
-  REGISTER_DECODER(MJPEG, mjpeg);
-  REGISTER_DECODER(MJPEGB, mjpegb);
-  REGISTER_DECODER(VC1, vc1);
-  REGISTER_DECODER(FLV, flv);
-
-
-  // Audio codecs, needed to get details of audio tracks in videos
-  REGISTER_DECODER(AAC, aac);
-  REGISTER_DECODER(AC3, ac3);
-  REGISTER_DECODER(DCA, dca);   // DTS
-  REGISTER_DECODER(MP2, mp2);
-  REGISTER_DECODER(MP3, mp3);
-  REGISTER_DECODER(VORBIS, vorbis);
-  REGISTER_DECODER(WMAPRO, wmapro);
-  REGISTER_DECODER(WMAV1, wmav1);
-  REGISTER_DECODER(WMAV2, wmav2);
-  REGISTER_DECODER(WMAVOICE, wmavoice);
-
-  // Not sure which PCM codecs we need
-  REGISTER_DECODER(PCM_DVD, pcm_dvd);
-  REGISTER_DECODER(PCM_S16BE, pcm_s16be);
-  REGISTER_DECODER(PCM_S16LE, pcm_s16le);
-  REGISTER_DECODER(PCM_S24BE, pcm_s24be);
-  REGISTER_DECODER(PCM_S24LE, pcm_s24le);
-
-  // Subtitles
-  REGISTER_DECODER(ASS, ass);
-  REGISTER_DECODER(DVBSUB, dvbsub);
-  REGISTER_DECODER(DVDSUB, dvdsub);
-  REGISTER_DECODER(PGSSUB, pgssub);
-  REGISTER_DECODER(XSUB, xsub);
-
-  // Parsers 
-  REGISTER_PARSER(AAC, aac);
-  REGISTER_PARSER(AC3, ac3);
-  REGISTER_PARSER(DCA, dca);    // DTS
-  REGISTER_PARSER(H263, h263);
-  REGISTER_PARSER(H264, h264);
-  REGISTER_PARSER(MPEG4VIDEO, mpeg4video);
-  REGISTER_PARSER(MPEGAUDIO, mpegaudio);
-  REGISTER_PARSER(MPEGVIDEO, mpegvideo);
-  REGISTER_PARSER(MJPEG, mjpeg);
-  REGISTER_PARSER(VC1, vc1);
-}                               /* register_codecs() */
-
-#define REGISTER_DEMUXER(X,x) { \
-  extern AVInputFormat ff_##x##_demuxer; \
-	av_register_input_format(&ff_##x##_demuxer); }
-#define REGISTER_PROTOCOL(X,x) { \
-  extern URLProtocol ff_##x##_protocol; \
-  av_register_protocol2(&ff_##x##_protocol, sizeof(ff_##x##_protocol)); }
-
-///-------------------------------------------------------------------------------------------------
-///  Registers the formats for FFmpeg.
-///
-/// @author Andy Grundman
-/// @date 03/15/2011
-///
-/// ### remarks .
-///-------------------------------------------------------------------------------------------------
-
-static void register_formats(void) {
-  // demuxers
-  REGISTER_DEMUXER(ASF, asf);
-  REGISTER_DEMUXER(AVI, avi);
-  REGISTER_DEMUXER(FLV, flv);
-  REGISTER_DEMUXER(H264, h264);
-  REGISTER_DEMUXER(MATROSKA, matroska);
-  REGISTER_DEMUXER(MOV, mov);
-  REGISTER_DEMUXER(MPEGPS, mpegps); // VOB files
-  REGISTER_DEMUXER(MPEGTS, mpegts);
-  REGISTER_DEMUXER(MPEGVIDEO, mpegvideo);
-
-  // protocols
-  REGISTER_PROTOCOL(FILE, file);
-}                               /* register_formats() */
-
 ///-------------------------------------------------------------------------------------------------
 ///  Initialises ffmpeg.
 ///
@@ -219,8 +109,6 @@ static void _init(void) {
   if (Initialized)
     return;
 
-  register_codecs();
-  register_formats();
 #ifdef WIN32
   pthread_win32_process_attach_np();
   pthread_win32_thread_attach_np();
@@ -1167,9 +1055,9 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type) {
     return;
   }
 
-#if defined(__APPLE__)
+#if (defined(__APPLE__) && defined(__MACH__))
   if (isAlias(full_path)) {
-    LOG_INFO("File is a mac alias\n");
+    LOG_INFO("File  %s is a mac alias\n", full_path);
     // Check if this file is a shortcut and if so resolve it
     if (!CheckMacAlias(full_path, tmp_full_path)) {
       LOG_ERROR("Failure to follow symlink or alias, skipping file\n");
@@ -1179,9 +1067,9 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type) {
   else {
     strcpy(tmp_full_path, full_path);
   }
-#elif defined(__linux__)
+#elif defined(__unix__) || defined(__unix)
   if (isAlias(full_path)) {
-    LOG_INFO("File is a linux symlink\n");
+    LOG_INFO("File %s is a unix symlink\n", full_path);
     // Check if this file is a shortcut and if so resolve it
     FollowLink(full_path, tmp_full_path);
   }
@@ -1212,8 +1100,8 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type) {
   // Setup DBT values
   memset(&key, 0, sizeof(DBT));
   memset(&data, 0, sizeof(DBT));
-  key.data = (char *)tmp_full_path;
-  key.size = strlen(tmp_full_path) + 1;
+  key.data = (char *)full_path;
+  key.size = strlen(full_path) + 1;
   data.data = &hash;
   data.size = sizeof(uint32_t);
 
@@ -1251,7 +1139,7 @@ void ms_scan_file(MediaScan *s, const char *full_path, enum media_type type) {
     return;
 
   r->type = type;
-  r->path = strdup(tmp_full_path);
+  r->path = strdup(full_path);
 
   if (result_scan(r)) {
     // These were determined by HashFile

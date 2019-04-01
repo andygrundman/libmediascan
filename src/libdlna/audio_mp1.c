@@ -31,7 +31,7 @@ audio_profile_guess_mp1 (AVCodecContext *ac)
   if (!ac)
     return AUDIO_PROFILE_INVALID;
 
-  if (ac->codec_id != CODEC_ID_MP1)
+  if (ac->codec_id != AV_CODEC_ID_MP1)
     return AUDIO_PROFILE_INVALID;
   
   if (ac->channels > 5)

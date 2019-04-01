@@ -46,39 +46,6 @@
 
 const char CODEC_MP1[] = "mp1";
 
-// *INDENT-OFF*
-static type_ext audio_types[] = {
-/*
-  {"mp4", {"mp4", "m4a", "m4b", "m4p", "m4v", "m4r", "k3g", "skm", "3gp", "3g2", "mov", 0}},
-  {"aac", {"aac", 0}},
-  {"mp3", {"mp3", "mp2", 0}},
-  {"ogg", {"ogg", "oga", 0}},
-  {"mpc", {"mpc", "mp+", "mpp", 0}},
-  {"ape", {"ape", "apl", 0}},
-  {"flc", {"flc", "flac", "fla", 0}},
-  {"asf", {"wma", "asf", "wmv", 0}},
-*/
-  {"wav", {"wav", "aif", "aiff", 0}},
-//  {"wvp", {"wv", 0}},
-  {0, {0, 0}}
-};
-
-static type_handler audio_handlers[] = {
-/*
-  { "mp4", get_mp4tags, 0, mp4_find_frame, mp4_find_frame_return_info },
-  { "aac", get_aacinfo, 0, 0, 0 },
-  { "mp3", get_mp3tags, get_mp3fileinfo, mp3_find_frame, 0 },
-  { "ogg", get_ogg_metadata, 0, ogg_find_frame, 0 },
-  { "mpc", get_ape_metadata, get_mpcfileinfo, 0, 0 },
-  { "ape", get_ape_metadata, get_macfileinfo, 0, 0 },
-  { "flc", get_flac_metadata, 0, flac_find_frame, 0 },
-  { "asf", get_asf_metadata, 0, asf_find_frame, 0 },
-  { "wav", wav_scan },
-  { "wvp", get_ape_metadata, get_wavpack_info, 0 },
-*/
-  {NULL, 0}
-};
-
 // MIME type extension mappings
 static const struct {
   const char *extensions;
@@ -103,7 +70,7 @@ static const struct {
 // http://tools.ietf.org/html/rfc2046
   { "mpg,mpeg,mpe,mp1,mp2,m1v,m2v,mpv,vob", "video/mpeg" },
   { "mp3,mla,m2a,mpa",          "audio/mpeg" },
-  
+ 
 // http://www.rfc-editor.org/rfc/rfc3555.txt
   { "m2t,m2ts,mp2t,mts,ts",     "video/mp2t" },
   { "m2p,mp2p,ps,pes",          "video/mp2p" },
@@ -122,8 +89,7 @@ static const struct {
 
 // http://tools.ietf.org/html/rfc2361
   { "wav",											"audio/vnd.wave" },
-	
-// http://real.custhelp.com/cgi-bin/real.cfg/php/enduser/std_adp.php?p_faqid=2559&p_created=&p_sid=uz4Tpoti&p_lva=1085179956&p_sp=2559&p_li=cF9zcmNoPTEmcF9zb3J0X2J5PSZwX2dyaWRzb3J0PSZwX3Jvd19jbnQ9MSZwX3Byb2RzPTMsMTEmcF9jYXRzPSZwX3B2PTIuMTEmcF9jdj0mcF9zZWFyY2hfdHlwZT1hbnN3ZXJzLmFfaWQmcF9wYWdlPTEmcF9zZWFyY2hfdGV4dD0yNTU5cF9zcmNoPTEmcF9zb3J0X2J5PSZwX2dyaWRzb3J0PSZwX3Jvd19jbnQ9MyZwX3Byb2RzPTMsMTEmcF9jYXRzPSZwX3B2PTIuMTEmcF9jdj0mcF9zZWFyY2hfdHlwZT1hbnN3ZXJzLnNlYXJjaF9ubCZwX3BhZ2U9MSZwX3NlYXJjaF90ZXh0PU1JTUU*&p_prod_lvl1=3&p_prod_lvl2=11&tabName=tab0&p_topview=1
+
   { "ra,ram",										"audio/vnd.rn-realaudio" },
 
 // http://en.wikipedia.org/wiki/WebM
@@ -135,10 +101,10 @@ static const struct {
 // http://tools.ietf.org/html/rfc4337
   { "mp4,m4p,m4b,m4r,m4v",			"video/mp4" },
   { "m4a",											"audio/mp4" },
-  
+ 
 // http://tools.ietf.org/html/rfc3839
   { "3gp,3gpp",                 "video/3gpp" },
-  
+ 
 // http://tools.ietf.org/html/rfc4393
   { "3g2,3gp2",                 "video/3gpp2" },
 
@@ -297,10 +263,11 @@ static int scan_video(MediaScanResult *r) {
   av_codecs_t *codecs = NULL;
   int AVError = 0;
   int ret = 1;
+  void *i = 0;
 
   if (r->flags & MS_USE_EXTENSION) {
     // Set AVInputFormat based on file extension to avoid guessing
-    while ((iformat = av_iformat_next(iformat))) {
+    while ((iformat = (AVInputFormat *)av_demuxer_iterate(&i))) {
       if (av_match_ext(r->path, iformat->name))
         break;
 
@@ -323,7 +290,7 @@ static int scan_video(MediaScanResult *r) {
 
   r->_avf = (void *)avf;
 
-  if ((AVError = av_find_stream_info(avf)) < 0) {
+  if ((AVError = avformat_find_stream_info(avf, NULL)) < 0) {
     r->error = error_create(r->path, MS_ERROR_READ, "[libavformat] Unable to find stream info");
     r->error->averror = AVError;
     ret = 0;
@@ -372,14 +339,14 @@ static int scan_video(MediaScanResult *r) {
     v->_codecs = (void *)codecs;
     v->_avc = (void *)c;
   }
-  else if (codecs->vc->codec_name[0] != '\0') {
-    v->codec = codecs->vc->codec_name;
+  else if (codecs->vc->codec_id != '\0') {
+    v->codec = avcodec_get_name(codecs->vc->codec_id);
   }
   else {
     char codec_tag_string[128];
 
     // Check for DRM files and ignore them
-    av_get_codec_tag_string(codec_tag_string, sizeof(codec_tag_string), codecs->vc->codec_tag);
+    av_fourcc_make_string(codec_tag_string, codecs->vc->codec_tag);
     if (!strcmp("drmi", codec_tag_string)) {
       r->error = error_create(r->path, MS_ERROR_READ, "Skipping DRM-protected video file");
       ret = 0;
@@ -403,12 +370,12 @@ static int scan_video(MediaScanResult *r) {
     if (ac) {
       a->codec = ac->name;
     }
-    else if (codecs->ac->codec_name[0] != '\0') {
-      a->codec = codecs->ac->codec_name;
+    else if (codecs->ac->codec_id != '\0') {
+      a->codec = avcodec_get_name(codecs->ac->codec_id);
     }
     // Special case for handling MP1 audio streams which FFMPEG can't identify a codec for
-    else if (codecs->ac->codec_id == CODEC_ID_MP1) {
-      a->codec = CODEC_MP1;
+    else if (codecs->ac->codec_id == AV_CODEC_ID_MP1) {
+      a->codec = avcodec_get_name(AV_CODEC_ID_MP1);
     }
     else {
       a->codec = "Unknown";
@@ -632,7 +599,7 @@ void result_destroy(MediaScanResult *r) {
     tag_destroy(r->_tag);
 
   if (r->_avf) {
-    av_close_input_file(r->_avf);
+    avformat_close_input(r->_avf);
   }
 
   if (r->_fp)
@@ -667,7 +634,7 @@ void ms_dump_result(MediaScanResult *r) {
   LOG_OUTPUT("%s\n", r->path);
   LOG_OUTPUT("  MIME type:    %s\n", r->mime_type);
   LOG_OUTPUT("  DLNA profile: %s\n", r->dlna_profile);
-  LOG_OUTPUT("  File size:    %llu\n", r->size);
+  LOG_OUTPUT("  File size:    %"PRIu64"\n", r->size);
   LOG_OUTPUT("  Modified:     %d\n", r->mtime);
   if (r->bitrate)
     LOG_OUTPUT("  Bitrate:      %d bps\n", r->bitrate);
@@ -739,7 +706,7 @@ get_type_handler(char *ext, type_ext *types, type_handler *handlers)
   int typeindex = -1;
   int i, j;
   type_handler *hdl = NULL;
-  
+ 
   for (i = 0; typeindex == -1 && types[i].type; i++) {
     for (j = 0; typeindex == -1 && types[i].ext[j]; j++) {
 #ifdef _MSC_VER
@@ -752,18 +719,18 @@ get_type_handler(char *ext, type_ext *types, type_handler *handlers)
       }
     }
   }
-  
+ 
   LOG_DEBUG("typeindex: %d\n", typeindex);
-    
+
   if (typeindex > -1) {
     for (hdl = handlers; hdl->type; ++hdl)
       if (!strcmp(hdl->type, types[typeindex].type))
         break;
   }
-  
+ 
   if (hdl)
     LOG_DEBUG("type handler: %s\n", hdl->type);
-  
+ 
   return hdl;
 }
 
@@ -773,11 +740,11 @@ scan_audio(ScanData s)
   char *ext = strrchr(s->path, '.');
   if (ext == NULL)
     return;
-  
+ 
   type_handler *hdl = get_type_handler(ext + 1, audio_types, audio_handlers);
   if (hdl == NULL)
     return;
-  
+ 
   // Open the file unless we already have an open fd
   int opened = s->fp != NULL;
   if (!opened) {
@@ -794,7 +761,7 @@ scan_audio(ScanData s)
     fclose(s->fp);
     s->fp = NULL;
   }
-  
+
   return;
 }
 */

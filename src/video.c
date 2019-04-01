@@ -13,6 +13,7 @@
 #endif
 
 #include <libavformat/avformat.h>
+#include <libavutil/imgutils.h>
 #include <libswscale/swscale.h>
 
 #ifdef _MSC_VER
@@ -56,7 +57,7 @@ MediaScanImage *video_create_image_from_frame(MediaScanVideo *v, MediaScanResult
   AVFrame *frame = NULL;
   AVPacket packet;
   struct SwsContext *swsc = NULL;
-  int got_picture;
+  int got_picture = 0;
   int64_t duration_tb = ((double)avf->duration / AV_TIME_BASE) / av_q2d(codecs->vs->time_base);
   uint8_t *src;
   int x, y;
@@ -64,12 +65,12 @@ MediaScanImage *video_create_image_from_frame(MediaScanVideo *v, MediaScanResult
   int no_keyframe_found = 0;
   int skipped_frames = 0;
 
-  if ((avcodec_open(codecs->vc, codec)) < 0) {
+  if ((avcodec_open2(codecs->vc, codec, NULL)) < 0) {
     LOG_ERROR("Couldn't open video codec %s for thumbnail creation\n", codec->name);
     goto err;
   }
 
-  frame = avcodec_alloc_frame();
+  frame = av_frame_alloc();
   if (!frame) {
     LOG_ERROR("Couldn't allocate a video frame\n");
     goto err;
@@ -121,29 +122,29 @@ MediaScanImage *video_create_image_from_frame(MediaScanVideo *v, MediaScanResult
 
     // Skip frame if it's not from the video stream
     if (!no_keyframe_found && packet.stream_index != codecs->vsid) {
-      av_free_packet(&packet);
+      av_packet_unref(&packet);
       skipped_frames++;
       continue;
     }
 
     // Skip non-key-frames
     if (!no_keyframe_found && !(packet.flags & AV_PKT_FLAG_KEY)) {
-      av_free_packet(&packet);
+      av_packet_unref(&packet);
       skipped_frames++;
       continue;
     }
 
     // Skip invalid packets, not sure why this isn't an error from av_read_frame
     if (packet.pos < 0) {
-      av_free_packet(&packet);
+      av_packet_unref(&packet);
       skipped_frames++;
       continue;
     }
 
-    LOG_DEBUG("Using video packet: pos %lld size %d, stream_index %d, duration %d\n",
+    LOG_DEBUG("Using video packet: pos %"PRIi64" size %d, stream_index %d, duration %"PRIi64"\n",
               packet.pos, packet.size, packet.stream_index, packet.duration);
 
-    if ((ret = avcodec_decode_video2(codecs->vc, frame, &got_picture, &packet)) < 0) {
+    if (((ret = avcodec_send_packet(codecs->vc, &packet)) < 0) || ((ret = avcodec_receive_frame(codecs->vc, frame)) < 0)) {
       LOG_ERROR("Error decoding video frame for thumbnail: %s\n", v->path);
       print_averror(ret);
       goto err;
@@ -156,7 +157,7 @@ MediaScanImage *video_create_image_from_frame(MediaScanVideo *v, MediaScanResult
       }
       if (!no_keyframe_found) {
         // Try next frame
-        av_free_packet(&packet);
+        av_packet_unref(&packet);
         skipped_frames++;
         continue;
       }
@@ -165,13 +166,13 @@ MediaScanImage *video_create_image_from_frame(MediaScanVideo *v, MediaScanResult
     // use swscale to convert from source format to RGBA in our buffer with no resizing
     // XXX what scaler is fastest here when not actually resizing?
     swsc = sws_getContext(i->width, i->height, codecs->vc->pix_fmt,
-                          i->width, i->height, PIX_FMT_RGB24, SWS_FAST_BILINEAR, NULL, NULL, NULL);
+                          i->width, i->height, AV_PIX_FMT_RGB24, SWS_FAST_BILINEAR, NULL, NULL, NULL);
     if (!swsc) {
       LOG_ERROR("Unable to get swscale context\n");
       goto err;
     }
 
-    frame_rgb = avcodec_alloc_frame();
+    frame_rgb = av_frame_alloc();
     if (!frame_rgb) {
       LOG_ERROR("Couldn't allocate a video frame\n");
       goto err;
@@ -179,8 +180,8 @@ MediaScanImage *video_create_image_from_frame(MediaScanVideo *v, MediaScanResult
 
     // XXX There is probably a way to get sws_scale to write directly to i->_pixbuf in our RGBA format
 
-    rgb_bufsize = avpicture_get_size(PIX_FMT_RGB24, i->width, i->height);
-    rgb_buffer = av_malloc(rgb_bufsize);
+    rgb_bufsize = av_image_get_buffer_size(AV_PIX_FMT_RGB24, i->width, i->height, 1);
+    rgb_buffer = (uint8_t*)av_malloc(rgb_bufsize);
     if (!rgb_buffer) {
       LOG_ERROR("Couldn't allocate an RGB video buffer\n");
       av_free(frame_rgb);
@@ -188,10 +189,10 @@ MediaScanImage *video_create_image_from_frame(MediaScanVideo *v, MediaScanResult
     }
     LOG_MEM("new rgb_buffer of size %d @ %p\n", rgb_bufsize, rgb_buffer);
 
-    avpicture_fill((AVPicture *)frame_rgb, rgb_buffer, PIX_FMT_RGB24, i->width, i->height);
+    av_image_fill_arrays( frame_rgb->data, frame_rgb->linesize, rgb_buffer, AV_PIX_FMT_RGB24, i->width, i->height, 1);
 
     // Convert image to RGB24
-    sws_scale(swsc, frame->data, frame->linesize, 0, i->height, frame_rgb->data, frame_rgb->linesize);
+    sws_scale(swsc, (const uint8_t *const *)frame->data, frame->linesize, 0, i->height, frame_rgb->data, frame_rgb->linesize);
 
     // Allocate space for our version of the image
     image_alloc_pixbuf(i, i->width, i->height);
@@ -221,7 +222,7 @@ err:
 
 out:
   sws_freeContext(swsc);
-  av_free_packet(&packet);
+  av_packet_unref(&packet);
   if (frame)
     av_free(frame);
 

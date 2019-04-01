@@ -164,7 +164,6 @@ dlna_init (void)
   dlna->first_profile = NULL;
   
   /* register all FFMPEG demuxers */
-  av_register_all ();
 
   return dlna;
 }
@@ -212,13 +211,13 @@ av_profile_get_codecs (AVFormatContext *ctx)
   for (i = 0; i < ctx->nb_streams; i++)
   {
     if (audio_stream == -1 &&
-        ctx->streams[i]->codec->codec_type == AVMEDIA_TYPE_AUDIO)
+        ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO)
     {
       audio_stream = i;
       continue;
     }
     else if (video_stream == -1 &&
-             ctx->streams[i]->codec->codec_type == AVMEDIA_TYPE_VIDEO)
+             ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO)
     {
       video_stream = i;
       continue;
@@ -226,11 +225,15 @@ av_profile_get_codecs (AVFormatContext *ctx)
   }
 
   codecs->as = audio_stream >= 0 ? ctx->streams[audio_stream] : NULL;
-  codecs->ac = audio_stream >= 0 ? ctx->streams[audio_stream]->codec : NULL;
+  if ((audio_stream < 0) || (avcodec_parameters_to_context(codecs->ac, ctx->streams[audio_stream]->codecpar) < 0)) {
+    codecs->ac = NULL;
+  }
   codecs->asid = audio_stream;
 
   codecs->vs = video_stream >= 0 ? ctx->streams[video_stream] : NULL;
-  codecs->vc = video_stream >= 0 ? ctx->streams[video_stream]->codec : NULL;
+  if ((video_stream < 0) || (avcodec_parameters_to_context(codecs->vc, ctx->streams[video_stream]->codecpar) < 0)) {
+    codecs->vc = NULL;
+  }
   codecs->vsid = video_stream;
 
   /* check for at least one video stream and one audio stream in container */
@@ -296,7 +299,7 @@ dlna_guess_media_profile (dlna_t *dlna, const char *filename)
     return NULL;
   }
 
-  if (av_find_stream_info (ctx) < 0)
+  if (avformat_find_stream_info(ctx, NULL) < 0)
   {
     if (dlna->verbosity)
       fprintf (stderr, "can't find stream info\n");
@@ -343,7 +346,7 @@ dlna_guess_media_profile (dlna_t *dlna, const char *filename)
     p = p->next;
   }
 
-  av_close_input_file (ctx);
+  avformat_close_input(&ctx);
   free (codecs);
   return profile;
 }

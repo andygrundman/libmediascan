@@ -2,12 +2,13 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_INIT([libmediascan],[0.1],[andy@hybridized.org])
-AM_INIT_AUTOMAKE([-Wall -Werror])
+AC_INIT([libmediascan],[0.2])
+AC_CANONICAL_SYSTEM
+AC_CONFIG_AUX_DIR([.])
+AM_INIT_AUTOMAKE([-Wall -Werror subdir-objects])
+AM_PROG_AR([ar gar])
 LT_PREREQ([2.4])
 LT_INIT
-
-AC_CANONICAL_SYSTEM
 
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([src/mediascan.c])
@@ -50,16 +51,32 @@ CFLAGS="-I$bdbdir/include $CFLAGS"
 
 case "$target_os" in
 	*darwin*)
-AM_CONDITIONAL(LINUX, false)
+AM_CONDITIONAL(DARWIN, true)
+AM_CONDITIONAL(LINUXBSD, false)
+AM_CONDITIONAL(SUN, false)
 LDFLAGS="-framework CoreFoundation -framework CoreServices -framework Carbon -L$bdbdir/lib $LDFLAGS"
 ;;
-	*)
-AM_CONDITIONAL(LINUX, true)
+	*solaris*)
+AM_CONDITIONAL(DARWIN, false)
+AM_CONDITIONAL(LINUXBSD, false)
+AM_CONDITIONAL(SUN, true)
+LDFLAGS="-L$bdbdir/lib $LDFLAGS"
+;;
+        *linux*)
+AM_CONDITIONAL(DARWIN, false)
+AM_CONDITIONAL(LINUXBSD, true)
+AM_CONDITIONAL(SUN, false)
+LDFLAGS="-L$bdbdir/lib $LDFLAGS"
+;;
+        *bsd*)
+AM_CONDITIONAL(DARWIN, false)
+AM_CONDITIONAL(LINUXBSD, true)
+AM_CONDITIONAL(SUN, false)
 LDFLAGS="-L$bdbdir/lib $LDFLAGS"
 ;;
 esac	
 
-AC_SEARCH_LIBS([db_create], [db], [] ,[AC_MSG_ERROR(cannot find libdb.so in $bdbdir/lib)])
+AC_SEARCH_LIBS([db_create], [db], [], [AC_MSG_ERROR(cannot find libdb in $bdbdir/lib)])
 AC_CHECK_HEADERS([db.h], [] ,[AC_MSG_ERROR(cannot find db.h in $bdbdir/include)])
 
 # Checks for typedefs, structures, and compiler characteristics.

@@ -12,10 +12,17 @@ aclocal.m4
 autom4te.cache
 compile
 config.h
+config.h.in~
 config.log
 config.status
+configure.scan
 stamp-*
-m4/*
+m4
+libemdiascan-*
+libtool
+Makefile.in
+src/jenkins/.dirstamp
+src/libdlna/.dirstamp
 
 # Mac files
 .DS_Store
